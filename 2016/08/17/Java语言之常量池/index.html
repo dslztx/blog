@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍Java语言中经常提及的“字符串常量池”，“包装器类常量池”和“运行时常量池”。不同JDK版本，采用的机制和实现有可能不同，本文选定JDK7版本。 一、字符串常量池1.1、概念字符串常量池，英文名称为“String Literal Pool”或者“String Constant Pool”，处于Java堆中，是相应的复用String实例对象机制中逻辑上划分得到的一块内存区域。具体为：Jav">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java语言之常量池">
+<meta property="og:url" content="https://dslztx.github.io/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍Java语言中经常提及的“字符串常量池”，“包装器类常量池”和“运行时常量池”。不同JDK版本，采用的机制和实现有可能不同，本文选定JDK7版本。 一、字符串常量池1.1、概念字符串常量池，英文名称为“String Literal Pool”或者“String Constant Pool”，处于Java堆中，是相应的复用String实例对象机制中逻辑上划分得到的一块内存区域。具体为：Jav">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160817-0-1.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160817-0-2.png">
+<meta property="article:published_time" content="2016-08-17T11:02:49.000Z">
+<meta property="article:modified_time" content="2016-08-17T11:02:49.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="常量池">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://107.182.16.103/imgs/20160817-0-1.png">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java语言之常量池 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cb8c993dab2bca9ba64db302288850df";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java语言之常量池
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-08-17 19:02:49" itemprop="dateCreated datePublished" datetime="2016-08-17T19:02:49+08:00">2016-08-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/17/Java语言之常量池/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍Java语言中经常提及的“字符串常量池”，“包装器类常量池”和“运行时常量池”。<font color='red'>不同JDK版本，采用的机制和实现有可能不同，本文选定JDK7版本。</font></p>
+<h2 id="一、字符串常量池"><a href="#一、字符串常量池" class="headerlink" title="一、字符串常量池"></a><strong>一、字符串常量池</strong></h2><h3 id="1-1、概念"><a href="#1-1、概念" class="headerlink" title="1.1、概念"></a><strong>1.1、概念</strong></h3><p>字符串常量池，英文名称为“String Literal Pool”或者“String Constant Pool”，处于Java堆中，是相应的复用String实例对象机制中<font color='red'>逻辑上</font>划分得到的一块内存区域。<br><strong>具体为：</strong><br>Java堆中现有一个String实例对象aa0，它的引用值为ab0，欲新建一个String实例对象引用变量ac0，它引用到的String实例对象包含的字符串跟aa0包含的字符串一致，有两种方案：1）在Java堆中，新建一个String实例对象aa1，aa1包含的字符串跟aa0包含的字符串一致，它的引用值为ab1，令ac0=ab1；2）Java堆中维护一个String实例对象引用值集合，其中存储一些String实例对象的引用值，这里先存储aa0的引用值ab0，现在可以遍历查询该集合，获得ab0，令ac0=ab0，达到目的。<br>以上两个方案中，方案2相较于方案1能够复用String实例对象，从而节省Java堆内存。方案2中涉及到的“存储String实例对象引用值的集合”和“所有集合中引用值引用到的String实例对象”构成<font color='red'>逻辑上</font>的“字符串常量池”内存区域。示意图如图1所示。</p>
+<p>图1</p>
+<p><img src="http://107.182.16.103/imgs/20160817-0-1.png"></p>
+<h3 id="1-2、可行性分析"><a href="#1-2、可行性分析" class="headerlink" title="1.2、可行性分析"></a><strong>1.2、可行性分析</strong></h3><p>Java语言中，String实例对象不可修改，因此，“多个String实例对象引用变量引用同一个String实例对象”在节省Java堆内存的情况下，并不会带来任何问题。</p>
+<h3 id="1-3、实际运行过程"><a href="#1-3、实际运行过程" class="headerlink" title="1.3、实际运行过程"></a><strong>1.3、实际运行过程</strong></h3><p>在实际运行过程中，有以下4个关键概念点。</p>
+<ol>
+<li>上述提及的“存储String实例对象引用值的集合”实际上是一个类似于<code>Map&lt;Integer,List&lt;String&gt;&gt;</code>的对象（实际中是一个StringTable类型的对象）。它的key为hashCode值，它的value为具有对应的hashCode值的一系列String实例对象的引用值集合</li>
+<li>调用String类的“intern()”本地方法，是唯一的与“字符串常量池”内存区域进行作用的途径</li>
+<li>只有String实例对象才能调用String类的“intern()”本地方法，因此，使用“字符串常量池”机制，虽然最终可以复用String实例对象，但是中间过程中生成“临时的String实例对象”在所难免，这些“临时的String实例对象”最后由于“引用不可达”而被垃圾回收</li>
+<li>对每一个字符串字面量（如“hello”，“world”等以直接形式给出的字符串），JVM会创建一个String实例对象，然后自动隐式调用其上的“intern()”方法</li>
+</ol>
+<p>下面代码给出了String类中“intern()”方法的大致实现逻辑：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public class String &#123;</span><br><span class="line"></span><br><span class="line">    Map&lt;Integer, List&lt;String&gt;&gt; stringTable;</span><br><span class="line"></span><br><span class="line">    public String intern() &#123;</span><br><span class="line">        int hv &#x3D; this.hashCode();</span><br><span class="line"></span><br><span class="line">        if (stringTable.get(hv) &#x3D;&#x3D; null) &#123;</span><br><span class="line">            stringTable.put(hv, new ArrayList&lt;String&gt;());</span><br><span class="line">            stringTable.get(hv).add(this);</span><br><span class="line">            return this;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; list &#x3D; stringTable.get(hv);</span><br><span class="line">        for (String s : list) &#123;</span><br><span class="line">            if (s.equals(this)) &#123;</span><br><span class="line">                return s;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        list.add(this);</span><br><span class="line">        return this;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>备注：</strong><br>“intern()”方法是一个本地方法，实际采用C/C++语言实现，以上代码只是为了便于介绍。</p>
+<h3 id="1-4、实验代码"><a href="#1-4、实验代码" class="headerlink" title="1.4、实验代码"></a><strong>1.4、实验代码</strong></h3><p>实验代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">package com.dslztx;</span><br><span class="line"></span><br><span class="line">public class StringLiteralPoolExp &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 运行时，字符串字面量自动隐式调用“intern()”方法</span><br><span class="line">     *&#x2F;</span><br><span class="line">    private static String a &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 运行时，字符串字面量自动隐式调用“intern()”方法，因此a与b指向同一块内存</span><br><span class="line">         *&#x2F;</span><br><span class="line">        String b &#x3D; &quot;hello&quot;;</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; b);</span><br><span class="line"></span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 运行时，显式调用“intern()”方法，因此a与c指向同一块内存</span><br><span class="line">         *&#x2F;</span><br><span class="line">        String c &#x3D; &quot;hello&quot;.intern();</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; c);</span><br><span class="line"></span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 运行时，显式调用“intern()”方法，因此a与d指向同一块内存</span><br><span class="line">         *&#x2F;</span><br><span class="line">        String d &#x3D; new String(&quot;hello&quot;).intern();</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; d);</span><br><span class="line"></span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 运行时，“hello”字符串字面量虽然会自动隐式调用“intern()”方法，但是整体“new String(“hello&quot;)”创建一个新的String实例对象，它的内容为“hello”，因此a与e指向不同块内存</span><br><span class="line">         *&#x2F;</span><br><span class="line">        String e &#x3D; new String(&quot;hello&quot;);</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">true</span><br><span class="line">true</span><br><span class="line">true</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<h2 id="二、包装器类常量池"><a href="#二、包装器类常量池" class="headerlink" title="二、包装器类常量池"></a><strong>二、包装器类常量池</strong></h2><p>同样基于节省内存的考虑，“Boolean，Character，Byte，Short，Integer，Long”这几个基本类型的包装器类提供实现了常量池机制，具体可查看相应类的“valueOf()”方法。<br>接下来，以Integer类为例进行说明。Integer类中相关代码部分如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">import java.util.Properties;</span><br><span class="line"></span><br><span class="line">public class Integer &#123;</span><br><span class="line"></span><br><span class="line">    private static String integerCacheHighPropValue;</span><br><span class="line"></span><br><span class="line">    static void getAndRemoveCacheProperties() &#123;</span><br><span class="line">        if (!sun.misc.VM.isBooted()) &#123;</span><br><span class="line">            Properties props &#x3D; System.getProperties();</span><br><span class="line">            integerCacheHighPropValue &#x3D;</span><br><span class="line">                    (String)props.remove(&quot;java.lang.Integer.IntegerCache.high&quot;);</span><br><span class="line">            if (integerCacheHighPropValue !&#x3D; null)</span><br><span class="line">                System.setProperties(props);  &#x2F;&#x2F; remove from system props</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class IntegerCache &#123;</span><br><span class="line">        static final int high;</span><br><span class="line">        static final Integer cache[];</span><br><span class="line"></span><br><span class="line">        static &#123;</span><br><span class="line">            final int low &#x3D; -128;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F; high value may be configured by property</span><br><span class="line">            int h &#x3D; 127;</span><br><span class="line">            if (integerCacheHighPropValue !&#x3D; null) &#123;</span><br><span class="line">                &#x2F;&#x2F; Use Long.decode here to avoid invoking methods that</span><br><span class="line">                &#x2F;&#x2F; require Integer&#39;s autoboxing cache to be initialized</span><br><span class="line">                int i &#x3D; Long.decode(integerCacheHighPropValue).intValue();</span><br><span class="line">                i &#x3D; Math.max(i, 127);</span><br><span class="line">                &#x2F;&#x2F; Maximum array size is Integer.MAX_VALUE</span><br><span class="line">                h &#x3D; Math.min(i, Integer.MAX_VALUE - -low);</span><br><span class="line">            &#125;</span><br><span class="line">            high &#x3D; h;</span><br><span class="line"></span><br><span class="line">            cache &#x3D; new Integer[(high - low) + 1];</span><br><span class="line">            int j &#x3D; low;</span><br><span class="line">            for (int k &#x3D; 0; k &lt; cache.length; k++)</span><br><span class="line">                cache[k] &#x3D; new Integer(j++);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        private IntegerCache() &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static Integer valueOf(int i) &#123;</span><br><span class="line">        if (i &gt;&#x3D; -128 &amp;&amp; i &lt;&#x3D; IntegerCache.high)</span><br><span class="line">            return IntegerCache.cache[i + 128];</span><br><span class="line">        else</span><br><span class="line">            return new Integer(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据以上Integer类源代码可知，使用“valueOf(int i)”方法获取“-128到IntegerCache.high”之间的Integer实例对象，最后获取到的实例对象来自Integer类常量池。<br>另外，对于“Boolean，Character，Byte，Short，Integer，Long”这些包装器类相应的基本类型的字面量值，Java采用了跟String一样的机制：运行时，都会自动隐式调用一个类似于“intern()”方法的方法，此时，这个类似于“intern()”方法的方法跟相应类的常量池产生联系。<font color='red'>由这些包装器类的源代码可知，常量池只存储了一定范围内的值，这也就限制了能够使用常量池机制的字面量值的范围。</font></p>
+<h3 id="2-1、实验代码"><a href="#2-1、实验代码" class="headerlink" title="2.1、实验代码"></a><strong>2.1、实验代码</strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">package com.dslztx;</span><br><span class="line"></span><br><span class="line">public class IntegerLiteralPool &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        &#x2F;&#x2F; 查看“Integer.valueOf(int i)”的源代码</span><br><span class="line">        Integer a &#x3D; Integer.valueOf(100);</span><br><span class="line">        Integer b &#x3D; Integer.valueOf(100);</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; b);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 运行时，“100”整型字面量会自动隐式调用一个类似于“intern()”方法的方法，因此a与c指向同一块内存</span><br><span class="line">        Integer c &#x3D; 100;</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; c);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 运行时，“100”整型字面量虽然会自动隐式调用一个类似于“intern()”方法的方法，但是整体“new Integer(100)”创建一个新的Integer实例对象，它的值为“100”，因此a与d指向不同块内存</span><br><span class="line">        Integer d &#x3D; new Integer(100);</span><br><span class="line">        System.out.println(a &#x3D;&#x3D; d);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">true</span><br><span class="line">true</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<h2 id="三、运行时常量池"><a href="#三、运行时常量池" class="headerlink" title="三、运行时常量池"></a><strong>三、运行时常量池</strong></h2><p>运行时常量池，英文名称为“Runtime Constant Pool”。Class文件中有一部分信息是常量池，它的英文名称为“Constant Pool Table”，在运行时，它其中的内容会被载入到相应的运行时常量池中。由以上可知，在运行时，一个Class文件的常量池对应一个运行时常量池。</p>
+<h2 id="四、三者的区分"><a href="#四、三者的区分" class="headerlink" title="四、三者的区分"></a><strong>四、三者的区分</strong></h2><p>字符串常量池，包装器类常量池和运行时常量池区分如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>常量池名称</th>
+<th>所处内存区域</th>
+<th>存储内容</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字符串常量池</td>
+<td>Java堆</td>
+<td>“存储String实例对象引用值的集合”和“所有集合中引用值引用到的String实例对象”</td>
+<td>复用String实例对象，节省内存</td>
+</tr>
+<tr>
+<td>包装器类常量池</td>
+<td>Java堆和方法区</td>
+<td>除了Boolean类之外，存储数组实例对象引用值的静态变量处于方法区中，数组实例对象处于Java堆中，包装器类实例对象处于Java堆中；Boolean类中，TRUE和FALSE这两个静态变量存储于方法区中</td>
+<td>复用包装器类实例对象，节省内存</td>
+</tr>
+<tr>
+<td>运行时常量池</td>
+<td>方法区</td>
+<td>存储运行时载入的Class文件中的常量池内容</td>
+<td>一个Class文件的常量池对应一个运行时常量池</td>
+</tr>
+</tbody></table>
+<h2 id="五、JDK6中的字符串常量池机制和实现"><a href="#五、JDK6中的字符串常量池机制和实现" class="headerlink" title="五、JDK6中的字符串常量池机制和实现"></a><strong>五、JDK6中的字符串常量池机制和实现</strong></h2><p>JDK6中的“字符串常量池机制和实现”跟JDK7中的“字符串常量池机制和实现”相比有很大不同。</p>
+<ul>
+<li>在JDK7的“字符串常量池机制和实现”中，“字符串常量池”内存区域处于Java堆中；而在JDK6的“字符串常量池机制和实现”中，“字符串常量池”内存区域处于方法区中</li>
+<li>JDK7中的“intern()”方法的实现逻辑是：如果StringTable对象中没有一个引用值指向的String实例对象与当前String实例对象的内容相同，那么在StringTable对象中新建一个引用值变量，存储当前String实例对象的引用值，否则返回已存在的引用值；而JDK6中的“intern()”方法的实现逻辑是：如果StringTable对象中没有一个引用值指向的String实例对象（如果存在，处于“字符串常量池”中）与当前String实例对象（处于Java堆中）的内容相同，<font color='red'>那么在“字符串常量池”中复制新建一个String实例对象</font>和一个引用值变量，该String实例对象的内容（处于“字符串常量池”中）与当前String实例对象（处于Java堆中）的内容相同，该引用值变量存储该复制新建String实例对象的引用值，否则返回已存在的引用值</li>
+</ul>
+<p>JDK6中的“字符串常量池机制”示意图如图2所示。</p>
+<p>图2</p>
+<p><img src="http://107.182.16.103/imgs/20160817-0-2.png"></p>
+<h3 id="5-1、证明实验1"><a href="#5-1、证明实验1" class="headerlink" title="5.1、证明实验1"></a><strong>5.1、证明实验1</strong></h3><p>有如下一段代码，分别使用JDK6和JDK7执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class RuntimeConstantPoolExp &#123;</span><br><span class="line">    private static final String a &#x3D; &quot;java&quot;;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        String str1 &#x3D; new StringBuilder(&quot;计算机&quot;).append(&quot;软件&quot;).toString();</span><br><span class="line">        System.out.println(str1.intern() &#x3D;&#x3D; str1);</span><br><span class="line"></span><br><span class="line">        String str2 &#x3D; new StringBuilder(&quot;ja&quot;).append(&quot;va&quot;).toString();</span><br><span class="line">        System.out.println(str2.intern() &#x3D;&#x3D; str2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-1-1、使用JDK6执行"><a href="#5-1-1、使用JDK6执行" class="headerlink" title="5.1.1、使用JDK6执行"></a><strong>5.1.1、使用JDK6执行</strong></h4><p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<p>在第一个判断中，由于“str1”指向Java堆中的String实例对象，而“str1.intern()”指向“字符串常量池”中的String实例对象，故而判断结果为“false”。<br>在第二个判断中，由于“str2”指向Java堆中的String实例对象，而“str2.intern()”指向“字符串常量池”中的String实例对象，故而判断结果也为“false”。</p>
+<h4 id="5-1-2、使用JDK7执行"><a href="#5-1-2、使用JDK7执行" class="headerlink" title="5.1.2、使用JDK7执行"></a><strong>5.1.2、使用JDK7执行</strong></h4><p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">true</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<p>在第一个判断中，由于“str1”和“str1.intern()”都指向Java堆中的同一个String实例对象，故而判断结果为“true”。<br>在第二个判断中，由于“str2”指向Java堆中的String实例，而“str2.intern()”指向Java堆中的另外一个String实例对象，故而判断结果为“false”。</p>
+<h3 id="5-2、证明实验2"><a href="#5-2、证明实验2" class="headerlink" title="5.2、证明实验2"></a><strong>5.2、证明实验2</strong></h3><p>另外有如下一段代码，分别使用JDK6和JDK7执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">public class RuntimeConstantPoolOOM &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int i &#x3D; 0;</span><br><span class="line">        try &#123;</span><br><span class="line">            List&lt;String&gt; list &#x3D; new ArrayList&lt;String&gt;();</span><br><span class="line">            while (true) &#123;</span><br><span class="line">                list.add(String.valueOf(i++).intern());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (Throwable e) &#123;</span><br><span class="line">            System.out.println(e.getMessage());</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            System.out.println(&quot;now i value is: &quot; + i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-2-1、使用JDK6执行"><a href="#5-2-1、使用JDK6执行" class="headerlink" title="5.2.1、使用JDK6执行"></a><strong>5.2.1、使用JDK6执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac RuntimeConstantPoolOOM.java</span><br><span class="line">java -XX:PermSize&#x3D;10M -XX:MaxPermSize&#x3D;10M -Xms50m -Xmx50m RuntimeConstantPoolOOM</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PermGen space</span><br><span class="line">now i value is: 217813</span><br></pre></td></tr></table></figure>
+<p>实验中方法区的内存使用量被设为固定的10M，而“字符串常量池”内存区域属于“方法区”，因此“字符串常量池”内存区域能够使用的内存上限也为10M。因此，当通过“String.valueOf(i++).intern()”方法不断消耗“字符串常量池”的内存时，最终导致出现“OutOfMemoryError”异常。另外在异常信息中，还提示“PermGen space”，这是因为在HotSpot虚拟机中，使用“永久代”来实现方法区。</p>
+<h4 id="5-2-2、使用JDK7执行"><a href="#5-2-2、使用JDK7执行" class="headerlink" title="5.2.2、使用JDK7执行"></a><strong>5.2.2、使用JDK7执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac RuntimeConstantPoolOOM.java</span><br><span class="line">java -XX:PermSize&#x3D;10M -XX:MaxPermSize&#x3D;10M -Xms50m -Xmx50m RuntimeConstantPoolOOM</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">now i value is: 951432</span><br><span class="line">Exception in thread &quot;main&quot; java.lang.OutOfMemoryError: Java heap space</span><br><span class="line">	at java.lang.String.valueOf(String.java:2954)</span><br><span class="line">	at RuntimeConstantPoolOOM.main(RuntimeConstantPoolOOM.java:10)</span><br></pre></td></tr></table></figure>
+<p>实验中Java堆的内存使用量被设为固定的50M，而“字符串常量池”内存区域属于“Java堆”，因此“字符串常量池”内存区域能够使用的内存上限也为50M。因此，当通过“String.valueOf(i++).intern()”方法不断消耗“字符串常量池”的内存时，最终导致出现“OutOfMemoryError”异常。另外在异常信息中，还提示“Java heap space”，表示是在使用Java堆内存过程中出现异常。还有一点，抛出异常时，当前实验的“i”值为“951432”，前一个实验的“i”值为“217813”，两者的倍数接近于5倍，这符合“当前实验的Java堆内存使用量（50M）和前一个实验的方法区内存使用量（10M）之间的倍数关系”。</p>
+<h3 id="5-3、证明实验3"><a href="#5-3、证明实验3" class="headerlink" title="5.3、证明实验3"></a><strong>5.3、证明实验3</strong></h3><p>现有如下一段代码，分别使用JDK6和JDK7执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line">        s1.intern();</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line">        s3.intern();</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line"> </span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-3-1、使用JDK6执行"><a href="#5-3-1、使用JDK6执行" class="headerlink" title="5.3.1、使用JDK6执行"></a><strong>5.3.1、使用JDK6执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac Main.java</span><br><span class="line">java Main</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<p>解析说明见下面代码中注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 在JDK6中，字符串常量池是方法区的一个逻辑区域</span><br><span class="line"> *&#x2F;</span><br><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“hello”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“hello”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量a保存该String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理“new调用”语句，调用String类构造方法，在Java堆中创建一个String实例对象，String实例对象引用变量s1保存相应的引用值</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“hello”（即a引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s1.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象），故而s2&#x3D;a</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; s1引用到的String实例对象在Java堆中，s2引用到的String实例对象在方法区中，因此，判断结果为“false”</span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象）</span><br><span class="line">        &#x2F;&#x2F; 接着处理字符串字面量“world”，在Java堆中创建一个String实例对象（包含的字符串内容为“world”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“world”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“world”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量b保存该String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理两个“new调用”语句，分别调用String类构造方法，在Java堆中创建两个String实例对象</span><br><span class="line">        &#x2F;&#x2F; 最后处理“+”语句，在Java堆中创建一个String实例对象，字符串内容为上述两个String实例对象字符串内容（分别为“hello”和“world”）的拼接，即为“helloworld”，String实例对象引用变量s3保存相应的引用值</span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“helloworld”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“helloworld”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量c保存该String实例对象的引用值</span><br><span class="line">        s3.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“helloworld”，在Java堆中创建一个String实例对象（包含的字符串内容为“helloworld”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“helloworld”（即c引用到的String实例对象），故而s4&#x3D;c</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; s3引用到的String实例对象在Java堆中，s4引用到的String实例对象在方法区中，因此，判断结果为“false”</span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-3-2、使用JDK7执行"><a href="#5-3-2、使用JDK7执行" class="headerlink" title="5.3.2、使用JDK7执行"></a><strong>5.3.2、使用JDK7执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac Main.java</span><br><span class="line">java Main</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">true</span><br></pre></td></tr></table></figure>
+<p>解析说明见下面代码中注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 在JDK7中，字符串常量池是Java堆的一个逻辑区域</span><br><span class="line"> *&#x2F;</span><br><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“hello”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量a保存当前String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理“new调用”语句，调用String类构造方法，在Java堆中创建一个String实例对象（该String实例对象跟a引用到的String实例对象虽然都处于Java堆中，但是内存地址不同），String实例对象引用变量s1保存相应的引用值</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“hello”（即a引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s1.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象），故而s2&#x3D;a</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 由上面说明可知，判断结果为“false”</span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象）</span><br><span class="line">        &#x2F;&#x2F; 接着处理字符串字面量“world”，在Java堆中创建一个String实例对象（包含的字符串内容为“world”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“world”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量b保存当前String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理两个“new调用”语句，分别调用String类构造方法，在Java堆中创建两个String实例对象</span><br><span class="line">        &#x2F;&#x2F; 最后处理“+”语句，在Java堆中创建一个String实例对象，字符串内容为上述两个String实例对象字符串内容（分别为“hello”和“world”）的拼接，即为“helloworld”，String实例对象引用变量s3保存相应的引用值</span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中不存在一个String实例对象，它所包含的字符串内容为“helloworld”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量c保存当前String实例对象的引用值，且有c&#x3D;s3</span><br><span class="line">        s3.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“helloworld”，在Java堆中创建一个String实例对象（包含的字符串内容为“helloworld”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“helloworld”（即c引用到的String实例对象），故而s4&#x3D;c</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 由上面说明可知，判断结果为“true”</span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-4、证明实验4"><a href="#5-4、证明实验4" class="headerlink" title="5.4、证明实验4"></a><strong>5.4、证明实验4</strong></h3><p>现有如下一段代码（它是“5.3、证明实验3”中代码的变种），分别使用JDK6和JDK7执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line">        s1.intern();</span><br><span class="line"></span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line">        s3.intern();</span><br><span class="line"></span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-4-1、使用JDK6执行"><a href="#5-4-1、使用JDK6执行" class="headerlink" title="5.4.1、使用JDK6执行"></a><strong>5.4.1、使用JDK6执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac Main.java</span><br><span class="line">java Main</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<p>解析说明见下面代码中注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 在JDK6中，字符串常量池是方法区的一个逻辑区域</span><br><span class="line"> *&#x2F;</span><br><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“hello”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“hello”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量a保存该String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理“new调用”语句，调用String类构造方法，在Java堆中创建一个String实例对象，String实例对象引用变量s1保存相应的引用值</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象），故而s2&#x3D;a</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“hello”（即a引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s1.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; s1引用到的String实例对象在Java堆中，s2引用到的String实例对象在方法区中，因此，判断结果为“false”</span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象）</span><br><span class="line">        &#x2F;&#x2F; 接着处理字符串字面量“world”，在Java堆中创建一个String实例对象（包含的字符串内容为“world”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“world”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“world”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量b保存该String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理两个“new调用”语句，分别调用String类构造方法，在Java堆中创建两个String实例对象</span><br><span class="line">        &#x2F;&#x2F; 最后处理“+”语句，在Java堆中创建一个String实例对象，字符串内容为上述两个String实例对象字符串内容（分别为“hello”和“world”）的拼接，即为“helloworld”，String实例对象引用变量s3保存相应引用值</span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“helloworld”，在Java堆中创建一个String实例对象（包含的字符串内容为“helloworld”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“helloworld”，因此在字符串常量池中创建一个String实例对象，它所包含的字符串内容为“helloworld”，并在StringTable对象中增加对该String实例对象的引用，假定String实例对象引用变量c保存该String实例对象的引用值</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“helloworld”（即c引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s3.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; s3引用到的String实例对象在Java堆中，s4引用到的String实例对象在方法区中，因此，判断结果为“false”</span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="5-4-2、使用JDK7执行"><a href="#5-4-2、使用JDK7执行" class="headerlink" title="5.4.2、使用JDK7执行"></a><strong>5.4.2、使用JDK7执行</strong></h4><p>执行命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac Main.java</span><br><span class="line">java Main</span><br></pre></td></tr></table></figure>
+<p>执行结果如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
+<p>解析说明见下面代码中注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 在JDK7中，字符串常量池是Java堆的一个逻辑区域</span><br><span class="line"> *&#x2F;</span><br><span class="line">public class Main &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“hello”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量a保存当前String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理“new调用”语句，调用String类构造方法，在Java堆中创建一个String实例对象（该String实例对象跟a引用到的String实例对象虽然都处于Java堆中，但是内存地址不同），String实例对象引用变量s1保存相应的引用值</span><br><span class="line">        String s1 &#x3D; new String(&quot;hello&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象），故而s2&#x3D;a</span><br><span class="line">        String s2 &#x3D; &quot;hello&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“hello”（即a引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s1.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 由上面说明可知，判断结果为“false”</span><br><span class="line">        System.out.println(s1 &#x3D;&#x3D; s2);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“hello”，在Java堆中创建一个String实例对象（包含的字符串内容为“hello”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中已存在一个String实例对象，它包含的字符串内容为“hello”（即a引用到的String实例对象）</span><br><span class="line">        &#x2F;&#x2F; 接着处理字符串字面量“world”，在Java堆中创建一个String实例对象（包含的字符串内容为“world”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“world”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量b保存当前String实例对象的引用值</span><br><span class="line">        &#x2F;&#x2F; 接着处理两个“new调用”语句，分别调用String类构造方法，在Java堆中创建两个String实例对象</span><br><span class="line">        &#x2F;&#x2F; 最后处理“+”语句，在Java堆中创建一个String实例对象，字符串内容为上述两个String实例对象字符串内容（分别为“hello”和“world”）的拼接，即为“helloworld”，String实例对象引用变量s3保存相应的引用值</span><br><span class="line">        String s3 &#x3D; new String(&quot;hello&quot;) + new String(&quot;world&quot;);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 首先处理字符串字面量“helloworld”，在Java堆中创建一个String实例对象（包含的字符串内容为“helloworld”），然后自动隐式调用其上的“intern()”方法，发现在字符串常量池中不存在一个String实例对象，它包含的字符串内容也为“helloworld”，因此在StringTable对象中增加对当前String实例对象的引用，此时，当前String实例对象其实被放入字符串常量池中，假定String实例对象引用变量c保存当前String实例对象的引用值</span><br><span class="line">        String s4 &#x3D; &quot;helloworld&quot;;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 调用“intern()”方法，字符串常量池中已存在String实例对象，它所包含的字符串内容为“helloworld”（即c引用到的String实例对象），故而没有任何效果</span><br><span class="line">        s3.intern();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 由上面说明可知，判断结果为“false”</span><br><span class="line">        System.out.println(s3 &#x3D;&#x3D; s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="六、一些说明"><a href="#六、一些说明" class="headerlink" title="六、一些说明"></a><strong>六、一些说明</strong></h2><ol>
+<li>本文的很多描述有很多瑕疵，比如“处理字符串字面量的时机是在加载类文件的过程中，而不是在执行相应代码语句的过程中（如有<code>String a=“hello world”</code>代码语句，处理字符串字面量“hello world”的时机是在加载代码语句所在类文件的过程中，而不是在执行该代码语句的过程中）”等。但是，经过分析和实验可以发现，这些瑕疵，对于我们介绍本文的核心内容并没有很大的负面影响</li>
+<li>要想透彻完整了解很多概念，最好的方式还是看JDK的源代码</li>
+</ol>
+<br/>
+参考文献：
+[1]http://openjdk.java.net/jeps/122
+[2]http://java-performance.info/string-intern-in-java-6-7-8/
+[3]http://tech.meituan.com/in_depth_understanding_string_intern.html
+[4]http://blog.csdn.net/u010297957/article/details/50995869
+[5]http://droidyue.com/blog/2014/12/21/string-literal-pool-in-java/index.html
+[6]https://jimlife.wordpress.com/2007/08/10/java-constant-pool-string/
+[7]http://www.javaranch.com/journal/200409/ScjpTipLine-StringsLiterally.html
+[8]http://theopentutorials.com/tutorials/java/strings/string-literal-pool/
+[9]http://www.thejavageek.com/2013/06/19/the-string-constant-pool/
+[10]http://tangxman.github.io/2015/07/27/the-difference-of-java-string-pool/
+[11]http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.5.4
+[12]http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-5.html
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/" title="Java语言之常量池">https://dslztx.github.io/blog/2016/08/17/Java语言之常量池/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B8%B8%E9%87%8F%E6%B1%A0/" rel="tag"># 常量池</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" rel="prev" title="Java打印日志最佳实践">
+      <i class="fa fa-chevron-left"></i> Java打印日志最佳实践
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2016/08/18/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" rel="next" title="深入理解Java虚拟机：JVM高级特性与最佳实践">
+      深入理解Java虚拟机：JVM高级特性与最佳实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-text">一、字符串常量池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81%E6%A6%82%E5%BF%B5"><span class="nav-text">1.1、概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81%E5%8F%AF%E8%A1%8C%E6%80%A7%E5%88%86%E6%9E%90"><span class="nav-text">1.2、可行性分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81%E5%AE%9E%E9%99%85%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-text">1.3、实际运行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%E3%80%81%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81"><span class="nav-text">1.4、实验代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8C%85%E8%A3%85%E5%99%A8%E7%B1%BB%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-text">二、包装器类常量池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81"><span class="nav-text">2.1、实验代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-text">三、运行时常量池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%B8%89%E8%80%85%E7%9A%84%E5%8C%BA%E5%88%86"><span class="nav-text">四、三者的区分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81JDK6%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B8%B8%E9%87%8F%E6%B1%A0%E6%9C%BA%E5%88%B6%E5%92%8C%E5%AE%9E%E7%8E%B0"><span class="nav-text">五、JDK6中的字符串常量池机制和实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1%E3%80%81%E8%AF%81%E6%98%8E%E5%AE%9E%E9%AA%8C1"><span class="nav-text">5.1、证明实验1</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-1%E3%80%81%E4%BD%BF%E7%94%A8JDK6%E6%89%A7%E8%A1%8C"><span class="nav-text">5.1.1、使用JDK6执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-2%E3%80%81%E4%BD%BF%E7%94%A8JDK7%E6%89%A7%E8%A1%8C"><span class="nav-text">5.1.2、使用JDK7执行</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2%E3%80%81%E8%AF%81%E6%98%8E%E5%AE%9E%E9%AA%8C2"><span class="nav-text">5.2、证明实验2</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-1%E3%80%81%E4%BD%BF%E7%94%A8JDK6%E6%89%A7%E8%A1%8C"><span class="nav-text">5.2.1、使用JDK6执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-2%E3%80%81%E4%BD%BF%E7%94%A8JDK7%E6%89%A7%E8%A1%8C"><span class="nav-text">5.2.2、使用JDK7执行</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3%E3%80%81%E8%AF%81%E6%98%8E%E5%AE%9E%E9%AA%8C3"><span class="nav-text">5.3、证明实验3</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-1%E3%80%81%E4%BD%BF%E7%94%A8JDK6%E6%89%A7%E8%A1%8C"><span class="nav-text">5.3.1、使用JDK6执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-2%E3%80%81%E4%BD%BF%E7%94%A8JDK7%E6%89%A7%E8%A1%8C"><span class="nav-text">5.3.2、使用JDK7执行</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4%E3%80%81%E8%AF%81%E6%98%8E%E5%AE%9E%E9%AA%8C4"><span class="nav-text">5.4、证明实验4</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-1%E3%80%81%E4%BD%BF%E7%94%A8JDK6%E6%89%A7%E8%A1%8C"><span class="nav-text">5.4.1、使用JDK6执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-2%E3%80%81%E4%BD%BF%E7%94%A8JDK7%E6%89%A7%E8%A1%8C"><span class="nav-text">5.4.2、使用JDK7执行</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E4%B8%80%E4%BA%9B%E8%AF%B4%E6%98%8E"><span class="nav-text">六、一些说明</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2016/08/17/Java%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B8%B8%E9%87%8F%E6%B1%A0/";
+    this.page.identifier = "2016/08/17/Java语言之常量池/";
+    this.page.title = "Java语言之常量池";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
