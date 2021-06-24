@@ -839,9 +839,148 @@
   </entry>
   <entry>
     <title>FutureTask和ScheduledFutureTask</title>
-    <url>/blog/2021/06/22/FutureTask%E5%92%8CScheduledFutureTask/</url>
-    <content><![CDATA[<p>占位符</p>
+    <url>/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/</url>
+    <content><![CDATA[<p>在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：</p>
+<ul>
+<li>Runnable</li>
+<li>Future</li>
+<li>RunnableFuture</li>
+<li>FutureTask</li>
+<li>Callable</li>
+<li>ScheduledFuture</li>
+<li>RunnableScheduledFuture</li>
+<li>ScheduledFutureTask</li>
+</ul>
+<p>相关继承类图如图1所示。</p>
+<p>图1</p>
+<p><img src="http://107.182.16.103/imgs/20210516-0-0.svg"></p>
+<p>本文接下来基于具体实现类“FutureTask”和“ScheduledFutureTask”梳理上述类和接口的脉络关系，以便于理解。</p>
+<h2 id="一、FutureTask"><a href="#一、FutureTask" class="headerlink" title="一、FutureTask"></a><strong>一、FutureTask</strong></h2><h3 id="1-1、演进"><a href="#1-1、演进" class="headerlink" title="1.1、演进"></a><strong>1.1、演进</strong></h3><p>需求：向线程池提交一个任务后，能够控制过程和获取结果。</p>
+<p>演进：</p>
+<ol start="0">
+<li>设计Future接口作为向线程池提交任务后的返回对象，通过它控制过程和获取结果</li>
+<li>线程池中执行任务，任务的最终载体必然是Runnable接口，其与返回的Future结果属于跨线程关系，因此两者产生关联的唯一途径是共享内存，自然而然设计RunnableFuture接口</li>
+<li>执行RunnableFuture接口的<code>run()</code>方法，然后将执行结果赋值到RunnableFuture实例的某个成员变量</li>
+<li>FutureTask是RunnableFuture接口的实现类，引入一个<code>Callable callable</code>成员变量，在<code>run()</code>方法中执行该Callable接口的<code>call()</code>方法，然后<code>call()</code>方法的返回结果被赋值到<code>Object outcome</code>成员变量</li>
+<li>由以上点可知，FutureTask的<code>run()</code>方法中调度执行Callable接口的<code>call()</code>方法：如果在调度任务时直接传入Callable接口，自然没啥问题；但是如果传入的是Runnable接口，则需要进行适配，具体是通过Executors.RunnableAdapter类，它实现了Callable接口，查看Executors.RunnableAdapter类的唯一构造方法，须传入两个参数，一个是<code>Runnable task</code>，另外一个是<code>T result</code>，后者表示预设的<code>call()</code>方法返回结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ol>
+<p>Future接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>RunnableFuture接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RunnableFuture</span>&lt;<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Runnable</span>, <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Sets this Future to the result of its computation</span></span><br><span class="line"><span class="comment">     * unless it has been cancelled.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>FutureTask类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FutureTask</span>&lt;<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">RunnableFuture</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Callable&lt;V&gt; callable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Object outcome; <span class="comment">// non-volatile, protected by state reads/writes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Callable接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Callable</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Computes a result, or throws an exception if unable to do so.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> computed result</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception if unable to compute a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">V <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>RunnableAdapter类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RunnableAdapter</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Runnable task;</span><br><span class="line">    <span class="keyword">final</span> T result;</span><br><span class="line">    RunnableAdapter(Runnable task, T result) &#123;</span><br><span class="line">        <span class="keyword">this</span>.task = task;</span><br><span class="line">        <span class="keyword">this</span>.result = result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        task.run();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2、源码阅读"><a href="#1-2、源码阅读" class="headerlink" title="1.2、源码阅读"></a><strong>1.2、源码阅读</strong></h3><p>带有笔者注释的FutureTask源码版本见<a href="https://github.com/dslztx/jdk8_study/blob/master/src/main/java/java/util/concurrent/FutureTask.java">链接</a>。</p>
+<h4 id="1-2-1、内部状态"><a href="#1-2-1、内部状态" class="headerlink" title="1.2.1、内部状态"></a><strong>1.2.1、内部状态</strong></h4><p>有成员变量<code>volatile int state</code>，表征内部状态。</p>
+<p>其内部状态列表如下：</p>
+<ul>
+<li><code>NEW=0</code>，初始状态</li>
+<li><code>COMPLETING=1</code>，转向<code>NORMAL</code>或者<code>EXCEPTIONAL</code>时的临时中间状态</li>
+<li><code>NORMAL=2</code>，<code>run()</code>方法内调用<code>call()</code>方法未抛异常，调用正常退出</li>
+<li><code>EXCEPTIONAL=3</code>，<code>run()</code>方法内调用<code>call()</code>方法抛异常，调用非正常退出</li>
+<li><code>CANCELLED=4</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=false</code>，内部状态从<code>NEW</code>转为<code>CANCELLED</code></li>
+<li><code>INTERRUPTING=5</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=true</code>，内部状态从<code>NEW</code>转为<code>INTERRUPTING</code></li>
+<li><code>INTERRUPTED=6</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=true</code>，内部状态从<code>NEW</code>转为<code>INTERRUPTING</code>，等发出中断信号后，内部状态再转为<code>INTERRUPTED</code></li>
+</ul>
+<h4 id="1-2-2、核心方法"><a href="#1-2-2、核心方法" class="headerlink" title="1.2.2、核心方法"></a><strong>1.2.2、核心方法</strong></h4><p><strong>1、run()</strong><br>执行任务，具体逻辑是：</p>
+<ol start="0">
+<li>调用成员变量<code>callable</code>的<code>call()</code>方法</li>
+<li>根据<code>call()</code>方法的调用是否抛出异常分为两种情况：<ul>
+<li>不抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; NORMAL</code>；2）<code>call()</code>方法的返回结果赋值给成员变量<code>outcome</code></li>
+<li>抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</code>；2）抛出的Throwable对象赋值给成员变量<code>outcome</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>2、runAndReset()</strong><br>STPE中提交的“周期性任务”调度执行时执行本方法，它的具体逻辑是：</p>
+<ol start="0">
+<li>调用成员变量<code>callable</code>的<code>call()</code>方法</li>
+<li>根据<code>call()</code>方法的调用是否抛出异常分为两种情况：<ul>
+<li>不抛出异常：1）<font color='red'>内部状态仍为<code>NEW</code>，否则下一个周期不能执行</font>；2）<font color='red'><code>call()</code>方法的返回结果不赋值给成员变量<code>outcome</code></font>，即使赋值了，在<code>NEW</code>内部状态下，调用<code>get()</code>方法获取结果恒挂起，调用<code>get(long timeout, TimeUnit unit)</code>方法获取结果超时后抛出<code>TimeoutException</code>异常；3）<code>runAndReset()</code>方法返回<code>true</code>值，<font color='red'>表征该周期性任务会再被加入到workQueue队列进行后续调度</font>[1]</li>
+<li>抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</code>；2）抛出的Throwable对象赋值给成员变量<code>outcome</code>；3）<code>runAndReset()</code>方法返回<code>false</code>值，<font color='red'>表征该周期性任务不会再被加入到workQueue队列进行后续调度</font>[1]</li>
+</ul>
+</li>
+</ol>
+<p><strong>3、cancel(boolean mayInterruptIfRunning)</strong><br>调用<code>cancel(boolean mayInterruptIfRunning)</code>方法尝试取消<code>run()</code>或者<code>runAndReset()</code>方法的运行。</p>
+<p>其核心逻辑是：</p>
+<ul>
+<li>如果当前内部状态不为<code>NEW</code>，表明已经执行完成，不能再取消</li>
+<li>如果当前内部状态为<code>NEW</code>，表明未执行完成，尝试取消：<ul>
+<li>如果传入参数<code>mayInterruptIfRunning=false</code>，则经历<code>内部状态从NEW转为CANCELLED</code>过程</li>
+<li>如果传入参数<code>mayInterruptIfRunning=true</code>，则经历<code>内部状态从NEW转为INTERRUPTING -&gt; 给正在执行当前任务的线程发中断信号 -&gt; 内部状态转为INTERRUPTED</code>过程</li>
+</ul>
+</li>
+</ul>
+<p><strong>4、isCancelled()</strong><br>当内部状态是<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>时（即成功调用<code>cancel(boolean mayInterruptIfRunning)</code>方法的可能结果），返回true，否则返回false。</p>
+<p><strong>5、isDone()</strong><br>当内部状态不是<code>NEW</code>时，返回true，否则返回false。</p>
+<p><strong>6、get()</strong><br>获取<code>run()</code>或者<code>runAndReset()</code>方法的执行结果：</p>
+<ul>
+<li>当内部状态&lt;=<code>COMPLETING</code>时，恒挂起</li>
+<li>当内部状态&gt;<code>COMPLETING</code>时，分为3种情况：<ul>
+<li>内部状态为<code>NORMAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行未抛出异常，成功退出，这里返回成员变量<code>outcome</code>值（即<code>call()</code>方法的返回结果）</li>
+<li>内部状态为<code>EXCEPTIONAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行抛出异常，这里抛出<code>ExecutionException</code>异常</li>
+<li>内部状态&gt;=<code>CANCELLED</code>，即为<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>，表示被取消执行，这里抛出<code>CancellationException</code>异常</li>
+</ul>
+</li>
+</ul>
+<p><strong>7、get(long timeout, TimeUnit unit)</strong><br>获取<code>run()</code>或者<code>runAndReset()</code>方法的执行结果：</p>
+<ul>
+<li>当内部状态&lt;=<code>COMPLETING</code>时，挂起指定时间，如果到期仍是&lt;=<code>COMPLETING</code>，则抛出<code>TimeoutException</code>异常</li>
+<li>当内部状态&gt;<code>COMPLETING</code>时，分为3种情况：<ul>
+<li>内部状态为<code>NORMAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行未抛出异常，成功退出，这里返回成员变量<code>outcome</code>值（即<code>call()</code>方法的返回结果）</li>
+<li>内部状态为<code>EXCEPTIONAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行抛出异常，这里抛出<code>ExecutionException</code>异常</li>
+<li>内部状态&gt;=<code>CANCELLED</code>，即为<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>，表示被取消执行，这里抛出<code>CancellationException</code>异常</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、ScheduledFutureTask"><a href="#二、ScheduledFutureTask" class="headerlink" title="二、ScheduledFutureTask"></a><strong>二、ScheduledFutureTask</strong></h2><p>相较于FutureTask，ScheduledFutureTask额外继承实现了3个接口的方法：</p>
+<ul>
+<li>Comparable接口的<code>public int compareTo(T o)</code>方法，ScheduledFutureTask被加入到STPE中属于DelayedWorkQueue类型的workQueue，DelayedWorkQueue是一个优先级队列，需要其中的元素实现Comparable接口的上述方法</li>
+<li>Delay接口的<code>long getDelay(TimeUnit unit)</code>方法，获取任务计划执行时间与当前时间的时间差值，时间差值的单位由“TimeUnit unit”指定</li>
+<li>RunnableScheduledFuture接口的<code>boolean isPeriodic()</code>方法，判断当前任务是否是周期性任务</li>
+</ul>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>根据以下TPE类中<code>runWorker(Worker w)</code>方法源码可知，在TPE和STPE中调度执行的任务，<font color='red'>必须</font>在内部<code>catch</code>住自身过程抛出的<code>Throwable</code>，否则会导致执行该任务的Worker异常退出（虽然会被弥补）。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">runWorker</span><span class="params">(Worker w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (task != <span class="keyword">null</span> || (task = getTask()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            w.lock();</span><br><span class="line"></span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                beforeExecute(wt, task);</span><br><span class="line">                Throwable thrown = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    task.run();                    <span class="comment">//1</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (RuntimeException x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Error x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> <span class="keyword">new</span> Error(x);</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    afterExecute(task, thrown);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                task = <span class="keyword">null</span>;</span><br><span class="line">                w.completedTasks++;</span><br><span class="line">                w.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        completedAbruptly = <span class="keyword">false</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        processWorkerExit(w, completedAbruptly);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来针对TPE和STPE中的所有任务提交形式一一进行分析说明。</p>
+<h3 id="3-1、TPE"><a href="#3-1、TPE" class="headerlink" title="3.1、TPE"></a><strong>3.1、TPE</strong></h3><p>存在4种提交形式，分为两类：</p>
+<ol start="0">
+<li>第一类：//1处的<code>task</code>就是真实的任务实体，在该情形中，真实任务实体的执行方法<font color='red'>必须</font>在内部catch住自身过程抛出的<code>Throwable</code><ul>
+<li><code>public void execute(Runnable command)</code>，真实任务实体是<code>command</code>，<font color='red'>必须</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+</li>
+<li>第二类：//1处的<code>task</code>指代FutureTask实例，查看<code>FutureTask.run()</code>方法源码，可知在调用真实任务实体执行方法的外围有catch住异常的逻辑，故不会导致Worker异常退出，但是为统一起见，<font color='red'>建议</font>还是在真实任务实体执行方法内部catch住自身过程抛出的<code>Throwable</code><ul>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.call()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public Future&lt;?&gt; submit(Runnable task)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="3-2、STPE"><a href="#3-2、STPE" class="headerlink" title="3.2、STPE"></a><strong>3.2、STPE</strong></h3><p>存在8种提交形式，包括从TPE继承下来的4种提交形式（在STPE中覆盖实现），查看源码可知//1处的<code>task</code>指代ScheduledFutureTask实例，查看<code>ScheduledFutureTask.run()</code>方法源码，其转发调用FutureTask的<code>run()</code>或者<code>runAndReset()</code>方法，查看上述两个方法源码，可知在调用真实任务实体执行方法的外围有catch住异常的逻辑，故不会导致Worker异常退出，但是为统一起见，<font color='red'>建议</font>还是在真实任务实体执行方法内部catch住自身过程抛出的<code>Throwable</code>：</p>
+<ul>
+<li>继承下来的4个方法说明见“3.1、TPE”小节</li>
+<li><code>public ScheduledFuture&lt;?&gt; schedule(Runnable command, long delay, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public &lt;V&gt; ScheduledFuture&lt;V&gt; schedule(Callable&lt;V&gt; callable, long delay, TimeUnit unit)</code>，真实任务实体是<code>callable</code>，<font color='red'>建议</font>在<code>callable.call()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2021/05/14/ScheduledThreadPoolExecutor/" title="《ScheduledThreadPoolExecutor》">《ScheduledThreadPoolExecutor》</a>中的ScheduledFutureTask类的<code>run()</code>方法<br>[2]<a href="https://www.cnblogs.com/thisiswhy/p/13791966.html">https://www.cnblogs.com/thisiswhy/p/13791966.html</a><br>[3]<a href="/blog/2020/07/29/Unsafe%E7%B1%BB/" title="《Unsafe类》">《Unsafe类》</a></p>
 ]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
   </entry>
   <entry>
     <title>GFW原理</title>
