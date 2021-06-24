@@ -384,7 +384,7 @@
 <li><code>public void execute(Runnable command)</code>，执行<code>command</code>实例对象的<code>run()</code>方法，不关注执行结果，其实也没有执行结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
 </ul>
 </li>
-<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/blog/2021/06/22/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）：<ul>
+<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）：<ul>
 <li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，执行<code>task</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
 <li><code>public Future&lt;?&gt; submit(Runnable task)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
 <li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果result，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>

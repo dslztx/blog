@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘时延’或者‘周期’任务”的执行器，可简称“STPE”。 在JDK中，执行“时延”或者“周期”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的 前者支持多种时间">
+  <meta name="description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。 在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ScheduledThreadPoolExecutor">
 <meta property="og:url" content="https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/index.html">
 <meta property="og:site_name" content="dslztx">
-<meta property="og:description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘时延’或者‘周期’任务”的执行器，可简称“STPE”。 在JDK中，执行“时延”或者“周期”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的 前者支持多种时间">
+<meta property="og:description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。 在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://107.182.16.103/imgs/20210514-0-0.svg">
 <meta property="article:published_time" content="2021-05-14T12:23:33.000Z">
-<meta property="article:modified_time" content="2021-06-22T14:34:46.758Z">
+<meta property="article:modified_time" content="2021-06-24T15:04:01.905Z">
 <meta property="article:author" content="dslztx">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://107.182.16.103/imgs/20210514-0-0.svg">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-22 22:34:46" itemprop="dateModified" datetime="2021-06-22T22:34:46+08:00">2021-06-22</time>
+                <time title="修改时间：2021-06-24 23:04:01" itemprop="dateModified" datetime="2021-06-24T23:04:01+08:00">2021-06-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,8 +269,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘时延’或者‘周期’任务”的执行器，可简称“STPE”。</p>
-<p>在JDK中，执行“时延”或者“周期”任务的组件还有Timer类，STPE跟Timer的主要对比如下：</p>
+        <p>ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。</p>
+<p>在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：</p>
 <ul>
 <li>前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的</li>
 <li>前者支持多种时间单位，后者只支持“日期时间”和“毫秒”</li>
@@ -279,25 +279,25 @@
 <p>图1</p>
 <p><img src="http://107.182.16.103/imgs/20210514-0-0.svg"></p>
 <h2 id="一、核心原理"><a href="#一、核心原理" class="headerlink" title="一、核心原理"></a><strong>一、核心原理</strong></h2><p>查看ScheduledThreadPoolExecutor类源码，理解其核心原理。带有笔者注释的版本见<a target="_blank" rel="noopener" href="https://github.com/dslztx/jdk8_study/blob/master/src/main/java/java/util/concurrent/ScheduledThreadPoolExecutor.java">链接</a>。</p>
-<h3 id="1-0、三种任务"><a href="#1-0、三种任务" class="headerlink" title="1.0、三种任务"></a><strong>1.0、三种任务</strong></h3><p>在STPE中，任务的表示类为<code>ScheduledFutureTask</code>，其详细介绍可见<a href="/blog/2021/06/22/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>。</p>
+<h3 id="1-0、三种任务"><a href="#1-0、三种任务" class="headerlink" title="1.0、三种任务"></a><strong>1.0、三种任务</strong></h3><p>在STPE中，任务的表示类为<code>ScheduledFutureTask</code>，其详细介绍可见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>。</p>
 <p>ScheduledFutureTask类中有两个字段：</p>
 <ul>
 <li><code>long time</code>，单位为纳秒，表示任务的计划执行时间。需要注意的是，它表示“计划执行时间”与“本JVM进程基准时间”之间的差值，而不是跟<code>System.currentTimeMillis()</code>一样以<code>midnight, January 1, 1970 UTC</code>为基准时间，不同JVM进程的基准时间可能不同，一个JVM进程的生命周期内基准时间不变</li>
 <li><code>long period</code>，单位为纳秒，用以区分3种任务类型<ul>
 <li><code>period=0</code>，一次性时延任务</li>
-<li><code>period&gt;0</code>，固定周期任务</li>
-<li><code>period&lt;0</code>，固定时延任务</li>
+<li><code>period&gt;0</code>，周期性固定间隔任务</li>
+<li><code>period&lt;0</code>，周期性固定时延任务</li>
 </ul>
 </li>
 </ul>
 <p>关于3种类型任务的介绍：</p>
 <ul>
 <li>一次性时延任务：执行一次就结束</li>
-<li>固定周期任务：本次执行完后将该任务再次加入workQueue，设置<code>time=time+period</code></li>
-<li>固定时延任务：本次执行完后将该任务再次加入workQueue，设置<code>time=System.nanoTime()+(-period)</code>（<code>System.nanoTime()</code>表示“当前时间”与“本JVM进程基准时间”之间的差值，单位为纳秒）</li>
+<li>周期性固定间隔任务：本次执行完后将该任务再次加入workQueue，设置<code>time=time+period</code></li>
+<li>周期性固定时延任务：本次执行完后将该任务再次加入workQueue，设置<code>time=System.nanoTime()+(-period)</code>（<code>System.nanoTime()</code>表示“当前时间”与“本JVM进程基准时间”之间的差值，单位为纳秒）</li>
 </ul>
 <p>ScheduledFutureTask类的<code>run()</code>方法源码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> periodic = isPeriodic();</span><br><span class="line">    <span class="keyword">if</span> (!canRunInCurrentRunState(periodic))</span><br><span class="line">        cancel(<span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!periodic)</span><br><span class="line">        ScheduledFutureTask.<span class="keyword">super</span>.run();</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (ScheduledFutureTask.<span class="keyword">super</span>.runAndReset()) &#123;</span><br><span class="line">        <span class="comment">// 周期任务执行如果返回false，这个周期任务也不加回去了</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//outerTask也不能指向别的任务，不然setNextRunTime()这个time值白设置了</span></span><br><span class="line">        setNextRunTime();</span><br><span class="line">        reExecutePeriodic(outerTask);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> periodic = isPeriodic();</span><br><span class="line">    <span class="keyword">if</span> (!canRunInCurrentRunState(periodic))</span><br><span class="line">        cancel(<span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!periodic)</span><br><span class="line">        ScheduledFutureTask.<span class="keyword">super</span>.run();</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (ScheduledFutureTask.<span class="keyword">super</span>.runAndReset()) &#123;</span><br><span class="line">        <span class="comment">// 周期性任务执行如果返回false，这个周期性任务也不加回去了</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//outerTask也不能指向别的任务，不然setNextRunTime()这个time值白设置了</span></span><br><span class="line">        setNextRunTime();</span><br><span class="line">        reExecutePeriodic(outerTask);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">reExecutePeriodic</span><span class="params">(RunnableScheduledFuture&lt;?&gt; task)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (canRunInCurrentRunState(<span class="keyword">true</span>)) &#123;</span><br><span class="line">        <span class="keyword">super</span>.getQueue().add(task);</span><br><span class="line">        <span class="keyword">if</span> (!canRunInCurrentRunState(<span class="keyword">true</span>) &amp;&amp; remove(task))</span><br><span class="line">            task.cancel(<span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            ensurePrestart();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -324,7 +324,7 @@
 <h3 id="1-2、任务队列"><a href="#1-2、任务队列" class="headerlink" title="1.2、任务队列"></a><strong>1.2、任务队列</strong></h3><p>STPE实例对象的<code>workQueue</code>隐式指定——<code>workQueue = new DelayedWorkQueue()</code>。</p>
 <p>DelayWorkQueue类的特点如下：</p>
 <ul>
-<li>无界队列，虽然实际上限为<code>Integer.MAX_VALUE</code>，这么设计的原因在于：新提交的“一次性时延”或者“周期”任务如果计划执行时间还未到不能直接交给Worker执行，只能插入到队列，故队列应该是无界的</li>
+<li>无界队列，虽然实际上限为<code>Integer.MAX_VALUE</code>，这么设计的原因在于：新提交的“一次性时延”或者“周期性”任务如果计划执行时间还未到不能直接交给Worker执行，只能插入到队列，故队列应该是无界的</li>
 <li>Worker每次获取任务时，获取到的任务须满足“计划执行时间在队列中最小，且小于等于当前时间（当两个任务的计划执行时间一致时，先提交任务优先级高）”，DelayWorkQueue队列内部通过维护一个堆数据结构实现了上述需求</li>
 </ul>
 <h3 id="1-3、拒绝执行策略"><a href="#1-3、拒绝执行策略" class="headerlink" title="1.3、拒绝执行策略"></a><strong>1.3、拒绝执行策略</strong></h3><p>跟父类相同！</p>
@@ -387,7 +387,7 @@
 <li><code>public void execute(Runnable command)</code>，执行<code>command</code>实例对象的<code>run()</code>方法，不关注执行结果，其实也没有执行结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
 </ul>
 </li>
-<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/blog/2021/06/22/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）：<ul>
+<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）：<ul>
 <li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，执行<code>task</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
 <li><code>public Future&lt;?&gt; submit(Runnable task)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
 <li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果result，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
@@ -395,12 +395,12 @@
 </li>
 </ol>
 <p>在STPE类中为了实现上的统一（比如“加入workQueue队列的任务实际类型可以统一”），对以上4个方法进行了覆盖实现，覆盖实现只是简单转发调用了“2.2.2、STPE类增加的方法”小节中的方法。</p>
-<h4 id="2-2-2、STPE类增加的方法"><a href="#2-2-2、STPE类增加的方法" class="headerlink" title="2.2.2、STPE类增加的方法"></a><strong>2.2.2、STPE类增加的方法</strong></h4><p>STPE类中增加了4个提交任务的方法，这几个方法的性质都是“提交任务后，通过ScheduledFuture可获取执行结果，可对执行过程进行控制，也能获得计划执行时间与当前时间的纳秒时间差值（关于ScheduledFuture，Runnable，Callable的关系可详见<a href="/blog/2021/06/22/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）”：</p>
+<h4 id="2-2-2、STPE类增加的方法"><a href="#2-2-2、STPE类增加的方法" class="headerlink" title="2.2.2、STPE类增加的方法"></a><strong>2.2.2、STPE类增加的方法</strong></h4><p>STPE类中增加了4个提交任务的方法，这几个方法的性质都是“提交任务后，通过ScheduledFuture可获取执行结果，可对执行过程进行控制，也能获得计划执行时间与当前时间的纳秒时间差值（关于ScheduledFuture，Runnable，Callable的关系可详见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>）”：</p>
 <ul>
 <li><code>public ScheduledFuture&lt;?&gt; schedule(Runnable command, long delay, TimeUnit unit)</code>，一次性时延任务，计划执行时间为<code>当前时间加上“delay”和“unit”联合指定的差值</code>，执行<code>command</code>实例对象的<code>run()</code>方法，获取的执行结果为预设值NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
 <li><code>public &lt;V&gt; ScheduledFuture&lt;V&gt; schedule(Callable&lt;V&gt; callable, long delay, TimeUnit unit)</code>，一次性时延任务，计划执行时间为<code>当前时间加上“delay”和“unit”联合指定的差值</code>，执行<code>callable</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
-<li><code>public ScheduledFuture&lt;?&gt; scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</code>，固定周期任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>P+N*(“period”和“unit”联合指定的固定间隔时间)</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，获取的执行结果为预设值NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
-<li><code>public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</code>，固定时延任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>前一次执行完成时间+“delay”和“unit”联合指定的固定时延时间</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，获取的执行结果为预设值NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</code>，周期性固定间隔任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>P+N*(“period”和“unit”联合指定的固定间隔时间)</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，<font color='red'>无谓获取执行结果，具体可参见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>博文中“1.2.2、核心方法”小节下的“2、runAndReset()”内容</font></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</code>，周期性固定时延任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>前一次执行完成时间+“delay”和“unit”联合指定的固定时延时间</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，<font color='red'>无谓获取执行结果，具体可参见<a href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="《FutureTask和ScheduledFutureTask》">《FutureTask和ScheduledFutureTask》</a>博文中“1.2.2、核心方法”小节下的“2、runAndReset()”内容</font></li>
 </ul>
 <h3 id="2-3、关闭执行器"><a href="#2-3、关闭执行器" class="headerlink" title="2.3、关闭执行器"></a><strong>2.3、关闭执行器</strong></h3><p>有两个关闭方法：<code>shutdown()</code>和<code>shutdownNow()</code>。<br><strong>1、shutdown()</strong><br>调用TPE的<code>shutdown()</code>。</p>
 <p>唯一的一点变化是TPE中的<code>onShutDown()</code>方法是空实现，在STPE中覆盖实现了该方法，现在该方法的逻辑是：在当前执行器状态为<code>SHUTDOWN</code>的前提下，根据<code>成员变量continueExistingPeriodicTasksAfterShutdown（默认为false）</code>和<code>成员变量executeExistingDelayedTasksAfterShutdown（默认为true）</code>的值从workQueue队列中筛选掉一些任务，该筛选逻辑跟“1.0、三种任务”小节中“当执行器状态<code>=SHUTDOWN</code>，此时如果是周期性任务…”部分逻辑一致，本质也是对其的呼应——既然后续<code>run()</code>方法运行时会有对这个任务的筛选，这里就提前进行筛选。</p>
