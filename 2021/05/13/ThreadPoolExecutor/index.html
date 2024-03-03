@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="ThreadPoolExecutor类，是一个“使用线程池调度执行所提交任务”的执行器，可简称“TPE”，它在日常工作中经常被用到，十分重要。 TPE继承类图如图1。 图1  一、核心原理查看ThreadPoolExecutor类源码，理解其核心原理。带有笔者注释的版本见链接。 1.1、执行器状态和Worker数量上限存在成员变量AtomicInteger ctl，其对应的整型值有32位比特，分段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ThreadPoolExecutor">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="ThreadPoolExecutor类，是一个“使用线程池调度执行所提交任务”的执行器，可简称“TPE”，它在日常工作中经常被用到，十分重要。 TPE继承类图如图1。 图1  一、核心原理查看ThreadPoolExecutor类源码，理解其核心原理。带有笔者注释的版本见链接。 1.1、执行器状态和Worker数量上限存在成员变量AtomicInteger ctl，其对应的整型值有32位比特，分段">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20210513-0-1.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20210513-0-2.png">
+<meta property="article:published_time" content="2021-05-13T12:23:33.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.240Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20210513-0-1.svg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ThreadPoolExecutor | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ThreadPoolExecutor
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-13 20:23:33" itemprop="dateCreated datePublished" datetime="2021-05-13T20:23:33+08:00">2021-05-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/05/13/ThreadPoolExecutor/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/05/13/ThreadPoolExecutor/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ThreadPoolExecutor类，是一个“使用线程池调度执行所提交任务”的执行器，可简称“TPE”，它在日常工作中经常被用到，十分重要。</p>
+<p>TPE继承类图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210513-0-1.svg"></p>
+<h2 id="一、核心原理"><a href="#一、核心原理" class="headerlink" title="一、核心原理"></a><strong>一、核心原理</strong></h2><p>查看ThreadPoolExecutor类源码，理解其核心原理。带有笔者注释的版本见<a target="_blank" rel="noopener" href="https://github.com/dslztx/jdk8_study/blob/master/src/main/java/java/util/concurrent/ThreadPoolExecutor.java">链接</a>。</p>
+<h3 id="1-1、执行器状态和Worker数量上限"><a href="#1-1、执行器状态和Worker数量上限" class="headerlink" title="1.1、执行器状态和Worker数量上限"></a><strong>1.1、执行器状态和Worker数量上限</strong></h3><p>存在成员变量<code>AtomicInteger ctl</code>，其对应的整型值有32位比特，分段表示不同的含义：</p>
+<ul>
+<li>低29位，记录执行器当前Worker数量，因此，Worker数量的上限值为<code>(1&lt;&lt;29)-1</code></li>
+<li>高3位，记录执行器的状态（根据以下状态值，可知有<code>RUNNING&lt;SHUTDOWN&lt;STOP&lt;TIDYING&lt;TERMINATED</code>）<ul>
+<li>RUNNING，值为<code>-1&lt;&lt;29</code>，即<code>111,[29个0]</code>，正常运行态</li>
+<li>SHUTDOWN，值为<code>0&lt;&lt;29</code>，即<code>000,[29个0]</code>，继续执行“Worker中当前正在执行的任务”和“workQueue中的任务”，禁止新提交任务，当所有Worker都退出后，经历<code>TIDYING -&gt; TERMINATED</code></li>
+<li>STOP，值为<code>1&lt;&lt;29</code>，即<code>001,[29个0]</code>，给所有Worker中正在执行的任务发出中断信号（当然，正在执行的任务如何响应该中断信号由其自身决定，可以不响应的[1]），“workQueue中的任务”被立即提取出来返回给调用者（即，这些任务不会再被执行），禁止新提交任务，当所有Worker都退出后，经历<code>TIDYING -&gt; TERMINATED</code></li>
+<li>TIDYING，值为<code>2&lt;&lt;29</code>，即<code>010,[29个0]</code>，一个临时的中间状态</li>
+<li>TERMINATED，值为<code>3&lt;&lt;29</code>，即<code>011,[29个0]</code>，执行器成功关闭，Worker数量为0，workQueue为空</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-2、任务队列"><a href="#1-2、任务队列" class="headerlink" title="1.2、任务队列"></a><strong>1.2、任务队列</strong></h3><p>存在成员变量<code>BlockingQueue&lt;Runnable&gt; workQueue</code>：表示任务队列，当<code>Worker数量=corePoolSize</code>时，新提交的任务被插入到该队列，一般是有界队列，否则当提交任务过多时，会导致内存OOM，而且超大无界队列尾部的任务长时间得不到执行一般也非所欲，宁可及早发现。</p>
+<p>JDK 1.8中<code>BlockingQueue</code>的实现子类详见<a href="/2021/08/11/%E5%B9%B6%E5%8F%91Queue/" title="并发Queue">《并发Queue》</a>中的阻塞队列。</p>
+<h3 id="1-3、拒绝执行策略"><a href="#1-3、拒绝执行策略" class="headerlink" title="1.3、拒绝执行策略"></a><strong>1.3、拒绝执行策略</strong></h3><p>存在成员变量<code>RejectedExecutionHandler handler</code>：表示拒绝执行策略类。</p>
+<p>有4种拒绝执行策略：</p>
+<ul>
+<li>AbortPolicy：抛出<code>RejectedExecutionException</code>异常。<font color='red'>默认策略</font></li>
+<li>DiscardPolicy：直接忽略</li>
+<li>CallerRunsPolicy：当执行器状态为<code>RUNNING</code>时，由提交任务的线程自身去执行；否则，直接忽略</li>
+<li>DiscardOldestPolicy：当执行器状态为<code>RUNNING</code>时，丢弃workQueue队列队首任务，然后再重新提交任务；否则，直接忽略</li>
+</ul>
+<h3 id="1-4、线程工厂方法类"><a href="#1-4、线程工厂方法类" class="headerlink" title="1.4、线程工厂方法类"></a><strong>1.4、线程工厂方法类</strong></h3><p>存在成员变量<code>ThreadFactory threadFactory</code>：新增一个Worker时，会用该工厂方法类创建一个新的绑定到该Worker的Thread实例，具体通过其内的<code>Thread newThread(Runnable r)</code>方法进行创建，推荐提供一个自定义实现的ThreadFactory子类，覆盖实现<code>Thread newThread(Runnable r)</code>方法，使创建得到的Thread实例名字具备强可读性，便于后续排查问题。</p>
+<p>默认的线程工厂方法类是<code>Executors.defaultThreadFactory()</code>，其源代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">DefaultThreadFactory</span> <span class="keyword">implements</span> <span class="title class_">ThreadFactory</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">poolNumber</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ThreadGroup group;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">threadNumber</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String namePrefix;</span><br><span class="line"></span><br><span class="line">    DefaultThreadFactory() &#123;</span><br><span class="line">        <span class="type">SecurityManager</span> <span class="variable">s</span> <span class="operator">=</span> System.getSecurityManager();</span><br><span class="line">        group = (s != <span class="literal">null</span>) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();</span><br><span class="line">        namePrefix = <span class="string">&quot;pool-&quot;</span> + poolNumber.getAndIncrement() + <span class="string">&quot;-thread-&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Thread <span class="title function_">newThread</span><span class="params">(Runnable r)</span> &#123;</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(group, r, namePrefix + threadNumber.getAndIncrement(), <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (t.isDaemon())</span><br><span class="line">            t.setDaemon(<span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (t.getPriority() != Thread.NORM_PRIORITY)</span><br><span class="line">            t.setPriority(Thread.NORM_PRIORITY);</span><br><span class="line">        <span class="keyword">return</span> t;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有一个比较好的线程工厂方法类是<code>com.alibaba.csp.sentinel.concurrent.NamedThreadFactory</code>，其源代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NamedThreadFactory</span> <span class="keyword">implements</span> <span class="title class_">ThreadFactory</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ThreadGroup group;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger threadNumber;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String namePrefix;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> daemon;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">NamedThreadFactory</span><span class="params">(String namePrefix, <span class="type">boolean</span> daemon)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.threadNumber = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="built_in">this</span>.daemon = daemon;</span><br><span class="line">        <span class="type">SecurityManager</span> <span class="variable">s</span> <span class="operator">=</span> System.getSecurityManager();</span><br><span class="line">        <span class="built_in">this</span>.group = s != <span class="literal">null</span> ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();</span><br><span class="line">        <span class="built_in">this</span>.namePrefix = namePrefix;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">NamedThreadFactory</span><span class="params">(String namePrefix)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>(namePrefix, <span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Thread <span class="title function_">newThread</span><span class="params">(Runnable r)</span> &#123;</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="built_in">this</span>.group, r, <span class="built_in">this</span>.namePrefix + <span class="string">&quot;-thread-&quot;</span> + <span class="built_in">this</span>.threadNumber.getAndIncrement(), <span class="number">0L</span>);</span><br><span class="line">        t.setDaemon(<span class="built_in">this</span>.daemon);</span><br><span class="line">        <span class="keyword">return</span> t;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-5、Worker"><a href="#1-5、Worker" class="headerlink" title="1.5、Worker"></a><strong>1.5、Worker</strong></h3><h4 id="1-5-1、基本"><a href="#1-5-1、基本" class="headerlink" title="1.5.1、基本"></a><strong>1.5.1、基本</strong></h4><p>TPE中的执行实体是Worker，关于该类有以下几点说明：</p>
+<ul>
+<li>继承实现AQS接口，实现了非可重入的排他锁逻辑</li>
+<li>继承自Runnable接口，故是一个执行实体，它的<code>run()</code>方法转发调用外围TPE实例的<code>runWorker(Worker w)</code>方法</li>
+<li>每个Worker对应一个Thread，在该Thread中执行该Worker，Worker内有一个实例成员变量<code>final Thread thread</code>指向该Thread，虽然这个不是必需的，因为在Worker运行过程中可通过<code>Thread.currentThread()</code>语句获取到该Thread</li>
+</ul>
+<p><font color='red'>需要注意的是</font>：我们常说线程数量，而不是Worker数量，这两者本质是等价的。</p>
+<h4 id="1-5-2、运转"><a href="#1-5-2、运转" class="headerlink" title="1.5.2、运转"></a><strong>1.5.2、运转</strong></h4><p><code>runWorker(Worker w)</code>方法的核心逻辑是：不断获取任务调度执行。</p>
+<p>任务来源有两个：</p>
+<ul>
+<li>创建生成Worker实例时传递的初始任务（可以为空），该任务被获取执行最多一次</li>
+<li>调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到任务时挂起</li>
+</ul>
+<h4 id="1-5-3、退出机制"><a href="#1-5-3、退出机制" class="headerlink" title="1.5.3、退出机制"></a><strong>1.5.3、退出机制</strong></h4><p>有3种退出机制：</p>
+<ol>
+<li>退出机制1：任务执行过程中抛出未被内部catch住的异常，导致Worker退出</li>
+<li>退出机制2：一般情况下，调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到时恒挂起。但是当<code>Worker数量&gt;corePoolSize || 成员变量allowCoreThreadTimeOut=true</code>条件判断语句返回结果为<code>true</code>时：<ul>
+<li><code>成员变量keepAliveTime&gt;0</code>，尝试从workQueue队列获取任务，挂起成员变量keepAliveTime指定时间，如果过期仍未获取到任务，则<code>getTask()</code>方法返回<code>NULL</code>，继而导致Worker退出</li>
+<li><code>成员变量keepAliveTime=0</code>，尝试从workQueue队列获取任务，不进行挂起，<code>getTask()</code>方法直接返回<code>NULL</code>，继而导致Worker退出</li>
+</ul>
+</li>
+<li>退出机制3：一般情况下，调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到时恒挂起。但是当<code>执行器的状态&gt;=STOP || (执行器的状态=SHUTDOWN &amp;&amp; workQueue为空)</code>，此时调用<code>getTask()</code>方法会直接返回<code>NULL</code>，继而导致Worker退出</li>
+</ol>
+<p><font color='red'>需要注意的是</font>：每次Worker退出都会去调用<code>tryTerminate()</code>方法，查看执行器是否能够进入<code>TERMINATED</code>状态。</p>
+<h4 id="1-5-4、中断"><a href="#1-5-4、中断" class="headerlink" title="1.5.4、中断"></a><strong>1.5.4、中断</strong></h4><p>根据[1]知道，对于中断信号如何响应处理，由具体程序具体决定，可以不响应处理的。 </p>
+<h5 id="1-5-4-1、Worker运转过程中的中断信号处理点"><a href="#1-5-4-1、Worker运转过程中的中断信号处理点" class="headerlink" title="1.5.4.1、Worker运转过程中的中断信号处理点"></a><strong>1.5.4.1、Worker运转过程中的中断信号处理点</strong></h5><p>Worker运转过程中有3个中断信号处理点（其中一个是“<font color='red'>潜在可能点</font>”）：<br><strong>点1</strong>：<code>getTask()</code>方法中的<code>workQueue.poll</code>或者<code>workQueue.take</code>语句，即中断获取任务的挂起，<code>workQueue.poll</code>或者<code>workQueue.take</code>语句响应中断，抛出<code>InterruptedException</code>异常，复位中断标志位，接着进入下一轮循环：首先判断是否满足直接返回NULL的条件（此时，触发Worker的“退出机制2”或者“退出机制3”），不满足则继续调用<code>workQueue.poll</code>或者<code>workQueue.take</code>语句进行获取任务的挂起<br><strong>点2</strong>：<code>runWorker()</code>方法中的如下源码，它表示的含义是：当执行器的状态&gt;&#x3D;STOP时，如果已有中断信号则传递下去，否则自中断产生一个中断信号；否则，即执行器的状态&#60;STOP时，对已有的中断标志位进行复位<br><strong>点3</strong>：真正的任务执行过程中，即<code>task.run()</code>执行过程中，它是<font color='red'>潜在可能点，即对中断信号是否处理是未定的</font></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((runStateAtLeast(ctl.get(), STOP) ||</span><br><span class="line">                     (Thread.interrupted() &amp;&amp;</span><br><span class="line">                      runStateAtLeast(ctl.get(), STOP))) &amp;&amp;</span><br><span class="line">                    !wt.isInterrupted())</span><br><span class="line">                    wt.interrupt();</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-5-4-2、中断信号来源"><a href="#1-5-4-2、中断信号来源" class="headerlink" title="1.5.4.2、中断信号来源"></a><strong>1.5.4.2、中断信号来源</strong></h5><p>对于针对Worker运转的中断信号来源，这里介绍的来自于TPE内部逻辑，而不考虑其他的（比如“在<code>task.run()</code>自中断”，“以任意可行的方式获取Worker对应的Thread实例，在其上调用<code>interrupt()</code>方法”等）。</p>
+<p>在继续介绍之前，首先介绍“Idle Worker”的概念：查看源码1中的<code>w.lock()</code>和源码2中的<code>w.tryLock()</code>语句，可知“Idle Worker”就是还未获取到任务的Worker。</p>
+<p>源码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">runWorker</span><span class="params">(Worker w)</span> &#123;</span><br><span class="line">    <span class="type">Thread</span> <span class="variable">wt</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="type">Runnable</span> <span class="variable">task</span> <span class="operator">=</span> w.firstTask;</span><br><span class="line">    w.firstTask = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    w.unlock(); <span class="comment">// allow interrupts</span></span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">completedAbruptly</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (task != <span class="literal">null</span> || (task = getTask()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            w.lock();</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源码2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">interruptIdleWorkers</span><span class="params">(<span class="type">boolean</span> onlyOne)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">mainLock</span> <span class="operator">=</span> <span class="built_in">this</span>.mainLock;</span><br><span class="line">    mainLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Worker w : workers) &#123;</span><br><span class="line">            <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> w.thread;</span><br><span class="line">            <span class="keyword">if</span> (!t.isInterrupted() &amp;&amp; w.tryLock()) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    t.interrupt();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (SecurityException ignore) &#123;</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    w.unlock();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (onlyOne)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        mainLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>来自于TPE内部逻辑的中断信号：</p>
+<ul>
+<li>调用<code>shutdown()</code>方法，其内部调用<code>interruptIdleWorkers()</code>方法，它会给所有“Idle Worker”发送中断信号（此时执行器状态为<code>SHUTDOWN</code>），该中断信号只能被“点1”或者“点2（存在一种进入‘点2’的并发情形）”响应处理，而不能到达“点3”</li>
+<li>调用<code>shutdownNow()</code>方法，其内部调用<code>interruptWorkers()</code>方法，它会给所有“Worker”发送中断信号（此时执行器状态为<code>STOP</code>），该中断信号可能被“点1”或者“点2”或者“点3”响应处理，或者继续存在</li>
+<li>如果执行器的状态&gt;&#x3D;STOP，且当下没有中断信号，那么在“点2”处自中断，产生一个中断信号，该中断信号可能被“点3”响应处理，或者继续存在</li>
+</ul>
+<h4 id="1-5-5、数量"><a href="#1-5-5、数量" class="headerlink" title="1.5.5、数量"></a><strong>1.5.5、数量</strong></h4><h5 id="1-5-5-1、执行器状态-RUNNING"><a href="#1-5-5-1、执行器状态-RUNNING" class="headerlink" title="1.5.5.1、执行器状态&#x3D;RUNNING"></a><strong>1.5.5.1、执行器状态&#x3D;RUNNING</strong></h5><p><strong>影响Worker数量之提交任务</strong>：</p>
+<ol>
+<li>最开始也即没有提交任何任务时，此时<code>Worker数量=0</code>，随着任务的提交，线性递增Worker数量直到<code>Worker数量=corePoolSize</code>，在本阶段，当有新的提交任务时，直接新增一个Worker，而不管已有Worker是否空闲</li>
+<li>在<code>Worker数量=corePoolSize</code>时，继续提交任务，那么新提交的任务会被插入到workQueue队列，<font color='red'>当workQueue队列是无界队列时，永远不可能进入阶段3和阶段4，但一般workQueue为有界队列</font></li>
+<li>当<code>Worker数量=corePoolSize</code>，workQueue队列为有界队列且队列已满，此时继续提交任务，新增一个Worker，直到<code>Worker数量=maximumPoolSize</code></li>
+<li>当<code>Worker数量=maximumPoolSize</code>，workQueue队列为有界队列且队列已满，此时继续提交任务，触发“拒绝执行策略”</li>
+</ol>
+<p>以上步骤示意图见图2。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20210513-0-2.png"></p>
+<p><strong>影响Worker数量之Worker退出</strong>：</p>
+<ol>
+<li>退出机制1</li>
+<li>退出机制2</li>
+</ol>
+<h5 id="1-5-5-2、执行器状态-SHUTDOWN"><a href="#1-5-5-2、执行器状态-SHUTDOWN" class="headerlink" title="1.5.5.2、执行器状态&gt;&#x3D;SHUTDOWN"></a><strong>1.5.5.2、执行器状态&gt;&#x3D;SHUTDOWN</strong></h5><p><strong>影响Worker数量之提交任务</strong>：禁止提交，触发“拒绝执行策略”。</p>
+<p><strong>影响Worker数量之Worker退出</strong>：</p>
+<ol>
+<li>退出机制1</li>
+<li>退出机制2</li>
+<li>退出机制3</li>
+</ol>
+<h2 id="二、具体动作"><a href="#二、具体动作" class="headerlink" title="二、具体动作"></a><strong>二、具体动作</strong></h2><h3 id="2-1、构造TPE"><a href="#2-1、构造TPE" class="headerlink" title="2.1、构造TPE"></a><strong>2.1、构造TPE</strong></h3><p>构造TPE实例的构造方法涉及到的所有参数如下：</p>
+<ul>
+<li><code>int corePoolSize</code>，对应成员变量<code>int corePoolSize</code></li>
+<li><code>int maximumPoolSize</code>，对应成员变量<code>int maximumPoolSize</code></li>
+<li><code>long keepAliveTime</code>和<code>TimeUnit unit</code>，对应成员变量<code>long keepAliveTime</code></li>
+<li><code>BlockingQueue&lt;Runnable&gt; workQueue</code>，对应成员变量<code>BlockingQueue&lt;Runnable&gt; workQueue</code></li>
+<li><code>ThreadFactory threadFactory</code>，对应成员变量<code>ThreadFactory threadFactory</code></li>
+<li><code>RejectedExecutionHandler handler</code>，对应成员变量<code>RejectedExecutionHandler handler</code></li>
+</ul>
+<p>上述成员变量在TPE实例构造完成后都可被动态修改，除了<code>BlockingQueue&lt;Runnable&gt; workQueue</code>成员变量，<font color='red'>但是不推荐进行动态修改</font>。</p>
+<h3 id="2-2、提交任务"><a href="#2-2、提交任务" class="headerlink" title="2.2、提交任务"></a><strong>2.2、提交任务</strong></h3><p>分为两类：</p>
+<ol>
+<li>只提交任务，不关注执行结果，不能对执行过程进行控制：<ul>
+<li><code>public void execute(Runnable command)</code>，执行<code>command</code>实例对象的<code>run()</code>方法，不关注执行结果，其实也没有执行结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ul>
+</li>
+<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>）：<ul>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，执行<code>task</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
+<li><code>public Future&lt;?&gt; submit(Runnable task)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果result，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-3、关闭执行器"><a href="#2-3、关闭执行器" class="headerlink" title="2.3、关闭执行器"></a><strong>2.3、关闭执行器</strong></h3><p>有两个关闭方法：<code>shutdown()</code>和<code>shutdownNow()</code>。<br><strong>1、shutdown()</strong><br>方法体源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">shutdown</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">mainLock</span> <span class="operator">=</span> <span class="built_in">this</span>.mainLock;</span><br><span class="line">    mainLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        checkShutdownAccess();</span><br><span class="line">        advanceRunState(SHUTDOWN);                               <span class="comment">//1</span></span><br><span class="line">        interruptIdleWorkers();                                  <span class="comment">//2</span></span><br><span class="line">        onShutdown(); <span class="comment">// hook for ScheduledThreadPoolExecutor    //3</span></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        mainLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    tryTerminate();                                              <span class="comment">//4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析如下：</p>
+<ul>
+<li>&#x2F;&#x2F;1，将执行器状态变为<code>SHUTDOWN</code></li>
+<li>&#x2F;&#x2F;2，给“Idle Worker”发中断信号，详见“1.5.4.2、中断信号来源”小节</li>
+<li>&#x2F;&#x2F;3，空实现</li>
+<li>&#x2F;&#x2F;4，<code>tryTerminate()</code>，查看执行器是否能够进入<code>TERMINATED</code>状态。Worker退出的时候也会调用该方法</li>
+</ul>
+<p><strong>2、shutdownNow()</strong><br>方法体源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;Runnable&gt; <span class="title function_">shutdownNow</span><span class="params">()</span> &#123;</span><br><span class="line">    List&lt;Runnable&gt; tasks;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">mainLock</span> <span class="operator">=</span> <span class="built_in">this</span>.mainLock;</span><br><span class="line">    mainLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        checkShutdownAccess();</span><br><span class="line">        advanceRunState(STOP);                            <span class="comment">//1</span></span><br><span class="line"></span><br><span class="line">        interruptWorkers();                               <span class="comment">//2</span></span><br><span class="line"></span><br><span class="line">        tasks = drainQueue();                             <span class="comment">//3</span></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        mainLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    tryTerminate();                                       <span class="comment">//4</span></span><br><span class="line">    <span class="keyword">return</span> tasks;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析如下：</p>
+<ul>
+<li>&#x2F;&#x2F;1，将执行器状态变为<code>STOP</code></li>
+<li>&#x2F;&#x2F;2，给所有Worker发中断信号，详见“1.5.4.2、中断信号来源”小节</li>
+<li>&#x2F;&#x2F;3，把workQueue中的任务直接返回给调用者，并将其清空</li>
+<li>&#x2F;&#x2F;4，<code>tryTerminate()</code>，查看执行器是否能够进入<code>TERMINATED</code>状态。Worker退出的时候也会调用该方法</li>
+</ul>
+<h2 id="三、监控"><a href="#三、监控" class="headerlink" title="三、监控"></a><strong>三、监控</strong></h2><p>TPE类提供了很多监控API（需要注意的是，在并发语境中，API调用返回的是某个并发瞬时值），如果需要可以实现一个异步监控任务对执行器的状态进行监控：</p>
+<ul>
+<li><code>int getCorePoolSize()</code>：设置的核心Worker数量，即成员变量<code>corePoolSize</code>值</li>
+<li><code>int getMaximumPoolSize()</code>：设置的最大Worker数量，即成员变量<code>maximumPoolSize</code>值</li>
+<li><code>int getLargestPoolSize()</code>：历史峰值Worker数量</li>
+<li><code>int getPoolSize()</code>：当前Worker数量，需要注意的是，当<code>执行器状态&gt;=TIDYING</code>时，返回0</li>
+<li><code>int getActiveCount()</code>：当前活跃Worker（即正在执行任务的Worker）数量</li>
+<li><code>long getCompletedTaskCount()</code>：已经完成的任务总数</li>
+<li><code>long getTaskCount</code>：是“已经完成的任务总数”，“正在执行的任务总数”和“workQueue队列中的任务总数”三部分之和</li>
+</ul>
+<h2 id="四、最佳实践"><a href="#四、最佳实践" class="headerlink" title="四、最佳实践"></a><strong>四、最佳实践</strong></h2><h3 id="4-1、核心Worker数量"><a href="#4-1、核心Worker数量" class="headerlink" title="4.1、核心Worker数量"></a><strong>4.1、核心Worker数量</strong></h3><p>我们知道，“核心Worker数量”与“核心线程数量”等价。</p>
+<p>核心线程数量根据执行的任务是属于“CPU密集型”还是“IO密集型”进行配置：</p>
+<ul>
+<li>CPU密集型。执行CPU密集型任务的线程大部分时间处于<code>RUNNING</code>状态[1]，因此只有在真正的多核CPU上才可能得到加速，在单核CPU上并不能得到很大的加速，一般公式为：<code>核心线程数量=CPU核数+1</code></li>
+<li>IO密集型。执行IO密集型任务的线程大部分时间处于<code>IO_WAIT</code>状态[1]，处于<code>IO_WAIT</code>状态时未占用CPU资源，相应的CPU资源资源可分配给其他线程，因此对于IO密集型任务，可配置远大于CPU核数的线程数，一般公式为：<code>核心线程数量=CPU核数*2</code></li>
+</ul>
+<p><strong>备注</strong>：可通过<code>Runtime.getRuntime().availableProcessors()</code>语句获取CPU核数</p>
+<h3 id="4-2、一般情况下只需关注执行器的RUNNING状态"><a href="#4-2、一般情况下只需关注执行器的RUNNING状态" class="headerlink" title="4.2、一般情况下只需关注执行器的RUNNING状态"></a><strong>4.2、一般情况下只需关注执行器的<code>RUNNING</code>状态</strong></h3><p>一般情况下只需关注执行器的<code>RUNNING</code>状态，无需关注其他状态，理解处于<code>RUNNING</code>状态的执行器内部运转还是较为简单的。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">《Java并发编程基础》</a><br>[2]<a target="_blank" rel="noopener" href="https://www.cnblogs.com/andy-songwei/p/10784049.html">https://www.cnblogs.com/andy-songwei/p/10784049.html</a><br>[3]<a target="_blank" rel="noopener" href="https://www.hollischuang.com/archives/6338">https://www.hollischuang.com/archives/6338</a><br>[4]<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3001431f1b0a">https://www.jianshu.com/p/3001431f1b0a</a><br>[5]<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/axWymUaYaARtvsYqvfyTtw">https://mp.weixin.qq.com/s/axWymUaYaARtvsYqvfyTtw</a><br>[6]<a target="_blank" rel="noopener" href="https://www.cnblogs.com/thisiswhy/p/12690630.html">https://www.cnblogs.com/thisiswhy/p/12690630.html</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/" title="ThreadPoolExecutor">https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/04/25/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/" rel="prev" title="并发工具类">
+      <i class="fa fa-chevron-left"></i> 并发工具类
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/05/14/ScheduledThreadPoolExecutor/" rel="next" title="ScheduledThreadPoolExecutor">
+      ScheduledThreadPoolExecutor <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/05/13/ThreadPoolExecutor/";
+    this.page.identifier = "2021/05/13/ThreadPoolExecutor/";
+    this.page.title = "ThreadPoolExecutor";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

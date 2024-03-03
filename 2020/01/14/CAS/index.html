@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、CAS原子操作含义CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回。 二、CAS原子操作存在的问题2.1、ABA问题有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAS">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/01/14/CAS/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、CAS原子操作含义CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回。 二、CAS原子操作存在的问题2.1、ABA问题有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-14T09:44:50.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.184Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/01/14/CAS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CAS | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/01/14/CAS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CAS
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-14 17:44:50" itemprop="dateCreated datePublished" datetime="2020-01-14T17:44:50+08:00">2020-01-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/01/14/CAS/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/01/14/CAS/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
+<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
+<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
+<ul>
+<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
+<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
+</ul>
+<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
+<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
+<br/>
+
+<p><strong>备注：</strong></p>
+<ul>
+<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
+</ul>
+<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
+<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
+<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/01/14/CAS/" title="CAS">https://dslztx.github.io/blog/2020/01/14/CAS/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/" rel="prev" title="happens-before规则">
+      <i class="fa fa-chevron-left"></i> happens-before规则
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" rel="next" title="内存屏障">
+      内存屏障 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/01/14/CAS/";
+    this.page.identifier = "2020/01/14/CAS/";
+    this.page.title = "CAS";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

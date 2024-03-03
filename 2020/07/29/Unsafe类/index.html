@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍sun.misc.Unsafe类，它是实现Java并发包的基石类之一。分4个类别进行介绍：  CAS操作 put*Volatile和get*Volatile put*和get* putOrderedInt，putOrderedLong，putOrderedObject  一、前言1.1、volatile变量内存语义参见《synchronized-volatile-final关键词》，主要包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unsafe类">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/07/29/Unsafe%E7%B1%BB/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍sun.misc.Unsafe类，它是实现Java并发包的基石类之一。分4个类别进行介绍：  CAS操作 put*Volatile和get*Volatile put*和get* putOrderedInt，putOrderedLong，putOrderedObject  一、前言1.1、volatile变量内存语义参见《synchronized-volatile-final关键词》，主要包">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-29T09:48:33.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.244Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/07/29/Unsafe%E7%B1%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Unsafe类 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/07/29/Unsafe%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Unsafe类
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-29 17:48:33" itemprop="dateCreated datePublished" datetime="2020-07-29T17:48:33+08:00">2020-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/07/29/Unsafe%E7%B1%BB/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/29/Unsafe类/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍<code>sun.misc.Unsafe</code>类，它是实现Java并发包的基石类之一。<br>分4个类别进行介绍：</p>
+<ul>
+<li>CAS操作</li>
+<li><code>put*Volatile</code>和<code>get*Volatile</code></li>
+<li><code>put*</code>和<code>get*</code></li>
+<li><code>putOrderedInt</code>，<code>putOrderedLong</code>，<code>putOrderedObject</code></li>
+</ul>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a><strong>一、前言</strong></h2><h3 id="1-1、volatile变量内存语义"><a href="#1-1、volatile变量内存语义" class="headerlink" title="1.1、volatile变量内存语义"></a><strong>1.1、volatile变量内存语义</strong></h3><p>参见<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>，主要包括3个方面：</p>
+<ul>
+<li>volatile变量的简单读写操作是原子的</li>
+<li>具有volatile变量写语义，即“对变量的写对后续的读立即可见”</li>
+<li>满足volatile变量happens-before规则</li>
+</ul>
+<h3 id="1-2、以“直接操作变量内存地址”形式操作变量"><a href="#1-2、以“直接操作变量内存地址”形式操作变量" class="headerlink" title="1.2、以“直接操作变量内存地址”形式操作变量"></a><strong>1.2、以“直接操作变量内存地址”形式操作变量</strong></h3><p>本文所述方法以“直接操作变量内存地址”形式操作变量，跟“一般直白”形式操作变量不同。</p>
+<p>对于是否有volatile变量内存语义，两者的区别是：</p>
+<ul>
+<li>对于“一般直白”形式，以变量是否由volatile修饰决定，比如“代码片段1中的&#x2F;&#x2F;1和&#x2F;&#x2F;2分别具有volatile变量内存语义，&#x2F;&#x2F;3和&#x2F;&#x2F;4不具有volatile变量内存语义”</li>
+<li>对于“直接操作变量内存地址”形式，不能感知是否由volatile修饰，<font color='red'>故不能以变量是否由volatile修饰决定</font>，只能以“方法设计意图是否提供volatile变量内存语义”决定，比如“代码片段2中&#x2F;&#x2F;3和&#x2F;&#x2F;4分别具有volatile变量内存语义，&#x2F;&#x2F;1和&#x2F;&#x2F;2不具有volatile变量内存语义”</li>
+</ul>
+<p>代码片段1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">VolatileExample</span> &#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">int</span> a;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getA</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> a;          <span class="comment">//1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setA</span><span class="params">(<span class="type">int</span> a)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;        <span class="comment">//2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getB</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> b;          <span class="comment">//3</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setB</span><span class="params">(<span class="type">int</span> b)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.b = b;        <span class="comment">//4</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码片段2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">VolatileExample</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> Unsafe.getUnsafe();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> valueAOffset;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> valueBOffset;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            valueAOffset = unsafe.objectFieldOffset(AtomicInteger.class.getDeclaredField(<span class="string">&quot;a&quot;</span>));</span><br><span class="line"></span><br><span class="line">            valueBOffset = unsafe.objectFieldOffset(AtomicInteger.class.getDeclaredField(<span class="string">&quot;b&quot;</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getA</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> unsafe.getInt(<span class="built_in">this</span>, valueAOffset);           <span class="comment">//1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setA</span><span class="params">(<span class="type">int</span> a)</span> &#123;</span><br><span class="line">        unsafe.putInt(<span class="built_in">this</span>, valueAOffset, a);               <span class="comment">//2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getB</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> unsafe.getIntVolatile(<span class="built_in">this</span>, valueBOffset);   <span class="comment">//3</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setB</span><span class="params">(<span class="type">int</span> b)</span> &#123;</span><br><span class="line">        unsafe.putIntVolatile(<span class="built_in">this</span>, valueBOffset, b);       <span class="comment">//4</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3、几种操作形式得到的volatile变量内存语义是等价和可互操作的"><a href="#1-3、几种操作形式得到的volatile变量内存语义是等价和可互操作的" class="headerlink" title="1.3、几种操作形式得到的volatile变量内存语义是等价和可互操作的"></a><strong>1.3、几种操作形式得到的volatile变量内存语义是等价和可互操作的</strong></h3><p>几种操作形式得到的volatile变量内存语义是等价和可互操作的，操作形式有：</p>
+<ul>
+<li>以“一般直白”形式进行volatile变量操作</li>
+<li>本文所指的3个CAS操作<br>-<code>put*Volatile</code>和<code>get*Volatile</code>方法</li>
+</ul>
+<h2 id="二、CAS操作"><a href="#二、CAS操作" class="headerlink" title="二、CAS操作"></a><strong>二、CAS操作</strong></h2><p>有3个CAS操作：<code>compareAndSwapInt</code>，<code>compareAndSwapLong</code>和<code>compareAndSwapObject</code>。<br>上述CAS操作，具有volatile变量内存语义，即：</p>
+<ul>
+<li>3个方法是原子的</li>
+<li>具有volatile变量写语义，即“对变量的写对后续的读立即可见”</li>
+<li>能够满足volatile变量happens-before规则</li>
+</ul>
+<br/>
+
+<p>接下来证明CAS操作具有volatile变量内存语义。以<code>compareAndSwapInt</code>方法为例，在X86指令架构中，跟踪其本地实现源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">        <span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">        &#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">        &#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">        <span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">        <span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">        oop     p       = JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">        jint    * addr  = (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">        <span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">        <span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">                          : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">                          : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">                          : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">        <span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知在执行<code>compareAndSwapInt</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>；否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
+<p><strong>如果是单核情形</strong>，如上所述——优化不加<code>LOCK指令前缀</code>，接下来证明的确实现volatile变量内存语义：</p>
+<ul>
+<li>在单核情形中，<code>cmpxchgl</code>指令本身是原子的</li>
+<li>在单核情形中，对变量的写对后续的读立即可见</li>
+<li>根据<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>，为实现volatile变量happens-before规则，还需按照方案1添加内存屏障，但是在X86指令架构中，上述内存屏障对应的重排序情形不被允许，故不需要按照方案1添加内存屏障</li>
+</ul>
+<p><strong>如果是多核情形</strong>，加上<code>LOCK指令前缀</code>，接下来证明的确实现volatile变量内存语义：</p>
+<ul>
+<li>在多核情形中，<code>LOCK + cmpxchgl</code>是原子的</li>
+<li>在多核情形中，<code>LOCK指令前缀</code>使得“刷新缓存到内存”和“使缓存失效”，故“对变量的写对后续的读立即可见”</li>
+<li>根据<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>，为实现volatile变量happens-before规则，还需按照方案1添加内存屏障，但是在X86指令架构中，上述内存屏障对应的重排序情形不被允许，故不需要按照方案1添加内存屏障；即便不是这样，<code>LOCK指令前缀</code>使得<code>禁止重排序</code>，也就等价于已按照方案1添加内存屏障</li>
+</ul>
+<br/>
+
+<p>方案1：</p>
+<ul>
+<li>在每个volatile写操作的前面插入一个LoadStore内存屏障</li>
+<li>在每个volatile写操作的前面插入一个StoreStore内存屏障</li>
+<li>在每个volatile读操作的后面插入一个LoadLoad内存屏障</li>
+<li>在每个volatile读操作的后面插入一个LoadStore内存屏障</li>
+</ul>
+<h2 id="三、put-Volatile和get-Volatile"><a href="#三、put-Volatile和get-Volatile" class="headerlink" title="三、put*Volatile和get*Volatile"></a><strong>三、<code>put*Volatile</code>和<code>get*Volatile</code></strong></h2><p>我们知道，在Java中有8个基本类型和1个引用类型，因此有9个相应的<code>put*Volatile</code>和<code>get*Volatile</code>方法。</p>
+<p>9个相应的<code>put*Volatile</code>方法：</p>
+<ul>
+<li>putBooleanVolatile</li>
+<li>putByteVolatile</li>
+<li>putCharVolatile</li>
+<li>putShortVolatile</li>
+<li>putIntVolatile</li>
+<li>putFloatVolatile</li>
+<li>putLongVolatile</li>
+<li>putDoubleVolatile</li>
+<li>putObjectVolatile</li>
+</ul>
+<p>9个相应的<code>get*Volatile</code>方法：</p>
+<ul>
+<li>getBooleanVolatile</li>
+<li>getByteVolatile</li>
+<li>getCharVolatile</li>
+<li>getShortVolatile</li>
+<li>getIntVolatile</li>
+<li>getFloatVolatile</li>
+<li>getLongVolatile</li>
+<li>getDoubleVolatile</li>
+<li>getObjectVolatile</li>
+</ul>
+<p>上述方法，具有volatile变量内存语义（证明过程略），即：</p>
+<ul>
+<li><code>put*Volatile</code>方法是原子的，具有volatile变量写语义，能够满足volatile变量happens-before规则</li>
+<li><code>get*Volatile</code>方法是原子的，具有volatile变量读语义，能够满足volatile变量happens-before规则</li>
+</ul>
+<h2 id="四、put-和get"><a href="#四、put-和get" class="headerlink" title="四、put*和get*"></a><strong>四、<code>put*</code>和<code>get*</code></strong></h2><p>我们知道，在Java中有8个基本类型和1个引用类型，因此有9个相应的<code>put*</code>和<code>get*</code>方法。</p>
+<p>9个相应的<code>put*</code>方法：</p>
+<ul>
+<li>putBoolean</li>
+<li>putByte</li>
+<li>putChar</li>
+<li>putShort</li>
+<li>putInt</li>
+<li>putFloat</li>
+<li>putLong</li>
+<li>putDouble</li>
+<li>putObject</li>
+</ul>
+<p>9个相应的<code>get*</code>方法：</p>
+<ul>
+<li>getBoolean</li>
+<li>getByte</li>
+<li>getChar</li>
+<li>getShort</li>
+<li>getInt</li>
+<li>getFloat</li>
+<li>getLong</li>
+<li>getDouble</li>
+<li>getObject</li>
+</ul>
+<p>上述方法，不具有volatile变量内存语义（证明过程略），具体是：</p>
+<ul>
+<li>操作不一定是原子的</li>
+<li>对变量的写操作不具有volatile变量写语义，而只是普通的变量写语义</li>
+<li>不满足volatile变量happens-before规则</li>
+</ul>
+<h2 id="五、putOrderedInt，putOrderedLong和putOrderedObject"><a href="#五、putOrderedInt，putOrderedLong和putOrderedObject" class="headerlink" title="五、putOrderedInt，putOrderedLong和putOrderedObject"></a><strong>五、<code>putOrderedInt</code>，<code>putOrderedLong</code>和<code>putOrderedObject</code></strong></h2><p>有3个方法：<code>putOrderedInt</code>，<code>putOrderedLong</code>和<code>putOrderedObject</code>。</p>
+<p>上述方法与“volatile变量内存语义”的契合情况描述如下：</p>
+<ul>
+<li>对于写操作是原子的</li>
+<li>对变量的写操作不具有volatile变量写语义，即“对变量的写不能对后续的读立即可见”。具有volatile变量写语义的操作（上文中的“以‘一般直白形式’写volatile变量”，“3个CAS操作中的写部分”，“<code>put*Volatile</code>方法”）在实现写时为使具有volatile变量写语义，需要添加一个绑定型内存屏障，该绑定型内存屏障用来使得“刷新缓存到内存，并使相应的缓存失效”，而<code>putOrderedInt/putOrderedLong/putOrderedObject</code>方法没有添加该绑定型内存屏障，故不具有volatile变量写语义。当然有失必有得，后者相对于前者有更好的写性能，这也是后者被设计出来的原因，后者常见的一个应用场景是“一系列写操作之后，统一作一个可见性确保操作，再一个读取操作”</li>
+<li>根据<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>博文中“二、实现概述”小节内容我们知道，为实现<code>volatile变量happens-before规则——“对一个volatile域的写，happens-before于任意后续对这个volatile域的读”</code>，需要满足“实现volatile关键词内存语义”下的第2和第3个条件，但是从实际使用该happens-before规则的角度——<code>如果“对这个volatile域的读”，能够读到“对该volatile域的写”，那么“对这个volatile域的读”就是“后续”的</code>，只需要满足第3个条件即可，前者需要满足第2个条件是因为“否则后续的读不保证能读到前面的写”，我们称前者为“狭义的volatile变量happens-before规则”，后者为“广义的volatile变量happens-before规则”。在这里，以上3个方法在写操作前会插入一个LoadStore和一个StoreStore内存屏障，因此如果配对“具有volatile变量读语义的操作”就能应用“广义的volatile变量happens-before规则”</li>
+</ul>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>关于以上“广义的volatile变量happens-before规则”的论述，属于笔者的自我理解，如有错误敬请指教。Stack Overflow上这个<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/7557156/atomicxxx-lazyset-in-terms-of-happens-before-edges">回答</a>中认为以上3个方法不满足“volatile变量happens-before规则”，是因为他们所指的是“狭义的volatile变量happens-before规则”，故需要写入具有volatile变量写语义，而以上3个方法不具有volatile变量写语义</li>
+<li>支持笔者自我理解的证据有：<ul>
+<li>查看JDK 16中Unsafe类源码，<code>putOrderedObject</code>方法的JavaDoc中有一句——<code>Corresponds to C11 atomic_store_explicit(..., memory_order_release)</code>，再结合下述资料即可证明论述（当然这里同时也证明了上述3个方法的写操作是原子的）：<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/atomic/atomic_store_explicit/">资料1</a>，<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/atomic/memory_order/">资料2</a>，<a target="_blank" rel="noopener" href="https://m.php.cn/manual/view/34181.html">资料3</a>，<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45566448">资料4</a></li>
+<li>查看JDK 16中FutureTask类源码，<code>set</code>方法实现中转发调用VarHandle类的<code>setRelease</code>方法（在JDK 1.8中是转发调用Unsafe类的<code>putOrderedInt</code>方法，自然可推断两个方法是等价的），<code>setRelease</code>方法的JavaDoc中有一句——<code>Ignoring the many semantic differences from C and C++, this method has memory ordering effects compatible with &#123;@code memory_order_release&#125; ordering.</code>，结合以上第1点，论述得证</li>
+</ul>
+</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="http://psy-lob-saw.blogspot.com/2012/12/atomiclazyset-is-performance-win-for.html">http://psy-lob-saw.blogspot.com/2012/12/atomiclazyset-is-performance-win-for.html</a><br>[2]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/1468007/atomicinteger-lazyset-vs-set">https://stackoverflow.com/questions/1468007/atomicinteger-lazyset-vs-set</a><br>[3]<a target="_blank" rel="noopener" href="http://ifeve.com/how-does-atomiclong-lazyset-work/">http://ifeve.com/how-does-atomiclong-lazyset-work/</a><br>[4]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/58185339/does-storestore-memory-barrier-in-java-forbid-the-read-write-reordering">https://stackoverflow.com/questions/58185339/does-storestore-memory-barrier-in-java-forbid-the-read-write-reordering</a><br>[5]<a target="_blank" rel="noopener" href="https://github.com/fengjiachun/doc/blob/master/concurrent/%E6%B5%85%E6%9E%90JUC%E4%B8%ADAtomic%20class%E7%9A%84lazySet.md">https://github.com/fengjiachun/doc/blob/master/concurrent/%E6%B5%85%E6%9E%90JUC%E4%B8%ADAtomic%20class%E7%9A%84lazySet.md</a><br>[6]<a target="_blank" rel="noopener" href="https://blog.csdn.net/u010597819/article/details/113922471">https://blog.csdn.net/u010597819/article/details/113922471</a><br>[7]<a href="/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a><br>[8]<a target="_blank" rel="noopener" href="https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6275329">https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6275329</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">https://dslztx.github.io/blog/2020/07/29/Unsafe类/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/28/%E8%AE%A1%E6%95%B0%E5%99%A8%E5%BC%82%E6%AD%A5%E6%89%93%E5%8D%B0%E9%87%8D%E7%BD%AE%E4%B9%8B%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/" rel="prev" title="计数器异步打印重置之线程安全">
+      <i class="fa fa-chevron-left"></i> 计数器异步打印重置之线程安全
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/" rel="next" title="原子操作类">
+      原子操作类 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/07/29/Unsafe%E7%B1%BB/";
+    this.page.identifier = "2020/07/29/Unsafe类/";
+    this.page.title = "Unsafe类";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

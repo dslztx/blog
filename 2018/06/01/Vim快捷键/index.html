@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Vim教程博大精深，本文更多属于自我理解性质，请悉知。Vim的学习曲线非常陡峭，作者认为“面向操作学习Vim”是科学合适的学习途径，能够降低学习Vim的难度。具体来说，“Vim操作”被设计有详细用法，详细用法中涉及到了“适用模式，是否支持重复执行N次操作，限定范围形式，是否支持文本对象”等内容，“Vim操作”是核心，它串联了这些内容，跟学习使用Linux中“Linux命令”是核心一样。可通过:he">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vim快捷键">
+<meta property="og:url" content="https://dslztx.github.io/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="Vim教程博大精深，本文更多属于自我理解性质，请悉知。Vim的学习曲线非常陡峭，作者认为“面向操作学习Vim”是科学合适的学习途径，能够降低学习Vim的难度。具体来说，“Vim操作”被设计有详细用法，详细用法中涉及到了“适用模式，是否支持重复执行N次操作，限定范围形式，是否支持文本对象”等内容，“Vim操作”是核心，它串联了这些内容，跟学习使用Linux中“Linux命令”是核心一样。可通过:he">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-06-01T05:48:56.000Z">
+<meta property="article:modified_time" content="2018-06-01T05:48:56.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Vim">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Vim快捷键 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vim快捷键
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-01 13:48:56" itemprop="dateCreated datePublished" datetime="2018-06-01T13:48:56+08:00">2018-06-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">生产力工具</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/%E9%94%AE%E7%9B%98%E6%B5%81/" itemprop="url" rel="index"><span itemprop="name">键盘流</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/01/Vim快捷键/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Vim教程博大精深，本文更多属于自我理解性质，请悉知。<br>Vim的学习曲线非常陡峭，作者认为“面向操作学习Vim”是科学合适的学习途径，能够降低学习Vim的难度。具体来说，“Vim操作”被设计有详细用法，详细用法中涉及到了“适用模式，是否支持重复执行N次操作，限定范围形式，是否支持文本对象”等内容，<font color='red'>“Vim操作”是核心，它串联了这些内容，跟学习使用Linux中“Linux命令”是核心一样</font>。<br>可通过<code>:help topic</code>查看关于某个“topic”的帮助内容。</p>
+<h2 id="一、操作"><a href="#一、操作" class="headerlink" title="一、操作"></a><strong>一、操作</strong></h2><h3 id="1-1、模式切换"><a href="#1-1、模式切换" class="headerlink" title="1.1、模式切换"></a><strong>1.1、模式切换</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>i</td>
+<td>从普通模式切入插入模式，在当前光标处插入</td>
+</tr>
+<tr>
+<td>A</td>
+<td>从普通模式切入插入模式，在当前行行尾插入</td>
+</tr>
+<tr>
+<td>v</td>
+<td>从普通模式切入可视模式，按照字符选取</td>
+</tr>
+<tr>
+<td>V</td>
+<td>从普通模式切入可视模式，按照行选取</td>
+</tr>
+<tr>
+<td>连续按Esc一次或者两次</td>
+<td>从插入模式、命令模式、可视模式切回普通模式</td>
+</tr>
+</tbody></table>
+<h3 id="1-2、移动"><a href="#1-2、移动" class="headerlink" title="1.2、移动"></a><strong>1.2、移动</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>gg</td>
+<td>定位到文件头部</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>G</td>
+<td>定位到文件尾部</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>NG</td>
+<td>定位到第N行</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>0</td>
+<td>定位到行首</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>^</td>
+<td>定位到行首第一个非空字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>$</td>
+<td>定位到行尾</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>h</td>
+<td>左移一个字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>l</td>
+<td>右移一个字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>k</td>
+<td>上移一个字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>j</td>
+<td>下移一个字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>f&#60;X&#62;</td>
+<td>快速定位到本行当前光标右侧第一个X字符处</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>F&#60;X&#62;</td>
+<td>快速定位到本行当前光标左侧第一个X字符处</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>t&#60;X&#62;</td>
+<td>快速定位到本行当前光标右侧第一个X字符处左侧</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>T&#60;X&#62;</td>
+<td>快速定位到本行当前光标左侧第一个X字符处右侧</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>w</td>
+<td>右移一个单词，停在单词头</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>e</td>
+<td>右移一个单词，停在单词尾</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>b</td>
+<td>左移一个单词，停在单词头</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>%</td>
+<td>定位到匹配的括号处（包括“花括号{}，圆括号()，方括号[]”，不包括“尖括号&lt;&gt;”）</td>
+<td>普通模式，可视模式</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>]m</td>
+<td>快速定位到下一个方法的“{”字符处（方法体使用“{}”字符对定义）</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>[m</td>
+<td>快速定位到上一个方法的“{”字符处（方法体使用“{}”字符对定义）</td>
+<td>普通模式，可视模式</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>Ctrl+f</td>
+<td>向下移动一页，即PageDown</td>
+<td>普通模式，可视模式</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>Ctrl+b</td>
+<td>向上移动一页，即PageUp</td>
+<td>普通模式，可视模式</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+</tbody></table>
+<h3 id="1-3、编辑"><a href="#1-3、编辑" class="headerlink" title="1.3、编辑"></a><strong>1.3、编辑</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>u</td>
+<td>撤销操作</td>
+<td>普通模式，可视模式（撤销选取并返回普通模式）</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>Ctrl+r</td>
+<td>反撤销操作</td>
+<td>普通模式</td>
+<td>[普通]支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>dd</td>
+<td>删除当前行</td>
+<td>普通模式</td>
+<td>[普通]支持</td>
+<td>[普通]不支持</td>
+<td>[普通]不支持</td>
+</tr>
+<tr>
+<td>d</td>
+<td>删除字符</td>
+<td>普通模式，可视模式（删除选取内容并退回到普通模式），命令模式</td>
+<td>[普通]不支持<br/>[可视]不支持<br/>[命令]不支持</td>
+<td>[普通]操作End<br/>[可视]不支持<br/>[命令]Range操作</td>
+<td>[普通]支持<br/>[可视]不支持<br/>[命令]不支持</td>
+</tr>
+<tr>
+<td>x（即“dl”）</td>
+<td>删除字符</td>
+<td>普通模式，可视模式（删除选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>yy</td>
+<td>复制当前行</td>
+<td>普通模式，可视模式（复制选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>y</td>
+<td>复制字符</td>
+<td>普通模式，可视模式（复制选取内容并退回到普通模式），命令模式</td>
+<td>[普通]不支持<br/>[可视]不支持<br/>[命令]不支持</td>
+<td>[普通]操作End<br/>[可视]不支持<br/>[命令]Range操作<br/></td>
+<td>[普通]支持<br/>[可视]不支持<br/>[命令]不支持</td>
+</tr>
+<tr>
+<td>p</td>
+<td>在光标后粘贴</td>
+<td>普通模式，可视模式（替换选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>r</td>
+<td>替换字符</td>
+<td>普通模式，可视模式（替换选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>~</td>
+<td>字母大小写互换</td>
+<td>普通模式，可视模式（转换选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>gu</td>
+<td>切换字母为小写</td>
+<td>普通模式，可视模式（转换选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+<td>[普通]操作End<br/>[可视]不支持</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+</tr>
+<tr>
+<td>gU</td>
+<td>切换字母为大写</td>
+<td>普通模式，可视模式（转换选取内容并退回到普通模式）</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+<td>[普通]操作End<br/>[可视]不支持</td>
+<td>[普通]支持<br/>[可视]不支持</td>
+</tr>
+</tbody></table>
+<h3 id="1-4、查找替换"><a href="#1-4、查找替换" class="headerlink" title="1.4、查找替换"></a><strong>1.4、查找替换</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;</td>
+<td>查找</td>
+<td>命令模式</td>
+<td>[命令]不支持</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>?</td>
+<td>反向查找</td>
+<td>命令模式</td>
+<td>[命令]不支持</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>n</td>
+<td>下一个查找命中</td>
+<td>普通模式</td>
+<td>[普通]支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>N</td>
+<td>下一个反向查找命中</td>
+<td>普通模式</td>
+<td>[普通]支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>&#42;和#</td>
+<td>基于光标当前所在的单词作匹配，移动光标到下一个（或上一个）匹配单词（&#42;是下一个，#是上一个，支持循环）</td>
+<td>普通模式</td>
+<td>[普通]支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>:%s&#x2F;from&#x2F;to&#x2F;gc</td>
+<td>全局替换，替换前询问</td>
+<td>命令模式</td>
+<td>[命令]不支持</td>
+<td>[命令]Range操作</td>
+<td>[命令]未探究</td>
+</tr>
+</tbody></table>
+<h3 id="1-5、书签跳转"><a href="#1-5、书签跳转" class="headerlink" title="1.5、书签跳转"></a><strong>1.5、书签跳转</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>m&#60;NAME&#62;</td>
+<td>定义名为“NAME”的书签</td>
+<td>普通模式，可视模式</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>‘&#60;NAME&#62;</td>
+<td>跳转到名为“NAME”的书签指向行</td>
+<td>普通模式，可视模式</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>&#96;&#60;NAME&#62;</td>
+<td>跳转到名为“NAME”的书签指向字符</td>
+<td>普通模式，可视模式</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>:marks</td>
+<td>查看所有书签</td>
+<td>命令模式</td>
+<td>[命令]不支持</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+</tbody></table>
+<p><strong>备注：</strong><br>名为<code>a-z</code>的书签不支持跨文件跳转，名为<code>A-Z</code>的书签支持跨文件跳转，其他名称的书签不作探究。</p>
+<h3 id="1-6、文本对象操作"><a href="#1-6、文本对象操作" class="headerlink" title="1.6、文本对象操作"></a><strong>1.6、文本对象操作</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>aw</td>
+<td>选取一个单词</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如daw）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>as</td>
+<td>选取一个句子</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如das）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>ap</td>
+<td>选取一个段落</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如dap）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a]</td>
+<td>选取一个[]结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da]）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a)</td>
+<td>选取一个()结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da)）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a}</td>
+<td>选取一个{}结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da}）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a&gt;</td>
+<td>选取一个&lt;&gt;结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da&gt;）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>at</td>
+<td>选取一个&#60;xxx&#62;&#60;&#x2F;xxx&#62;结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如dat）</td>
+<td>[普通]支持<br/>[可视]支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a”</td>
+<td>选取一个””结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da”）</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a’</td>
+<td>选取一个’’结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da’）</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+<tr>
+<td>a&#96;</td>
+<td>选取一个&#96;&#96;结构</td>
+<td>可视模式，普通模式中置于另外一个操作后面（比如da&#96;）</td>
+<td>[普通]不支持<br/>[可视]不支持</td>
+<td>[普通]未探究<br/>[可视]未探究</td>
+</tr>
+</tbody></table>
+<p>备注：<br>另外还有“i(w,s,p,],),},&gt;,t,”,’,&#96;)”，它与“a(w,s,p,],),},&gt;,t,”,’,&#96;)”大同小异。</p>
+<h3 id="1-7、文件"><a href="#1-7、文件" class="headerlink" title="1.7、文件"></a><strong>1.7、文件</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>:w</td>
+<td>保存</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:w!</td>
+<td>强制保存</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:q</td>
+<td>退出</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:q!</td>
+<td>强制退出</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:wq</td>
+<td>保存并退出</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+</tbody></table>
+<h3 id="1-8、环境"><a href="#1-8、环境" class="headerlink" title="1.8、环境"></a><strong>1.8、环境</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>:set number&#47;nonumber</td>
+<td>显示&#x2F;取消显示行号</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:set list&#47;nolist</td>
+<td>显示&#x2F;取消显示特殊字符</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:set ic&#47;noic</td>
+<td>在查找时，不区分&#x2F;区分字母大小写</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+</tbody></table>
+<h3 id="1-9、功能"><a href="#1-9、功能" class="headerlink" title="1.9、功能"></a><strong>1.9、功能</strong></h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>简单描述</th>
+<th>适用模式</th>
+<th>是否支持重复执行N次操作</th>
+<th>限定范围形式</th>
+<th>是否支持文本对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ga</td>
+<td>显示光标所在字母的ASCII编码值，表示形式有十进制，十六进制和八进制</td>
+<td>普通模式</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>Ctrl+p或者Ctrl+n</td>
+<td>在插入模式下，在你输入单词的开头字符后，通过<code>Ctrl+p</code>或者<code>Ctrl+n</code>快捷键可获得自动补全选项（自动补全数据基于所在文件生成）</td>
+<td>插入模式</td>
+<td>[插入]未探究</td>
+<td>[插入]未探究</td>
+<td>[插入]未探究</td>
+</tr>
+<tr>
+<td>gt</td>
+<td>跳转到右侧一个标签页</td>
+<td>普通模式</td>
+<td>[普通]不支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>gT</td>
+<td>跳转到左侧一个标签页</td>
+<td>普通模式</td>
+<td>[普通]不支持</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+<tr>
+<td>:sp</td>
+<td>水平分割</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:vsp</td>
+<td>垂直分割</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>:q</td>
+<td>在分屏环境中，退出当前分屏</td>
+<td>命令模式</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+<td>[命令]未探究</td>
+</tr>
+<tr>
+<td>Ctrl+w h&#47;l&#47;k&#47;j</td>
+<td>分别表示跳到左侧&#47;右侧&#47;上侧&#47;下侧分屏</td>
+<td>普通模式</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+<td>[普通]未探究</td>
+</tr>
+</tbody></table>
+<h3 id="1-10、限定范围操作"><a href="#1-10、限定范围操作" class="headerlink" title="1.10、限定范围操作"></a><strong>1.10、限定范围操作</strong></h3><h4 id="1-10-1、“Range操作”形式"><a href="#1-10-1、“Range操作”形式" class="headerlink" title="1.10.1、“Range操作”形式"></a><strong>1.10.1、“Range操作”形式</strong></h4><p>“Range”表示一个行范围，可以是单行。表示由“数字，特殊字符，书签，查找结果”元素构成。<br>示例如下。</p>
+<table>
+<thead>
+<tr>
+<th>行范围</th>
+<th>描述</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>21</td>
+<td>行21</td>
+<td><code>:21s/old/new/g</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>行1</td>
+<td><code>:1s/old/new/g</code></td>
+</tr>
+<tr>
+<td>$</td>
+<td>最后一行（注意，虽为同一个字符，上述体系中“$”表示最后一个字符，这里体系中“$”表示最后一行）</td>
+<td><code>:$s/old/new/g</code></td>
+</tr>
+<tr>
+<td>.</td>
+<td>当前行</td>
+<td><code>:.w single.txt</code>（把当前行的内容写到文件“single.txt”）</td>
+</tr>
+<tr>
+<td>%</td>
+<td>所有行，等价于“1,$”</td>
+<td><code>:%s/old/new/g</code></td>
+</tr>
+<tr>
+<td>21,25</td>
+<td>行21到行25</td>
+<td><code>:21,25s/old/new/g</code></td>
+</tr>
+<tr>
+<td>21,$</td>
+<td>行21到最后一行</td>
+<td><code>:21,$s/old/new/g</code></td>
+</tr>
+<tr>
+<td>.,$</td>
+<td>当前行到最后一行</td>
+<td><code>:.,$s/old/new/g</code></td>
+</tr>
+<tr>
+<td>.+1,$</td>
+<td>当前行的下一行到最后一行</td>
+<td><code>:.+1,$s/old/new/g</code></td>
+</tr>
+<tr>
+<td>.,.+5</td>
+<td>当前行到第6行</td>
+<td><code>:.,.+5s/old/new/g</code></td>
+</tr>
+<tr>
+<td>‘&#60;,’&#62;</td>
+<td>选取行范围（本质上也是书签指定的行范围，详细可参见“2.1、模式”小节）</td>
+<td><code>:&#39;&lt;,&#39;&gt;s/old/new/g</code></td>
+</tr>
+<tr>
+<td>‘a,’b</td>
+<td>书签a到书签b指定的行范围</td>
+<td><code>:&#39;a,&#39;bd</code></td>
+</tr>
+<tr>
+<td>.,’b</td>
+<td>当前行到书签b指定的行范围</td>
+<td><code>:.,&#39;bd</code></td>
+</tr>
+<tr>
+<td>.,&#x2F;BODY&#x2F;</td>
+<td>当前行到接下来第一次包含“BODY”的行范围</td>
+<td><code>.,/BODY/d</code></td>
+</tr>
+</tbody></table>
+<h4 id="1-10-2、“操作End”形式"><a href="#1-10-2、“操作End”形式" class="headerlink" title="1.10.2、“操作End”形式"></a><strong>1.10.2、“操作End”形式</strong></h4><p>“End”表示操作范围的一端，另外一端为当前光标所在位置。当“End”表示“行”范畴时，范围为“行到行”；当“End”表示“字符”范畴时，范围为“字符到字符”。<br>比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">y0：从行首开始复制（字符范畴）</span><br><span class="line">y$：复制到行尾（字符范畴）</span><br><span class="line">d0：删除到行首（字符范畴）</span><br><span class="line">d$：删除到行尾（字符范畴）</span><br><span class="line">guG：小写化从当前行到文件最后一行之间的所有字母（行范畴）</span><br><span class="line">gUgg：大写化从文件第一行到当前行之间的所有字母（行范畴）</span><br><span class="line">ggguG：小写化文章中所有字符（行范畴）</span><br><span class="line">gggUG：大写化文章中所有字符（行范畴）</span><br></pre></td></tr></table></figure>
+<p><font color='red'>特别需要注意的是：</font><br>1、“ggguG”和“gggUG”逻辑上都分为两部分：gg和guG（gUG），而不是一个独立的整体从而被进一步误以为出现了“Start操作End”的限定范围操作形式<br>2、书签跳转语境中，“&#96;a”是字符范畴，“’a”是行范畴</p>
+<h3 id="1-11、跳转操作"><a href="#1-11、跳转操作" class="headerlink" title="1.11、跳转操作"></a><strong>1.11、跳转操作</strong></h3><p>跳转行为包括：gg，G，NG，书签跳转等。<br>可通过<code>:jumps</code>查看跳转记录列表，小三角所指跳转记录表示当前所处跳转记录，如果小三角所指跳转记录为空行，表示还未有跳转记录。<br>Ctrl+o是跳转回退，相应的小三角往上移动，Ctrl+i是跳转前进，相应的小三角往下移动。</p>
+<h3 id="1-12、宏操作"><a href="#1-12、宏操作" class="headerlink" title="1.12、宏操作"></a><strong>1.12、宏操作</strong></h3><p>录制宏：录制一系列动作，以备重复执行。<br>录制宏具体步骤如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">按下q&#123;0-9a-zA-Z&quot;&#125;开始录制，&#123;0-9a-zA-Z&quot;&#125;为宏录制目的寄存器名字</span><br><span class="line">按下q完成录制</span><br></pre></td></tr></table></figure>
+<p>通过<code>@&#123;0-9a-zA-Z&quot;&#125;</code>执行指定宏，支持“重复执行N次操作”。</p>
+<h2 id="二、几个概念"><a href="#二、几个概念" class="headerlink" title="二、几个概念"></a><strong>二、几个概念</strong></h2><h3 id="2-1、模式"><a href="#2-1、模式" class="headerlink" title="2.1、模式"></a><strong>2.1、模式</strong></h3><p>Vim编辑器提供多种模式，常见的模式有4种：普通模式，可视模式，插入模式，命令模式。</p>
+<table>
+<thead>
+<tr>
+<th>模式名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通模式</td>
+<td>日常模式</td>
+</tr>
+<tr>
+<td>可视模式</td>
+<td>主要用于选取内容供后续操作，选取完成后本质上是划定了一个限定范围</td>
+</tr>
+<tr>
+<td>插入模式</td>
+<td>主要用于插入数据</td>
+</tr>
+<tr>
+<td>命令模式</td>
+<td>主要用于执行命令</td>
+</tr>
+</tbody></table>
+<p>备注：<br>1、本质上，<font color='red'>可视模式中选取时定义了两个特殊的书签</font>，书签表示位置范围对应于选取限定范围，这两个特殊书签分别为：“&lt;”和“&gt;”，“&lt;”对应于“限定范围开头”，“&gt;”对应于“限定范围结尾”，因此<code>&#39;&lt;</code>和<code>&#39;&gt;</code>分别指向限定范围第一行和最后一行，<code>&#96;<</code>和<code>&#96;></code>分别指向限定范围开头字符和结尾字符</p>
+<h3 id="2-2、重复执行N次操作"><a href="#2-2、重复执行N次操作" class="headerlink" title="2.2、重复执行N次操作"></a><strong>2.2、重复执行N次操作</strong></h3><p>在操作前辅以一个表示数字的“N”，表示“重复执行N次操作”。<font color='red'>需要注意的是，“NG”中的“N”并不是这个含义。</font><br>比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">4h：执行4次h操作，即向左移动4个字符</span><br><span class="line">4yy：执行4次yy操作，表示复制从当前行开始的4行</span><br><span class="line">4dd：执行4次dd操作，表示删除从当前行开始的4行</span><br><span class="line">4p：执行4次p操作，表示复制粘贴4次</span><br></pre></td></tr></table></figure>
+<h2 id="五、常见需求实现"><a href="#五、常见需求实现" class="headerlink" title="五、常见需求实现"></a><strong>五、常见需求实现</strong></h2><h3 id="5-1、快速选中Java方法"><a href="#5-1、快速选中Java方法" class="headerlink" title="5.1、快速选中Java方法"></a><strong>5.1、快速选中Java方法</strong></h3><p>快速选中Java方法步骤描述如下：<br>1、光标定位到方法定义首行，即具有方法名称的行<br>2、按下<code>^</code>字符，定位到所在行行首第一个非空字符<br>3、按下<code>v</code>字符，进入可视模式<br>4、按下<code>/&#123;&lt;Enter&gt;</code>字符组合，查找到第一个“{”字符<br>5、按下<code>%</code>字符，查找到与上述“{”字符匹配的“}”字符，完成选中</p>
+<p>根据上述描述，我们可在“.vimrc”配置文件中，通过如下语句配置快捷键“cm”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap cm ^v/&#123;&lt;CR&gt;%</span><br></pre></td></tr></table></figure>
+<h3 id="5-2、Java源文件中快速定位到类名"><a href="#5-2、Java源文件中快速定位到类名" class="headerlink" title="5.2、Java源文件中快速定位到类名"></a><strong>5.2、Java源文件中快速定位到类名</strong></h3><p>Java源文件中快速定位到类名步骤描述如下：<br>1、按下<code>gg</code>，光标定位到文件首行<br>2、按下<code>/^public&lt;Enter&gt;</code>字符组合，查找到第一个“public”字符串，且该字符串位于行首<br>3、按下<code>f&#123;</code>字符组合，找到右侧第一个“{”字符<br>4、按下<code>?class\|interface\|enum&lt;Enter&gt;</code>字符组合，向后找第一个“class&#x2F;interface&#x2F;enum”字符串<br>5、按下<code>w</code>字符，定位到右侧类名</p>
+<p>根据上述描述，我们可在“.vimrc”配置文件中，通过如下语句配置快捷键“cc”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap cc gg/^public&lt;CR&gt;f&#123;?class&lt;Bslash&gt;&lt;BAR&gt;interface&lt;Bslash&gt;&lt;BAR&gt;enum&lt;CR&gt;w</span><br></pre></td></tr></table></figure>
+<h3 id="5-3、去掉Windows文件中的-M符号"><a href="#5-3、去掉Windows文件中的-M符号" class="headerlink" title="5.3、去掉Windows文件中的^M符号"></a><strong>5.3、去掉Windows文件中的^M符号</strong></h3><p>去掉Windows文件中的“^M”符号的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%s/^M//g</span><br></pre></td></tr></table></figure>
+<p>如果想生成“^M”符号，可用<code>Ctrl-v Ctrl-m</code>命令。</p>
+<h3 id="5-4、剪切"><a href="#5-4、剪切" class="headerlink" title="5.4、剪切"></a><strong>5.4、剪切</strong></h3><p>进入可视模式后，选取内容，按下<code>x</code>或者<code>d</code>字符，然后在目的地按下<code>p</code>字符完成剪切，以上过程能够完成剪切的根本原因是：<code>x</code>和<code>d</code>操作在删除内容之前会在寄存器复制一份内容，<code>p</code>操作会从寄存器复制粘贴内容。</p>
+<h3 id="5-5、g命令"><a href="#5-5、g命令" class="headerlink" title="5.5、g命令"></a><strong>5.5、g命令</strong></h3><p>删除所有以“#”字符开头的行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:g/^#/d</span><br></pre></td></tr></table></figure>
+<p>删除所有空行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:g/^$/d</span><br></pre></td></tr></table></figure>
+
+<br/>
+**参考文献：**
+[1]:help mark-motions
+[2]:help text-objects
+[3]:help q
+[4]:help jumps
+[5]:help various-motions
+[6]https://zh.wikipedia.org/wiki/Vim
+[7]http://vim.wikia.com/wiki/Ranges
+[8]http://www.cnblogs.com/abeen/archive/2010/07/28/1786594.html
+[9]https://www.maketecheasier.com/vim-keyboard-shortcuts-cheatsheet/
+[10]https://www.fprintf.net/vimCheatSheet.html
+[11]https://gist.github.com/awidegreen/3854277
+[12]https://coolshell.cn/articles/5426.html
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/" title="Vim快捷键">https://dslztx.github.io/blog/2018/06/01/Vim快捷键/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Vim/" rel="tag"># Vim</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2018/05/31/Terminal%EF%BC%8CTmux%E5%92%8CShell%E4%B8%89%E8%A7%92%E5%85%B3%E7%B3%BB/" rel="prev" title="Terminal，Tmux和Shell三角关系">
+      <i class="fa fa-chevron-left"></i> Terminal，Tmux和Shell三角关系
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2018/06/05/IntelliJ-IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="next" title="IntelliJ IDEA快捷键">
+      IntelliJ IDEA快捷键 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/";
+    this.page.identifier = "2018/06/01/Vim快捷键/";
+    this.page.title = "Vim快捷键";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

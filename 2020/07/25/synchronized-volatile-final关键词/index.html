@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、Java语法语义1.1、synchronized关键词 实现Java语言内置锁 实现happens-before规则——对一个锁的解锁，happens-before于随后对这个锁的加锁  1.2、volatile关键词 针对所有基本类型和引用类型的简单读写操作（一个易混淆点，“变量自增”和“变量自减”不是简单读写操作）是否是原子的： 非volatile变量。除了long和double之外的基本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="synchronized-volatile-final关键词">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、Java语法语义1.1、synchronized关键词 实现Java语言内置锁 实现happens-before规则——对一个锁的解锁，happens-before于随后对这个锁的加锁  1.2、volatile关键词 针对所有基本类型和引用类型的简单读写操作（一个易混淆点，“变量自增”和“变量自减”不是简单读写操作）是否是原子的： 非volatile变量。除了long和double之外的基本">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-25T05:35:26.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.240Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>synchronized-volatile-final关键词 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          synchronized-volatile-final关键词
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-25 13:35:26" itemprop="dateCreated datePublished" datetime="2020-07-25T13:35:26+08:00">2020-07-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/25/synchronized-volatile-final关键词/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、Java语法语义"><a href="#一、Java语法语义" class="headerlink" title="一、Java语法语义"></a><strong>一、Java语法语义</strong></h2><h3 id="1-1、synchronized关键词"><a href="#1-1、synchronized关键词" class="headerlink" title="1.1、synchronized关键词"></a><strong>1.1、synchronized关键词</strong></h3><ol start="0">
+<li>实现Java语言内置锁</li>
+<li>实现happens-before规则——<code>对一个锁的解锁，happens-before于随后对这个锁的加锁</code></li>
+</ol>
+<h3 id="1-2、volatile关键词"><a href="#1-2、volatile关键词" class="headerlink" title="1.2、volatile关键词"></a><strong>1.2、volatile关键词</strong></h3><ol start="0">
+<li>针对所有基本类型和引用类型的<font color='red'>简单读写</font>操作（一个易混淆点，“变量自增”和“变量自减”不是<font color='red'>简单读写</font>操作）是否是原子的：<ul>
+<li>非volatile变量。除了<code>long</code>和<code>double</code>之外的基本类型和引用类型，其非volatile变量的<font color='red'>简单读写</font>操作是原子的；而对于<code>long</code>和<code>double</code>基本类型，其非volatile变量的<font color='red'>简单读写</font>操作不一定是原子的[1]</li>
+<li>volatile变量。对所有基本类型和引用类型，其volatile变量的<font color='red'>简单读写</font>操作是原子的</li>
+</ul>
+</li>
+<li>在现代多CPU&#x2F;CPU核处理器架构下，为提升存取性能，引入了<code>高速缓存-写缓冲器-失效队列</code>机制，该机制会导致“狭义内存可见性”问题，使用volatile关键词解决该问题。“volatile变量写”对于后续的“volatile变量读”立即可见</li>
+<li>实现happens-before规则——<code>对一个volatile域的写，happens-before于任意后续对这个volatile域的读</code></li>
+</ol>
+<br/>
+
+<p><strong>备注</strong>：</p>
+<ul>
+<li>在上述3个语法语义中，最有价值的是第3个，其余两个价值不大</li>
+<li>在上述第1点和第3点中，提及到了“后续”，其实在并发环境中，“后续”的判定十分困难。在应用第3点中的happens-before规则时，如何绕过“后续”的判定可参见<a href="/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a></li>
+</ul>
+<h3 id="1-3、final关键词"><a href="#1-3、final关键词" class="headerlink" title="1.3、final关键词"></a><strong>1.3、final关键词</strong></h3><ol start="0">
+<li>表示“不可改变的”：<ul>
+<li>final类不能被继承</li>
+<li>final方法不能被子类的方法覆盖，需要注意的是，final不能用于修饰构造方法</li>
+<li>final变量只能被赋值一次，赋值后值不再改变</li>
+</ul>
+</li>
+<li>提供一个内存可见语义规则，详见“3.3、final关键词内存可见语义规则”小节</li>
+</ol>
+<h2 id="二、实现概述"><a href="#二、实现概述" class="headerlink" title="二、实现概述"></a><strong>二、实现概述</strong></h2><p>Java语言实现通过各种机制实现上述语法语义，手段包括使用“内存屏障”，“CAS操作”等。需要注意的是，这里所说的“内存屏障”和“CAS操作”是全层次的，即“既包含JVM指令层的内存屏障指令&#x2F;CAS指令，也包含处理器指令层的内存屏障指令&#x2F;CAS指令”，当然最后执行的是处理器指令层的内存屏障指令&#x2F;CAS指令。<br>比如：</p>
+<ol>
+<li>实现synchronized关键词相关的<code>hotspot/src/share/vm/runtime/objectMonitor.cpp:733</code>C++源代码处的<code>OrderAccess::fence()</code>内存屏障指令调用</li>
+<li>实现volatile关键词内存语义：<ol>
+<li>volatile变量简单读写操作最终映射到的目标机器指令是原子的</li>
+<li>为实现volatile变量写语义，对于volatile变量写操作应该有个绑定型内存屏障：其语义是“刷新缓存到内存，并使相应的缓存失效（这样子读取volatile变量时从内存重新加载最新值）”。需要绑定型内存屏障，是为了避免目标操作和内存屏障之间插入其他操作，关于绑定型内存屏障的介绍参见<a href="/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" title="内存屏障">《内存屏障》</a></li>
+<li>为实现volatile关键词的happens-before规则语义，在以上第2点的基础上，还需要按照以下方案添加内存屏障。可以发现，对于<code>在每个volatile写操作的前面插入一个LoadStore内存屏障</code>，<code>在每个volatile写操作的前面插入一个StoreStore内存屏障</code>和<code>volatile变量写操作应该有个绑定型内存屏障</code>的要求，可以用一个绑定型的StoreLoad内存屏障进行替代（因为StoreLoad内存屏障是“全能型”内存屏障，同时具有StoreStore，LoadLoad和LoadStore内存屏障的效果）。<font color='red'>需要说明的是，这里的描述掺杂了笔者的自我理解，跟书本《Java并发编程的艺术》P43的描述并不一致，如有错误，请不吝赐教</font>：<ul>
+<li>在每个volatile写操作的前面插入一个LoadStore内存屏障</li>
+<li>在每个volatile写操作的前面插入一个StoreStore内存屏障</li>
+<li>在每个volatile读操作的后面插入一个LoadLoad内存屏障</li>
+<li>在每个volatile读操作的后面插入一个LoadStore内存屏障</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>实现final关键词内存可见语义规则（在《Java Language Specification》中，通过<code>freeze action</code>来实现[2][3]）：<ul>
+<li>围绕对final实例成员变量赋值的构造方法C，C隐含有一个<code>return</code>语句，C内非final实例成员变量赋值操作允许重排序到<code>return</code>之后，C内final实例成员变量赋值操作禁止重排序到<code>return</code>之后，然后在<font color='red'>紧邻<code>return</code>之前</font>插入一个特殊的StoreStore内存屏障，为什么说是“特殊的StoreStore内存屏障”呢？因为正常的StoreStore内存屏障如果在紧邻<code>return</code>之前插入，那么C内所有的操作都应该被禁止重排序到<code>return</code>之后，比如在“3.3、final关键词内存可见语义规则”小节中，示例代码3的构造方法内<code>i</code>实例成员变量的赋值可重排序到构造方法之外。<font color='red'>跟《Java并发编程的艺术》叙述有一定冲突，但感觉笔者的理解才是正确的</font></li>
+<li>在“读实例对象引用”和“读该实例对象的final实例成员变量”之间插入一个LoadLoad内存屏障，避免上述两个操作的重排序</li>
+</ul>
+</li>
+</ol>
+<br/>
+具体实现有很多细节，太难也没有必要过度深入，因为主要矛盾在于宏观使用！
+
+<h2 id="三、final关键词详解"><a href="#三、final关键词详解" class="headerlink" title="三、final关键词详解"></a><strong>三、final关键词详解</strong></h2><h3 id="3-1、编译期常量"><a href="#3-1、编译期常量" class="headerlink" title="3.1、编译期常量"></a><strong>3.1、编译期常量</strong></h3><p><strong>编译期常量定义</strong>：如果一个类的成员变量（包括“类成员变量”和“实例成员变量”）由final关键词修饰，其类型为基本类型或者String类型，且在定义时赋“字面量”值，那么该变量为编译期常量。比如<code>final int a = 10</code>，<code>static final long b = 20L</code>，<code>final String s = &quot;hello world&quot;</code>。<br><strong>编译期常量的特殊之处</strong>：编译时会直接以对应的“字面量”值替换变量的使用。</p>
+<h3 id="3-2、匿名内部类访问外围变量"><a href="#3-2、匿名内部类访问外围变量" class="headerlink" title="3.2、匿名内部类访问外围变量"></a><strong>3.2、匿名内部类访问外围变量</strong></h3><p>匿名内部类访问外围变量须遵守规则——<code>匿名内部类来自外部闭包环境的自由变量必须是final的</code>。那么哪些变量是“自由变量”？只有匿名内部类所在外围方法的局部变量才是“自由变量”，也即所在外围类的实例成员变量和类成员变量都不是“自由变量”。</p>
+<p>作出以上区分的本质原因在于访问变量的不同方式：</p>
+<ul>
+<li>对于外围类的实例成员变量和类成员变量，匿名内部类通过“外围类类名”或者“外围类实例对象引用”的方式进行访问，后续对该变量的修改可传导到匿名内部类中</li>
+<li>对于外围方法的局部变量，匿名内部类通过复制变量的方式进行访问，后续对该变量的修改不可传导到匿名内部类中，为避免“看似修改成功-实则修改未成功”的歧义和误导，语法索性直接规定该局部变量必须是<code>final</code>的，后续修改操作是非法的</li>
+</ul>
+<p><strong>需要注意的是</strong>：在JDK 1.8之前，对于自由变量需要显式声明<code>final</code>关键词，而在JDK 1.8之后，编译器会帮你隐式声明，但我们最好还是显式声明下明确化这点。</p>
+<p><strong>1、例子1</strong><br>原代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AnonymousInnerClass0</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Obj</span> <span class="variable">b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Obj</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(a);</span><br><span class="line">                System.out.println(b);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">        a = <span class="number">20</span>;                    <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//        b = new Obj(&quot;world&quot;);    // 2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Obj</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Obj</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>依次执行<code>javac AnonymousInnerClass0.java</code>和<code>javap -v AnonymousInnerClass0\$1.class</code>命令，可知匿名内部类的实际构造方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AnonymousInnerClass0$1</span> <span class="keyword">implements</span> <span class="title class_">java</span>.lang.Runnable</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">final</span> Obj val$b;</span><br><span class="line">    descriptor: LObj;</span><br><span class="line">    flags: ACC_FINAL, ACC_SYNTHETIC</span><br><span class="line"></span><br><span class="line">  <span class="keyword">final</span> AnonymousInnerClass0 <span class="built_in">this</span>$<span class="number">0</span>;</span><br><span class="line">    descriptor: LAnonymousInnerClass0;</span><br><span class="line">    flags: ACC_FINAL, ACC_SYNTHETIC</span><br><span class="line"></span><br><span class="line">  AnonymousInnerClass0$<span class="number">1</span>(AnonymousInnerClass0, Obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由以上可知，匿名内部类访问外围类实例成员变量<code>a</code>的方式是通过外围类实例对象引用<code>this$0</code>，访问外围方法局部变量<code>b</code>的方式是复制到本类的实例成员变量<code>val$b</code>，故“&#x2F;&#x2F; 1”处修改可传导到匿名内部类中，而“&#x2F;&#x2F; 2”处修改不可传导到匿名内部类中，为避免歧义和误导，语法索性直接规定需要将<code>b</code>变量设为<code>final</code>的，使得“&#x2F;&#x2F; 2”处操作直接为非法的。</p>
+<p><strong>2、例子2</strong><br>原代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AnonymousInnerClass1</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Obj</span> <span class="variable">b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Obj</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(a);</span><br><span class="line">                System.out.println(b);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">        a = <span class="number">20</span>;                       <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//        b = new Obj(&quot;world&quot;);       // 2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Obj</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Obj</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>依次执行<code>javac AnonymousInnerClass1.java</code>和<code>javap -v AnonymousInnerClass1\$1.class</code>命令，可知匿名内部类的实际构造方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">AnonymousInnerClass1$1</span> <span class="keyword">implements</span> <span class="title class_">java</span>.lang.Runnable</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">final</span> Obj val$b;</span><br><span class="line">    descriptor: LObj;</span><br><span class="line">    flags: ACC_FINAL, ACC_SYNTHETIC</span><br><span class="line"></span><br><span class="line">  AnonymousInnerClass1$<span class="number">1</span>(Obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由以上可知，匿名内部类访问外围类类成员变量<code>a</code>的方式是通过外围类类名，访问外围方法局部变量<code>b</code>的方式是复制到本类的实例成员变量<code>val$b</code>，故“&#x2F;&#x2F; 1”处修改可传导到匿名内部类中，“&#x2F;&#x2F; 2”处修改不可传导到匿名内部类中，为避免歧义和误导，语法索性直接规定需要将<code>b</code>变量设为<code>final</code>的，使得“&#x2F;&#x2F; 2”处操作直接为非法的。</p>
+<h3 id="3-3、final关键词内存可见语义规则"><a href="#3-3、final关键词内存可见语义规则" class="headerlink" title="3.3、final关键词内存可见语义规则"></a><strong>3.3、final关键词内存可见语义规则</strong></h3><h4 id="3-3-1、含义"><a href="#3-3-1、含义" class="headerlink" title="3.3.1、含义"></a><strong>3.3.1、含义</strong></h4><p>在《Java Language Specification》中[4]，正式的英文叙述是：</p>
+<blockquote>
+<p>The usage model for final fields is a simple one: Set the final fields for an object in that object’s constructor; and do not write a reference to the object being constructed in a place where another thread can see it before the object’s constructor is finished. If this is followed, then when the object is seen by another thread, that thread will always see the correctly constructed version of that object’s final fields. It will also see versions of any object or array referenced by those final fields that are at least as up-to-date as the final fields are</p>
+</blockquote>
+<p>形象的案例叙述是：</p>
+<blockquote>
+<p>在示例代码0中，对于“&#x2F;&#x2F; 13”这个final实例成员变量的读操作来说，“&#x2F;&#x2F; 3 4 11”操作对其内存可见；而对于“&#x2F;&#x2F; 12”这个非final实例成员变量的读操作来说，“&#x2F;&#x2F; 10”操作可能重排序到构造方法之外，故不一定内存可见，更不用说“&#x2F;&#x2F; 1 2”操作</p>
+</blockquote>
+<p>示例代码0：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FinalExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> FinalExample obj;</span><br><span class="line">    Person person0;</span><br><span class="line">    <span class="keyword">final</span> Person person1;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FinalExample</span><span class="params">(Person person0, Person person1)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.person0 = person0;                                           <span class="comment">// 10</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.person1 = person1;                                           <span class="comment">// 11</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 写线程A执行</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">writer</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Address</span> <span class="variable">address0</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Address</span>(<span class="string">&quot;中国&quot;</span>, <span class="string">&quot;浙江&quot;</span>, <span class="string">&quot;杭州&quot;</span>, <span class="string">&quot;西湖村&quot;</span>);    <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Person</span> <span class="variable">person0</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;dslztx0&quot;</span>, <span class="number">31</span>, address0);             <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Address</span> <span class="variable">address1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Address</span>(<span class="string">&quot;中国&quot;</span>, <span class="string">&quot;浙江&quot;</span>, <span class="string">&quot;杭州&quot;</span>, <span class="string">&quot;西溪村&quot;</span>);    <span class="comment">// 3</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Person</span> <span class="variable">person1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;dslztx1&quot;</span>, <span class="number">31</span>, address1);             <span class="comment">// 4</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Company</span> <span class="variable">company</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Company</span>(<span class="string">&quot;no&quot;</span>);                              <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Repo</span> <span class="variable">repo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Repo</span>(<span class="string">&quot;github&quot;</span>);                                   <span class="comment">// 6</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">l</span> <span class="operator">=</span> <span class="number">5</span>;                                                        <span class="comment">// 7</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> <span class="number">6</span>;                                                        <span class="comment">// 8</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> <span class="number">7</span>;                                                        <span class="comment">// 9</span></span><br><span class="line"></span><br><span class="line">        obj = <span class="keyword">new</span> <span class="title class_">FinalExample</span>(person0, person1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 读线程B执行</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">reader</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (obj != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">Person</span> <span class="variable">personValue0</span> <span class="operator">=</span> obj.person0;                            <span class="comment">// 12</span></span><br><span class="line">            <span class="type">Person</span> <span class="variable">personValue1</span> <span class="operator">=</span> obj.person1;                            <span class="comment">// 13</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    Address address;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(String name, <span class="type">int</span> age, Address address)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">        <span class="built_in">this</span>.address = address;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Address</span> &#123;</span><br><span class="line">    String nation;</span><br><span class="line"></span><br><span class="line">    String province;</span><br><span class="line"></span><br><span class="line">    String city;</span><br><span class="line"></span><br><span class="line">    String country;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Address</span><span class="params">(String nation, String province, String city, String country)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.nation = nation;</span><br><span class="line">        <span class="built_in">this</span>.province = province;</span><br><span class="line">        <span class="built_in">this</span>.city = city;</span><br><span class="line">        <span class="built_in">this</span>.country = country;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Company</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Company</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Repo</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Repo</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>中文正式叙述是：</p>
+<blockquote>
+<p>对于final实例成员变量，当满足“在构造方法中对final实例成员变量赋值”和“在构造方法中不提前‘逸出’正在构造对象的引用”这两个条件时，就能够有语义确保：<code>使用构造完成对象访问其final实例成员变量，与该final实例成员变量相关的所有内存操作都可见</code>，为更好理解“与该final实例成员变量相关的所有内存操作都可见”，可参考示例代码1<br>在以上语义确保中，避免了本来需要考虑的两个问题：1）由于重排序，“构造方法语句”可能重排序到“读取到对象引用”之后，在以上场景中，“与该final实例成员变量相关的所有内存操作”不会重排序到“读取到对象引用”之后；2）由于重排序，“读取对象成员变量”可能重排序到“读取到对象引用”之前，在以上场景中，“读取对象final实例成员变量”不会重排序到“读取到对象引用”之前</p>
+</blockquote>
+<p>示例代码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FinalExample0</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> Object0 object0;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> Object1 object1;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> Object2 object2;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">writer</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        object0 = <span class="keyword">new</span> <span class="title class_">Object0</span>(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[] b = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">5</span>];                      <span class="comment">//2</span></span><br><span class="line">        b[<span class="number">1</span>] = <span class="number">20</span>;                                 <span class="comment">//3</span></span><br><span class="line">        b[<span class="number">2</span>] = <span class="number">30</span>;                                 <span class="comment">//4</span></span><br><span class="line">        b[<span class="number">3</span>] = <span class="number">40</span>;                                 <span class="comment">//5</span></span><br><span class="line">        b[<span class="number">4</span>] = <span class="number">50</span>;                                 <span class="comment">//6</span></span><br><span class="line"></span><br><span class="line">        object1 = <span class="keyword">new</span> <span class="title class_">Object1</span>(b);</span><br><span class="line"></span><br><span class="line">        <span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;dslztx&quot;</span>, <span class="number">31</span>);  <span class="comment">//9</span></span><br><span class="line"></span><br><span class="line">        object2 = <span class="keyword">new</span> <span class="title class_">Object2</span>(person, <span class="string">&quot;china&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">reader</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (object0 != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//对于“//11”，“//1”操作对其内存可见</span></span><br><span class="line">            System.out.println(object0.a);         <span class="comment">//11</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (object1 != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//对于“//12”，“//2 3 4 5 6 7 8”操作对其内存可见</span></span><br><span class="line">            System.out.println(object1.array);     <span class="comment">//12</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (object2 != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//对于“//13”，“//9 10”操作对其内存可见</span></span><br><span class="line">            System.out.println(object2.person);    <span class="comment">//13</span></span><br><span class="line">            System.out.println(object2.nation);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Object0</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Object0</span><span class="params">(<span class="type">int</span> a)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;                               <span class="comment">//1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Object1</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span>[] array;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Object1</span><span class="params">(<span class="type">int</span>[] array)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.array = array;                       <span class="comment">//7</span></span><br><span class="line">        <span class="built_in">this</span>.array[<span class="number">0</span>] = <span class="number">10</span>;                       <span class="comment">//8</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Object2</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> Person person;</span><br><span class="line"></span><br><span class="line">    String nation;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Object2</span><span class="params">(Person person, String nation)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.person = person;                    <span class="comment">//10</span></span><br><span class="line">        <span class="built_in">this</span>.nation = nation;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(String name, <span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<p><font color='red'>要特别注意“final关键词内存可见语义规则”适用的限定条件</font>：</p>
+<ul>
+<li>“在构造方法返回之前，被构造对象的实例对象引用不被其他线程所见”，故示例代码2中读线程B获取实例对象引用的方式不满足条件</li>
+<li>“在构造方法中对final实例成员变量赋值”，排除掉了<code>final类成员变量的两种赋值情形——“定义赋值”和“静态初始化语句赋值”</code>和<code>final实例成员变量的另外两种赋值情形——“定义赋值”和“实例初始化语句赋值”</code>，在排除掉的情形中包括了编译期常量的情形，而编译期常量情形更是显而易见需要排除掉的</li>
+</ul>
+<p>示例代码2</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public class ReferenceAhead &#123;</span><br><span class="line">    static ReferenceAhead referenceAhead = null;</span><br><span class="line"></span><br><span class="line">    final int a;</span><br><span class="line"></span><br><span class="line">    int b;</span><br><span class="line"></span><br><span class="line">    public ReferenceAhead() &#123;</span><br><span class="line">        a = 10;</span><br><span class="line">        referenceAhead = this;</span><br><span class="line">        b = 20;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 读线程B执行</span><br><span class="line">     */</span><br><span class="line">    public static void reader() &#123;</span><br><span class="line">        if (referenceAhead != null) &#123;</span><br><span class="line">            System.out.println(referenceAhead.a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 写线程A执行</span><br><span class="line">     */</span><br><span class="line">    public void writer() &#123;</span><br><span class="line">        new ReferenceAhead();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-2、与happens-before规则的关系"><a href="#3-3-2、与happens-before规则的关系" class="headerlink" title="3.3.2、与happens-before规则的关系"></a><strong>3.3.2、与happens-before规则的关系</strong></h4><p>“final关键词内存可见语义规则”与“happens-before规则”的关系：都属于“JMM提供的语义确保”范畴，两者相互独立，也没有语义确保强弱之分，只不过happens-before规则更易于理解和通用。</p>
+<p>对于“示例代码0”，构造方法允许重排序，因此“&#x2F;&#x2F; 1 2 3 4 5 6 7 8 9 10 11 12 13”操作之间本就存在可见性问题：</p>
+<ul>
+<li>如果写线程A和读线程B是同一个线程，且<code>writer()</code>方法执行先于<code>reader()</code>方法，那么根据happens-before规则——<code>一个线程中的每个操作，happens-before于该线程中的任意后续操作</code>，就有“1 2 3 4 5 6 7 8 9 10 11 12 13”的顺序happens-before关系</li>
+<li>如果obj变量增加<code>volatile</code>关键词修饰，且<code>reader()</code>方法中<code>if (obj != null)</code>语句执行结果为true，那么根据happens-before规则——<code>一个线程中的每个操作，happens-before于该线程中的任意后续操作</code>、<code>对一个volatile域的写，happens-before于任意后续对这个volatile域的读</code>和<code>如果A happens-before B，且B happens-before C，那么A happens-before C</code>，就有“1 2 3 4 5 6 7 8 9 10 11 12 13”的顺序happens-before关系</li>
+<li>“&#x2F;&#x2F; 13”操作满足“final关键词内存可见语义规则”，那么对于“&#x2F;&#x2F; 13”操作所指代的final实例成员变量读操作来说，“&#x2F;&#x2F; 3 4 11”操作对其内存可见</li>
+</ul>
+<h4 id="3-3-3、应用"><a href="#3-3-3、应用" class="headerlink" title="3.3.3、应用"></a><strong>3.3.3、应用</strong></h4><p><strong>1、案例1</strong><br>来自《Java并发编程的艺术》P56。</p>
+<p>示例代码3</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FinalExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> FinalExample obj;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> j;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FinalExample</span><span class="params">()</span> &#123;</span><br><span class="line">        i = <span class="number">1</span>;</span><br><span class="line">        j = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 写线程A执行</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">writer</span><span class="params">()</span> &#123;</span><br><span class="line">        obj = <span class="keyword">new</span> <span class="title class_">FinalExample</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 读线程B执行</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">reader</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (obj != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 不能确保读取到值 1</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> obj.i;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 满足“final关键词内存可见语义规则”，确保能读取到值 2</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> obj.j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2、案例2</strong><br>“示例代码4”展示了一种常见的使用Runnable匿名内部类的形式，一直有个困惑：在另外一个线程或者线程池中异步执行该Runnable对象的<code>run()</code>方法时，与所传入外围变量相关的所有操作都内存可见吗？</p>
+<p>特别需要注意的是，虽然都涉及到匿名内部类，但是这里跟“3.2、匿名内部类访问外围变量”小节的强调点不同，即“一个强调内存可见性，一个强调自由变量必须是final的”。</p>
+<br/>
+
+<p>接下来进行释疑分析。</p>
+<p>依次执行<code>javac Outer.java</code>和<code>javap -v Outer\$1.class</code>命令，可知Runnable匿名内部类的实际构造方法如示例代码5，如果进行合并，那么Outer类的最终等价形式如示例代码6。</p>
+<p>在示例代码6中，“&#x2F;&#x2F; 5”操作处隐含的“this.val$person”读操作满足“final关键词内存可见语义规则”，那么“&#x2F;&#x2F; 1 2 3 4”操作对其内存可见。</p>
+<p>示例代码4</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Outer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line">        person.setName(<span class="string">&quot;dslztx&quot;</span>);</span><br><span class="line">        person.setAge(<span class="number">31</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                System.out.println(person);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot;:&quot;</span> + age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例代码5</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Outer$1</span> <span class="keyword">implements</span> <span class="title class_">java</span>.lang.Runnable</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">final</span> Person val$person;</span><br><span class="line">    descriptor: LPerson;</span><br><span class="line">    flags: ACC_FINAL, ACC_SYNTHETIC</span><br><span class="line"></span><br><span class="line">  <span class="keyword">final</span> Outer <span class="built_in">this</span>$<span class="number">0</span>;</span><br><span class="line">    descriptor: LOuter;</span><br><span class="line">    flags: ACC_FINAL, ACC_SYNTHETIC</span><br><span class="line"></span><br><span class="line">  Outer$<span class="number">1</span>(Outer, Person);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例代码6</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Outer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>();     <span class="comment">// 1</span></span><br><span class="line">        person.setName(<span class="string">&quot;dslztx&quot;</span>);               <span class="comment">// 2</span></span><br><span class="line">        person.setAge(<span class="number">31</span>);                      <span class="comment">// 3</span></span><br><span class="line"></span><br><span class="line">        <span class="type">Outer$1</span> <span class="variable">outer$1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Outer$1</span>(<span class="built_in">this</span>, person);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(outer$<span class="number">1</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Outer$1</span> <span class="keyword">implements</span> <span class="title class_">java</span>.lang.Runnable &#123;</span><br><span class="line">    <span class="keyword">final</span> Person val$person;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Outer <span class="built_in">this</span>$<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Outer$<span class="number">1</span>(Outer <span class="built_in">this</span>$<span class="number">0</span>, Person val$person) &#123;</span><br><span class="line">        <span class="built_in">this</span>.<span class="built_in">this</span>$<span class="number">0</span> = <span class="built_in">this</span>$<span class="number">0</span>;</span><br><span class="line">        <span class="built_in">this</span>.val$person = val$person;            <span class="comment">// 4</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(val$person);          <span class="comment">// 5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot;:&quot;</span> + age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.7</a><br>[2]<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1</a><br>[3]<a target="_blank" rel="noopener" href="https://dzone.com/articles/final-keyword-and-jvm-memory-impact">https://dzone.com/articles/final-keyword-and-jvm-memory-impact</a><br>[4]<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5</a><br>[5]<a target="_blank" rel="noopener" href="https://blog.csdn.net/hzy38324/article/details/77986095">https://blog.csdn.net/hzy38324/article/details/77986095</a><br>[6]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/27254152/what-exactly-does-the-final-keyword-guarantee-regarding-concurrency">https://stackoverflow.com/questions/27254152/what-exactly-does-the-final-keyword-guarantee-regarding-concurrency</a><br>[7]<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1585263">https://cloud.tencent.com/developer/article/1585263</a><br>[8]<a target="_blank" rel="noopener" href="http://www.cs.umd.edu/~pugh/java/memoryModel/newFinal.pdf">http://www.cs.umd.edu/~pugh/java/memoryModel/newFinal.pdf</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final关键词/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/24/JMM/" rel="prev" title="JMM">
+      <i class="fa fa-chevron-left"></i> JMM
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/26/%E5%8D%95%E4%BE%8B/" rel="next" title="单例">
+      单例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/";
+    this.page.identifier = "2020/07/25/synchronized-volatile-final关键词/";
+    this.page.title = "synchronized-volatile-final关键词";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

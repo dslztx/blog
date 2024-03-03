@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。 本文介绍JVM进程内5个主要内存区域中客体（变量、字段、对象等）之间的联系，5个主要内存区域是“Java虚拟机栈，本地方法栈，Java堆，方法区，显式调用JNI方法直接分配内存”，即不包括“程序计数器，JVM进程运行自身所需内存”。[1] 一、联系的本质从内存和机器码的视角看，两块内存区域中客体之间的联系就是指针（概念">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM进程内5个主要内存区域中客体之间的联系">
+<meta property="og:url" content="https://dslztx.github.io/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。 本文介绍JVM进程内5个主要内存区域中客体（变量、字段、对象等）之间的联系，5个主要内存区域是“Java虚拟机栈，本地方法栈，Java堆，方法区，显式调用JNI方法直接分配内存”，即不包括“程序计数器，JVM进程运行自身所需内存”。[1] 一、联系的本质从内存和机器码的视角看，两块内存区域中客体之间的联系就是指针（概念">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220128-0-0.svg">
+<meta property="article:published_time" content="2022-01-28T14:50:45.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.224Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20220128-0-0.svg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JVM进程内5个主要内存区域中客体之间的联系 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM进程内5个主要内存区域中客体之间的联系
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-28 22:50:45" itemprop="dateCreated datePublished" datetime="2022-01-28T22:50:45+08:00">2022-01-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/01/28/JVM进程内5个主要内存区域中客体之间的联系/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
+<p>本文介绍JVM进程内5个主要内存区域中客体（变量、字段、对象等）之间的联系，5个主要内存区域是“Java虚拟机栈，本地方法栈，Java堆，方法区，显式调用JNI方法直接分配内存”，即不包括“程序计数器，JVM进程运行自身所需内存”。[1]</p>
+<h2 id="一、联系的本质"><a href="#一、联系的本质" class="headerlink" title="一、联系的本质"></a><strong>一、联系的本质</strong></h2><p>从内存和机器码的视角看，两块内存区域中客体之间的联系就是指针（概念引自“C&#x2F;C++语言”，这里是广义化的，可以是直接内存地址，也可以是间接内存地址）。</p>
+<p>从JVM的视角看，以上5块内存区域只不过是内存上的逻辑划分，其内客体之间的联系就是指针，只不过：</p>
+<ul>
+<li>有些在Java语言视图下是Java对象引用，比如“在Java方法中有语句<code>Object obj = new Object()</code>，在Java语言视图下，Java虚拟机栈中的变量obj客体与Java堆中相应实例对象客体之间的指针是Java对象引用”</li>
+<li>其他的则不是，比如“在Java方法中有语句<code>long base = sun.misc.Unsafe.allocateMemory(size)</code>，在Java语言视图下，Java虚拟机栈中的变量base客体与‘显式调用JNI方法直接分配内存’中相应内存块客体之间的指针不是Java对象引用”</li>
+</ul>
+<br/>
+
+<p><font color='red'>一个指针是Java对象引用须满足两个条件</font>：</p>
+<ol>
+<li>[<strong>条件1</strong>]指针指向一个Java对象</li>
+<li>[<strong>条件2</strong>]保存指针值的变量是Java对象引用变量</li>
+</ol>
+<p>这两个条件之间的关系是：</p>
+<ul>
+<li>条件1不满足，条件2必然不满足，否则此时Java对象引用变量便是一个非法定义</li>
+<li>条件1满足，条件2可能满足，也可能不满足，不满足的情形比如有“Java程序中一个long型变量保存一个Java对象的内存地址”，“本地方法实现中，执行上下文语境不是Java，一个C&#x2F;C++语言指针变量保存一个Java对象的内存地址”</li>
+</ul>
+<h2 id="二、联系示意图和说明"><a href="#二、联系示意图和说明" class="headerlink" title="二、联系示意图和说明"></a><strong>二、联系示意图和说明</strong></h2><p>在继续叙述之前，首先作三点说明：</p>
+<ul>
+<li>对于“方法区”，本文只考虑“类元数据，即Klass对象”，不考虑“运行时常量池、即时编译器编译以后的代码等”</li>
+<li>Java堆内是Java对象，分为：普通实例对象，数组对象，Class对象</li>
+<li>对于JNI方法，本地方法栈存放中间过程变量，直接操作目标内存块可以认为只位于“显式调用JNI方法直接分配内存”和“Java堆”，而不可以位于“Java虚拟机栈”，“本地方法栈”和“方法区”（虽然JNI方法理论上可以操作所在JVM进程内所有内存，但是直接操作“Java虚拟机栈”，“本地方法栈”和“方法区”中的内存块被认为不安全，这里不作考虑，笔者不清楚JDK本身是否对上述不安全行为有所限制）</li>
+</ul>
+<h3 id="2-1、联系示意图"><a href="#2-1、联系示意图" class="headerlink" title="2.1、联系示意图"></a><strong>2.1、联系示意图</strong></h3><p>联系示意图见图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20220128-0-0.svg"></p>
+<h3 id="2-2、联系说明"><a href="#2-2、联系说明" class="headerlink" title="2.2、联系说明"></a><strong>2.2、联系说明</strong></h3><ul>
+<li>[<strong>1</strong>]和[<strong>2</strong>]：Java对象的对象头中的“Klass Pointer”，指向方法区中的“类元数据，即Klass对象”，该指针不是Java对象引用，因为条件1和2不满足；方法区中“类元数据”的“_java_mirror”指针，指向Java堆中对应的“java.lang.Class对象”，该指针不是Java对象引用，因为条件1满足而条件2不满足。比如“有一个自定义类me.dslztx.AObject，加载该类创建一个实例对象aObject之后，方法区存在一个对应于me.dslztx.AObject的Klass对象aKlass，在Java堆中存在一个对应于me.dslztx.AObject的Class对象aClz（即一个java.lang.Class类的实例对象），现在aObject实例对象的对象头中的Klass Pointer指向aKlass，aKlass中的“_java_mirror”指针指向aClz”</li>
+<li>[<strong>3</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码1；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
+<li>[<strong>5</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码3；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
+<li>[<strong>7</strong>]：没有一个指针是Java对象引用，条件2必然不满足（因为是非Java方法的执行上下文），条件1可能满足也可能不满足，示例见源代码4。<font color='red'>这里有一点释疑：JNI方法声明中的输入参数和输出参数属于Java语言，如果相关变量是在本地方法栈中定义的，那条件2不是可能满足吗？答案是否的，因为在运行过程中，以上输入参数会被转换成适配JNI方法实现的输入参数，JNI方法实现的输出参数会被转换成适配以上输出参数，对于上述转换过程中的相关变量，笔者认为不存放在本地方法栈</font></li>
+<li>[<strong>4</strong>]、[<strong>6</strong>]、[<strong>8</strong>]：没有一个指针是Java对象引用，条件1必然不满足（否则这部分内存应该属于Java堆），此时条件2也必然不满足，示例见源代码5和源代码6</li>
+</ul>
+<p>源代码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内a字段客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">    AObject a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(AObject a)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//obtainAddressJNI是一个待实现的获取对象内存地址的JNI方法</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aAddressTmp局部变量客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">aAddressTmp</span> <span class="operator">=</span> obtainAddressJNI(aObject);</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aAddressTmp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内aAddress字段客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> aAddress;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(<span class="type">long</span> aAddress)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.aAddress = aAddress;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码3：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aObject局部变量客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码4：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jboolean, <span class="built_in">Unsafe_CompareAndSwapObject</span>(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jobject e_h, jobject x_h))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_CompareAndSwapObject&quot;</span>);</span><br><span class="line">  oop x = JNIHandles::<span class="built_in">resolve</span>(x_h); <span class="comment">// 新值</span></span><br><span class="line">  oop e = JNIHandles::<span class="built_in">resolve</span>(e_h); <span class="comment">// 预期值</span></span><br><span class="line">  oop p = JNIHandles::<span class="built_in">resolve</span>(obj);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// addr变量虽然指向了Java堆中的一个对象，但是在本地方法语境中不是Java对象引用</span></span><br><span class="line">  HeapWord* addr = (HeapWord *)<span class="built_in">index_oop_from_field_offset_long</span>(p, offset);<span class="comment">// 在内存中的具体位置</span></span><br><span class="line">  oop res = oopDesc::<span class="built_in">atomic_compare_exchange_oop</span>(x, addr, e, <span class="literal">true</span>);<span class="comment">// 调用了另一个方法</span></span><br><span class="line">  jboolean success  = (res == e);  <span class="comment">// 如果返回的res等于e，则判定满足compare条件（说明res应该为内存中的当</span></span><br><span class="line">前值），但实际上会有ABA的问题</span><br><span class="line">  <span class="keyword">if</span> (success) <span class="comment">// success为true时，说明此时已经交换成功（调用的是最底层的cmpxchg指令）</span></span><br><span class="line">    <span class="built_in">update_barrier_set</span>((<span class="type">void</span>*)addr, x); <span class="comment">// 每次Reference类型数据写操作时，都会产生一个Write Barrier暂时&gt;中</span></span><br><span class="line">断操作，配合垃圾收集器</span><br><span class="line">  <span class="keyword">return</span> success;</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
+
+<p>源代码5：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> Unsafe.getUnsafe();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中base局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">base</span> <span class="operator">=</span> unsafe.allocateMemory(<span class="number">1</span> * <span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">CObject</span> <span class="variable">cObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CObject</span>(base);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中CObject实例对象内address字段客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> address;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CObject</span><span class="params">(<span class="type">long</span> address)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.address = address;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码6：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jlong, <span class="built_in">Unsafe_AllocateMemory</span>(JNIEnv *env, jobject unsafe, jlong size))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_AllocateMemory&quot;</span>);</span><br><span class="line">  <span class="type">size_t</span> sz = (<span class="type">size_t</span>)size;</span><br><span class="line">  <span class="keyword">if</span> (sz != (julong)size || size &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_IllegalArgumentException</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (sz == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// sz局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">  sz = <span class="built_in">round_to</span>(sz, HeapWordSize);</span><br><span class="line">  <span class="type">void</span>* x = os::<span class="built_in">malloc</span>(sz, mtInternal);</span><br><span class="line">  <span class="keyword">if</span> (x == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_OutOfMemoryError</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//Copy::fill_to_words((HeapWord*)x, sz / HeapWordSize);</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">addr_to_java</span>(x);</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/12/19/JVM%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB/" title="JVM进程内存分类">《JVM进程内存分类》</a><br>[2]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104725313">https://zhuanlan.zhihu.com/p/104725313</a><br>[3]<a target="_blank" rel="noopener" href="https://www.sczyh30.com/posts/Java/jvm-klass-oop/">https://www.sczyh30.com/posts/Java/jvm-klass-oop/</a><br>[4]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104494807">https://zhuanlan.zhihu.com/p/104494807</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/" title="JVM进程内5个主要内存区域中客体之间的联系">https://dslztx.github.io/blog/2022/01/28/JVM进程内5个主要内存区域中客体之间的联系/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/" rel="prev" title="Java对象">
+      <i class="fa fa-chevron-left"></i> Java对象
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2022/02/10/%E9%85%8D%E7%BD%AE%E5%9F%BA%E4%BA%8ESSH%E7%9A%84%E6%9C%AC%E5%9C%B0Git-Server/" rel="next" title="配置基于SSH的本地Git Server">
+      配置基于SSH的本地Git Server <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/";
+    this.page.identifier = "2022/01/28/JVM进程内5个主要内存区域中客体之间的联系/";
+    this.page.title = "JVM进程内5个主要内存区域中客体之间的联系";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、模型图示图1  二、模型概述在匹配过程中，目标字符串按照图1模型进行标注，即增加索引位置，索引位置标号值从0开始，最后一个标号值等于目标字符串的长度值。关于索引位置有如下几点论述：  正则表达式在目标字符串中的匹配字符串对应一个索引位置区间，比如图1中的“hello”字符串如果作为匹配字符串，那么对应的索引位置区间为“[0,5)” 有两种索引位置区间：点区间和非点区间。点区间，左闭右闭，区间长">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一种正则表达式匹配模型">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、模型图示图1  二、模型概述在匹配过程中，目标字符串按照图1模型进行标注，即增加索引位置，索引位置标号值从0开始，最后一个标号值等于目标字符串的长度值。关于索引位置有如下几点论述：  正则表达式在目标字符串中的匹配字符串对应一个索引位置区间，比如图1中的“hello”字符串如果作为匹配字符串，那么对应的索引位置区间为“[0,5)” 有两种索引位置区间：点区间和非点区间。点区间，左闭右闭，区间长">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170602-0-1.jpg">
+<meta property="article:published_time" content="2017-06-02T07:17:36.000Z">
+<meta property="article:modified_time" content="2017-06-02T07:17:36.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170602-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>一种正则表达式匹配模型 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一种正则表达式匹配模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-06-02 15:17:36" itemprop="dateCreated datePublished" datetime="2017-06-02T15:17:36+08:00">2017-06-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/02/一种正则表达式匹配模型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、模型图示"><a href="#一、模型图示" class="headerlink" title="一、模型图示"></a><strong>一、模型图示</strong></h2><p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20170602-0-1.jpg"></p>
+<h2 id="二、模型概述"><a href="#二、模型概述" class="headerlink" title="二、模型概述"></a><strong>二、模型概述</strong></h2><p>在匹配过程中，目标字符串按照图1模型进行标注，即增加索引位置，索引位置标号值从0开始，最后一个标号值等于目标字符串的长度值。<br>关于索引位置有如下几点论述：</p>
+<ol>
+<li>正则表达式在目标字符串中的匹配字符串对应一个索引位置区间，比如图1中的“hello”字符串如果作为匹配字符串，那么对应的索引位置区间为“[0,5)”</li>
+<li>有两种索引位置区间：点区间和非点区间。点区间，左闭右闭，区间长度为零，<font color='red'>对应零长度匹配</font>，比如“[5-5]”；非点区间，左闭右开，区间长度大于零，<font color='red'>对应非零长度匹配</font>，比如“[5-7)”</li>
+<li>索引位置区间的重叠。重叠例子：“[5-7)”和“[6-8)”，“[5-5]”和“[5-7)”；非重叠例子：“[5-7)”和“[7-9)”，“[5-7)”和“[10-12)”</li>
+<li>一般情况下，正则表达式匹配过程的最终等价效果是：从左至右依次找到一系列互不重叠的索引位置区间。假如正则表达式为“[a-z]{2}”，图1中的字符串作为目标字符串，那么依次得到的“匹配字符串（对应的索引位置区间）”系列为：he[0,2)，ll[2,4)，wo[6,8)，rl[8,10)</li>
+<li>正则表达式中的边界匹配符描述的是索引位置的性质。假如正则表达式为“\bhel\B”，图1中的字符串作为目标字符串，那么能够得到一个匹配字符串“hel”（目标字符串中索引位置0的确是“单词边界”，索引位置3的确是“非单词边界”）</li>
+</ol>
+<h2 id="三、实践"><a href="#三、实践" class="headerlink" title="三、实践"></a><strong>三、实践</strong></h2><table>
+<thead>
+<tr>
+<th>正则表达式</th>
+<th>目标字符串</th>
+<th>结果</th>
+<th>对应的索引位置区间序列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>a?</code></td>
+<td><code>abcafdas</code></td>
+<td>I found the text “a” starting at index 0 and ending at index 1.<br/>I found the text “” starting at index 1 and ending at index 1.<br/>I found the text “” starting at index 2 and ending at index 2.<br/>I found the text “a” starting at index 3 and ending at index 4.<br/>I found the text “” starting at index 4 and ending at index 4.<br/>I found the text “” starting at index 5 and ending at index 5.<br/>I found the text “a” starting at index 6 and ending at index 7.<br/>I found the text “” starting at index 7 and ending at index 7.<br/>I found the text “” starting at index 8 and ending at index 8.</td>
+<td>[0,1)，[1,1]，[2,2]，[3,4)，[4,4]，[5,5]，[6,7)，[7,7]，[8,8]</td>
+<td>从左至右，从“索引位置0”开始，到“索引位置8”结束。尝试以“索引位置0”为边界左值，找到匹配字符串“a”，对应的边界右值为“索引位置1”，即“[0,1)”；尝试以“索引位置1”为边界左值，找到零长度匹配，对应的边界右值为“索引位置1”，即“[1,1]”；尝试以“索引位置2”为边界左值，找到零长度匹配，对应的边界右值为“索引位置2”，即“[2,2]”；尝试以“索引位置3”为边界左值，找到匹配字符串“a”，对应的边界右值为“索引位置4”，即“[3,4)”；尝试以“索引位置4”为边界左值，找到零长度匹配，对应的边界右值为“索引位置4”，即“[4,4]”；尝试以“索引位置5”为边界左值，找到零长度匹配，对应的边界右值为“索引位置5”，即“[5,5]”；尝试以“索引位置6”为边界左值，找到匹配字符串“a”，对应的边界右值为“索引位置7”，即“[6,7)”；尝试以“索引位置7”为边界左值，找到零长度匹配，对应的边界右值为“索引位置7”，即“[7,7]”；尝试以“索引位置8”为边界左值，找到零长度匹配，对应的边界右值为“索引位置8”，即“[8,8]”</td>
+</tr>
+<tr>
+<td><code>a*</code></td>
+<td><code>aabaaaca</code></td>
+<td>I found the text “aa” starting at index 0 and ending at index 2.<br/>I found the text “” starting at index 2 and ending at index 2.<br/>I found the text “aaa” starting at index 3 and ending at index 6.<br/>I found the text “” starting at index 6 and ending at index 6.<br/>I found the text “a” starting at index 7 and ending at index 8.<br/>I found the text “” starting at index 8 and ending at index 8.</td>
+<td>[0,2)，[2,2]，[3,6)，[6,6]，[7,8)，[8,8]</td>
+<td>从左至右，从“索引位置0”开始，到“索引位置8”结束。尝试以“索引位置0”为边界左值，找到匹配字符串“aa”，对应的边界右值为“索引位置2”，即“[0,2)”；尝试以“索引位置2”为边界左值，找到零长度匹配，对应的边界右值为“索引位置2”，即“[2,2]”；尝试以“索引位置3”为边界左值，找到匹配字符串“aaa”，对应的边界右值为“索引位置6”，即“[3,6)”；尝试以“索引位置6”为边界左值，找到零长度匹配，对应的边界右值为“索引位置6”，即“[6,6]”；尝试以“索引位置7”为边界左值，找到匹配字符串“a”，对应的边界右值为“索引位置8”，即“[7,8)”；尝试以“索引位置8”为边界左值，找到零长度匹配，对应的边界右值为“索引位置8”，即“[8,8]”</td>
+</tr>
+<tr>
+<td><code>^he\B</code></td>
+<td><code>hello world</code></td>
+<td>I found the text “he” starting at index 0 and ending at index 2.</td>
+<td>[0,2)</td>
+<td>从左至右，从“索引位置0”开始，到“索引位置11”结束。尝试以“索引位置0”为边界左值，找到匹配字符串“he”，对应的边界右值为“索引位置2”，即“[0,2)”；依次尝试以“索引位置2”，“索引位置3”，“索引位置4”，“索引位置5”，“索引位置6”，“索引位置7”，“索引位置8”，“索引位置9”，“索引位置10”，“索引位置11”为边界左值，找不到匹配</td>
+</tr>
+<tr>
+<td><code>aa</code></td>
+<td><code>cdfaacdf</code></td>
+<td>I found the text “aa” starting at index 3 and ending at index 5.</td>
+<td>[3,5)</td>
+<td>从左至右，从“索引位置0”开始，到“索引位置8”结束。依次尝试以“索引位置0”，“索引位置1”，“索引位置2”为边界左值，找不到匹配，尝试以“索引位置3”为边界左值，找到匹配字符串“aa”，对应的边界右值为“索引位置5”，即“[3,5)”；依次尝试以“索引位置5”，“索引位置6”，“索引位置7”，“索引位置8”为边界左值，找不到匹配</td>
+</tr>
+</tbody></table>
+<h2 id="四、模型适用"><a href="#四、模型适用" class="headerlink" title="四、模型适用"></a><strong>四、模型适用</strong></h2><p>采用本模型的正则表达式匹配引擎在匹配时会使用本模型进行匹配，但是当我们自己进行“人工匹配”时，一般使用“粗放匹配（即直接根据字符串进行匹配）”方式，在这种方式下，极易漏掉“零长度匹配”，因此，当有可能出现“零长度匹配”时，我们最好还是遵循本模型的方式进行“人工匹配”。<br>比如有“正则表达式：<code>a?</code>，目标字符串：<code>abcafdas</code>”，使用“粗放匹配”方式，很容易找到“a（第1个字符）”，“a（第4个字符）”和“a（第7个字符）”这3个匹配字符串，但是很容易遗漏零长度匹配；使用“本模型”方式，不容易遗漏任何可能的匹配（可参见“三、实践”小节）。</p>
+<br/>
+参考文献：
+[1]https://docs.oracle.com/javase/tutorial/essential/regex/literals.html
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/" title="一种正则表达式匹配模型">https://dslztx.github.io/blog/2017/06/02/一种正则表达式匹配模型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/05/26/JDK%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="prev" title="JDK正则表达式">
+      <i class="fa fa-chevron-left"></i> JDK正则表达式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/06/05/GNU-ERE%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="next" title="GNU ERE正则表达式">
+      GNU ERE正则表达式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/";
+    this.page.identifier = "2017/06/02/一种正则表达式匹配模型/";
+    this.page.title = "一种正则表达式匹配模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

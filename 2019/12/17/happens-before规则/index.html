@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、happens-before规则产生背景根据《可见性与有序性》，编写Java程序存在“可见性”和“有序性”问题。为提供确定性编程环境，JMM提供了一系列happens-before规则，遵循happens-before规则可获得相对应的“可见性”和“有序性”语义保证，其语义是：假如操作A happens-before 操作B，那么“在可见性维度，操作A对操作B内存可见；在有序性维度，操作A先于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="happens-before规则">
+<meta property="og:url" content="https://dslztx.github.io/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、happens-before规则产生背景根据《可见性与有序性》，编写Java程序存在“可见性”和“有序性”问题。为提供确定性编程环境，JMM提供了一系列happens-before规则，遵循happens-before规则可获得相对应的“可见性”和“有序性”语义保证，其语义是：假如操作A happens-before 操作B，那么“在可见性维度，操作A对操作B内存可见；在有序性维度，操作A先于">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20191217-0-1.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20191217-0-2.png">
+<meta property="article:published_time" content="2019-12-17T14:12:54.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.200Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20191217-0-1.png">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>happens-before规则 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          happens-before规则
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-17 22:12:54" itemprop="dateCreated datePublished" datetime="2019-12-17T22:12:54+08:00">2019-12-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/17/happens-before规则/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、happens-before规则产生背景"><a href="#一、happens-before规则产生背景" class="headerlink" title="一、happens-before规则产生背景"></a><strong>一、happens-before规则产生背景</strong></h2><p>根据<a href="/2019/11/08/%E5%8F%AF%E8%A7%81%E6%80%A7%E4%B8%8E%E6%9C%89%E5%BA%8F%E6%80%A7/" title="可见性与有序性">《可见性与有序性》</a>，编写Java程序存在“可见性”和“有序性”问题。为提供确定性编程环境，JMM提供了一系列happens-before规则，遵循happens-before规则可获得相对应的“可见性”和“有序性”语义保证，其语义是：<code>假如操作A happens-before 操作B，那么“在可见性维度，操作A对操作B内存可见；在有序性维度，操作A先于操作B”</code>。</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>上述“可见性”指代“广义可见性”，“有序性”指代“广义有序性”，本文后续如无特别说明，都是该含义。而且根据<a href="/2019/11/08/%E5%8F%AF%E8%A7%81%E6%80%A7%E4%B8%8E%E6%9C%89%E5%BA%8F%E6%80%A7/" title="可见性与有序性">《可见性与有序性》</a>可知，“广义可见性”和“广义有序性”是等价的</li>
+</ul>
+<h2 id="二、happens-before规则的实现原理"><a href="#二、happens-before规则的实现原理" class="headerlink" title="二、happens-before规则的实现原理"></a><strong>二、happens-before规则的实现原理</strong></h2><p>happens-before规则的实现原理是：对于违背happens-before规则所提供“可见性&#x2F;有序性”语义确保的“可见性&#x2F;有序性”问题，通过各个指令&#x2F;语言层级的内存屏障加以解决，比如“通过<code>程序语言层级的内存屏障</code>禁止程序语言编译&#x2F;解释过程中的重排序”；而对于那些不违背happens-before规则所提供“可见性&#x2F;有序性”语义确保的“可见性&#x2F;有序性”问题，不作限制，即“法无禁则行”。</p>
+<h2 id="三、happens-before规则"><a href="#三、happens-before规则" class="headerlink" title="三、happens-before规则"></a><strong>三、happens-before规则</strong></h2><p>以下是几个常见的happens-before规则：</p>
+<ul>
+<li>程序顺序规则：一个线程中的每个操作，happens-before于该线程中的任意后续操作</li>
+<li>监视器锁规则：对一个锁的解锁，happens-before于随后对这个锁的加锁</li>
+<li>volatile变量规则：对一个volatile域的写，happens-before于任意后续对这个volatile域的读</li>
+<li>传递性规则：如果A happens-before B，且B happens-before C，那么A happens-before C</li>
+<li>start()规则：如果线程A执行操作ThreadB.start()（启动线程B），那么A线程的ThreadB.start()操作happens-before于线程B的任意操作</li>
+<li>join()规则：如果线程A执行操作ThreadB.join()并成功返回，那么线程B中的任意操作happens-before于线程A从ThreadB.join()操作成功返回</li>
+</ul>
+<h2 id="四、happens-before规则应用"><a href="#四、happens-before规则应用" class="headerlink" title="四、happens-before规则应用"></a><strong>四、happens-before规则应用</strong></h2><p>happens-before规则的语义理解起来其实不难，只是应用的时候有一个难点：对于happens-before规则而言，先有满足条件的A和B，再有“A happens-before B”关系，但是如何获得满足条件的A和B呢？</p>
+<p>接下来探讨如何获得满足条件的A和B：</p>
+<ul>
+<li>程序顺序规则：在单线程语境中，能够简单获得满足条件的A和B</li>
+<li>传递性规则：逻辑推导规则，没有具体的满足条件</li>
+<li>start()规则：经分析，能够简单获得满足条件的A和B</li>
+<li>join()规则：经分析，能够简单获得满足条件的A和B</li>
+<li>监视器锁规则：在单线程语境中，满足条件的A和B简单可获得；在多线程语境中，满足条件的A简单可获得，满足条件的B非简单可获得，主要是如何定义和获得“随后”？结合锁的定义，分为3种情形：1）B中加锁前置于A中解锁对应的加锁，那么就不会存在A，此种情况无需探讨；2）B中加锁前置于A中解锁且后置于A中解锁对应的加锁，那么会阻塞直到使得B中加锁是“随后”的；3）B中加锁后置于A中解锁，那么B中加锁显而易见即是“随后”的</li>
+<li>volatile变量规则：在单线程语境中，满足条件的A和B简单可获得。在多线程语境中，满足条件的A简单可获得，满足条件的B非简单可获得，主要是如何定义和达到“后续”？在多线程语境中，判定“后续”十分困难，但是在应用“volatile变量规则”的场景中，可以以另外一个视角来绕过这个判定问题，即<font color='red'>如果“对这个volatile域的读”，能够读到“对该volatile域的写”，那么“对这个volatile域的读”就是“后续”的</font>，这才是实际应用的立足点所在</li>
+</ul>
+<h2 id="五、基于happens-before规则推导新的happens-before规则"><a href="#五、基于happens-before规则推导新的happens-before规则" class="headerlink" title="五、基于happens-before规则推导新的happens-before规则"></a><strong>五、基于happens-before规则推导新的happens-before规则</strong></h2><p>要想推导新的happens-before规则，须基于现有的happens-before规则，否则推导出的happens-before规则的正确性不能够得到保证。</p>
+<h3 id="5-1、例子1"><a href="#5-1、例子1" class="headerlink" title="5.1、例子1"></a><strong>5.1、例子1</strong></h3><p>比如有如下一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ReorderExample</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">flag</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">writer</span><span class="params">()</span> &#123;</span><br><span class="line">        a = <span class="number">1</span>;               <span class="comment">//1</span></span><br><span class="line">        flag = <span class="literal">true</span>;         <span class="comment">//2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reader</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;          <span class="comment">//3</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> a * a;   <span class="comment">//4 </span></span><br><span class="line">            <span class="comment">// ......</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据<code>程序顺序规则</code>有“1 happens-before 2，3 happens-before 4”，当&#x2F;&#x2F;3处读取到&#x2F;&#x2F;2处值时，然后可能会错误认为有“2 happens-before 3”，接着再根据<code>传递性规则</code>，推导出有“1 happens-before 3，1 happens-before 4，2 happens-before 4”。但是，实际上“2 happens-before 3”未基于现有happens-before规则而是错误的结论，因此，最终也并没有“1 happens-before 3，1 happens-before 4，2 happens-before 4”，下面的两个可能执行时序也佐证了这个结论。</p>
+<p>由于操作1和操作2没有数据依赖关系，编译器和处理器可以对这两个操作重排序。当操作1和操作2重排序时，可能的执行时序图如图1，此时，“1 happens-before 4”不成立。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20191217-0-1.png"></p>
+<p>操作3和操作4没有数据依赖关系，但是存在控制依赖关系，控制依赖关系会影响指令执行的并行度，为克服该影响，编译器和处理器会采用猜测执行技术：提前读取并计算a*a，然后把计算结果临时保存到一个名为重排序缓冲（Reorder Buffer，ROB）的硬件缓存中。当操作3的条件判断为真时，把该计算结果写入变量i中。可以发现，猜测执行实质上是对操作3和4做了重排序，可能的执行时序图如图2，此时，“1 happens-before 4”不成立。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20191217-0-2.png"></p>
+<p><font color='red'>如果给变量flag加上volatile关键词，那么基于<code>volatile变量规则</code>，的确有“2 happens-before 3（3是读取到flag变量写入值的3）”，最终也就有“1 happens-before 3，1 happens-before 4，2 happens-before 4”。</font></p>
+<h3 id="5-2、例子2"><a href="#5-2、例子2" class="headerlink" title="5.2、例子2"></a><strong>5.2、例子2</strong></h3><p><code>监视器锁规则</code>中的“锁”包括“内置锁——synchronized关键词所对应锁”和“高级锁”，其中“内置锁”的该happens-before规则语义实现是JDK原生级别的，“高级锁”的该happens-before规则语义实现是非JDK原生级别，基于基础组件推导得的。<br>接下来以高级锁中的“ReentrantLock锁”为例进行推导演示，ReentrantLock锁可细分为“公平锁”和“非公平锁”。</p>
+<p><font color='red'>另外需要说明的一点是，在查看源码的过程中可以发现，“unlock()”和“lock()”操作是方法，其显而易见是非原子的，因此可以知道，上述happens-before规则中的“操作”不一定是原子的。</font></p>
+<h4 id="5-2-1、公平锁"><a href="#5-2-1、公平锁" class="headerlink" title="5.2.1、公平锁"></a><strong>5.2.1、公平锁</strong></h4><p>解锁代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">protected final boolean tryRelease(int releases) &#123;</span><br><span class="line">    int c = getState() - releases;</span><br><span class="line">    if (Thread.currentThread() != getExclusiveOwnerThread())</span><br><span class="line">        throw new IllegalMonitorStateException();</span><br><span class="line">    boolean free = false;</span><br><span class="line">    if (c == 0) &#123;</span><br><span class="line">        free = true;</span><br><span class="line">        setExclusiveOwnerThread(null);</span><br><span class="line">    &#125;</span><br><span class="line">    setState(c);</span><br><span class="line">    return free;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>加锁代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">protected final boolean tryAcquire(int acquires) &#123;</span><br><span class="line">    final Thread current = Thread.currentThread();</span><br><span class="line">    int c = getState();</span><br><span class="line">    if (c == 0) &#123;</span><br><span class="line">        if (!hasQueuedPredecessors() &amp;&amp;</span><br><span class="line">            compareAndSetState(0, acquires)) &#123;</span><br><span class="line">            setExclusiveOwnerThread(current);</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else if (current == getExclusiveOwnerThread()) &#123;</span><br><span class="line">        int nextc = c + acquires;</span><br><span class="line">        if (nextc &lt; 0)</span><br><span class="line">            throw new Error(&quot;Maximum lock count exceeded&quot;);</span><br><span class="line">        setState(nextc);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可发现：解锁时最后写volatile变量state，加锁时首先读取state变量，根据<code>volatile变量规则</code>，可推得“对一个锁的解锁，happens-before于随后对这个锁的加锁”，即满足<code>监视器锁规则</code>。</p>
+<h4 id="5-2-2、非公平锁"><a href="#5-2-2、非公平锁" class="headerlink" title="5.2.2、非公平锁"></a><strong>5.2.2、非公平锁</strong></h4><p>解锁代码同“5.2.1、公平锁”。<br>加锁代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">final void lock() &#123;</span><br><span class="line">    if (compareAndSetState(0, 1))</span><br><span class="line">        setExclusiveOwnerThread(Thread.currentThread());</span><br><span class="line">    else</span><br><span class="line">        acquire(1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可发现：解锁时最后写volatile变量state，加锁时首先读取state变量（<code>compareAndSetState</code>是一个CAS操作含有先读取state变量的等价语义，<code>acquire</code>也是先读取state变量），根据<code>volatile变量规则</code>，可推得“对一个锁的解锁，happens-before于随后对这个锁的加锁”，即满足<code>监视器锁规则</code>。</p>
+<h2 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a><strong>六、其他</strong></h2><h3 id="6-1、happens-before规则的现实意义"><a href="#6-1、happens-before规则的现实意义" class="headerlink" title="6.1、happens-before规则的现实意义"></a><strong>6.1、happens-before规则的现实意义</strong></h3><p>一个经典的多线程运行场景（线程A和线程B），如下。<br>线程A：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">语句1</span><br><span class="line">语句2</span><br><span class="line">语句3</span><br><span class="line">语句4</span><br><span class="line">语句5</span><br></pre></td></tr></table></figure>
+
+<p>线程B：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">语句11</span><br><span class="line">语句22</span><br><span class="line">语句33</span><br><span class="line">语句44</span><br></pre></td></tr></table></figure>
+<p>如果需要分析跨线程的程序运行情况，那么需要考虑所有可能的“可见性，有序性”情形，脑力负担重，易出错，但是借助于happens-before规则就可以简单准确地完成上述分析任务。</p>
+<p>通过如下一段示例代码进行说明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataReloader</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">ScheduledExecutorService</span> <span class="variable">threadPool</span> <span class="operator">=</span> Executors.newScheduledThreadPool(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">    Set&lt;String&gt; set = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">DataReloader</span> <span class="variable">dataReloader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataReloader</span>();</span><br><span class="line"></span><br><span class="line">        threadPool.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                dataReloader.reload();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="number">0</span>, <span class="number">30</span>, TimeUnit.MINUTES);</span><br><span class="line"></span><br><span class="line">        dataReloader.run();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (String s : set) &#123;                   <span class="comment">//5</span></span><br><span class="line">                System.out.println(s);               <span class="comment">//6</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Thread.sleep(<span class="number">10000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reload</span><span class="params">()</span> &#123;</span><br><span class="line">        set = reloadLogic();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Set&lt;String&gt; <span class="title function_">reloadLogic</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// reload set logic</span></span><br><span class="line">        Set&lt;String&gt; tmpset = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;String&gt;();   <span class="comment">//1</span></span><br><span class="line">        tmpset.add(<span class="string">&quot;hello&quot;</span>);                          <span class="comment">//2</span></span><br><span class="line">        tmpset.add(<span class="string">&quot;world&quot;</span>);                          <span class="comment">//3</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> tmpset;                                <span class="comment">//4</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述这段代码描述的程序逻辑是：1）主线程不断打印集合set内的元素；2）每隔30分钟运行另外一个线程重新加载集合set。<br>现在的实现方式存在的问题是：由于“重排序”的存在，可能出现一种情形——主线程在获得最新的set之后，里面的“hello”和“world”元素还没有添加完成。<br>假如给set加上volatile关键词，此时，定时线程中有“1 happens-before 2，2 happens-before 3，3 happens-before 4”，在主线程中有“5 happens-before 6”，根据<code>volatile变量规则</code>有“4 happens-before 5（5是读取到set变量写入值的5）”，再根据<code>传递性规则</code>，则最终有“1 happens-before 5，2 happens-before 5，3 happens-before 5”，因此上述描述的问题不会再出现。</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>Foreach语法的本质是迭代器，因此对于<code>for (String s : set)</code>来说，本质是遍历一个迭代器，并隐式含有“读取set变量 happens-before 生成一个迭代器”</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/18508786/for-each-vs-iterator-which-will-be-the-better-option">https://stackoverflow.com/questions/18508786/for-each-vs-iterator-which-will-be-the-better-option</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">https://dslztx.github.io/blog/2019/12/17/happens-before规则/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/11/08/%E5%8F%AF%E8%A7%81%E6%80%A7%E4%B8%8E%E6%9C%89%E5%BA%8F%E6%80%A7/" rel="prev" title="可见性与有序性">
+      <i class="fa fa-chevron-left"></i> 可见性与有序性
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/01/14/CAS/" rel="next" title="CAS">
+      CAS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/";
+    this.page.identifier = "2019/12/17/happens-before规则/";
+    this.page.title = "happens-before规则";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在多核CPU中，每个CPU核内都有高速缓存——L1高速缓存和L2高速缓存，由于这些高速缓存缓存相同主存，因此需要高速缓存一致性协议来确保高速缓存状态和操作的语义一致性；而L3高速缓存是属于多CPU核共享的，因此不存在一致性问题。 在众多的高速缓存一致性协议中，MESI协议是应用较为广泛的一种，本文接下来就主要介绍MESI协议。 需要说明的是，如无特别说明，接下来的“缓存”和“Cache”均代指“高">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MESI协议">
+<meta property="og:url" content="https://dslztx.github.io/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="在多核CPU中，每个CPU核内都有高速缓存——L1高速缓存和L2高速缓存，由于这些高速缓存缓存相同主存，因此需要高速缓存一致性协议来确保高速缓存状态和操作的语义一致性；而L3高速缓存是属于多CPU核共享的，因此不存在一致性问题。 在众多的高速缓存一致性协议中，MESI协议是应用较为广泛的一种，本文接下来就主要介绍MESI协议。 需要说明的是，如无特别说明，接下来的“缓存”和“Cache”均代指“高">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20190610-0-0.gif">
+<meta property="article:published_time" content="2019-06-10T08:38:41.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.228Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20190610-0-0.gif">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MESI协议 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MESI协议
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-10 16:38:41" itemprop="dateCreated datePublished" datetime="2019-06-10T16:38:41+08:00">2019-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">计算机组成原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/10/MESI协议/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在多核CPU中，每个CPU核内都有高速缓存——L1高速缓存和L2高速缓存，由于这些高速缓存缓存相同主存，因此需要高速缓存一致性协议来确保高速缓存状态和操作的语义一致性；而L3高速缓存是属于多CPU核共享的，因此不存在一致性问题。</p>
+<p>在众多的高速缓存一致性协议中，MESI协议是应用较为广泛的一种，本文接下来就主要介绍MESI协议。</p>
+<p><font color='red'>需要说明的是，如无特别说明，接下来的“缓存”和“Cache”均代指“高速缓存”。</font></p>
+<h2 id="一、MESI协议简介"><a href="#一、MESI协议简介" class="headerlink" title="一、MESI协议简介"></a><strong>一、MESI协议简介</strong></h2><p>MESI协议是众多高速缓存一致性协议中的一种，它支持的高速缓存写策略是：<font color='red'>Write Back（写回）</font>。</p>
+<p>另外，需要提及的一点是：存在一个选择，具体是“当某个CPU核A需要访问的数据不在A内缓存，而另一个CPU核B内缓存存在所需数据，那么此时A是从B内缓存复制数据到本地缓存，还是从主存复制数据到本地缓存（后者显而易见会增加主存总线的锁住时间，采用前者可提高主存的存取速度）？”，对于这个选择，MESI协议本身并未作出规定，而是交由MESI协议的具体实现来决定。<font color='red'>我们这里以从主存复制为例进行说明。</font></p>
+<h2 id="二、MESI协议——Cache-Line的4种状态"><a href="#二、MESI协议——Cache-Line的4种状态" class="headerlink" title="二、MESI协议——Cache Line的4种状态"></a><strong>二、MESI协议——Cache Line的4种状态</strong></h2><h3 id="2-1、4种Cache-Line状态"><a href="#2-1、4种Cache-Line状态" class="headerlink" title="2.1、4种Cache Line状态"></a><strong>2.1、4种Cache Line状态</strong></h3><p>MESI协议将Cache Line的状态分为4种，分别是：<code>modify-修改-M</code>、<code>exclusive-独占-E</code>、<code>shared-共享-S</code>和<code>invalid-失效-I</code>。4个状态需要2个标记比特位。<br>另外，根据<a href="/2019/06/07/%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98/" title="高速缓存">《高速缓存》</a>笔记可知，采用“Write Back（写回）”高速缓存写策略的Cache Line原就有2个标记比特位，分别是：<code>valid-是否有效</code>和<code>dirty-是否修改</code>。<br>综上，Cache Line现有4个标记比特位，特别需要强调的是：<font color='red'>“4个状态对应的2个标记比特位”与“另外2个标记比特位”存在耦合依赖关系，并非互相独立，这个关系描述详见表1</font>。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>MESI协议规定的4个状态</th>
+<th>2个状态标记比特位值</th>
+<th>valid标记比特位值</th>
+<th>dirty标记比特位值</th>
+<th>状态描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>modify-M</code></td>
+<td>00</td>
+<td>0-有效</td>
+<td>1-存在修改</td>
+<td>该Cache Line有效，存在修改，与主存相应数据块不一致，且新于主存相应数据块。只有当前CPU核内的缓存加载了该Cache Line</td>
+</tr>
+<tr>
+<td><code>exclusive-E</code></td>
+<td>01</td>
+<td>0-有效</td>
+<td>0-不存在修改</td>
+<td>该Cache Line有效，不存在修改，与主存相应数据块一致。只有当前CPU核内的缓存加载了该Cache Line</td>
+</tr>
+<tr>
+<td><code>shared-S</code></td>
+<td>10</td>
+<td>0-有效</td>
+<td>0-不存在修改</td>
+<td>该Cache Line有效，不存在修改，与主存相应数据块一致。多于1个的CPU核（包括当前CPU核）内的缓存加载了该Cache Line。<font color='red'>实际中，可能由于替换，最终少于2个的CPU核内的缓存加载了该Cache Line</font></td>
+</tr>
+<tr>
+<td><code>invalid-I</code></td>
+<td>11</td>
+<td>1-无效</td>
+<td>0-不存在修改</td>
+<td><font color='red'>该Cache Line无效</font></td>
+</tr>
+</tbody></table>
+<br/>
+
+<p><strong>备注</strong>：</p>
+<ul>
+<li>以上表中4个标记比特位的值只是为了便于示例说明，而不一定是实际值</li>
+<li>一个Cache Line或者不加载，或者加载后处于上面4种状态之一的某种状态</li>
+<li>处于无效状态的Cache Line需要重新加载，从这个角度来看，其等价于“未加载”</li>
+<li>特别需要注意的是，当状态转换时，“valid标记比特位”和“dirty标记比特位”也需要作相应的修改，以保持正确的耦合依赖关系</li>
+</ul>
+<h3 id="2-2、合法的Cache-Line状态组合"><a href="#2-2、合法的Cache-Line状态组合" class="headerlink" title="2.2、合法的Cache Line状态组合"></a><strong>2.2、合法的Cache Line状态组合</strong></h3><p>在多CPU核情形中，对于同一个Cache Line，当被大于1个CPU核内的Cache加载时，从全局视角看，合法的Cache Line状态组合有：</p>
+<ul>
+<li><code>=1个M，&gt;=1个I</code>，此时如果发生Cache Line替换，则可能的合法状态组合有<code>&gt;=1个I</code>，<code>=1个M，&gt;=0个I</code>，<code>&gt;=0个I</code></li>
+<li><code>=1个E，&gt;=1个I</code>，此时如果发生Cache Line替换，则可能的合法状态组合有<code>&gt;=1个I</code>，<code>=1个E，&gt;=0个I</code>，<code>&gt;=0个I</code></li>
+<li><code>&gt;=2个S，&gt;=0个I</code>，此时如果发生Cache Line替换，则可能的合法状态组合有<code>&gt;=2个S，&gt;=0个I</code>，<code>&gt;=1个S，&gt;=0个I</code>，<code>&gt;=0个I</code></li>
+<li><code>&gt;=2个I</code>，此时如果发生Cache Line替换，则可能的合法状态组合有<code>&gt;=1个I</code>，<code>&gt;=0个I</code></li>
+</ul>
+<h2 id="三、MESI协议——会引起Cache-Line状态转换的4种操作"><a href="#三、MESI协议——会引起Cache-Line状态转换的4种操作" class="headerlink" title="三、MESI协议——会引起Cache Line状态转换的4种操作"></a><strong>三、MESI协议——会引起Cache Line状态转换的4种操作</strong></h2><p>MESI协议将会引起Cache Line状态转换的操作分为4种：</p>
+<ul>
+<li><code>Local Read-LR</code>，读取本CPU核内缓存中的Cache Line</li>
+<li><code>Local Write-LW</code>，写数据到本CPU核内缓存中的Cache Line</li>
+<li><code>Remote Read-RR</code>，读取其他CPU核内缓存中的Cache Line</li>
+<li><code>Remote Write-RW</code>，写数据到其他CPU核内缓存中的Cache Line</li>
+</ul>
+<h2 id="四、MESI协议——4种状态-会引起状态转换的4种操作-16种状态转换情形"><a href="#四、MESI协议——4种状态-会引起状态转换的4种操作-16种状态转换情形" class="headerlink" title="四、MESI协议——4种状态*会引起状态转换的4种操作&#x3D;16种状态转换情形"></a><strong>四、MESI协议——4种状态*会引起状态转换的4种操作&#x3D;16种状态转换情形</strong></h2><p>如上文所述，MESI协议中Cache Line的状态有4种，而会引起状态转换的操作也有4种，因此共有16种状态转换情形，接下来就主要介绍这16种状态转换情形，以进一步理解MESI协议。总的16种状态转换示意图如图1。<br>需要说明的是，为实现MESI协议，每个Cache控制器不仅知晓自己的操作和Cache Line状态，也知晓其他Cache控制器的操作和Cache Line状态。</p>
+<p>为便于接下来的叙述方便，首先给出一些约定：</p>
+<ul>
+<li>分别以a和b指代不同CPU核内的Cache控制器，a和b加载同一个Cache Line A，可分别以“aA”和“bA”表示，“aA”和“bA”相同不代表它们在Cache中的位置一定一致（比如在组相联映射方案中，通过遍历组找到存放Cache Line的目标位置，而“aA”和“bA”对应的最终遍历到目标位置很有可能不同），而只是代表它们对应的主存数据块相同</li>
+<li>“xA”表示由某个Cache控制器x加载的Cache Line A</li>
+</ul>
+<p>在接下来的叙述中，面向Cache Line A，执行LR和LW操作的Cache控制器是a，执行RR和RW操作的Cache控制器是b。</p>
+<p>图1<sup>[1]</sup></p>
+<p><img src="https://blog.dslztx.top/imgs/20190610-0-0.gif"></p>
+<h3 id="4-1、M"><a href="#4-1、M" class="headerlink" title="4.1、M"></a><strong>4.1、M</strong></h3><ul>
+<li>LR：根据所有包含<code>M</code>的合法Cache Line状态组合，无需向内存总线发送RR操作信号，直接读取aA，状态不变</li>
+<li>LW：根据所有包含<code>M</code>的合法Cache Line状态组合，无需向内存总线发送RW操作信号，直接写数据到aA，状态不变</li>
+<li>RR：当a监听到内存总线上有RR操作信号时，在b真正执行上述RR操作前，a首先将存在修改的aA写回主存，然后b再真正执行上述RR操作，此时aA和bA都为最新且一致，因此，需要将aA和bA的状态都设为<code>S</code></li>
+<li>RW：当a监听到内存总线上有RW操作信号时，在b真正执行上述RW操作前，a首先将存在修改的aA写回主存，然后b再真正执行上述RW操作，此时aA的状态设为<code>I</code>，bA的状态设为<code>M</code></li>
+</ul>
+<h3 id="4-2、E"><a href="#4-2、E" class="headerlink" title="4.2、E"></a><strong>4.2、E</strong></h3><ul>
+<li>LR：根据所有包含<code>E</code>的合法Cache Line状态组合，无需向内存总线发送RR操作信号，直接读取aA，状态不变</li>
+<li>LW：根据所有包含<code>E</code>的合法Cache Line状态组合，无需向内存总线发送RW操作信号，直接写数据到aA，状态设为<code>M</code></li>
+<li>RR：aA和bA的状态设为<code>S</code></li>
+<li>RW：aA的状态设为<code>I</code>，bA的状态设为<code>M</code></li>
+</ul>
+<h3 id="4-3、S"><a href="#4-3、S" class="headerlink" title="4.3、S"></a><strong>4.3、S</strong></h3><ul>
+<li>LR：根据所有包含<code>S</code>的合法Cache Line状态组合，无需向内存总线发送RR操作信号，直接读取aA，状态不变</li>
+<li>LW：根据所有包含<code>S</code>的合法Cache Line状态组合，可能存在处于<code>S</code>状态的xA，因此需要向内存总线发送RW操作信号，直接写数据到aA，状态设为<code>M</code>，所有xA的状态设为<code>I</code></li>
+<li>RR：aA和bA的状态设为<code>S</code></li>
+<li>RW：aA的状态设为<code>I</code>，bA的状态设为<code>M</code></li>
+</ul>
+<h3 id="4-4、I"><a href="#4-4、I" class="headerlink" title="4.4、I"></a><strong>4.4、I</strong></h3><p>在继续之前，首先需要说明的是：1）对于一个Cache Line A，如果其未加载，那么就等价处于<code>I</code>状态；2）有效xA表示Cache Line A被加载，且状态不为<code>I</code>。</p>
+<ul>
+<li>LR：<ul>
+<li>如果其他CPU核内Cache中不存在有效xA，显而易见的是，a无需向内存总线发送RR操作信号，它从主存重新加载aA，并则aA的状态设为<code>E</code></li>
+<li>如果其他CPU核内Cache中存在有效xA，且状态为<code>S</code>，则a无需向内存总线发送RR操作信号，它从主存重新加载aA，aA的状态设为<code>S</code></li>
+<li>如果其他CPU核内Cache中存在有效xA，且状态为<code>E</code>，则a需要向内存总线发送RR操作信号，它从主存重新加载aA，最终所有有效xA的状态设为<code>S</code>，aA的状态也设为<code>S</code></li>
+<li>如果其他CPU核内Cache中存在有效xA，且状态为<code>M</code>，根据所有包含<code>M</code>的合法Cache Line状态组合可知，只可能存在一个状态为<code>M</code>的xA，假定该xA所在的Cache控制器为p，那么该xA又可被称为pA。此时a需要向内存总线发送RR操作信号，当p监听到内存总线上有RR操作信号时，p先将存在修改的pA写回主存，并将其状态设为<code>S</code>，随后a从主存重新加载aA，并则aA的状态设为<code>S</code></li>
+</ul>
+</li>
+<li>LW：<ul>
+<li>如果其他CPU核内Cache中不存在有效xA，显而易见的是，a无需向内存总线发送RW操作信号，它从主存重新加载aA，然后直接写数据到aA，并将aA的状态设为<code>M</code></li>
+<li>如果其他CPU核内Cache中存在有效xA，且状态为<code>S</code>或者<code>E</code>，则a需要向内存总线发送RW操作信号，所有有效xA的状态设为<code>I</code>，a从主存重新加载aA，然后直接写数据到aA，并将aA的状态设为<code>M</code></li>
+<li>如果其他CPU核内Cache中存在有效xA，且状态为<code>M</code>，根据所有包含<code>M</code>的合法Cache Line状态组合可知，只可能存在一个状态为<code>M</code>的xA，假定该xA所在的Cache控制器为p，那么该xA又可被称为pA。此时a需要向内存总线发送RW操作信号，当p监听到内存总线上有RW操作信号时，p先将存在修改的pA写回主存，并将其状态设为<code>I</code>，随后a从主存重新加载aA，然后直接写数据到aA，并将aA的状态设为<code>M</code></li>
+</ul>
+</li>
+<li>RR：<ul>
+<li>aA处于无效状态，其他CPU核内Cache控制器的读取操作与aA无关，因此状态不变</li>
+</ul>
+</li>
+<li>RW：<ul>
+<li>aA处于无效状态，其他CPU核内Cache控制器的写操作与aA无关，因此状态不变</li>
+</ul>
+</li>
+</ul>
+<h2 id="五、MESI协议实际运作举例"><a href="#五、MESI协议实际运作举例" class="headerlink" title="五、MESI协议实际运作举例"></a><strong>五、MESI协议实际运作举例</strong></h2><p>假定现有3个Cache控制器a，b，c，面向Cache Line A。</p>
+<ol>
+<li>a读取A，则a加载A，此时aA的状态为<code>E</code>，b和c未加载A</li>
+<li>b读取A，则b加载A，此时aA和bA的状态为<code>S</code>，c未加载A</li>
+<li>c写数据到A，则c加载A再写数据到cA，此时aA和bA的状态为<code>I</code>，cA的状态为<code>M</code></li>
+<li>a读取A，aA和cA的状态为<code>S</code>，bA的状态仍为<code>I</code></li>
+</ol>
+<br/>
+
+<h2 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a><strong>参考文献：</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://blog.csdn.net/muxiqingyang/article/details/6615199">https://blog.csdn.net/muxiqingyang/article/details/6615199</a><br>[2]<a target="_blank" rel="noopener" href="https://blog.csdn.net/reliveIT/article/details/50450136">https://blog.csdn.net/reliveIT/article/details/50450136</a><br>[3]<a target="_blank" rel="noopener" href="https://www.infoq.cn/article/cache-coherency-primer">https://www.infoq.cn/article/cache-coherency-primer</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/" title="MESI协议">https://dslztx.github.io/blog/2019/06/10/MESI协议/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/09/%E9%AB%98%E7%BA%A7%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" rel="prev" title="高速缓存一致性">
+      <i class="fa fa-chevron-left"></i> 高速缓存一致性
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/08/02/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E4%B9%8BJava%E5%B9%B6%E5%8F%91/" rel="next" title="思维导图之Java并发">
+      思维导图之Java并发 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2019/06/10/MESI%E5%8D%8F%E8%AE%AE/";
+    this.page.identifier = "2019/06/10/MESI协议/";
+    this.page.title = "MESI协议";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

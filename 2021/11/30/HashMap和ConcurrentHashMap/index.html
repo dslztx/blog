@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍JDK 1.8下的HashMap和ConcurrentHashMap实现。 一、HashMap基本描述：  不用于并发场景的“映射表” “键”允许NULL值，“键值”允许NULL值。因此如果取某一个键的值，当取到NULL键值有两种含义：1）对于该键不存在相应的映射记录；2）对于该键存在相应的映射记录，但是其键值为NULL 底层是“节点数组”，对键作哈希计算（准确来说是“3次哈希计算”），映">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap和ConcurrentHashMap">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍JDK 1.8下的HashMap和ConcurrentHashMap实现。 一、HashMap基本描述：  不用于并发场景的“映射表” “键”允许NULL值，“键值”允许NULL值。因此如果取某一个键的值，当取到NULL键值有两种含义：1）对于该键不存在相应的映射记录；2）对于该键存在相应的映射记录，但是其键值为NULL 底层是“节点数组”，对键作哈希计算（准确来说是“3次哈希计算”），映">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-30T09:50:06.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.200Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>HashMap和ConcurrentHashMap | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HashMap和ConcurrentHashMap
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-30 17:50:06" itemprop="dateCreated datePublished" datetime="2021-11-30T17:50:06+08:00">2021-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/%E5%AE%B9%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">容器</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/30/HashMap和ConcurrentHashMap/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍JDK 1.8下的HashMap和ConcurrentHashMap实现。</p>
+<h2 id="一、HashMap"><a href="#一、HashMap" class="headerlink" title="一、HashMap"></a><strong>一、HashMap</strong></h2><p>基本描述：</p>
+<ul>
+<li>不用于并发场景的“映射表”</li>
+<li>“键”允许<code>NULL</code>值，“键值”允许<code>NULL</code>值。因此如果取某一个键的值，当取到<code>NULL</code>键值有两种含义：1）对于该键不存在相应的映射记录；2）对于该键存在相应的映射记录，但是其键值为<code>NULL</code></li>
+<li>底层是“节点数组”，对键作哈希计算（准确来说是“3次哈希计算”），映射到的节点数组中的节点被称为“槽”，不同键同槽碰撞的解决策略是“链地址法”，对应的链可称之为“碰撞冲突链”，为优化过长（超过一定阈值）“碰撞冲突链”的操作性能，将其转换为红黑树结构；后续红黑树如果过短，再退化成普通的链表结构</li>
+<li>涉及到两类大小——“映射记录大小”和“节点数组大小”，当满足条件时，会对节点数组大小进行扩容</li>
+<li>时间复杂度<ul>
+<li>增：不碰撞，是<code>O(1)</code>；碰撞，假定碰撞冲突链长度为K，在转换为红黑树之前是<code>O(K)</code>，在转换为红黑树之后是<code>O(logK)</code></li>
+<li>删：不碰撞，是<code>O(1)</code>；碰撞，假定碰撞冲突链长度为K，在转换为红黑树之前是<code>O(K)</code>，在转换为红黑树之后是<code>O(logK)</code></li>
+<li>改：不碰撞，是<code>O(1)</code>；碰撞，假定碰撞冲突链长度为K，在转换为红黑树之前是<code>O(K)</code>，在转换为红黑树之后是<code>O(logK)</code></li>
+<li>查：不碰撞，是<code>O(1)</code>；碰撞，假定碰撞冲突链长度为K，在转换为红黑树之前是<code>O(K)</code>，在转换为红黑树之后是<code>O(logK)</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="1-1、哈希和碰撞"><a href="#1-1、哈希和碰撞" class="headerlink" title="1.1、哈希和碰撞"></a><strong>1.1、哈希和碰撞</strong></h3><p><strong>1、哈希算法</strong></p>
+<ol>
+<li>第一次哈希：键的<code>hashCode()</code>方法值</li>
+<li>第二次哈希：其源代码见“源代码1”，<code>h ^ (h &gt;&gt;&gt; 16)</code>其含义是：计算保留高位比特信息，以利于第三次哈希后均匀散列到槽</li>
+<li>第三次哈希：本次哈希是为了散列到槽，其计算公式为<code>p &amp; (n-1)</code>[假定节点数组大小为<code>n</code>，经过前两次哈希的结果值为<code>p</code>]</li>
+</ol>
+<p>源代码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">hash</span><span class="params">(Object key)</span> &#123;</span><br><span class="line">    <span class="type">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="literal">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、碰撞解决策略</strong><br>碰撞可通过“链地址法”解决，对应的链可称之为“碰撞冲突链”，假定链表的长度为K。<br>当为普通链表时，增删改查的时间复杂度为<code>O(K)</code>，故为优化操作性能，当链表长度<code>&gt;=TREEIFY_THRESHOLD(8)</code>时，将其转换为红黑树，此时增删改查的时间复杂度为<code>O(logK)</code>；另外当红黑树大小满足条件<code>&lt;=UNTREEIFY_THRESHOLD(6)</code>时，红黑树退化为普通链表。</p>
+<h3 id="1-2、大小"><a href="#1-2、大小" class="headerlink" title="1.2、大小"></a><strong>1.2、大小</strong></h3><p>HashMap涉及到两类大小：映射记录大小和节点数组大小。</p>
+<h4 id="1-2-1、映射记录大小"><a href="#1-2-1、映射记录大小" class="headerlink" title="1.2.1、映射记录大小"></a><strong>1.2.1、映射记录大小</strong></h4><p>指HashMap中映射记录数量，比如“节点数组大小为8，在且只在第3个节点（槽）有一个长度为4的链表（碰撞冲突链），则映射记录大小为4”：</p>
+<ul>
+<li>对应于实例成员变量<code>transient int size</code></li>
+<li>对应于实例成员方法<code>public int size()</code>的返回值（不考虑映射记录大小大于<code>Integer.MAX_VALUE</code>的情形），该方法直接返回成员变量<code>size</code>的值，因此时间复杂度<code>O(1)</code></li>
+</ul>
+<h4 id="1-2-2、节点数组大小"><a href="#1-2-2、节点数组大小" class="headerlink" title="1.2.2、节点数组大小"></a><strong>1.2.2、节点数组大小</strong></h4><p>指HashMap中节点数组大小，即成员变量<code> transient Node&lt;K, V&gt;[] table</code>的大小。</p>
+<p>节点数组大小为2的整数次幂，其好处如下：</p>
+<ul>
+<li>第三次哈希的计算公式为<code>p &amp; (n - 1)</code>[假定节点数组大小为<code>n</code>，经过前两次哈希的结果值为<code>p</code>]，由于<code>n=2^x</code>，则<code>n-1</code>的低比特位全为1，使得“&amp;”运算能够充分利用<code>p</code>数值相应比特位位置的信息，利于均匀散列到槽</li>
+<li>后续可知，节点数组大小为2的整数次幂，加快了扩容过程中的“rehash”操作</li>
+</ul>
+<p>接下来介绍“初始化节点数组大小”和“扩容节点数组大小”，在介绍之前首先作以下几点说明：</p>
+<ul>
+<li>为简化描述和便于理解，不考虑极值大小的情况，比如<code>节点数组大小&gt;=MAXIMUM_CAPACITY(1 &lt;&lt; 30)</code></li>
+<li>成员变量<code>loadFactor</code>的语义是：负载因子，当<code>映射记录大小 &gt; 节点数组大小*loadFactor</code>时扩容节点数组</li>
+<li>成员变量<code>threshold</code>的语义是：<ul>
+<li>当节点数组未初始化时：<code>threshold &gt; 0</code>表示节点数组初始化大小等于<code>threshold</code>；<code>threshold = 0</code>表示节点数组初始化大小等于<code>DEFAULT_INITIAL_CAPACITY(1 &lt;&lt; 4)</code></li>
+<li>当节点数组已初始化时：<code>threshold=节点数组大小*loadFactor</code>，即当<code>映射记录大小 &gt; threshold</code>时扩容节点数组</li>
+</ul>
+</li>
+</ul>
+<h5 id="1-2-2-1、初始化"><a href="#1-2-2-1、初始化" class="headerlink" title="1.2.2.1、初始化"></a><strong>1.2.2.1、初始化</strong></h5><p>惰性初始化，即“不是一开始就初始化，而是在需要时才初始化”。</p>
+<p><strong>1、构造方法</strong><br>构造方法设置成员变量<code>threshold</code>和<code>loadFactor</code>的值，具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>构造方法\成员变量</th>
+<th>threshold</th>
+<th>loadFactor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>HashMap()</code></td>
+<td>等于“实例初始化默认0值”</td>
+<td>等于<code>DEFAULT_LOAD_FACTOR(0.75f)</code></td>
+</tr>
+<tr>
+<td><code>HashMap(int initialCapacity, float loadFactor)</code></td>
+<td>等于<code>tableSizeFor(initialCapacity)</code></td>
+<td>等于传入的<code>loadFactor</code></td>
+</tr>
+<tr>
+<td><code>HashMap(int initialCapacity)</code></td>
+<td>等于<code>tableSizeFor(initialCapacity)</code></td>
+<td>等于<code>DEFAULT_LOAD_FACTOR(0.75f)</code></td>
+</tr>
+<tr>
+<td><code>HashMap(Map&lt;? extends K, ? extends V&gt; m)</code></td>
+<td>等于<code>tableSizeFor( m.size() / loadFactor + 1.0f )</code></td>
+<td>等于<code>DEFAULT_LOAD_FACTOR(0.75f)</code></td>
+</tr>
+</tbody></table>
+<p>有两点说明：</p>
+<ol>
+<li>上述<code>tableSizeFor</code>方法（源代码见“源代码2”）的作用是：返回大于等于输入参数且为最近的“2的整数次幂”的数值，比如“输入10，返回16”</li>
+<li>后续可知，扩容操作十分耗费性能（申请新节点数组内存资源，对原映射记录进行rehash操作），因此在创建HashMap实例时最好能够根据预估的“映射记录大小”预计算“节点数组的初始化大小”。由于当<code>映射记录大小 &gt; 节点数组大小*loadFactor</code>时进行扩容，故为尽量避免扩容，须使得满足<code>节点数组大小 &gt;= 映射记录大小/loadFactor</code>不等式，上述第4个构造方法中的<code>m.size() / loadFactor + 1.0f</code>就是基于该不等式的一个常用等式，<font color='red'>我们自己在创建HashMap实例时也应该使用该等式预计算传入的节点数组初始化大小</font></li>
+</ol>
+<p>源代码2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">tableSizeFor</span><span class="params">(<span class="type">int</span> cap)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> cap - <span class="number">1</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">2</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">4</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">8</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">    <span class="keyword">return</span> (n &lt; <span class="number">0</span>) ? <span class="number">1</span> : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、惰性初始化</strong><br>根据<code>threshold</code>的值分为两种情况：</p>
+<ul>
+<li><code>threshold=0</code>：节点数组初始化大小等于<code>DEFAULT_INITIAL_CAPACITY(1 &lt;&lt; 4)</code>，新<code>threshold</code>值等于<code>DEFAULT_INITIAL_CAPACITY(1 &lt;&lt; 4) * DEFAULT_LOAD_FACTOR(0.75f)</code></li>
+<li><code>threshold&gt;0</code>：节点数组初始化大小等于<code>threshold</code>，新<code>threshold</code>值等于<code>threshold * loadFactor</code></li>
+</ul>
+<h5 id="1-2-2-2、扩容"><a href="#1-2-2-2、扩容" class="headerlink" title="1.2.2.2、扩容"></a><strong>1.2.2.2、扩容</strong></h5><p>节点数组只有“扩容”，没有“收缩”，扩容条件为：<code>映射记录大小 &gt; threshold</code>。</p>
+<p>扩容过程描述如下：</p>
+<ul>
+<li>2倍扩容。节点数组新大小是原来的2倍，成员变量<code>threshold</code>新值也是原来的2倍（语义不变）</li>
+<li>对原映射记录进行rehash操作：假设原节点数组大小为<code>n</code>，有一个“键”的二次哈希值为<code>hash</code>，则原散列到槽<code>(n -1) &amp; hash</code>，现散列到槽<code>(2*n - 1) &amp; hash</code>，这里可以有个计算优化，我们知道节点数组大小<code>n</code>是2的整数次幂，分析其比特位特点可知，对于以上运算，低n位比特位的<code>&amp;</code>运算结果不变，故只需要计算从低位往高位方向第n位的比特位<code>&amp;</code>结果，即<code>n &amp; hash</code></li>
+</ul>
+<h3 id="1-3、与JDK-1-6中HashMap实现比较"><a href="#1-3、与JDK-1-6中HashMap实现比较" class="headerlink" title="1.3、与JDK 1.6中HashMap实现比较"></a><strong>1.3、与JDK 1.6中HashMap实现比较</strong></h3><p>与JDK 1.6中HashMap实现相比，主要有以下几点改进：</p>
+<ol>
+<li>在JDK 1.8中，当碰撞冲突链过长时，会转化为红黑树，优化操作性能；而在JDK 1.6中，没有该优化</li>
+<li>对于节点数组的初始化，JDK 1.8中是惰性的，JDK 1.6中是即时的</li>
+<li>对于第二次哈希算法，JDK 1.8中的实现相较JDK 1.6较为简单，其后果就是“第三次哈希后散列到槽相较不均匀，碰撞冲突链的长度相较更长的概率增大”，但是由于JDK 1.8中引入了过长碰撞冲突链转换为红黑树的机制，使得上述问题得到了充分的补偿</li>
+<li>两者的实现都是针对非并发场景的，如果用于并发场景，可能会出现一些线程安全问题，比如：<ul>
+<li>映射记录丢失。在JDK 1.8中并发执行<code>p.next = newNode(hash, key, value, null)</code>语句；在JDK 1.6中并发执行<code>table[bucketIndex] = new Entry&lt;K,V&gt;(hash, key, value, e)</code>语句</li>
+<li>扩容导致死循环。在JDK 1.6中，扩容会导致死循环，问题相关源代码见“源代码3”，一种可能是：线程A执行语句<code>A.next = newTable[i]; newTable[i] = A;</code>，线程B并发执行语句<code>A.next = newTable[i];</code>，然后最后有<code>A.next = A;</code>，导致产生了一个链表死循环；在JDK 1.8中，对此予以了改进，不存在扩容导致死循环问题</li>
+</ul>
+</li>
+</ol>
+<p>源代码3：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Entry[] newTable)</span> &#123;</span><br><span class="line">    Entry[] src = table;</span><br><span class="line">    <span class="type">int</span> <span class="variable">newCapacity</span> <span class="operator">=</span> newTable.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; src.length; j++) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; e = src[j];</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="literal">null</span>) &#123;</span><br><span class="line">            src[j] = <span class="literal">null</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">                <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexFor(e.hash, newCapacity);</span><br><span class="line">                e.next = newTable[i];    <span class="comment">//1</span></span><br><span class="line">                newTable[i] = e;         <span class="comment">//2</span></span><br><span class="line">                e = next;</span><br><span class="line">            &#125; <span class="keyword">while</span> (e != <span class="literal">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、ConcurrentHashMap"><a href="#二、ConcurrentHashMap" class="headerlink" title="二、ConcurrentHashMap"></a><strong>二、ConcurrentHashMap</strong></h2><p>基本描述：</p>
+<ul>
+<li>用于并发场景的“映射表”，使用“CAS自旋锁+synchronized锁”实现线程安全</li>
+<li>“键”和“键值”都不允许<code>NULL</code>值。因此如果取某一个键的值，当取到<code>NULL</code>键值只有一种含义——对于该键不存在相应的映射记录</li>
+<li>底层是“节点数组”，对键作哈希计算（准确来说是“3次哈希计算”），映射到的节点数组中的节点被称为“槽”，不同键同槽碰撞的解决策略是“链地址法”，对应的链可称之为“碰撞冲突链”，为优化过长（超过一定阈值）“碰撞冲突链”的操作性能，将其转换为红黑树结构；后续红黑树如果过短，再退化成普通的链表结构</li>
+<li>涉及到两类大小——“映射记录大小”和“节点数组大小”，当满足条件时，会对节点数组大小进行扩容</li>
+<li>时间复杂度：如果不考虑“CAS自旋”基本跟HashMap一致；否则，难以忽略而不可分析</li>
+</ul>
+<h3 id="2-1、哈希和碰撞"><a href="#2-1、哈希和碰撞" class="headerlink" title="2.1、哈希和碰撞"></a><strong>2.1、哈希和碰撞</strong></h3><p>核心基本跟HashMap一致，除了以下两点：</p>
+<ul>
+<li>需要考虑线程安全问题</li>
+<li>第二次哈希算法不同，其源代码见“源代码4”，与<code>HASH_BITS(0x7fffffff)</code>进行<code>&amp;</code>运算是为了避免结果值与3个特殊哈希值（<code>MOVED = -1</code>，<code>TREEBIN = -2</code>，<code>RESERVED = -3</code>）冲突</li>
+</ul>
+<p>源代码4：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">spread</span><span class="params">(<span class="type">int</span> h)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (h ^ (h &gt;&gt;&gt; <span class="number">16</span>)) &amp; HASH_BITS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2、大小"><a href="#2-2、大小" class="headerlink" title="2.2、大小"></a><strong>2.2、大小</strong></h3><p>ConcurrentHashMap涉及到两类大小：映射记录大小和节点数组大小。</p>
+<h4 id="2-2-1、映射记录大小"><a href="#2-2-1、映射记录大小" class="headerlink" title="2.2.1、映射记录大小"></a><strong>2.2.1、映射记录大小</strong></h4><p>指ConcurrentHashMap中映射记录数量，比如“节点数组大小为8，在且只在第3个节点（槽）有一个长度为4的链表（碰撞冲突链），则映射记录大小为4”：</p>
+<ul>
+<li>对应于实例成员变量<code>transient volatile long baseCount</code>和<code>transient volatile CounterCell[] counterCells</code>。在没竞争的时候只使用<code>baseCount</code>，在有竞争的时候同时使用<code>baseCount</code>和<code>counterCells</code></li>
+<li>对应于实例成员方法<code>public int size()/public long mappingCount()</code>的返回值（当映射记录大小大于<code>Integer.MAX_VALUE</code>时，后者更为准确；但是一般情况下用前者就足够了），这两个方法返回都基于成员变量<code>transient volatile long baseCount</code>和<code>transient volatile CounterCell[] counterCells</code>，当没竞争只使用<code>baseCount</code>时，时间复杂度为<code>O(1)</code>；当有竞争同时使用<code>baseCount</code>和<code>counterCells</code>时，时间复杂度不是<code>O(1)</code></li>
+</ul>
+<h4 id="2-2-2、节点数组大小"><a href="#2-2-2、节点数组大小" class="headerlink" title="2.2.2、节点数组大小"></a><strong>2.2.2、节点数组大小</strong></h4><p>指ConcurrentHashMap中节点数组大小，即成员变量<code> transient Node&lt;K, V&gt;[] table</code>的大小。</p>
+<p>节点数组大小为2的整数次幂，其好处如下：</p>
+<ul>
+<li>第三次哈希的计算公式为<code>p &amp; (n - 1)</code>[假定节点数组大小为<code>n</code>，经过前两次哈希的结果值为<code>p</code>]，由于<code>n=2^x</code>，则<code>n-1</code>的低比特位全为1，使得“&amp;”运算能够充分利用<code>p</code>数值相应比特位位置的信息，利于均匀散列到槽</li>
+<li>后续可知，节点数组大小为2的整数次幂，加快了扩容过程中的“rehash”操作</li>
+</ul>
+<p>接下来介绍“初始化节点数组大小”和“扩容节点数组大小”，在介绍之前首先作以下几点说明：</p>
+<ul>
+<li>为简化描述和便于理解，不考虑极值大小的情况，比如<code>节点数组大小&gt;=MAXIMUM_CAPACITY(1 &lt;&lt; 30)</code></li>
+<li>成员变量<code>sizeCtl</code>的语义是：<ul>
+<li>当<code>sizeCtl &lt; 0</code>时，表示正在扩容过程中或者正在初始化</li>
+<li>当<code>sizeCtl &gt;= 0</code>时，<ul>
+<li>当节点数组未初始化时：<code>sizeCtl &gt; 0</code>表示节点数组初始化大小等于<code>sizeCtl</code>；<code>sizeCtl = 0</code>表示节点数组初始化大小等于<code>DEFAULT_CAPACITY(16)</code></li>
+<li>当节点数组已初始化时：有<code>sizeCtl = 节点数组大小*3/4</code>（即<code>0.75</code>，表现形式为<code>n - (n &gt;&gt;&gt; 2)</code>），此时不可能出现<code>sizeCtl = 0</code>，当<code>映射记录大小 &gt;= sizeCtl</code>时扩容节点数组</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-2-2-1、初始化"><a href="#2-2-2-1、初始化" class="headerlink" title="2.2.2.1、初始化"></a><strong>2.2.2.1、初始化</strong></h5><p>惰性初始化，即“不是一开始就初始化，而是在需要时才初始化”。</p>
+<p><strong>1、构造方法</strong><br>构造方法设置成员变量<code>sizeCtl</code>的值，具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>构造方法\成员变量</th>
+<th>sizeCtl</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ConcurrentHashMap()</code></td>
+<td>等于“实例初始化默认0值”</td>
+</tr>
+<tr>
+<td><code>ConcurrentHashMap(int initialCapacity)</code></td>
+<td>等于<code>tableSizeFor( initialCapacity + (initialCapacity &gt;&gt;&gt; 1) + 1 )</code></td>
+</tr>
+<tr>
+<td><code>ConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel)</code></td>
+<td>等于<code>tableSizeFor( max(initialCapacity,concurrencyLevel) / loadFactor + 1.0 )</code></td>
+</tr>
+<tr>
+<td><code>ConcurrentHashMap(int initialCapacity, float loadFactor)</code></td>
+<td>等于<code>this(initialCapacity, loadFactor, 1)</code></td>
+</tr>
+<tr>
+<td><code>ConcurrentHashMap(Map&lt;? extends K, ? extends V&gt; m)</code></td>
+<td>等于<code>max( tableSizeFor( m.size() + (m.size() &gt;&gt;&gt; 1) + 1 ), 16 )</code></td>
+</tr>
+</tbody></table>
+<p>有两点说明：</p>
+<ol>
+<li>上述<code>tableSizeFor</code>方法（源代码见“源代码5”）的作用是：返回大于等于输入参数且为最近的“2的整数次幂”的数值，比如“输入10，返回16”</li>
+<li>后续可知，扩容操作十分耗费性能（申请新节点数组内存资源，对原映射记录进行rehash操作），因此在创建ConcurrentHashMap实例时最好能够根据预估的“映射记录大小”预计算“节点数组的初始化大小”。由于当<code>映射记录大小 &gt;= 节点数组大小*3/4</code>时进行扩容，故为尽量避免扩容，须使得满足<code>节点数组大小 &gt; 映射记录大小*4/3</code>不等式，上述构造方法中的<code>(initialCapacity + (initialCapacity &gt;&gt;&gt; 1) + 1)/(m.size() + (m.size() &gt;&gt;&gt; 1) + 1)</code>（即：映射记录大小*3&#x2F;2+1）和<code>max(initialCapacity,concurrencyLevel) / loadFactor + 1.0</code>（该等式满足条件与否跟loadFactor值有关，一般取值为0.75f，此时是满足条件的）就是基于该不等式的两个等式。<font color='red'>很明显，跟HashMap不同，这里的预计算在构造方法内部自动完成，而在HashMap处预计算需要在外部手动完成，后者反人性</font></li>
+</ol>
+<p>源代码5：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">tableSizeFor</span><span class="params">(<span class="type">int</span> cap)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> cap - <span class="number">1</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">2</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">4</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">8</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">    <span class="keyword">return</span> (n &lt; <span class="number">0</span>) ? <span class="number">1</span> : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、惰性初始化</strong><br>根据<code>sizeCtl</code>的值分为两种情况：</p>
+<ul>
+<li><code>sizeCtl=0</code>：节点数组初始化大小等于<code>DEFAULT_CAPACITY(16)</code>，新<code>sizeCtl</code>值等于<code>DEFAULT_CAPACITY(16) * 3/4</code></li>
+<li><code>sizeCtl&gt;0</code>：节点数组初始化大小等于<code>sizeCtl</code>，新<code>sizeCtl</code>值等于<code>sizeCtl * 3/4</code></li>
+</ul>
+<h5 id="2-2-2-2、扩容"><a href="#2-2-2-2、扩容" class="headerlink" title="2.2.2.2、扩容"></a><strong>2.2.2.2、扩容</strong></h5><p>节点数组只有“扩容”，没有“收缩”，扩容条件为：<code>映射记录大小 &gt;= sizeCtl</code>。</p>
+<p>扩容过程描述如下：</p>
+<ul>
+<li>2倍扩容。节点数组新大小是原来的2倍，成员变量<code>sizeCtl</code>新值也是原来的2倍（语义不变）</li>
+<li>对原映射记录进行rehash操作：假设原节点数组大小为<code>n</code>，有一个“键”的二次哈希值为<code>hash</code>，则原散列到槽<code>(n -1) &amp; hash</code>，现散列到槽<code>(2*n - 1) &amp; hash</code>，这里可以有个计算优化，我们知道节点数组大小<code>n</code>是2的整数次幂，分析其比特位特点可知，对于以上运算，低n位比特位的<code>&amp;</code>运算结果不变，故只需要计算从低位往高位方向第n位的比特位<code>&amp;</code>结果，即<code>n &amp; hash</code></li>
+</ul>
+<p><font color='red'>需要注意的是，跟HashMap的设计单线程扩容不同，ConcurrentHashMap的扩容被设计为支持并发的，其过程描述如下</font>：</p>
+<ol>
+<li>线程A增加映射记录，使得进入扩容过程，节点数组根据特定策略划分为K个扩容区间，线程A默认根据扩容区间索引位置从高到低逐次完成所有扩容区间的扩容</li>
+<li>后续有线程B，C，D，…，根据其操作类型分为两类：<ul>
+<li>“增、删、改”映射记录，根据定位到槽S的状态分为两种情形：1）槽S已被标记为“扩容态（槽的第一个节点为ForwardingNode节点，其成员变量<code>hash</code>的值为<code>MOVED(-1)</code>）”，则并发抢占未完成扩容区间帮助扩容，只有加快完成扩容过程，槽S才能被正常操作；2）否则，正常操作成功，即“在扩容过程中，是可能正常操作成功的”</li>
+<li>“查”映射记录，根据定位到槽S的状态分为两种情形：1）槽S已被标记为“扩容态（槽的第一个节点为ForwardingNode节点，其成员变量<code>hash</code>的值为<code>MOVED(-1)</code>）”，转发调用ForwardingNode节点的<code>Node&lt;K, V&gt; find(int h, Object k)</code>方法完成查找；2）否则，正常操作成功，即“在扩容过程中，是可能正常操作成功的”</li>
+</ul>
+</li>
+<li>直到扩容完成：可能是线程A独自完成所有K个扩容区间的扩容，也可能是线程A与其他几个线程共同完成所有K个扩容区间的扩容</li>
+</ol>
+<h3 id="2-3、与JDK-1-6中ConcurrentHashMap实现作比较"><a href="#2-3、与JDK-1-6中ConcurrentHashMap实现作比较" class="headerlink" title="2.3、与JDK 1.6中ConcurrentHashMap实现作比较"></a><strong>2.3、与JDK 1.6中ConcurrentHashMap实现作比较</strong></h3><p>与JDK 1.6中ConcurrentHashMap实现相比，主要有以下几点改进：</p>
+<ol>
+<li>在JDK 1.8中，当碰撞冲突链过长时，会转化为红黑树，优化操作性能；而在JDK 1.6中，没有该优化</li>
+<li>对于节点数组的初始化，JDK 1.8中是惰性的，JDK 1.6中是即时的</li>
+<li>对于第二次哈希算法，JDK 1.8中的实现相较JDK 1.6较为简单，其后果就是“第三次哈希后散列到槽相较不均匀，碰撞冲突链的长度相较更长的概率增大”，但是由于JDK 1.8中引入了过长碰撞冲突链转换为红黑树的机制，使得上述问题得到了充分的补偿</li>
+<li>对于线程安全的实现，JDK 1.6采取“分段+分段锁（ReentrantLock）”的方案，JDK 1.8采取“CAS自旋锁+synchronized锁”的方案，前者的并发粒度为分段数量（默认为16），后者的并发粒度可近似认为是节点数量（槽数量），后者的并发性能大大提升</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://www.yinxiang.com/everhub/note/b612e3b9-cb07-4c7a-85a2-4eeb897ee1d4">https://www.yinxiang.com/everhub/note/b612e3b9-cb07-4c7a-85a2-4eeb897ee1d4</a><br>[2]<a target="_blank" rel="noopener" href="https://www.cnblogs.com/loading4/p/6239441.html">https://www.cnblogs.com/loading4/p/6239441.html</a><br>[3]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/53493706/how-the-conditions-sc-rs-1-sc-rs-max-resizers-can-be-achieved-in">https://stackoverflow.com/questions/53493706/how-the-conditions-sc-rs-1-sc-rs-max-resizers-can-be-achieved-in</a><br>[4]<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903607901356046">https://juejin.cn/post/6844903607901356046</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/" title="HashMap和ConcurrentHashMap">https://dslztx.github.io/blog/2021/11/30/HashMap和ConcurrentHashMap/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/10/16/PPT%E5%88%B6%E4%BD%9C%E5%BF%83%E5%BE%97/" rel="prev" title="PPT制作心得">
+      <i class="fa fa-chevron-left"></i> PPT制作心得
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/" rel="next" title="并发Map">
+      并发Map <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/";
+    this.page.identifier = "2021/11/30/HashMap和ConcurrentHashMap/";
+    this.page.title = "HashMap和ConcurrentHashMap";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

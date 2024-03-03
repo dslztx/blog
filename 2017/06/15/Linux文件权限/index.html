@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、文件Linux文件分为：一般文件（通常简称为文件）和目录。文件由“Inode节点和Block节点集”构成。 1.1、Inode节点Inode节点存储文件的元数据，元数据主要用来进行文件控制。描述如下： 1234567891、The size of the file in bytes.2、Device ID (this identifies the device containing the f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux文件权限">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、文件Linux文件分为：一般文件（通常简称为文件）和目录。文件由“Inode节点和Block节点集”构成。 1.1、Inode节点Inode节点存储文件的元数据，元数据主要用来进行文件控制。描述如下： 1234567891、The size of the file in bytes.2、Device ID (this identifies the device containing the f">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170615-0-1.jpg">
+<meta property="article:published_time" content="2017-06-15T09:20:21.000Z">
+<meta property="article:modified_time" content="2017-06-15T09:20:21.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170615-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux文件权限 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux文件权限
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-06-15 17:20:21" itemprop="dateCreated datePublished" datetime="2017-06-15T17:20:21+08:00">2017-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/15/Linux文件权限/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、文件"><a href="#一、文件" class="headerlink" title="一、文件"></a><strong>一、文件</strong></h2><p>Linux文件分为：一般文件（通常简称为文件）和目录。<br>文件由“Inode节点和Block节点集”构成。</p>
+<h3 id="1-1、Inode节点"><a href="#1-1、Inode节点" class="headerlink" title="1.1、Inode节点"></a><strong>1.1、Inode节点</strong></h3><p>Inode节点存储文件的元数据，元数据主要用来进行文件控制。描述如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1、The size of the file in bytes.</span><br><span class="line">2、Device ID (this identifies the device containing the file).</span><br><span class="line">3、The User ID of the file&#x27;s owner.</span><br><span class="line">4、The Group ID of the file.</span><br><span class="line">5、The file mode which determines the file type and how the file&#x27;s owner, its group, and others can access the file.</span><br><span class="line">6、Additional system and user flags to further protect the file (limit its use and modification).</span><br><span class="line">7、Timestamps telling when the inode itself was last modified (ctime, inode change time), the file content last modified (mtime, modification time), and last accessed (atime, access time).</span><br><span class="line">8、A link count telling how many hard links point to the inode.</span><br><span class="line">9、Pointers to the disk blocks that store the file&#x27;s contents (see inode pointer structure).</span><br></pre></td></tr></table></figure>
+
+<p>有两个元数据需要进行强调。<br><strong>1、atime，mtime，ctime</strong></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>atime</td>
+<td>即“access time”，指的是最后访问Block节点中数据的时间，中文描述为“最近访问”</td>
+</tr>
+<tr>
+<td>mtime</td>
+<td>即“modification time”，指的是最后更改Block节点中数据的时间，中文描述为“最近更改”</td>
+</tr>
+<tr>
+<td>ctime</td>
+<td>即“inode change time”，指的是最后改动Inode节点中元数据的时间，中文描述为“最近改动”</td>
+</tr>
+</tbody></table>
+<p>助记：只需记住“change-改动-i”，另外两个很容易推导<br><strong>2、权限</strong><br>用于配置不同用户或者用户组（文件所属用户，文件所属用户组，其他用户或者用户组）对文件的操作权限，其实质是对文件的Block节点内容的操作权限。</p>
+<h3 id="1-2、Block节点"><a href="#1-2、Block节点" class="headerlink" title="1.2、Block节点"></a><strong>1.2、Block节点</strong></h3><p>对于一般文件，Block节点存储一般文件的具体数据；对于目录，Block节点存储多条<code>&lt;Filename,InodeId&gt;</code>形式的记录数据，其中Filename是目录下子文件的文件名，InodeId是相应Inode节点的Id。</p>
+<h2 id="二、权限详解"><a href="#二、权限详解" class="headerlink" title="二、权限详解"></a><strong>二、权限详解</strong></h2><h3 id="2-1、权限含义"><a href="#2-1、权限含义" class="headerlink" title="2.1、权限含义"></a><strong>2.1、权限含义</strong></h3><p>文件一般有“r读取，w修改，x执行”三种权限，对于一般文件和目录来说，这3种权限的含义是不同的。</p>
+<table>
+<thead>
+<tr>
+<th>文件类型</th>
+<th>r读取权限含义</th>
+<th>w修改权限含义</th>
+<th>x执行权限含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一般文件</td>
+<td>是否允许读取Block节点中的内容</td>
+<td>是否允许修改Block节点中的内容</td>
+<td>是否允许执行Block节点中的内容</td>
+</tr>
+<tr>
+<td>目录</td>
+<td>是否允许读取Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录中的Filename</td>
+<td>是否允许增加，删除和修改Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录</td>
+<td>是否允许读取Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录中的InodeId，并加载InodeId对应的Inode节点</td>
+</tr>
+</tbody></table>
+<h3 id="2-2、权限应用场景"><a href="#2-2、权限应用场景" class="headerlink" title="2.2、权限应用场景"></a><strong>2.2、权限应用场景</strong></h3><p>由于操作文件的只能是进程，因此权限的应用场景是：进程欲操作文件，文件系统首先获取该进程的“&lt;进程有效用户，进程有效用户组&gt;”进程用户身份（在接下来的描述中，简称为“进程用户身份”），将其与该文件Inode节点元数据中的权限配置数据进行比对，获取到该进程对该文件所被允许的操作权限范围，假如欲进行的操作在允许的操作权限范围内，则顺利执行；否则，由于没有操作权限被禁止执行。<br>本文接下来的实验中，进程用户身份主要跟“文件所属用户”的权限配置数据进行比对，但是切勿忘记还可跟“文件所属用户组”和“其他用户或者用户组”的权限配置数据进行比对。<br>关于“进程用户身份”可详见<a href="/2017/06/12/%E8%BF%9B%E7%A8%8B%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD/" title="进程用户身份">链接</a>。</p>
+<h3 id="2-3、权限具体判定过程"><a href="#2-3、权限具体判定过程" class="headerlink" title="2.3、权限具体判定过程"></a><strong>2.3、权限具体判定过程</strong></h3><p>下面介绍权限具体判定过程，分为一般文件和目录两种情况。</p>
+<h4 id="2-3-1、一般文件"><a href="#2-3-1、一般文件" class="headerlink" title="2.3.1、一般文件"></a><strong>2.3.1、一般文件</strong></h4><h5 id="2-3-1-1、r读取权限"><a href="#2-3-1-1、r读取权限" class="headerlink" title="2.3.1.1、r读取权限"></a><strong>2.3.1.1、r读取权限</strong></h5><p>进程读取一般文件内容的过程如下：</p>
+<ol>
+<li>文件系统首先获取该进程的进程用户身份，判断该进程用户身份对该文件所在的目录是否具有x权限，只有具有该x权限，才能加载该一般文件的Inode节点，并读取Inode节点上的元数据，包括权限配置数据</li>
+<li>比对“进程用户身份”和“该一般文件的权限配置数据”，看是否具有对该一般文件的r读取权限，如果有，可读取；否则，不可读取</li>
+</ol>
+<p><strong>实验：</strong><br>有一个目录“b”，拥有者用户为“dsl”，其下有一个一般文件“a.txt”（内容为“hello world”），拥有者用户为“dsl”，以“dsl”用户执行<code>less b/a.txt</code>命令查看“b&#x2F;a.txt”内容，相应创建运行进程的进程用户身份中的“进程有效用户”为“dsl”。变化目录“b”和一般文件“a.txt”的权限配置数据，得到不同的命令执行结果，如下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录“b”的权限配置数据</th>
+<th>一般文件“a.txt”的权限配置数据</th>
+<th>命令执行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000</td>
+<td>000</td>
+<td><code>b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>000</td>
+<td>400</td>
+<td><code>b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>000</td>
+<td><code>b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>400</td>
+<td><code>hello world</code></td>
+</tr>
+</tbody></table>
+<h5 id="2-3-1-2、w修改权限"><a href="#2-3-1-2、w修改权限" class="headerlink" title="2.3.1.2、w修改权限"></a><strong>2.3.1.2、w修改权限</strong></h5><p>进程修改一般文件内容的过程如下：</p>
+<ol>
+<li>文件系统首先获取该进程的进程用户身份，判断该进程用户身份对该文件所在的目录是否具有x权限，只有具有该x权限，才能加载该一般文件的Inode节点，并读取Inode节点上的元数据，包括权限配置数据</li>
+<li>比对“进程用户身份”和“该一般文件的权限配置数据”，看是否具有对该一般文件的w修改权限，如果有，可修改；否则，不可修改</li>
+</ol>
+<p><strong>实验：</strong><br>有一个目录“b”，拥有者用户为“dsl”，其下有一个一般文件“a.txt”（内容为空），拥有者用户为“dsl”，以“dsl”用户执行<code>echo &quot;hello world&quot; &gt; b/a.txt</code>命令修改“b&#x2F;a.txt”内容，相应创建运行进程的进程用户身份中的“进程有效用户”为“dsl”。变化目录“b”和一般文件“a.txt”的权限配置数据，得到不同的命令执行结果，如下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录“b”的权限配置数据</th>
+<th>一般文件“a.txt”的权限配置数据</th>
+<th>命令执行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000</td>
+<td>000</td>
+<td><code>bash: b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>000</td>
+<td>200</td>
+<td><code>bash: b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>000</td>
+<td><code>bash: b/a.txt: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>200</td>
+<td><code>成功执行</code></td>
+</tr>
+</tbody></table>
+<h5 id="2-3-1-3、x执行权限"><a href="#2-3-1-3、x执行权限" class="headerlink" title="2.3.1.3、x执行权限"></a><strong>2.3.1.3、x执行权限</strong></h5><p>进程执行一般文件内容的过程如下：</p>
+<ol>
+<li>文件系统首先获取该进程的进程用户身份，判断该进程用户身份对该文件所在的目录是否具有x权限，只有具有该x权限，才能加载该一般文件的Inode节点，并读取Inode节点上的元数据，包括权限配置数据</li>
+<li>比对“进程用户身份”和“该一般文件的权限配置数据”，看是否具有对该一般文件的rx执行权限（必须先“r读取”才能“x执行”），如果有，可执行；否则，不可执行</li>
+</ol>
+<p><strong>实验：</strong><br>有一个目录“b”，拥有者用户为“dsl”，其下有一个一般文件“a.sh”（内容为“echo ‘hello world’”），拥有者用户为“dsl”，以“dsl”用户执行<code>/bin/bash b/a.sh</code>命令执行“b&#x2F;a.sh”内容，相应创建运行进程的进程用户身份中的“进程有效用户”为“dsl”。变化目录“b”和一般文件“a.sh”的权限配置数据，得到不同的命令执行结果，如下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录“b”的权限配置数据</th>
+<th>一般文件“a.sh”的权限配置数据</th>
+<th>命令执行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000</td>
+<td>000</td>
+<td><code>/bin/bash: b/a.sh: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>000</td>
+<td><code>/bin/bash: b/a.sh: 权限不够</code></td>
+</tr>
+<tr>
+<td>000</td>
+<td>100</td>
+<td><code>/bin/bash: b/a.sh: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>100</td>
+<td><code>/bin/bash: b/a.sh: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>500</td>
+<td><code>hello world</code></td>
+</tr>
+</tbody></table>
+<h4 id="2-3-2、目录"><a href="#2-3-2、目录" class="headerlink" title="2.3.2、目录"></a><strong>2.3.2、目录</strong></h4><h5 id="2-3-2-1、r读取权限"><a href="#2-3-2-1、r读取权限" class="headerlink" title="2.3.2.1、r读取权限"></a><strong>2.3.2.1、r读取权限</strong></h5><p>进程读取目录内容的过程如下：</p>
+<ol>
+<li>文件系统首先获取该进程的进程用户身份，判断该进程用户身份对该目录所在的目录是否具有x权限，只有具有该x权限，才能加载该目录的Inode节点，并读取Inode节点上的元数据，包括权限配置数据</li>
+<li>比对“进程用户身份”和“该目录的权限配置数据”，看是否具有对该目录的r读取权限，如果有，可读取；否则，不可读取。<font color='red'>需要注意的是</font>，如果只拥有对目录的r读取权限，那么只能读取<code>&lt;Filename,InodeId&gt;</code>形式记录中的Filename，而不能读取InodeId，更不能进而加载InodeId对应的Inode节点</li>
+</ol>
+<p><strong>实验：</strong><br>有一个目录“b”，拥有者用户为“dsl”，其下有一个目录“a”，拥有者用户为“dsl”，目录“a”下有两个一般文件（分别为“c.txt”和“d.txt”）和一个目录（“e”），以“dsl”用户执行<code>ls b/a</code>命令查看“b&#x2F;a”目录下内容，相应创建运行进程的进程用户身份中的“进程有效用户”为“dsl”。变化目录“b”和目录“a”的权限配置数据，得到不同的命令执行结果，如下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录“b”的权限配置数据</th>
+<th>目录“a”的权限配置数据</th>
+<th>命令执行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000</td>
+<td>000</td>
+<td><code>ls: 无法访问&#39;b/a&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>000</td>
+<td>400</td>
+<td><code>ls: 无法访问&#39;b/a&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>000</td>
+<td><code>ls: 无法打开目录&#39;b/a&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>400</td>
+<td><code>ls: 无法访问&#39;b/a/d.txt&#39;: 权限不够</code><br/><code>ls: 无法访问&#39;b/a/e&#39;: 权限不够</code><br/><code>ls: 无法访问&#39;b/a/c.txt&#39;: 权限不够</code><br/><code>c.txt  d.txt  e</code></td>
+</tr>
+</tbody></table>
+<h5 id="2-3-2-2、w修改权限"><a href="#2-3-2-2、w修改权限" class="headerlink" title="2.3.2.2、w修改权限"></a><strong>2.3.2.2、w修改权限</strong></h5><p>进程修改目录内容的过程如下：</p>
+<ol>
+<li>文件系统首先获取该进程的进程用户身份，判断该进程用户身份对该目录所在的目录是否具有x权限，只有具有该x权限，才能加载该目录的Inode节点，并读取Inode节点上的元数据，包括权限配置数据</li>
+<li>比对“进程用户身份”和“该目录的权限配置数据”，看是否具有对该目录的wx权限，如果有，可修改；否则，不可修改。<font color='red'>需要注意的是</font>，如果只拥有对目录的w修改权限，不能实现修改</li>
+</ol>
+<p><strong>实验：</strong><br>有一个目录“b”，拥有者用户为“dsl”，其下有一个目录“a”，拥有者用户为“dsl”，目录“a”下有两个一般文件（分别为“c.txt”和“d.txt”）和一个目录（“e”），以“dsl”用户分别执行<code>touch b/a/f.txt</code>，<code>rm b/a/c.txt</code>和<code>mv b/a/d.txt b/a/g.txt</code>命令修改目录“b&#x2F;a”下内容，相应创建运行进程的进程用户身份中的“进程有效用户”为“dsl”。变化目录“b”和目录“a”的权限配置数据，得到不同的命令执行结果，如下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录“b”的权限配置数据</th>
+<th>目录“a”的权限配置数据</th>
+<th><code>touch b/a/f.txt</code>命令执行结果</th>
+<th><code>rm b/a/c.txt</code>命令执行结果</th>
+<th><code>mv b/a/d.txt b/a/g.txt</code>命令执行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000</td>
+<td>000</td>
+<td><code>touch: 无法创建&#39;b/a/f.txt&#39;: 权限不够</code></td>
+<td><code>rm: 无法删除&#39;b/a/c.txt&#39;: 权限不够</code></td>
+<td><code>mv: failed to access &#39;b/a/g.txt&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>000</td>
+<td>300</td>
+<td><code>touch: 无法创建&#39;b/a/f.txt&#39;: 权限不够</code></td>
+<td><code>rm: 无法删除&#39;b/a/c.txt&#39;: 权限不够</code></td>
+<td><code>mv: failed to access &#39;b/a/g.txt&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>000</td>
+<td><code>touch: 无法创建&#39;b/a/f.txt&#39;: 权限不够</code></td>
+<td><code>rm: 无法删除&#39;b/a/c.txt&#39;: 权限不够</code></td>
+<td><code>mv: failed to access &#39;b/a/g.txt&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>200</td>
+<td><code>touch: 无法创建&#39;b/a/f.txt&#39;: 权限不够</code></td>
+<td><code>rm: 无法删除&#39;b/a/c.txt&#39;: 权限不够</code></td>
+<td><code>mv: failed to access &#39;b/a/g.txt&#39;: 权限不够</code></td>
+</tr>
+<tr>
+<td>100</td>
+<td>300</td>
+<td><code>成功执行</code></td>
+<td><code>成功执行</code></td>
+<td><code>成功执行</code></td>
+</tr>
+</tbody></table>
+<p>备注：<br>对目录内容的修改本质上就是对<code>&lt;Filename,InodeId&gt;</code>形式记录的增加，删除和修改。要达到修改目录内容的目标，进程的进程用户身份不仅需要拥有对目录的w权限，也需要拥有对目录的x权限。原因描述如下：</p>
+<ul>
+<li>增加的情况，须加载Inode节点，修改元数据，比如“ctime”值，硬链接计数值</li>
+<li>删除的情况，须加载Inode节点，修改元数据，比如硬链接计数值</li>
+<li>修改的情况，实现方式为先“增加”，后“删除”（作者推测），因此须加载Inode节点</li>
+</ul>
+<h5 id="2-3-2-3、x执行权限"><a href="#2-3-2-3、x执行权限" class="headerlink" title="2.3.2.3、x执行权限"></a><strong>2.3.2.3、x执行权限</strong></h5><p>目录的x执行权限已在上述内容中进行描述，这里不再贅述。</p>
+<h3 id="2-4、特殊权限"><a href="#2-4、特殊权限" class="headerlink" title="2.4、特殊权限"></a><strong>2.4、特殊权限</strong></h3><h4 id="2-4-1、SUID"><a href="#2-4-1、SUID" class="headerlink" title="2.4.1、SUID"></a><strong>2.4.1、SUID</strong></h4><h5 id="2-4-1-1、一般文件上设置SUID权限"><a href="#2-4-1-1、一般文件上设置SUID权限" class="headerlink" title="2.4.1.1、一般文件上设置SUID权限"></a><strong>2.4.1.1、一般文件上设置SUID权限</strong></h5><p>当设置了SUID权限的可执行文件被执行时，创建运行的进程的“进程有效用户”变为“该可执行文件的文件所属用户”，如果可执行文件的文件所属用户是“root”，那么创建运行的进程的“进程有效用户”是“root”。<br><strong>实验：</strong><br>比如有以下C源代码文件（文件名为“geteuid.c”）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">int main(int argc, char** argv) &#123;</span><br><span class="line">    //geteuid()方法能够得到进程有效用户的UID</span><br><span class="line">    printf(&quot;euser uid is:%d\n&quot;, geteuid());</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>gcc -o geteuid geteuid.c</code>命令，编译得到一个二进制文件“geteuid”，将该二进制文件的文件所属用户设为“root”，权限配置数据为“4777”。当前用户为“dsl”，执行<code>./geteuid</code>命令，得到的打印结果如下，“0”UID对应的用户为“root”，从而得知“进程有效用户”为“root”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">euser uid is:0</span><br></pre></td></tr></table></figure>
+
+<p>备注：<br><font color='red'>基于安全策略，在Linux中，只能对二进制文件设置SUID权限，而不能对包括脚本文件在内的其他可执行文件设置SUID权限。</font></p>
+<h5 id="2-4-1-2、目录上设置SUID权限"><a href="#2-4-1-2、目录上设置SUID权限" class="headerlink" title="2.4.1.2、目录上设置SUID权限"></a><strong>2.4.1.2、目录上设置SUID权限</strong></h5><p>目录上设置SUID权限没有任何效果。</p>
+<h4 id="2-4-2、SGIT"><a href="#2-4-2、SGIT" class="headerlink" title="2.4.2、SGIT"></a><strong>2.4.2、SGIT</strong></h4><h5 id="2-4-2-1、一般文件上设置SGIT权限"><a href="#2-4-2-1、一般文件上设置SGIT权限" class="headerlink" title="2.4.2.1、一般文件上设置SGIT权限"></a><strong>2.4.2.1、一般文件上设置SGIT权限</strong></h5><p>当设置了SGID权限的可执行文件被执行时，创建运行的进程的“进程有效用户组”变为“该可执行文件的文件所属用户组”，如果可执行文件的文件所属用户组是“root”，那么创建运行的进程的“进程有效用户组”是“root”。<br><strong>实验：</strong><br>比如有以下C源代码文件（文件名为“getegid.c”）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">int main(int argc, char** argv) &#123;</span><br><span class="line">    //getegid()方法能够得到进程有效用户组的GID</span><br><span class="line">    printf(&quot;egroup gid is:%d\n&quot;, getegid());</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>gcc -o getegid getegid.c</code>命令，编译得到一个二进制文件“getegid”，将该二进制文件的文件所属用户组设为“root”，权限配置数据为“2777”。当前用户为“dsl”（对应的用户组为“dsl”），执行<code>./getegid</code>命令，得到的打印结果如下，“0”GID对应的用户组为“root”，从而得知“进程有效用户组”为“root”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egroup gid is:0</span><br></pre></td></tr></table></figure>
+<h5 id="2-4-2-2、目录上设置SGIT权限"><a href="#2-4-2-2、目录上设置SGIT权限" class="headerlink" title="2.4.2.2、目录上设置SGIT权限"></a><strong>2.4.2.2、目录上设置SGIT权限</strong></h5><p>目录A被设置了SGIT权限之后，在A目录下创建生成的一般文件和目录的文件所属用户组跟A的文件所属用户组一致。<br><strong>实验：</strong><br>有一个目录“a”，文件所属用户为“dsl”，文件所属用户组为“root”，权限配置数据为“2777”。以“dsl”用户在目录“a”下创建一般文件“b.txt”和目录“c”。分别执行<code>stat b.txt</code>和<code>stat c</code>命令，得到如下两个结果片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">文件：&#x27;b.txt&#x27;</span><br><span class="line">权限：(0664/-rw-rw-r--)  Uid：( 1000/     dsl)   Gid：(    0/    root)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">文件：&#x27;c&#x27;</span><br><span class="line">权限：(2775/drwxrwsr-x)  Uid：( 1000/     dsl)   Gid：(    0/    root)</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-3、sticky-bit"><a href="#2-4-3、sticky-bit" class="headerlink" title="2.4.3、sticky-bit"></a><strong>2.4.3、sticky-bit</strong></h4><h5 id="2-4-3-1、一般文件上设置sticky-bit权限"><a href="#2-4-3-1、一般文件上设置sticky-bit权限" class="headerlink" title="2.4.3.1、一般文件上设置sticky-bit权限"></a><strong>2.4.3.1、一般文件上设置sticky-bit权限</strong></h5><p>When set, it instructed the operating system to retain the text segment of the program in swap space after the process exited. This speeds up subsequent executions by allowing the kernel to make a single operation of moving the program from swap to real memory.</p>
+<h5 id="2-4-3-2、目录上设置sticky-bit权限"><a href="#2-4-3-2、目录上设置sticky-bit权限" class="headerlink" title="2.4.3.2、目录上设置sticky-bit权限"></a><strong>2.4.3.2、目录上设置sticky-bit权限</strong></h5><p>目录A被设置sticky-bit权限，在A目录下创建生成的一般文件和目录具有如下特殊性质：只有它们（一般文件和目录）的文件所属用户（即既不能是“文件所属用户组”，也不能是“其他用户和用户组”）和“root”用户有权删除它们，其他任何用户或者用户组即便拥有对A目录的wx权限，也不可以删除它们。<br>最现成的例子是“&#x2F;tmp”目录。“&#x2F;tmp”是所有用户和用户组共享的临时文件夹，所有用户和用户组都拥有wx权限，这就可能使得出现如下情形：假如A用户在“&#x2F;tmp”里创建了文件“a.file”，而B用户看了不爽，在“&#x2F;tmp”里把它给删了（因为拥有wx权限），导致给A用户带来巨大的损失。事实上以上操作并不会被允许，因为“&#x2F;tmp”目录被设置有sticky-bit权限，正如“drwxrwxrwt”权限配置数据中的最后一个“t”。<br><strong>实验：</strong><br>现有“testuser”和“dsl”用户，“testuser”用户在“&#x2F;tmp”目录下创建了一般文件“a.txt”和目录“b”，“dsl”用户不能删除上述两个文件（尝试删除时，出现如下两个提示），只有“testuser”用户或者“root”用户才能够删除上述两个文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rm：是否删除有写保护的普通空文件 &#x27;a.txt&#x27;？ yes</span><br><span class="line">rm: 无法删除&#x27;a.txt&#x27;: 不允许的操作</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rm：是否删除有写保护的目录 &#x27;b&#x27;？ yes</span><br><span class="line">rm: 无法删除&#x27;b&#x27;: 不允许的操作</span><br></pre></td></tr></table></figure>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><h3 id="3-1、延伸"><a href="#3-1、延伸" class="headerlink" title="3.1、延伸"></a><strong>3.1、延伸</strong></h3><h4 id="3-1-1、改变文件权限配置数据"><a href="#3-1-1、改变文件权限配置数据" class="headerlink" title="3.1.1、改变文件权限配置数据"></a><strong>3.1.1、改变文件权限配置数据</strong></h4><p>使用“chmod”命令可改变文件权限配置数据，使用要求：执行“chmod”命令创建运行进程的进程用户身份中的“进程有效用户”必须为“文件的文件所属用户”或者“root”，另外，改变文件权限配置数据即改变文件Inode节点上的元数据，因此首先须加载Inode节点，这点跟以上的描述是一致的。</p>
+<h4 id="3-1-2、改变文件所属用户"><a href="#3-1-2、改变文件所属用户" class="headerlink" title="3.1.2、改变文件所属用户"></a><strong>3.1.2、改变文件所属用户</strong></h4><p>使用“chown”命令可改变文件的文件所属用户，使用要求：执行“chown”命令创建运行进程的进程用户身份中的“进程有效用户”必须为“root”，另外，改变文件所属用户即改变文件Inode节点上的元数据，因此首先须加载Inode节点，这点跟以上的描述是一致的。</p>
+<h4 id="3-1-3、改变文件所属用户组"><a href="#3-1-3、改变文件所属用户组" class="headerlink" title="3.1.3、改变文件所属用户组"></a><strong>3.1.3、改变文件所属用户组</strong></h4><p>使用“chgrp”命令可改变文件的文件所属用户组，使用要求：执行“chgrp”命令创建运行进程的进程用户身份中的“进程有效用户”必须为“root”，另外，改变文件所属用户组即改变文件Inode节点上的元数据，因此首先须加载Inode节点，这点跟以上的描述是一致的。</p>
+<h4 id="3-1-4、读取Inode节点信息"><a href="#3-1-4、读取Inode节点信息" class="headerlink" title="3.1.4、读取Inode节点信息"></a><strong>3.1.4、读取Inode节点信息</strong></h4><p>使用“stat”命令可读取Inode节点信息，使用要求：须加载Inode节点。</p>
+<h4 id="3-1-5、修改Inode节点的“atime”和“mtime”值"><a href="#3-1-5、修改Inode节点的“atime”和“mtime”值" class="headerlink" title="3.1.5、修改Inode节点的“atime”和“mtime”值"></a><strong>3.1.5、修改Inode节点的“atime”和“mtime”值</strong></h4><p>使用“touch”命令可修改Inode节点的“atime”和“mtime”值（如果文件不存在，则首先创建文件），使用要求：须加载Inode节点。</p>
+<h3 id="3-2、基于实现视角"><a href="#3-2、基于实现视角" class="headerlink" title="3.2、基于实现视角"></a><strong>3.2、基于实现视角</strong></h3><p>文件采用“Inode节点-Block节点体系”，操作系统提供有一系列针对该体系进行操作的原语，Shell命令（比如“ls，less，vim，chmod，chown，chgrp，stat，touch，rm，mv”等）调用这些操作原语对“Inode节点-Block节点体系”进行操作。示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20170615-0-1.jpg"></p>
+<p>这些操作原语的使用性质和要求会表现为Shell命令的使用性质和要求，比如上述介绍的权限机制。关于这些操作原语的概要介绍如下表。</p>
+<table>
+<thead>
+<tr>
+<th>操作原语名称</th>
+<th>描述</th>
+<th>使用性质和要求</th>
+<th>调用这些操作原语的Shell命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“读取”原语</td>
+<td>对于一般文件，读取Block节点中的内容；对于目录，读取Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录中的Filename</td>
+<td>进程的“&lt;进程有效用户，进程有效用户组&gt;”进程用户身份具有“r读取”权限</td>
+<td>less，vim等命令</td>
+</tr>
+<tr>
+<td>“修改”原语</td>
+<td>对于一般文件，修改Block节点中的内容；对于目录，增加，删除和修改Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录</td>
+<td>进程的“&lt;进程有效用户，进程有效用户组&gt;”进程用户身份具有“w修改”权限</td>
+<td>vim等命令</td>
+</tr>
+<tr>
+<td>“执行”原语</td>
+<td>对于一般文件，执行Block节点中的内容；对于目录，读取Block节点中<code>&lt;Filename,InodeId&gt;</code>形式记录中的InodeId，并加载InodeId对应的Inode节点</td>
+<td>进程的“&lt;进程有效用户，进程有效用户组&gt;”进程用户身份具有“x执行”权限，另外如果为一般文件且设置有SUID权限（SGIT权限），则创建运行进程的“进程有效用户”变为“该可执行文件的文件所属用户”（创建运行进程的“进程有效用户组”变为“该可执行文件的文件所属用户组”）</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>“删除文件”原语</td>
+<td>删除文件</td>
+<td>进程的“&lt;进程有效用户，进程有效用户组&gt;”进程用户身份对所在目录具有“wx”权限，如果所在目录设置有sticky-bit权限，那么须额外满足：进程用户身份中的“进程有效用户”必须为“文件的文件所属用户”或者“root”</td>
+<td>rm命令</td>
+</tr>
+<tr>
+<td>“改变文件权限配置数据”原语</td>
+<td>改变文件权限配置数据</td>
+<td>进程用户身份中的“进程有效用户”必须为“文件的文件所属用户”或者“root”</td>
+<td>chmod命令</td>
+</tr>
+<tr>
+<td>“改变文件所属用户”原语</td>
+<td>改变文件所属用户</td>
+<td>进程用户身份中的“进程有效用户”必须为“root”</td>
+<td>chown命令</td>
+</tr>
+<tr>
+<td>“改变文件所属用户组”原语</td>
+<td>改变文件所属用户组</td>
+<td>进程用户身份中的“进程有效用户”必须为“root”</td>
+<td>chgrp命令</td>
+</tr>
+<tr>
+<td>“读取Inode节点信息”原语</td>
+<td>读取Inode节点信息</td>
+<td>能够加载Inode节点</td>
+<td>stat，ls等命令</td>
+</tr>
+<tr>
+<td>“修改Inode节点‘atime’和‘mtime’值”原语</td>
+<td>修改Inode节点“atime”和“mtime”值</td>
+<td>能够加载Inode节点</td>
+<td>touch等命令</td>
+</tr>
+<tr>
+<td>“修改Inode节点‘atime’值”原语</td>
+<td>修改Inode节点“atime”值</td>
+<td>能够加载Inode节点</td>
+<td>less，vim等命令</td>
+</tr>
+<tr>
+<td>“修改Inode节点‘mtime’值”原语</td>
+<td>修改Inode节点“mtime”值</td>
+<td>能够加载Inode节点</td>
+<td>vim等命令</td>
+</tr>
+<tr>
+<td>“修改Inode节点‘ctime’值”原语</td>
+<td>修改Inode节点“ctime”值</td>
+<td>能够加载Inode节点</td>
+<td>vim等命令</td>
+</tr>
+</tbody></table>
+<p>备注：<br>无需太深究这些操作原语的具体实现细节，比如前后两次使用“less或者vim”命令，第一次能够改变“atime”字段值，第二次不能改变“atime”字段值，推测在“修改Inode节点‘atime’值原语”的具体实现中应该有一套具体的修改机制。</p>
+<h3 id="3-3、上帝用户——root"><a href="#3-3、上帝用户——root" class="headerlink" title="3.3、上帝用户——root"></a><strong>3.3、上帝用户——root</strong></h3><p><font color='red'>root用户是上帝用户，具有任意权限。</font>因此必能进行“加载Inode节点，增删改文件”等操作。</p>
+<br/>
+参考文献：
+[1]http://en.wikipedia.org/wiki/Inode
+[2]http://superuser.com/questions/520107/how-are-directory-structures-stored-in-unix-filesystem
+[3]http://www.cyberciti.biz/faq/how-linux-file-permissions-work/
+[4]http://haifux.org/lectures/84-sil/users-processes-files-and-permissions/users-perms-lec.html
+[5]http://stackoverflow.com/questions/6305416/how-does-a-process-in-linux-decides-privileges-allotted-to-it
+[6]http://unix.stackexchange.com/questions/364/allow-setuid-on-shell-scripts
+[7]http://en.wikipedia.org/wiki/Setuid#setuid_and_setgid_on_directories
+[8]http://en.wikipedia.org/wiki/Sticky_bit
+[9]http://www.linuxquestions.org/questions/linux-software-2/rename-and-ctime-913753
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/" title="Linux文件权限">https://dslztx.github.io/blog/2017/06/15/Linux文件权限/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/06/12/%E8%BF%9B%E7%A8%8B%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD/" rel="prev" title="进程用户身份">
+      <i class="fa fa-chevron-left"></i> 进程用户身份
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/06/24/Intellij-Idea%E8%B0%83%E8%AF%95%E4%B9%8B%E6%80%AA%E5%BC%82%E4%BA%8B%E4%BB%B6/" rel="next" title="Intellij Idea调试之怪异事件">
+      Intellij Idea调试之怪异事件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/";
+    this.page.identifier = "2017/06/15/Linux文件权限/";
+    this.page.title = "Linux文件权限";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

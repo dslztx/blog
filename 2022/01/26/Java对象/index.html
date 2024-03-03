@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。 一、Java对象Java对象处于Java堆中，Java对象可分为：  普通实例对象，比如“java.lang.String类实例对象”，“java.util.List类实例对象”，“me.dslztx.A自定义类实例对象” 数组对象，比如“java.lang.String[]数组对象”，“int[]数组对象” Clas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java对象">
+<meta property="og:url" content="https://dslztx.github.io/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。 一、Java对象Java对象处于Java堆中，Java对象可分为：  普通实例对象，比如“java.lang.String类实例对象”，“java.util.List类实例对象”，“me.dslztx.A自定义类实例对象” 数组对象，比如“java.lang.String[]数组对象”，“int[]数组对象” Clas">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-1.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-2.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-3.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-4.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-5.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-6.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20220126-0-7.png">
+<meta property="article:published_time" content="2022-01-26T13:09:22.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.208Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20220126-0-1.png">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java对象 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java对象
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-26 21:09:22" itemprop="dateCreated datePublished" datetime="2022-01-26T21:09:22+08:00">2022-01-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/01/26/Java对象/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
+<h2 id="一、Java对象"><a href="#一、Java对象" class="headerlink" title="一、Java对象"></a><strong>一、Java对象</strong></h2><p>Java对象处于Java堆中，Java对象可分为：</p>
+<ul>
+<li>普通实例对象，比如“java.lang.String类实例对象”，“java.util.List类实例对象”，“me.dslztx.A自定义类实例对象”</li>
+<li>数组对象，比如“java.lang.String[]数组对象”，“int[]数组对象”</li>
+<li><font color='red'>Class对象，较为特殊，具有两种身份：1）作为一切Java类（当然也包括“java.lang.Class”类）的Class对象，然后这些Java类的静态字段数据放置在其相应的Class对象中[1]；2）作为“java.lang.Class”类的实例对象。参见以下源代码1和相应的执行结果可帮助理解</font></li>
+</ul>
+<p>源代码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Class</span> <span class="variable">aClz</span> <span class="operator">=</span> A.class;</span><br><span class="line"></span><br><span class="line">        <span class="type">Class</span> <span class="variable">arrayClz</span> <span class="operator">=</span> <span class="type">int</span>[].class;</span><br><span class="line"></span><br><span class="line">        <span class="type">Class</span> <span class="variable">classClz</span> <span class="operator">=</span> java.lang.Class.class;</span><br><span class="line"></span><br><span class="line">        System.out.println(aClz <span class="keyword">instanceof</span> java.lang.Class);</span><br><span class="line">        System.out.println(arrayClz <span class="keyword">instanceof</span> java.lang.Class);</span><br><span class="line">        System.out.println(classClz <span class="keyword">instanceof</span> java.lang.Class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">A</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">true</span><br><span class="line">true</span><br><span class="line">true</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、Java对象的内存布局"><a href="#二、Java对象的内存布局" class="headerlink" title="二、Java对象的内存布局"></a><strong>二、Java对象的内存布局</strong></h2><h3 id="2-1、基本说明"><a href="#2-1、基本说明" class="headerlink" title="2.1、基本说明"></a><strong>2.1、基本说明</strong></h3><p>在HotSpot虚拟机中，Java对象的内存布局可分为3块区域：对象头，实例数据和对齐填充。</p>
+<p>需要说明的是，Java对象的内存布局除了跟具体的虚拟机实现（这里是基于64位的JDK 8所对应的具体HotSpot虚拟机实现）有关之外，还跟很多因素有关，包括但不限于以下：</p>
+<ul>
+<li>JVM参数<code>-XX:+/-UseCompressedOops</code>，说明见下面</li>
+<li>JVM参数<code>-XX:+/-CompactFields</code>，说明见下面</li>
+<li>JVM参数<code>-XX:FieldsAllocationStyle=N</code>，说明见下面</li>
+<li><code>@sun.misc.Contended</code>注解，说明见[2]</li>
+<li>…</li>
+</ul>
+<h4 id="2-1-1、对象头"><a href="#2-1-1、对象头" class="headerlink" title="2.1.1、对象头"></a><strong>2.1.1、对象头</strong></h4><p>包括3个部分，描述见表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+<th>占据字节数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mark Word</td>
+<td>存储对象自身的运行时数据，比如哈希码，GC分代年龄，锁状态标志，线程持有的锁，偏向线程ID，偏向时间戳等</td>
+<td>8个字节</td>
+</tr>
+<tr>
+<td>类元数据指针（Klass Pointer）</td>
+<td>指向相应Klass对象（即方法区内的“类元数据”，详见<a href="/2022/01/10/%E6%96%B9%E6%B3%95%E5%8C%BA/" title="方法区">《方法区》</a>）的指针。<font color='red'>注意不是指向Java堆中相应Class对象的指针，这点极易混淆</font></td>
+<td><font color='red'>跟JVM参数<code>-XX:+/-UseCompressedOops</code>有关，其表示是否开启指针压缩。当关闭（<code>-XX:-UseCompressedOops</code>）时，指针大小为8字节；当开启<code>-XX:+UseCompressedOops</code>时，指针大小为4字节</font></td>
+</tr>
+<tr>
+<td>数组长度记录区域</td>
+<td>当对象类型为数组时，本区域记录数组长度；否则，本区域为空</td>
+<td>当对象类型为数组，占据4个字节；否则，占据0个字节</td>
+</tr>
+</tbody></table>
+<h4 id="2-1-2、实例数据"><a href="#2-1-2、实例数据" class="headerlink" title="2.1.2、实例数据"></a><strong>2.1.2、实例数据</strong></h4><p>存储一系列字段数据，字段类型可以是8种原生基本类型（boolean，byte，char，short，int，float，long，double）之一或者是对象引用类型（reference），不同类型字段数据占据字节数描述见表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>字段类型</th>
+<th>占据字节数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>boolean</td>
+<td>1个字节</td>
+</tr>
+<tr>
+<td>byte</td>
+<td>1个字节</td>
+</tr>
+<tr>
+<td>char</td>
+<td>2个字节</td>
+</tr>
+<tr>
+<td>short</td>
+<td>2个字节</td>
+</tr>
+<tr>
+<td>int</td>
+<td>4个字节</td>
+</tr>
+<tr>
+<td>float</td>
+<td>4个字节</td>
+</tr>
+<tr>
+<td>long</td>
+<td>8个字节</td>
+</tr>
+<tr>
+<td>double</td>
+<td>8个字节</td>
+</tr>
+<tr>
+<td>reference</td>
+<td><font color='red'>跟JVM参数<code>-XX:+/-UseCompressedOops</code>有关，其表示是否开启指针压缩。当关闭（<code>-XX:-UseCompressedOops</code>）时，占据字节数为8字节；当开启<code>-XX:+UseCompressedOops</code>时，占据字节数为4字节</font></td>
+</tr>
+</tbody></table>
+<p><font color='red'>特别需要注意的是，本文的“字段数据”都是指“非静态字段数据”，因为“静态字段数据”都放置在相应的Class对象中，这与“一、Java对象”小节中对“Class对象”的描述是呼应的。</font></p>
+<h4 id="2-1-3、对齐填充"><a href="#2-1-3、对齐填充" class="headerlink" title="2.1.3、对齐填充"></a><strong>2.1.3、对齐填充</strong></h4><p>对齐填充规则可归纳为如下几条：<br><strong>规则1</strong>：8种原生基本类型或者对象引用类型字段内存起始地址需满足“相应类型占据字节数-对齐”，比如“int”类型字段的内存起始地址需满足“4-对齐”，“reference”类型字段的内存起始地址需满足“8-对齐”<br><strong>规则2</strong>：同一类中所有字段按照以下字段类型顺序排列分配内存，字段类型顺序为“long&#x2F;double，int&#x2F;float，char&#x2F;short，boolean&#x2F;byte，reference”<br><strong>规则3</strong>：父类中所有字段排列于子类中所有字段之前<br><strong>规则4</strong>：假定父类中存在至少一个字段，那么子类中首字段内存起始地址需满足“8-对齐”<br><strong>规则5</strong>：如果是“数组对象”，那么具体元素队列中第一个元素的内存起始地址需满足“8-对齐”<br><strong>规则6</strong>：如有必要需进行字节填充，以使得接下来毗邻的Java对象内存起始地址满足“8-对齐”</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>JVM参数<code>-XX:+/-CompactFields</code>含义是：是否开启将对象中较窄的数据插入到间隙中。如果开启，上述规则2不再适用[3]</li>
+<li>JVM参数<code>-XX:FieldsAllocationStyle=N</code>含义是：设定字段分配策略。如果<code>-XX:FieldsAllocationStyle!=1</code>，上述规则2不再适用[3]</li>
+</ul>
+<p>对齐填充一般遵循上述对齐填充规则，但还受到“JVM参数<code>-XX:+/-CompactFields</code>”，“JVM参数<code>-XX:FieldsAllocationStyle=N</code>”，“<code>@sun.misc.Contended</code>注解”等因素影响，使得最终策略相当复杂，笔者的目标只是概要理解，故没有必要追求理解准确和完备的对齐填充策略。</p>
+<h3 id="2-2、实验"><a href="#2-2、实验" class="headerlink" title="2.2、实验"></a><strong>2.2、实验</strong></h3><p>接下来进行实验，实验环境为：</p>
+<ul>
+<li>基于64位的JDK 8（其虚拟机实现是HotSpot）</li>
+<li><code>-XX:-UseCompressedOops</code></li>
+<li><code>-XX:-CompactFields</code></li>
+<li><code>-XX:FieldsAllocationStyle=1</code></li>
+<li>其他因素暂不考虑</li>
+</ul>
+<p>OpenJDK项目下提供了一个名为“jol”的工具，它的名字全称为“Java Object Layout”，由名称即可知，该工具能够提供关于Java对象的内存布局信息。详细的关于“jol”的介绍和使用说明见<a target="_blank" rel="noopener" href="https://github.com/openjdk/jol">链接</a>。笔者在本文中使用<code>jol-core-0.16.jar</code>版本。</p>
+<p>故最终实验命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">javac -classpath &quot;.:./jol-core-0.16.jar&quot; Main.java</span><br><span class="line"></span><br><span class="line">java -XX:-UseCompressedOops -XX:-CompactFields -XX:FieldsAllocationStyle=1 -classpath &quot;.:./jol-core-0.16.jar&quot; Main</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-1、实验1——主要针对对象头"><a href="#2-2-1、实验1——主要针对对象头" class="headerlink" title="2.2.1、实验1——主要针对对象头"></a><strong>2.2.1、实验1——主要针对对象头</strong></h4><p>实验代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.openjdk.jol.info.ClassLayout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(ClassLayout.parseClass(Class.class).toPrintable(String.class));  <span class="comment">//1</span></span><br><span class="line"></span><br><span class="line">        System.out.println(ClassLayout.parseClass(Class.class).toPrintable(Integer.class)); <span class="comment">//2</span></span><br><span class="line"></span><br><span class="line">        System.out.println(ClassLayout.parseClass(String.class).toPrintable(<span class="string">&quot;hello world&quot;</span>));<span class="comment">//3</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[] aa = <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line">        System.out.println(ClassLayout.parseClass(<span class="type">int</span>[].class).toPrintable(aa));            <span class="comment">//4</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行实验命令后：</p>
+<ul>
+<li>&#x2F;&#x2F;1语句对应的打印结果见图1</li>
+<li>&#x2F;&#x2F;2语句对应的打印结果见图2</li>
+<li>&#x2F;&#x2F;3语句对应的打印结果见图3</li>
+<li>&#x2F;&#x2F;4语句对应的打印结果见图4</li>
+</ul>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-1.png"></p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-2.png"></p>
+<p>图3</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-3.png"></p>
+<p>图4</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-4.png"></p>
+<p>分析图1和图2，发现两处的Klass Pointer值（即“object header: class”描述对应的值，不过这里有个瑕疵就是不该用“class”文案，而该用“klass”文案，否则会造成歧义）都为<code>0x00007f29f2740058</code>，契合“String类的Class对象和Integer类的Class对象都是java.lang.Class的实例对象，故Klass Pointer都指向方法区中相应于java.lang.Class的同一个类元数据——Klass对象”。</p>
+<h4 id="2-2-2、实验2——主要针对实例数据"><a href="#2-2-2、实验2——主要针对实例数据" class="headerlink" title="2.2.2、实验2——主要针对实例数据"></a><strong>2.2.2、实验2——主要针对实例数据</strong></h4><p>实验代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.openjdk.jol.info.ClassLayout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">MyObject</span> <span class="variable">a</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyObject</span>();</span><br><span class="line"></span><br><span class="line">        System.out.println(ClassLayout.parseClass(MyObject.class).toPrintable(a));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> a;</span><br><span class="line"></span><br><span class="line">    <span class="type">byte</span> b;</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> c;</span><br><span class="line"></span><br><span class="line">    <span class="type">short</span> d;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> e;</span><br><span class="line"></span><br><span class="line">    <span class="type">float</span> f;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> g;</span><br><span class="line"></span><br><span class="line">    <span class="type">double</span> h;</span><br><span class="line"></span><br><span class="line">    Object i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行实验命令后结果如图5。</p>
+<p>图5</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-5.png"></p>
+<h4 id="2-2-3、实验3——主要针对实例数据"><a href="#2-2-3、实验3——主要针对实例数据" class="headerlink" title="2.2.3、实验3——主要针对实例数据"></a><strong>2.2.3、实验3——主要针对实例数据</strong></h4><p>本实验主要是为了说明：在非静态内部类实例中隐式含有一个对象引用类型字段，该字段值指向相应外部类实例对象。</p>
+<p>实验代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.openjdk.jol.info.ClassLayout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        main.jol();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">jol</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">InnerClass</span> <span class="variable">c</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InnerClass</span>();</span><br><span class="line">        System.out.println(ClassLayout.parseClass(c.getClass()).toPrintable(c));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">InnerClass</span> &#123;</span><br><span class="line">        <span class="type">int</span> a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行实验命令后结果如图6。</p>
+<p>图6</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-6.png"></p>
+<h4 id="2-2-4、实验4——主要针对对齐填充"><a href="#2-2-4、实验4——主要针对对齐填充" class="headerlink" title="2.2.4、实验4——主要针对对齐填充"></a><strong>2.2.4、实验4——主要针对对齐填充</strong></h4><p>实验代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.openjdk.jol.info.ClassLayout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">MyObjectC</span> <span class="variable">c</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyObjectC</span>();</span><br><span class="line"></span><br><span class="line">        System.out.println(ClassLayout.parseClass(MyObjectC.class).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObjectCParent</span> &#123;</span><br><span class="line">    <span class="type">char</span> k;</span><br><span class="line">    <span class="type">byte</span> l;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObjectC</span> <span class="keyword">extends</span> <span class="title class_">MyObjectCParent</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> a;</span><br><span class="line">    <span class="type">byte</span> b;</span><br><span class="line">    <span class="type">char</span> c;</span><br><span class="line">    <span class="type">short</span> d;</span><br><span class="line">    <span class="type">int</span> e;</span><br><span class="line">    <span class="type">float</span> f;</span><br><span class="line">    <span class="type">long</span> g;</span><br><span class="line">    <span class="type">double</span> h;</span><br><span class="line"></span><br><span class="line">    Object o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行实验命令后结果如图7。</p>
+<p>图7</p>
+<p><img src="https://blog.dslztx.top/imgs/20220126-0-7.png"></p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/122">http://openjdk.java.net/jeps/122</a><br>[2]<a href="/2020/07/22/%E4%BC%AA%E5%85%B1%E4%BA%AB/" title="伪共享">《伪共享》</a><br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34212276/article/details/117914322">https://blog.csdn.net/qq_34212276/article/details/117914322</a><br>[4]<a target="_blank" rel="noopener" href="http://psy-lob-saw.blogspot.com/2013/05/know-thy-java-object-memory-layout.html">http://psy-lob-saw.blogspot.com/2013/05/know-thy-java-object-memory-layout.html</a><br>[5]<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/59174759">https://www.zhihu.com/question/59174759</a><br>[6]<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/38496907/answer/156793201">https://www.zhihu.com/question/38496907/answer/156793201</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/" title="Java对象">https://dslztx.github.io/blog/2022/01/26/Java对象/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2022/01/16/Java%E5%A0%86/" rel="prev" title="Java堆">
+      <i class="fa fa-chevron-left"></i> Java堆
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/" rel="next" title="JVM进程内5个主要内存区域中客体之间的联系">
+      JVM进程内5个主要内存区域中客体之间的联系 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/";
+    this.page.identifier = "2022/01/26/Java对象/";
+    this.page.title = "Java对象";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

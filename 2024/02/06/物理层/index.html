@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、物理层物理层的目标是确保在计算机网络中繁多的硬件设备、传输媒体和通信手段上能够正确传输数据比特流，并且对数据链路层屏蔽具体的“硬件设备、传输媒体和通信手段”细节。 基于上述目标，物理层的任务有：  确定与传输媒体接口有关的一些特性： 机械特性：指明接口所用接线器的形状和尺寸、引脚数目和排列、固定和锁定装置，平时常见的各种规格的接插件都有严格的标准化的规定 电气特性：指明在接口电缆的各条线上出现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物理层">
+<meta property="og:url" content="https://dslztx.github.io/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、物理层物理层的目标是确保在计算机网络中繁多的硬件设备、传输媒体和通信手段上能够正确传输数据比特流，并且对数据链路层屏蔽具体的“硬件设备、传输媒体和通信手段”细节。 基于上述目标，物理层的任务有：  确定与传输媒体接口有关的一些特性： 机械特性：指明接口所用接线器的形状和尺寸、引脚数目和排列、固定和锁定装置，平时常见的各种规格的接插件都有严格的标准化的规定 电气特性：指明在接口电缆的各条线上出现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20230508-0-0.jpeg">
+<meta property="article:published_time" content="2024-02-05T18:08:53.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.172Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20230508-0-0.jpeg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>物理层 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          物理层
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-02-06 02:08:53" itemprop="dateCreated datePublished" datetime="2024-02-06T02:08:53+08:00">2024-02-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/02/06/物理层/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、物理层"><a href="#一、物理层" class="headerlink" title="一、物理层"></a><strong>一、物理层</strong></h2><p>物理层的目标是确保在计算机网络中繁多的硬件设备、传输媒体和通信手段上能够正确传输数据比特流，并且对数据链路层屏蔽具体的“硬件设备、传输媒体和通信手段”细节。</p>
+<p>基于上述目标，物理层的任务有：</p>
+<ol>
+<li>确定与传输媒体接口有关的一些特性：<ul>
+<li>机械特性：指明接口所用接线器的形状和尺寸、引脚数目和排列、固定和锁定装置，平时常见的各种规格的接插件都有严格的标准化的规定</li>
+<li>电气特性：指明在接口电缆的各条线上出现的电压范围，阻抗匹配，传输速率，距离限制等</li>
+<li>功能特性：指明某条线上出现的某一个电平的电压的意义</li>
+<li>过程特性：指明对于不同功能的各种可能事件的出现顺序</li>
+</ul>
+</li>
+<li>数据在计算机内部多采用并行传输方式，而在通信线路上用串行方式，物理层需要负责传输方式的转换</li>
+<li>…</li>
+</ol>
+<p>物理层协议设计完成物理层任务，达成物理层目标。因应“繁多的硬件设备、传输媒体、通信手段，且物理连接方式分为点对点和广播等”，物理层协议众多。</p>
+<p><font color='red'>学习物理层协议，重点在于基本概念，避免陷入细节地狱（比如“物理层是否关注信号复用”，“物理层是否关注‘单向通信&#x2F;双向交替通信&#x2F;双向同时通信’通信工作方式”等），我们应把主要精力放在数据链路层、网络层、传输层和应用层。</font></p>
+<h2 id="二、信号学简单介绍"><a href="#二、信号学简单介绍" class="headerlink" title="二、信号学简单介绍"></a><strong>二、信号学简单介绍</strong></h2><p>本节对信号学进行简单介绍，详细介绍可参看通信学、信号学相关书籍。</p>
+<p>凡是能承载信息的客体都能作为信号，比如：</p>
+<ul>
+<li>红绿灯</li>
+<li>信号枪</li>
+<li>手电筒三短、三长、三短</li>
+<li>灯光的明暗</li>
+<li>口令</li>
+<li>电磁波（光也属于电磁波）</li>
+</ul>
+<p>本文讨论电磁波信号，电磁波波谱如下图所示。</p>
+<p><img src="https://blog.dslztx.top/imgs/20230508-0-0.jpeg"></p>
+<h3 id="2-1、信号"><a href="#2-1、信号" class="headerlink" title="2.1、信号"></a><strong>2.1、信号</strong></h3><p>信号可分为两类：模拟信号（连续信号）和数字信号（离散信号）。</p>
+<p>两类信号的优缺点如下表。</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模拟信号</td>
+<td>1)直观<br/>2)技术易实现</td>
+<td>1)保密性差<br/>2)抗噪声干扰能力弱，故只适合短距离传输</td>
+</tr>
+<tr>
+<td>数字信号</td>
+<td>1)保密性好<br/>2)抗噪声干扰能力强，故适合长距离传输</td>
+<td>1)不直观<br/>2)技术不易实现</td>
+</tr>
+</tbody></table>
+<p>结论：综合来看，数字信号优于模拟信号，现实世界正在进行越来越多的“模拟信号通信 -&gt; 数字信号通信”改造。</p>
+<h3 id="2-2、传输媒体"><a href="#2-2、传输媒体" class="headerlink" title="2.2、传输媒体"></a><strong>2.2、传输媒体</strong></h3><table>
+<thead>
+<tr>
+<th>传输媒体</th>
+<th>属于导引&#x2F;非导引</th>
+<th>支持的信号形式</th>
+<th>抗干扰性</th>
+<th>衰减性</th>
+<th>经济成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双绞线</td>
+<td>导引</td>
+<td>模拟信号、数字信号</td>
+<td>次次高</td>
+<td>次次高</td>
+<td>次次高</td>
+</tr>
+<tr>
+<td>同轴电缆</td>
+<td>导引</td>
+<td>模拟信号、数字信号</td>
+<td>次高</td>
+<td>次高</td>
+<td>次高</td>
+</tr>
+<tr>
+<td>光纤</td>
+<td>导引</td>
+<td>模拟信号、数字信号</td>
+<td>高</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>空气（无线传输电磁波）</td>
+<td>非导引</td>
+<td>模拟信号、数字信号</td>
+<td>差</td>
+<td>差</td>
+<td>低</td>
+</tr>
+<tr>
+<td>二级管电缆（虚拟）</td>
+<td>导引</td>
+<td>数字信号</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+</tbody></table>
+<p><strong>备注：</strong></p>
+<ul>
+<li>双绞线，同轴电缆，光纤都有不同规格，抗干扰性、衰减性和经济成本等维度的比较基于一般情况</li>
+<li>当前数字信号传输的常用方案：远距离用光纤，中距离用同轴电缆，近距离用双绞线或者空气（比如“5G”，“Wifi”）</li>
+</ul>
+<h3 id="2-3、信号承载信息"><a href="#2-3、信号承载信息" class="headerlink" title="2.3、信号承载信息"></a><strong>2.3、信号承载信息</strong></h3><p>通过编码，信号（包括“模拟信号”和“数字信号”）可以承载信息。</p>
+<p>在继续介绍之前首先介绍带宽的含义：</p>
+<ul>
+<li>原义：带宽原指频率范围，单位为赫兹（Hz）。以带宽（频率）区分后述扩展义</li>
+<li>扩展义：后由于带宽跟数据速率的紧密关系，被借用表示数据速率，单位为比特&#x2F;秒（“bit&#x2F;s”，简写为“b&#x2F;s”或者“bps”）。须知<code>Kbps，Mbps，Gbps</code>中的<code>K，M，G</code>分别表示<code>10^3，10^6，10^9</code>，而不是<code>2^10，2^20，2^30</code>。以带宽（速率）区分上述原义</li>
+</ul>
+<p>香农定理描述了特定传输媒体上的不失真信息传输速率理论极限值C，具体有公式<code>C = B * log2(1 + S/N)</code>。<br>其中：</p>
+<ul>
+<li><code>C</code>是极限的不失真信息传输速率，即理论极限不失真带宽（速率），单位为“比特&#x2F;秒（bps）”<br> -<code>B</code>是信道带宽（频率），单位为“赫兹（Hz）”</li>
+<li><code>S</code>是平均信号功率，<code>N</code>是平均噪声功率，<code>S/N</code>是信噪比</li>
+</ul>
+<p>根据以上定理，假定实际不失真信息传输速率为F，即实际不失真带宽（速率），那么我们可以不断追寻合适的编码方案以期将F不断逼近C，虽然实际不可能达到，因为传输过程中信号还要受到其他一些损伤，比如“各种脉冲干扰”。</p>
+<h3 id="2-4、信道"><a href="#2-4、信道" class="headerlink" title="2.4、信道"></a><strong>2.4、信道</strong></h3><p>信道是一个逻辑概念，有狭义和广义之分：</p>
+<ul>
+<li>狭义：跟数据传输方向有关，同一条逻辑通路相反的两个数据传输方向有两条信道</li>
+<li>广义：跟数据传输方向无关，同一条逻辑通路相反的两个数据传输方向只有一条信道</li>
+</ul>
+<p>本博文使用广义概念。</p>
+<p>一条传输媒体通道可以复用成N（N&gt;&#x3D;1）个信道：</p>
+<ul>
+<li>N&#x3D;1，信道最大带宽（速率）&#x3D; 传输媒体最大带宽（速率）</li>
+<li>N&gt;1，所有信道的最大带宽（速率）和 &#x3D; 传输媒体最大带宽（速率）</li>
+</ul>
+<p>常见的复用技术有：</p>
+<ul>
+<li>频分复用：Frequency Division Multiplexing(FDM)，一个信道固定使用分配到的频带，在通信过程中始终占用这个频带</li>
+<li>时分复用：Time Division Multiplexing(TDM)，一个信道固定使用分配到的时间片，在通信过程中始终占用这个时间片</li>
+<li>码分复用：Code Division Multiplexing(CDM)，不同信道固定使用不同的码片序列，不同信道使用的码片序列互相正交。相较于“频分复用”和“时分复用”，码分复用方案可获得相对较高的传输媒体最大平均实际带宽（速率），因为占据所有时间片和在任意时刻可以利用所有频带资源，代价是较高的技术落地难度和较大的资源消耗</li>
+<li>波分复用：Wavelength Division Multiplexing(WDM)，即光的频分复用</li>
+<li>统计时分复用：Static TDM(STDM)，即改进的时分复用。称一般时分复用为同步时分复用，统计时分复用为异步时分复用</li>
+</ul>
+<h3 id="2-5、信号同步"><a href="#2-5、信号同步" class="headerlink" title="2.5、信号同步"></a><strong>2.5、信号同步</strong></h3><p>要想正确实现信号的传输，可能还需要信号发送端和接收端双方的时钟同步，是否需要时钟同步跟“编码方案”，“复用技术”等因素有关。<br>比如：</p>
+<ul>
+<li>采用时分复用需要信号发送端和接收端双方的时钟同步</li>
+<li>非采用时分复用前提下使用差分曼彻斯特编码，具备自同步能力</li>
+<li>CDMA需要同步</li>
+</ul>
+<p>当下流行的时钟同步方案标准为SDH&#x2F;SONET。</p>
+<p><font color='red'>关于是否需要时钟同步和时钟同步方案内容，笔者未作深入了解。</font></p>
+<h2 id="三、通信过程总结"><a href="#三、通信过程总结" class="headerlink" title="三、通信过程总结"></a><strong>三、通信过程总结</strong></h2><h3 id="3-1、通信过程"><a href="#3-1、通信过程" class="headerlink" title="3.1、通信过程"></a><strong>3.1、通信过程</strong></h3><p>单次通信过程：<code>发送信号 -&gt; 调制（光猫，ADSL猫等） -&gt; 信道 -&gt; 解调（光猫，ADSL猫等） -&gt; 接收信号</code>。</p>
+<p>需要说明的是：</p>
+<ol>
+<li>调制和解调的含义是广义的：<ul>
+<li>调制：对信号进行变换的过程统称为调制，包括“数字信号 -&gt; 模拟信号”，“模拟信号 -&gt; 数字信号”，“低频信号 -&gt; 高频信号”，“高频信号 -&gt; 低频信号”等</li>
+<li>解调：对应的调制过程的逆过程</li>
+</ul>
+</li>
+<li>以上信道所指代的信号传输过程中可能包括多个调制&#x2F;解调过程</li>
+</ol>
+<h3 id="3-2、通信工作方式"><a href="#3-2、通信工作方式" class="headerlink" title="3.2、通信工作方式"></a><strong>3.2、通信工作方式</strong></h3><p>通信工作方式有3种：</p>
+<ul>
+<li>双向同时通信：通信的双方可以同时发送和接收消息</li>
+<li>双向交替通信：通信的双方都可以发送或者接收消息，但不能双方同时发送，当然也不能同时接收</li>
+<li>单向通信：单方向通信</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/" title="网络原理概述">《网络原理概述》</a><br>[2]<a target="_blank" rel="noopener" href="https://github.com/jolesen/BOOKS/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89-%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf">https://github.com/jolesen/BOOKS/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89-%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf</a><br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/Hedon954/article/details/119361409">https://blog.csdn.net/Hedon954/article/details/119361409</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/" title="物理层">https://dslztx.github.io/blog/2024/02/06/物理层/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/" rel="prev" title="网络原理概述">
+      <i class="fa fa-chevron-left"></i> 网络原理概述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/02/06/GFW%E5%8E%9F%E7%90%86/" rel="next" title="GFW原理">
+      GFW原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/";
+    this.page.identifier = "2024/02/06/物理层/";
+    this.page.title = "物理层";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

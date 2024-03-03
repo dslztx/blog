@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="棋形，是棋子在棋盘上组合成的各种形状。本文介绍3种基础死活棋形——“六死八活七半”。   在介绍之前先作两点说明：  双方都按照最强落子原则进行探讨，否则毫无实际意义 本文案例讨论中以黑棋为守方，白棋为攻方。故： 黑子的目标是：尽量能做活 白子的目标是：尽量能阻止黑棋做活    一、死活棋形1.1、死形之“六死”守方必不能做活，故“攻守双方都无需落子”。   具体分析过程（轴对称，基于A、B和C点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="六死八活七半">
+<meta property="og:url" content="https://dslztx.github.io/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="棋形，是棋子在棋盘上组合成的各种形状。本文介绍3种基础死活棋形——“六死八活七半”。   在介绍之前先作两点说明：  双方都按照最强落子原则进行探讨，否则毫无实际意义 本文案例讨论中以黑棋为守方，白棋为攻方。故： 黑子的目标是：尽量能做活 白子的目标是：尽量能阻止黑棋做活    一、死活棋形1.1、死形之“六死”守方必不能做活，故“攻守双方都无需落子”。   具体分析过程（轴对称，基于A、B和C点">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-15T13:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.160Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>六死八活七半 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          六死八活七半
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-12-15 21:00:00" itemprop="dateCreated datePublished" datetime="2023-12-15T21:00:00+08:00">2023-12-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%9B%B4%E6%A3%8B/" itemprop="url" rel="index"><span itemprop="name">围棋</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/12/15/六死八活七半/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>棋形，是棋子在棋盘上组合成的各种形状。<br>本文介绍3种基础死活棋形——“六死八活七半”。</p>
+<br/>
+
+<p>在介绍之前先作两点说明：</p>
+<ol>
+<li>双方都按照最强落子原则进行探讨，否则毫无实际意义</li>
+<li>本文案例讨论中以黑棋为守方，白棋为攻方。故：<ul>
+<li>黑子的目标是：尽量能做活</li>
+<li>白子的目标是：尽量能阻止黑棋做活</li>
+</ul>
+</li>
+</ol>
+<h2 id="一、死活棋形"><a href="#一、死活棋形" class="headerlink" title="一、死活棋形"></a><strong>一、死活棋形</strong></h2><h3 id="1-1、死形之“六死”"><a href="#1-1、死形之“六死”" class="headerlink" title="1.1、死形之“六死”"></a><strong>1.1、死形之“六死”</strong></h3><p>守方必不能做活，故“攻守双方都无需落子”。</p>
+<img src=https://blog.dslztx.top/imgs/20231215-0-1.svg width=30% height=30% />
+
+<p>具体分析过程（轴对称，基于A、B和C点进行探讨，其他属于对称情形）分为“黑先”和“白先”两种情形。</p>
+<p><strong>1、黑先</strong><br>黑必不能做活。</p>
+<ol>
+<li><del>黑A -&gt; 白F：黑做活失败</del></li>
+<li><del>黑B -&gt; 白F：黑做活失败</del></li>
+<li><del>黑C -&gt; 白F：黑做活失败</del></li>
+<li><del>[与1对称]黑F -&gt; 白A：黑做活失败</del></li>
+<li><del>[与2对称]黑E -&gt; 白A：黑做活失败</del></li>
+<li><del>[与3对称]黑D -&gt; 白A：黑做活失败</del></li>
+</ol>
+<p><strong>2、白先</strong><br>黑必不能做活：无需先落子，黑落子后必能按照“1、黑先”小节阻止黑做活。</p>
+<h3 id="1-2、活形之“八活”"><a href="#1-2、活形之“八活”" class="headerlink" title="1.2、活形之“八活”"></a><strong>1.2、活形之“八活”</strong></h3><p>守方必能做活，故“攻守双方都无需落子”。</p>
+<img src=https://blog.dslztx.top/imgs/20231215-0-2.svg width=30% height=30% />
+
+<p>具体分析过程（轴对称，基于A、B、C和D点进行探讨，其他属于对称情形）分为“黑先”和“白先”两种情形。</p>
+<p><strong>1、黑先</strong><br>黑必能做活（存在一种做活下法即可）：</p>
+<ol>
+<li>黑A -&gt; 白H：黑做活成功</li>
+<li>黑B -&gt; 白H：黑做活成功</li>
+<li>黑C -&gt; 白H：黑做活成功</li>
+<li>黑D -&gt; 白H：黑做活成功</li>
+<li>[与1对称]黑H -&gt; 白A：黑做活成功</li>
+<li>[与2对称]黑G -&gt; 白A：黑做活成功</li>
+<li>[与3对称]黑F -&gt; 白A：黑做活成功</li>
+<li>[与4对称]黑E -&gt; 白A：黑做活成功</li>
+</ol>
+<p><strong>2、白先</strong><br>黑必能做活（没有一种下法能够成功阻止做活）：</p>
+<ol>
+<li><del>白A -&gt; 黑B：阻止黑做活失败</del></li>
+<li><del>白B -&gt; 黑C：阻止黑做活失败</del></li>
+<li><del>白C -&gt; 黑D：阻止黑做活失败</del></li>
+<li><del>白D -&gt; 黑E：阻止黑做活失败</del></li>
+<li><del>[与1对称]白H -&gt; 黑G：阻止黑做活失败</del></li>
+<li><del>[与2对称]白G -&gt; 黑F：阻止黑做活失败</del></li>
+<li><del>[与3对称]白F -&gt; 黑E：阻止黑做活失败</del></li>
+<li><del>[与4对称]白E -&gt; 黑D：阻止黑做活失败</del></li>
+</ol>
+<h3 id="1-3、半死不活形之“七半”"><a href="#1-3、半死不活形之“七半”" class="headerlink" title="1.3、半死不活形之“七半”"></a><strong>1.3、半死不活形之“七半”</strong></h3><p>守方先落子，存在一种下法能成功做活；攻方先落子，存在一种下法能够成功阻止做活。</p>
+<img src=https://blog.dslztx.top/imgs/20231215-0-3.svg width=30% height=30% />
+
+<p>结论：攻方先，抢到A和G点，成功阻止做活；守方先，抢到A、D和G点，成功做活。为了减少记忆成本，把关键点统一记为A和G。</p>
+<p>具体分析过程（轴对称，基于A、B、C和D点进行探讨，其他属于对称情形）分为“黑先”和“白先”两种情形。</p>
+<p><strong>1、黑先</strong><br>黑必能做活（存在一种做活下法即可）：</p>
+<ol>
+<li>黑A -&gt; 白G -&gt; 黑F：黑做活成功</li>
+<li><del>黑B -&gt; 白G：黑做活失败</del></li>
+<li><del>黑C -&gt; 白A：黑做活失败</del></li>
+<li>黑D -&gt; 黑后续只要一边做一只真眼：黑做活成功</li>
+<li>[与1对称]黑G -&gt; 白A -&gt; 黑B：黑做活成功</li>
+<li><del>[与2对称]黑F -&gt; 白A：黑做活失败</del></li>
+<li><del>[与3对称]黑E -&gt; 白G：黑做活失败</del></li>
+</ol>
+<p><strong>2、白先</strong><br>黑必不能做活（存在一种能够成功阻止做活下法即可）：</p>
+<ol>
+<li>白A -&gt; 黑G：阻止黑做活成功</li>
+<li><del>白B -&gt; 黑A：阻止黑做活失败</del></li>
+<li><del>白C -&gt; 黑D：阻止黑做活失败</del></li>
+<li><del>白D：阻止黑做活失败</del></li>
+<li>[与1对称]白G -&gt; 黑A：阻止黑做活成功</li>
+<li><del>[与2对称]白F -&gt; 黑G：阻止黑做活失败</del></li>
+<li><del>[与3对称]白E -&gt; 黑D：阻止黑做活失败</del></li>
+</ol>
+<h2 id="二、死活棋形之劫材"><a href="#二、死活棋形之劫材" class="headerlink" title="二、死活棋形之劫材"></a><strong>二、死活棋形之劫材</strong></h2><p>劫材再回顾下是“彼之弱点，我之劫材”。</p>
+<h3 id="2-1、死形"><a href="#2-1、死形" class="headerlink" title="2.1、死形"></a><strong>2.1、死形</strong></h3><p>死形的劫材如果存在必属于守方：<code>守方落子 -&gt; 攻方必须应劫，否则守方做活成功</code>。</p>
+<img src=https://blog.dslztx.top/imgs/20231215-0-1.svg width=30% height=30% />
+
+<p>结论：A、C、D和F四个点都是守方的劫材。</p>
+<p>具体分析过程：</p>
+<ol>
+<li>黑A -&gt; 白必须应劫落子F，否则黑做活成功</li>
+<li><del>黑B -&gt; 白无须立即落子应对：不是黑的劫材</del></li>
+<li>黑C -&gt; 白必须应劫落子A，否则黑做活成功</li>
+<li>[与1对称]黑F -&gt; 白必须应劫落子A，否则黑做活成功</li>
+<li><del>[与2对称]黑E -&gt; 白无须立即落子应对：不是黑的劫材</del></li>
+<li>[与3对称]黑D -&gt; 白必须应劫落子F，否则黑做活成功</li>
+</ol>
+<h3 id="2-2、活形"><a href="#2-2、活形" class="headerlink" title="2.2、活形"></a><strong>2.2、活形</strong></h3><p>活形的劫材如果存在必属于攻方：<code>攻方落子 -&gt; 守方必须应劫，否则攻方阻止做活成功</code>。</p>
+<img src=https://blog.dslztx.top/imgs/20231215-0-2.svg width=30% height=30% />
+
+<p>结论：A和H两个点是攻方的劫材。</p>
+<p>具体分析：</p>
+<ol>
+<li>白A -&gt; 黑必须立即落子应对，否则白继续落子H，黑做活失败：是白的劫材</li>
+<li><del>白B -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+<li><del>白C -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+<li><del>白D -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+<li>[与1对称]白H -&gt; 黑必须立即落子应对，否则白继续落子A，黑做活失败：是白的劫材</li>
+<li><del>[与2对称]白G -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+<li><del>[与3对称]白F -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+<li><del>[与4对称]白E -&gt; 黑无须立即落子应对：不是白的劫材</del></li>
+</ol>
+<h3 id="2-3、半死不活形"><a href="#2-3、半死不活形" class="headerlink" title="2.3、半死不活形"></a><strong>2.3、半死不活形</strong></h3><p>按照劫材定义——“逼迫对方应对”，半死不活形没有劫材，因为：</p>
+<ol>
+<li>守方先<ul>
+<li>如果抢占做活关键点成功做活，无法逼迫对方应对</li>
+<li>如果不下做活关键点只能引诱（而不是逼迫）攻方抢占关键点阻止做活</li>
+</ul>
+</li>
+<li>攻方先<ul>
+<li>如果抢占做活关键点成功阻止做活，无法逼迫对方应对</li>
+<li>如果不下做活关键点引诱（而不是逼迫）守方抢占关键点成功做活</li>
+</ul>
+</li>
+</ol>
+<p>但是也可将劫材定义广义化，将以上引诱作为劫材情形。</p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a><strong>三、总结</strong></h2><table>
+<thead>
+<tr>
+<th>棋形</th>
+<th>死活类型</th>
+<th>守方</th>
+<th>攻方</th>
+<th>劫材</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>六死</td>
+<td>死形</td>
+<td>无需主动落子</td>
+<td>无需主动落子</td>
+<td>A、C、D和F属于守方的劫材点</td>
+</tr>
+<tr>
+<td>八活</td>
+<td>活形</td>
+<td>无需主动落子</td>
+<td>无需主动落子</td>
+<td>A和H两个点都是攻方的劫材点</td>
+</tr>
+<tr>
+<td>七半</td>
+<td>半死不活形</td>
+<td>立即做活，关键点是边界两点</td>
+<td>立即阻止做活，关键点是边界两点</td>
+<td>边界两点是广义的劫材点</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/zgcWunj_J9Tbttp0PJYYQQ">https://mp.weixin.qq.com/s/zgcWunj_J9Tbttp0PJYYQQ</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/" title="六死八活七半">https://dslztx.github.io/blog/2023/12/15/六死八活七半/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/11/23/%E6%A3%8B%E5%BD%A2/" rel="prev" title="棋形">
+      <i class="fa fa-chevron-left"></i> 棋形
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/12/16/%E5%9B%B4%E6%A3%8B%E5%AF%B9%E6%9D%80/" rel="next" title="围棋对杀">
+      围棋对杀 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2023/12/15/%E5%85%AD%E6%AD%BB%E5%85%AB%E6%B4%BB%E4%B8%83%E5%8D%8A/";
+    this.page.identifier = "2023/12/15/六死八活七半/";
+    this.page.title = "六死八活七半";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

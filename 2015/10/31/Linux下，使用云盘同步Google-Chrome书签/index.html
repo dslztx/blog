@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、问题描述本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。 二、分析Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux下，使用云盘同步Google Chrome书签">
+<meta property="og:url" content="https://dslztx.github.io/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、问题描述本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。 二、分析Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-10-30T16:12:02.000Z">
+<meta property="article:modified_time" content="2015-10-30T16:12:02.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux下，使用云盘同步Google Chrome书签 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux下，使用云盘同步Google Chrome书签
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-10-31 00:12:02" itemprop="dateCreated datePublished" datetime="2015-10-31T00:12:02+08:00">2015-10-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/10/31/Linux下，使用云盘同步Google-Chrome书签/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
+<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
+<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
+<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
+<ol>
+<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
+<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
+<li>将临时文件重命名为Bookmarks</li>
+<li>删除原有的书签数据文件</li>
+</ol>
+<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
+<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
+<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
+<br/>
+参考文献：
+[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/" title="Linux下，使用云盘同步Google Chrome书签">https://dslztx.github.io/blog/2015/10/31/Linux下，使用云盘同步Google-Chrome书签/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/" rel="prev" title="OpenSSH中SFTP协议实现相关程序">
+      <i class="fa fa-chevron-left"></i> OpenSSH中SFTP协议实现相关程序
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2015/11/01/Ubuntu%E4%B8%8B%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8%E7%99%BE%E5%BA%A6%E4%BA%91%E7%9B%98bypy%E5%AE%A2%E6%88%B7%E7%AB%AF/" rel="next" title="Ubuntu下安装和使用百度云盘bypy客户端">
+      Ubuntu下安装和使用百度云盘bypy客户端 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/";
+    this.page.identifier = "2015/10/31/Linux下，使用云盘同步Google-Chrome书签/";
+    this.page.title = "Linux下，使用云盘同步Google Chrome书签";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

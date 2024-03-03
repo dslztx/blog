@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、计算机网络定义计算机网络：通过传输媒体和中间各种类型网络设备（包括“网卡”，“路由器”，“交换机”等）连接起来的计算机集合。 两点释疑：  以上计算机网络定义跟计算机节点之间的地理距离完全无关，两个计算机节点地理距离即便只有1CM，只要通过传输媒体和中间各种类型网络设备连接起来就构成了计算机网络 两个计算机通过USB、PCI、HDMI等接口连接，而不是通过网络设备，那么就不构成计算机网络  二">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络原理概述">
+<meta property="og:url" content="https://dslztx.github.io/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、计算机网络定义计算机网络：通过传输媒体和中间各种类型网络设备（包括“网卡”，“路由器”，“交换机”等）连接起来的计算机集合。 两点释疑：  以上计算机网络定义跟计算机节点之间的地理距离完全无关，两个计算机节点地理距离即便只有1CM，只要通过传输媒体和中间各种类型网络设备连接起来就构成了计算机网络 两个计算机通过USB、PCI、HDMI等接口连接，而不是通过网络设备，那么就不构成计算机网络  二">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-02-05T17:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.168Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>网络原理概述 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          网络原理概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-02-06 01:00:00" itemprop="dateCreated datePublished" datetime="2024-02-06T01:00:00+08:00">2024-02-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/02/06/网络原理概述/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、计算机网络定义"><a href="#一、计算机网络定义" class="headerlink" title="一、计算机网络定义"></a><strong>一、计算机网络定义</strong></h2><p>计算机网络：通过传输媒体和中间各种类型网络设备（包括“网卡”，“路由器”，“交换机”等）连接起来的计算机集合。</p>
+<p>两点释疑：</p>
+<ol>
+<li>以上计算机网络定义跟计算机节点之间的地理距离完全无关，两个计算机节点地理距离即便只有1CM，只要通过传输媒体和中间各种类型网络设备连接起来就构成了计算机网络</li>
+<li>两个计算机通过USB、PCI、HDMI等接口连接，而不是通过网络设备，那么就不构成计算机网络</li>
+</ol>
+<h2 id="二、组建计算机网络的关键——协议"><a href="#二、组建计算机网络的关键——协议" class="headerlink" title="二、组建计算机网络的关键——协议"></a><strong>二、组建计算机网络的关键——协议</strong></h2><p>组建计算机网络，必须定义和实现计算机节点之间的网络协议。<br>网络协议自诞生之日起就蓬勃发展，但是不兼容的网络协议导致不同的计算机网络难以互连，针对此问题，ISO和因特网标准化组织给出了两种标准化协议模型：OSI模型和TCP&#x2F;IP模型。</p>
+<h3 id="2-1、协议模型"><a href="#2-1、协议模型" class="headerlink" title="2.1、协议模型"></a><strong>2.1、协议模型</strong></h3><p>对协议模型作几点说明：</p>
+<ul>
+<li>对网络协议模型进行分层，只允许相邻层传递数据，分解问题空间，降低设计和实现难度，层协议具备更好的独立性和灵活性</li>
+<li>属于同层的网络协议可能地位不同，比如“在运输层中，TCP&#x2F;UDP是核心协议，QUIC协议基于UDP协议”，“在网络协议中，IP协议是核心协议，IGMP&#x2F;ICMP协议是基于IP协议的辅助协议，ARP&#x2F;RARP协议是不基于IP协议的辅助协议”</li>
+<li>一些网络协议能够被精确映射到网络协议分层，另外一些网络协议不能被精确映射到网络协议分层是客观的，因为存在特殊需求的网络协议实现其功能并不能被某个网络协议分层的定义所100%覆盖，<font color='red'>故不要花费过多精力追求将所有网络协议精确映射到网络协议分层</font>。比如：“ICMP&#x2F;IGMP基于IP在IP之上，但未到运输层，一般仍算为网络层”，“ARP&#x2F;RARP不基于IP，但一般仍算为网络层”</li>
+</ul>
+<h3 id="2-2、OSI模型-VS-TCP-IP模型"><a href="#2-2、OSI模型-VS-TCP-IP模型" class="headerlink" title="2.2、OSI模型 VS TCP&#x2F;IP模型"></a><strong>2.2、OSI模型 VS TCP&#x2F;IP模型</strong></h3><h4 id="2-2-1、OSI模型"><a href="#2-2-1、OSI模型" class="headerlink" title="2.2.1、OSI模型"></a><strong>2.2.1、OSI模型</strong></h4><p>OSI模型：</p>
+<ol>
+<li>发展：具体分为7层，从下到上依次为<code>物理层，数据链路层，网络层，运输层，会话层，表示层，应用层</code>。对每层只给出了层功能定义，没有直接限定协议，以充分兼容已有协议</li>
+<li>优点（跟TCP&#x2F;IP模型比较）：<ul>
+<li>层次划分相较细致，概念相较清晰，比如“划分了数据链路层和物理层”</li>
+<li>协议兼容性相较强，比如“网络层的核心协议可以是非IP协议”，“运输层的核心协议可以是既非TCP协议又非UDP协议”</li>
+</ul>
+</li>
+<li>缺点（跟TCP&#x2F;IP模型比较）：<ul>
+<li>实现相较复杂，比如“有‘表示层’和‘会话层’两个层属协议”，“需要考虑各种可能的网络层和运输层协议”</li>
+</ul>
+</li>
+<li>现状：已成为历史</li>
+</ol>
+<h4 id="2-2-2、TCP-IP模型"><a href="#2-2-2、TCP-IP模型" class="headerlink" title="2.2.2、TCP&#x2F;IP模型"></a><strong>2.2.2、TCP&#x2F;IP模型</strong></h4><p>TCP&#x2F;IP模型（原始是四层）：</p>
+<ol>
+<li>发展：基于已存在的TCP、UDP和IP三个协议，参考OSI模型，提出TCP&#x2F;IP模型。具体分为4层，从下到上依次为<code>网络接口层，网际层，运输层，应用层</code>：<ul>
+<li>网络接口层不限定具体协议</li>
+<li>网际层限定核心协议为IP协议</li>
+<li>运输层限定核心协议为TCP或者UDP协议</li>
+<li>应用层不限定具体协议，但是所基于的运输层核心协议必为TCP或者UDP协议</li>
+</ul>
+</li>
+<li>优点（跟OSI模型比较）：<ul>
+<li>实现相较简单</li>
+</ul>
+</li>
+<li>缺点（跟OSI模型比较）：<ul>
+<li>层次划分相较不细致，比如“网络接口层不划分数据链路层和物理层”</li>
+<li>协议兼容性相较弱，比如“网际层的核心协议就是IP协议”，“运输层的核心协议就是TCP协议或者UDP协议”，“应用层协议必须基于TCP或者UDP协议”</li>
+</ul>
+</li>
+<li>现状：事实标准。虽然在组建网络时，可以用不兼容TCP&#x2F;IP模型的其他协议（可以是已存在的，甚至可以是新设计和实现的），但是完全没有必要</li>
+</ol>
+<hr>
+<p>虽然TCP&#x2F;IP四层模型是事实标准，但是在实际应用中发现仍然有“物理层”和“数据链路层”分层必要，故实际一般使用“TCP&#x2F;IP五层模型（后续叙述如无特别说明都基于该五层模型）”，从下到上依次为<code>物理层，数据链路层，网络层，运输层，应用层</code>。</p>
+<p>五层模型与层属协议示例见下表。</p>
+<table>
+<thead>
+<tr>
+<th>TCP&#x2F;IP五层模型</th>
+<th>层属协议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用层</td>
+<td>HTTP，FTP，SMTP，POP3，TELNET，DNS</td>
+</tr>
+<tr>
+<td>运输层</td>
+<td>TCP，UDP</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>IP，ICMP，IGMP，ARP，RARP</td>
+</tr>
+<tr>
+<td>数据链路层</td>
+<td>PPP，Ethernet</td>
+</tr>
+<tr>
+<td>物理层</td>
+<td>光纤，电缆，无线信道</td>
+</tr>
+</tbody></table>
+<h2 id="三、组建计算机网络的性能指标"><a href="#三、组建计算机网络的性能指标" class="headerlink" title="三、组建计算机网络的性能指标"></a><strong>三、组建计算机网络的性能指标</strong></h2><h3 id="3-1、带宽"><a href="#3-1、带宽" class="headerlink" title="3.1、带宽"></a><strong>3.1、带宽</strong></h3><p>在继续介绍之前首先介绍带宽的含义：</p>
+<ul>
+<li>原义：带宽原指频率范围，单位为赫兹（Hz）。以带宽（频率）区分后述扩展义</li>
+<li>扩展义：后由于带宽跟数据速率的紧密关系，被借用表示数据速率，单位为比特&#x2F;秒（“bit&#x2F;s”，简写为“b&#x2F;s”或者“bps”）。须知<code>Kbps，Mbps，Gbps</code>中的<code>K，M，G</code>分别表示<code>10^3，10^6，10^9</code>，而不是<code>2^10，2^20，2^30</code>。以带宽（速率）区分上述原义</li>
+</ul>
+<h4 id="3-1-1、网卡带宽"><a href="#3-1-1、网卡带宽" class="headerlink" title="3.1.1、网卡带宽"></a><strong>3.1.1、网卡带宽</strong></h4><p>表示网卡的数据处理速率，单位为“bps”。<br>日常所说的“百兆网卡”，“千兆网卡”，“万兆网卡”，表示网卡的最大数据处理速率分别为“100Mbps”，“1000Mbps”和“10000Mbps&#x3D;10Gbps”。</p>
+<h4 id="3-1-2、信道带宽"><a href="#3-1-2、信道带宽" class="headerlink" title="3.1.2、信道带宽"></a><strong>3.1.2、信道带宽</strong></h4><p>香农定理描述了特定传输媒体上的不失真信息传输速率理论极限值C，具体有公式<code>C = B * log2(1 + S/N)</code>。<br>其中：</p>
+<ul>
+<li><code>C</code>是极限的不失真信息传输速率，即理论极限不失真带宽（速率），单位为“比特&#x2F;秒（bps）”</li>
+<li><code>B</code>是信道带宽（频率），单位为“赫兹（Hz）”</li>
+<li><code>S</code>是平均信号功率，<code>N</code>是平均噪声功率，<code>S/N</code>是信噪比</li>
+</ul>
+<p>根据以上定理，假定实际不失真信息传输速率为F，即实际不失真带宽（速率），那么我们可以不断追寻合适的编码方案以期将F不断逼近C，虽然实际不可能达到，因为传输过程中信号还要受到其他一些损伤，比如“各种脉冲干扰”。</p>
+<h3 id="3-2、时延"><a href="#3-2、时延" class="headerlink" title="3.2、时延"></a><strong>3.2、时延</strong></h3><p>结合笔者理解，跟[1]中定义不完全一致。</p>
+<h4 id="3-2-1、单趟时延"><a href="#3-2-1、单趟时延" class="headerlink" title="3.2.1、单趟时延"></a><strong>3.2.1、单趟时延</strong></h4><p>单趟时延 &#x3D; 发送时延 + 传播时延 + 处理时延  + 接收时延 + 排队时延。</p>
+<p>各个时延介绍如下：</p>
+<ul>
+<li>发送时延：发送节点在发送数据时使数据块从节点进入到信道所需要的时间，也就是从数据块的第一个比特开始发送算起，到最后一个比特发送完所需的时间，有公式<code>发送时延 = 数据块长度/网卡带宽</code></li>
+<li>传播时延：信号在信道中传播一定的距离所需要的时间，有公式<code>传播时延 = 信道长度/信号在信道上的传播速率</code>，即跟数据块大小无关</li>
+<li>处理时延：数据在交换节点（比如“路由器”）进行收、转换、发等处理所需要的时间</li>
+<li>接收时延：接收节点从信道接收数据块的第一个比特开始到完成接收该数据块最后一个比特所需要的时间，有公式<code>接收时延 = 数据块长度/网卡带宽</code></li>
+<li>排队时延：整个单趟过程中各环节排队所需要时间的总和，比如“在交换节点的排队所需要时间”，“在接收节点的排队所需要时间”</li>
+</ul>
+<h4 id="3-2-2、往返时延"><a href="#3-2-2、往返时延" class="headerlink" title="3.2.2、往返时延"></a><strong>3.2.2、往返时延</strong></h4><p>往返时延（RTT）是重要的性能指标，从发送端发送数据开始，到发送端收到来自接收端的确认（接收端收到数据后便立即发送确认）。</p>
+<p>往返时延 &#x3D; 发送单趟时延 + 接收方处理时延 + 接收单趟时延。</p>
+<p>各个时延介绍如下：</p>
+<ul>
+<li>发送单趟时延：参见“3.2.1、单趟时延”</li>
+<li>接收方处理时延：接收方接收到数据块后进行处理所需要的时间</li>
+<li>接收单趟时延：参见“3.2.1、单趟时延”</li>
+</ul>
+<h2 id="四、计算机网络分类"><a href="#四、计算机网络分类" class="headerlink" title="四、计算机网络分类"></a><strong>四、计算机网络分类</strong></h2><p>可基于多种角度对计算机网络进行分类，<font color='red'>但也切忌耗费过多精力强求分类</font>。</p>
+<h3 id="4-1、基于作用范围"><a href="#4-1、基于作用范围" class="headerlink" title="4.1、基于作用范围"></a><strong>4.1、基于作用范围</strong></h3><p>基于作用范围可将计算机网络分为：局域网，广域网，城域网。</p>
+<p>说明如下：</p>
+<ul>
+<li>局域网：Local Area Network(LAN)，作用范围通常为几米到几十公里，例如一个家庭、一个企业就是最基础的局域网</li>
+<li>广域网：Wide Area Network(WAN)，作用范围通常为几十公里到几千公里</li>
+<li>城域网：Metropolitan Area Network(MAN) ，作用范围在局域网与广域网之间</li>
+</ul>
+<p>基于作用范围的分类没有太大意义，因为距离阈值人为定义，不一定能准确对照到实际，比如“有些大的局域网覆盖范围有几百公里”，“有些小城市的城域网覆盖范围只有几公里”。</p>
+<h3 id="4-2、基于网络核心部分是否允许公共接入"><a href="#4-2、基于网络核心部分是否允许公共接入" class="headerlink" title="4.2、基于网络核心部分是否允许公共接入"></a><strong>4.2、基于网络<code>核心部分</code>是否允许公共接入</strong></h3><p>基于网络<code>核心部分</code>是否允许公共接入可将网络分为：公用网和专用网。</p>
+<p>两点说明：</p>
+<ol>
+<li>计算机网络由<code>核心部分</code>和<code>边缘部分</code>构成：1）前者是网络骨干，不包括主机，为后者提供连通交换服务；2）后者包括所有主机，使用前者提供的服务进行相互通信</li>
+<li>公共接入的含义是具体的，比如“全球网络视角下，因特网<code>核心部分</code>接入是公共接入，俄罗斯国家网<code>核心部分</code>接入不是公共接入；全俄罗斯网络视角下，俄罗斯国家网<code>核心部分</code>接入是公共接入”。<font color='red'>后续如无特别说明，在全球网络视角下讨论是否为公共接入</font></li>
+</ol>
+<p>举例说明：</p>
+<ul>
+<li>因特网<code>核心部分</code>允许公共接入，故其是公用网</li>
+<li>如果有一个网络X，其用户是全球网络用户（现实中除了因特网之外不存在其他全球性网络），即<code>核心部分</code>允许公共接入，故其也是公用网</li>
+<li>俄罗斯国家网<code>核心部分</code>不允许公共接入，故其是专用网</li>
+<li>中国人民解放军军网<code>核心部分</code>不允许公共接入，故其是专用网</li>
+<li>某个家庭内部网络<code>核心部分</code>不允许公共接入，故其是专用网</li>
+</ul>
+<h3 id="4-3、基于是否为全球网络"><a href="#4-3、基于是否为全球网络" class="headerlink" title="4.3、基于是否为全球网络"></a><strong>4.3、基于是否为全球网络</strong></h3><p>基于是否为全球网络可将计算机网络分为：全球网和局域网。这里的局域网是广义的，“4.1、基于作用范围”小节中的局域网是狭义的。</p>
+<p>举例说明:</p>
+<ul>
+<li>因特网是全球网</li>
+<li>如果有一个网络X，其用户是全球网络用户（现实中除了因特网之外不存在其他全球性网络），那么其也是全球网</li>
+<li>俄罗斯国家网是广义局域网</li>
+<li>中国人民解放军军网是广义局域网</li>
+<li>某个家庭内部网络是广义局域网</li>
+</ul>
+<h3 id="4-4、基于是否为子网"><a href="#4-4、基于是否为子网" class="headerlink" title="4.4、基于是否为子网"></a><strong>4.4、基于是否为子网</strong></h3><p>基于是否为子网可将计算机网络分为：子网和整体网。<font color='red'>须知子网的定义是具体的</font>。</p>
+<p>举例说明：</p>
+<ul>
+<li>俄罗斯国家网：从自身视角是整体网；接入因特网后，从因特网视角是子网</li>
+<li>因特网：整体网</li>
+<li>企业网：从自身视角是整体网；接入因特网后，从因特网视角是子网</li>
+</ul>
+<h2 id="五、现实中的计算机网络介绍"><a href="#五、现实中的计算机网络介绍" class="headerlink" title="五、现实中的计算机网络介绍"></a><strong>五、现实中的计算机网络介绍</strong></h2><p>现实中存在各种形形色色的计算机网络，介绍常见的几种。</p>
+<table>
+<thead>
+<tr>
+<th>计算机网络</th>
+<th>含义</th>
+<th>基于作用范围</th>
+<th>基于网络<code>核心部分</code>是否允许公共接入</th>
+<th>基于是否为全球网络</th>
+<th>基于是否为子网</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>因特网（常称互联网）</td>
+<td>英文名为“Internet”，全球最大的计算机网络</td>
+<td>广域网</td>
+<td>公用网</td>
+<td>全球网</td>
+<td>整体网</td>
+</tr>
+<tr>
+<td>中国人民解放军军网</td>
+<td>解放军专用网络</td>
+<td>广域网</td>
+<td>专用网</td>
+<td>广义局域网</td>
+<td>自身视角是整体网，接入因特网后是子网</td>
+</tr>
+<tr>
+<td>俄罗斯国家网</td>
+<td>俄罗斯国家专用网络</td>
+<td>广域网</td>
+<td>专用网</td>
+<td>广义局域网</td>
+<td>自身视角是整体网，接入因特网后是子网</td>
+</tr>
+<tr>
+<td>学校网</td>
+<td>学校专用网络</td>
+<td>一般是局域网</td>
+<td>专用网</td>
+<td>广义局域网</td>
+<td>自身视角是整体网，接入因特网后是子网</td>
+</tr>
+<tr>
+<td>企业网</td>
+<td>企业专用网络</td>
+<td>一般是局域网</td>
+<td>专用网</td>
+<td>广义局域网</td>
+<td>自身视角是整体网，接入因特网后是子网</td>
+</tr>
+<tr>
+<td>家庭网</td>
+<td>家庭专用网络</td>
+<td>一般是局域网</td>
+<td>专用网</td>
+<td>广义局域网</td>
+<td>自身视角是整体网，接入因特网后是子网</td>
+</tr>
+</tbody></table>
+<p><strong>[备注]</strong> “Internet”表示因特网&#x2F;互联网，“internet”表示计算机网络&#x2F;互连网。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]《计算机网络》（第8版）<br>[2]<a target="_blank" rel="noopener" href="https://blog.csdn.net/guoweimelon/article/details/50857130">https://blog.csdn.net/guoweimelon/article/details/50857130</a><br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39647186/article/details/112309210">https://blog.csdn.net/weixin_39647186/article/details/112309210</a><br>[4]<a target="_blank" rel="noopener" href="https://blog.csdn.net/Erice_s/article/details/123099350">https://blog.csdn.net/Erice_s/article/details/123099350</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/" title="网络原理概述">https://dslztx.github.io/blog/2024/02/06/网络原理概述/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/02/06/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E4%B9%8B%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" rel="prev" title="思维导图之网络原理">
+      <i class="fa fa-chevron-left"></i> 思维导图之网络原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/02/06/%E7%89%A9%E7%90%86%E5%B1%82/" rel="next" title="物理层">
+      物理层 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2024/02/06/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/";
+    this.page.identifier = "2024/02/06/网络原理概述/";
+    this.page.title = "网络原理概述";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

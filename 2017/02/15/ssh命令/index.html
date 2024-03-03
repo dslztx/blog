@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="ssh程序是SSH Client中的客户程序，下面根据不同应用场景中ssh程序的使用来介绍ssh程序。 一、基本应用场景在本应用场景中，建立SSH连接，允许进行“用户登录，命令执行等”操作。 1.1、建立ssh连接命令在本场景中，使用ssh程序建立SSH连接的命令如下： 1ssh -l dslztx -i ~&#x2F;.ssh&#x2F;id_dsa -p 22 192.168.1.5 1.1.1、选项的含义1、“">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ssh命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="ssh程序是SSH Client中的客户程序，下面根据不同应用场景中ssh程序的使用来介绍ssh程序。 一、基本应用场景在本应用场景中，建立SSH连接，允许进行“用户登录，命令执行等”操作。 1.1、建立ssh连接命令在本场景中，使用ssh程序建立SSH连接的命令如下： 1ssh -l dslztx -i ~&#x2F;.ssh&#x2F;id_dsa -p 22 192.168.1.5 1.1.1、选项的含义1、“">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170215-0-1.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170215-0-2.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170215-0-3.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170215-0-4.jpg">
+<meta property="article:published_time" content="2017-02-15T06:04:14.000Z">
+<meta property="article:modified_time" content="2017-02-15T06:04:14.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Linux命令">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170215-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ssh命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ssh命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-02-15 14:04:14" itemprop="dateCreated datePublished" datetime="2017-02-15T14:04:14+08:00">2017-02-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/15/ssh命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ssh程序是SSH Client中的客户程序，下面根据不同应用场景中ssh程序的使用来介绍ssh程序。</p>
+<h2 id="一、基本应用场景"><a href="#一、基本应用场景" class="headerlink" title="一、基本应用场景"></a><strong>一、基本应用场景</strong></h2><p>在本应用场景中，建立SSH连接，允许进行“用户登录，命令执行等”操作。</p>
+<h3 id="1-1、建立ssh连接命令"><a href="#1-1、建立ssh连接命令" class="headerlink" title="1.1、建立ssh连接命令"></a><strong>1.1、建立ssh连接命令</strong></h3><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -l dslztx -i ~/.ssh/id_dsa -p 22 192.168.1.5</span><br></pre></td></tr></table></figure>
+<h4 id="1-1-1、选项的含义"><a href="#1-1-1、选项的含义" class="headerlink" title="1.1.1、选项的含义"></a><strong>1.1.1、选项的含义</strong></h4><p><strong>1、“-i”</strong><br>指定私钥文件<br><strong>2、“-p”</strong><br>指定SSH Server监听端口<br><strong>3、“-l”</strong><br>指定SSH连接登录用户<br><strong>4、“192.168.1.5”</strong><br>表示SSH Server所在机器的IP地址</p>
+<h4 id="1-1-2、ssh-config文件中对应的配置"><a href="#1-1-2、ssh-config文件中对应的配置" class="headerlink" title="1.1.2、ssh_config文件中对应的配置"></a><strong>1.1.2、ssh_config文件中对应的配置</strong></h4><p>以上这些参数值可在“ssh_config文件”中配置，配置后内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Host RemoteHost #指定配置匹配条件</span><br><span class="line">    HostName 192.168.1.5</span><br><span class="line">    User dslztx</span><br><span class="line">    Port 22</span><br><span class="line">    IdentityFile ~/.ssh/id_dsa</span><br></pre></td></tr></table></figure>
+<p>现在执行<code>ssh RemoteHost</code>命令，即可达到跟执行原来命令相同的效果。</p>
+<h2 id="二、SSH隧道应用场景"><a href="#二、SSH隧道应用场景" class="headerlink" title="二、SSH隧道应用场景"></a><strong>二、SSH隧道应用场景</strong></h2><p>在本应用场景中，建立SSH连接，将SSH连接作为隧道。在继续之前，首先进行以下几点说明：</p>
+<ol>
+<li>SSH Client端所在的机器称为“本地机器”，SSH Server端所在的机器称为“RemoteHost”</li>
+<li>“-l，-i，-p，域名或者ip地址”这些参数的参数值已经在“ssh_config文件”中配置</li>
+<li>根据<a href="/2017/02/15/SSH%E5%8D%8F%E8%AE%AE/" title="SSH协议">《SSH协议》</a>，ssh连接必须由SSH Client请求建立，但是一旦得以建立，数据通信请求既可由SSH Client发起，也可由SSH Server发起，即在SSH连接建立后，可由任意端发起数据通信请求</li>
+</ol>
+<p>使用SSH隧道的应用具体又可细分为4种形式，下面分别进行介绍。</p>
+<h3 id="2-1、SSH-Client端设定被监听的应用转发端口——本地转发"><a href="#2-1、SSH-Client端设定被监听的应用转发端口——本地转发" class="headerlink" title="2.1、SSH Client端设定被监听的应用转发端口——本地转发"></a><strong>2.1、SSH Client端设定被监听的应用转发端口——本地转发</strong></h3><h4 id="2-1-1、建立ssh连接命令"><a href="#2-1-1、建立ssh连接命令" class="headerlink" title="2.1.1、建立ssh连接命令"></a><strong>2.1.1、建立ssh连接命令</strong></h4><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L [bind_address:]port:host:hostport RemoteHost  </span><br></pre></td></tr></table></figure>
+<h5 id="2-1-1-1、选项的含义"><a href="#2-1-1-1、选项的含义" class="headerlink" title="2.1.1.1、选项的含义"></a><strong>2.1.1.1、选项的含义</strong></h5><p><strong>1、“port”</strong><br>本地机器的端口号，被监听的应用转发端口<br><strong>2、“host”</strong><br>当其值为“localhost”或者“127.0.0.1”时，相当于一个“相对地址”，它的绝对地址是“RemoteHost”；否则，它的绝对地址就是“host”值。（即以“RemoteHost”为参照基准）<br><strong>3、“hostport”</strong><br>“host”所表示机器上的端口号<br><strong>4、“bind_address”</strong><br>表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道。当“bind_address”值为“localhost”或“127.0.0.1”时，相当于一个相对地址，它的绝对地址是本地机器，表示只有来自自身的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值不为“localhost”或者“127.0.0.1”，而为特定的某个域名或者IP地址时，它的绝对地址就是“bind_address”值，表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值为“*”或者为空时，没有所谓的绝对地址，表示来自所有地址的对“port”端口的访问都被允许通过SSH隧道（即以“本地机器”为参照基准）</p>
+<h5 id="2-1-1-2、ssh-config文件中对应的配置"><a href="#2-1-1-2、ssh-config文件中对应的配置" class="headerlink" title="2.1.1.2、ssh_config文件中对应的配置"></a><strong>2.1.1.2、ssh_config文件中对应的配置</strong></h5><p>“[bind_address:]port:host:hostport”这些参数的参数值可以在“ssh_config文件”中配置，具体配置选项是“LocalForward”。</p>
+<h4 id="2-1-2、原理分析"><a href="#2-1-2、原理分析" class="headerlink" title="2.1.2、原理分析"></a><strong>2.1.2、原理分析</strong></h4><p>建立的SSH连接被应用作为隧道，由于SSH Client端设定被监听的应用转发端口，因此应用连接必须由本地机器上的应用程序发起建立，称为<font color='red'>本地转发</font>。<br>具体的数据流图如图1所示。</p>
+<p>图1<br><img src="https://blog.dslztx.top/imgs/20170215-0-1.jpg"></p>
+<p>有以下几点需要注意：</p>
+<ul>
+<li>执行<code>ssh -L [bind_address:]port:host:hostport RemoteHost</code>建立SSH连接隧道，设置好被监听的转发端口，转发目标地址和端口等参数</li>
+<li>应用连接由本地机器上的应用程序发起建立</li>
+<li>在应用连接由本地机器上的应用程序发起建立之后：<br>当“bind_address”为“127.0.0.1&#x2F;localhost”，“host”为“127.0.0.1&#x2F;localhost”时，数据流通道为：数据通道2——数据通道3——SSH隧道——数据通道5；当“bind_address”为“非‘127.0.0.1&#x2F;localhost’”的某个特定地址，“host”为“127.0.0.1&#x2F;localhost”时，数据流通道为：数据通道1——数据通道3——SSH隧道——数据通道5。依此类推</li>
+</ul>
+<h3 id="2-2、SSH-Server端设定被监听的应用转发端口——远端转发"><a href="#2-2、SSH-Server端设定被监听的应用转发端口——远端转发" class="headerlink" title="2.2、SSH Server端设定被监听的应用转发端口——远端转发"></a><strong>2.2、SSH Server端设定被监听的应用转发端口——远端转发</strong></h3><h4 id="2-2-1、建立ssh连接命令"><a href="#2-2-1、建立ssh连接命令" class="headerlink" title="2.2.1、建立ssh连接命令"></a><strong>2.2.1、建立ssh连接命令</strong></h4><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -R [bind_address:]port:host:hostport RemoteHost  </span><br></pre></td></tr></table></figure>
+<h5 id="2-2-1-1、选项的含义"><a href="#2-2-1-1、选项的含义" class="headerlink" title="2.2.1.1、选项的含义"></a><strong>2.2.1.1、选项的含义</strong></h5><p><strong>1、“port”</strong><br>“RemoteHost”上的端口号，被监听的应用转发端口<br><strong>2、“host”</strong><br>当“host”值为“localhost”或者“127.0.0.1”时，相当于一个“相对地址”，它的绝对地址是“本地机器”；否则，它的绝对地址就是“host”值（即以本地机器为参照基准）<br><strong>3、“hostport”</strong><br>“host”所表示机器上的端口号<br><strong>4、“bind_address”</strong><br>表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道。当“bind_address”值为“localhost”或“127.0.0.1”时，相当于一个相对地址，它的绝对地址是“RemoteHost”，表示只有来自自身的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值不为“localhost”或者“127.0.0.1”，而为特定的某个域名或者IP地址时，它的绝对地址就是“bind_address”值，表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值为“*”或者为空时，没有所谓的绝对地址，表示来自所有地址的对“port”端口的访问都被允许通过SSH隧道（即以“RemoteHost”为参照基准）</p>
+<h5 id="2-2-1-2、ssh-config文件中对应的配置"><a href="#2-2-1-2、ssh-config文件中对应的配置" class="headerlink" title="2.2.1.2、ssh_config文件中对应的配置"></a><strong>2.2.1.2、ssh_config文件中对应的配置</strong></h5><p>“[bind_address:]port:host:hostport”这些参数的参数值可以在“ssh_config文件”中配置，具体配置选项是“RemoteForward”。</p>
+<h4 id="2-2-2、原理分析"><a href="#2-2-2、原理分析" class="headerlink" title="2.2.2、原理分析"></a><strong>2.2.2、原理分析</strong></h4><p>建立的SSH连接被应用连接作为隧道，由于SSH Server端设定被监听的应用转发端口，因此应用连接由“RemoteHost”上的应用程序发起建立，称为<font color='red'>远端转发</font>。<br>（注意，SSH连接隧道由SSH Client发起建立，但是一旦得以建立SSH Client和SSH Server都可在SSH连接隧道上发起数据通信请求。因而“RemoteHost”上的应用程序发起建立应用连接的请求，进而由SSH Server在SSH连接隧道上发起相应的数据通信请求是可行的）<br>具体的数据流图如图2所示。</p>
+<p>图2<br><img src="https://blog.dslztx.top/imgs/20170215-0-2.jpg"></p>
+<p>有以下几点需要注意：</p>
+<ul>
+<li>执行<code>ssh -R [bind_address:]port:host:hostport RemoteHost</code>建立SSH连接隧道，设置好被监听的转发端口，转发目标地址和端口等参数</li>
+<li>应用连接由“RemoteHost”上的应用程序发起建立</li>
+<li>在应用连接由“RemoteHost”上的应用程序发起建立之后：<br>当“bind_address”为“127.0.0.1&#x2F;localhost”，“host”为“127.0.0.1&#x2F;localhost”时，数据流通道为：数据通道2——数据通道3——SSH隧道——数据通道5；当“bind_address”为“非‘127.0.0.1&#x2F;localhost’”的某个特定地址，“host”为“127.0.0.1&#x2F;localhost”时，数据流通道为：数据通道1——数据通道3——SSH隧道——数据通道5。依此类推</li>
+</ul>
+<h3 id="2-3、动态转发"><a href="#2-3、动态转发" class="headerlink" title="2.3、动态转发"></a><strong>2.3、动态转发</strong></h3><h4 id="2-3-1、建立ssh连接命令"><a href="#2-3-1、建立ssh连接命令" class="headerlink" title="2.3.1、建立ssh连接命令"></a><strong>2.3.1、建立ssh连接命令</strong></h4><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -D [bind_address:]port RemoteHost</span><br></pre></td></tr></table></figure>
+<h5 id="2-3-1-1、选项含义"><a href="#2-3-1-1、选项含义" class="headerlink" title="2.3.1.1、选项含义"></a><strong>2.3.1.1、选项含义</strong></h5><p><strong>1、“port”</strong><br>本地机器的端口号，被监听的动态转发端口<br><strong>2、“bind_address”</strong><br>表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道。当“bind_address”值为“localhost”或“127.0.0.1”时，相当于一个相对地址，它的绝对地址是本地机器，表示只有来自自身的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值不为“localhost”或者“127.0.0.1”，而为特定的某个域名或者IP地址时，它的绝对地址就是“bind_address”值，表示只有来自“bind_address”地址的对“port”端口的访问才被允许通过SSH隧道；当“bind_address”值为“*”或者为空时，没有所谓的绝对地址，表示来自所有地址的对“port”端口的访问都被允许通过SSH隧道（即以“本地机器”为参照基准）</p>
+<h5 id="2-3-1-2、ssh-config文件中对应的配置"><a href="#2-3-1-2、ssh-config文件中对应的配置" class="headerlink" title="2.3.1.2、ssh_config文件中对应的配置"></a><strong>2.3.1.2、ssh_config文件中对应的配置</strong></h5><p>“[bind_address:]port”这些参数的参数值可以在“ssh_config文件”中配置，具体配置选项是“DynamicForward”。</p>
+<h4 id="2-3-2、原理分析"><a href="#2-3-2、原理分析" class="headerlink" title="2.3.2、原理分析"></a><strong>2.3.2、原理分析</strong></h4><p>建立的SSH连接被应用作为隧道，由于SSH Client端设定被监听的应用动态转发端口，因此应用连接必须由本地机器上的应用程序发起建立，但是跟“本地转发”不一样的是，转发目标地址和转发目标端口都根据应用协议动态获得。这被称为<font color='red'>动态转发</font>。<br>其实在动态转发的过程中，主要应用的协议是“SOCKS4”或者“SOCKS5”，而不是“SSH”，此时SSH Client和SSH Server的身份分别是SOCKS Client和SOCKS Server。（OpenSSH默认不仅支持实现了SSH协议，还支持实现了SOCKS4和SOCKS5协议）。<br>具体的数据流图如图3所示。</p>
+<p>图3<br><img src="https://blog.dslztx.top/imgs/20170215-0-3.jpg"></p>
+<p>有以下几点需要注意：</p>
+<ul>
+<li>执行<code>ssh -D [bind_address:]port RemoteHost</code>建立SSH连接隧道，设置好被监听的转发端口等参数</li>
+<li>应用连接由本地机器上的应用程序发起建立</li>
+<li>在应用连接由本地机器上的应用程序发起建立之后：<br>当“bind_address”为“127.0.0.1&#x2F;localhost”，“转发目标地址和目标端口”为<code>http://127.0.0.1/localhost:8080</code>时，数据流通道为：数据通道2——数据通道3——SSH隧道——数据通道5；当“bind_address”为“非‘127.0.0.1&#x2F;localhost’”的某个特定地址，“转发目标地址和目标端口”为<code>http://www.youtube.com:80</code>时，数据流通道为：数据通道1——数据通道3——SSH隧道——数据通道4。依此类推</li>
+</ul>
+<h3 id="2-4、图形界面扩展应用场景"><a href="#2-4、图形界面扩展应用场景" class="headerlink" title="2.4、图形界面扩展应用场景"></a><strong>2.4、图形界面扩展应用场景</strong></h3><h4 id="2-4-1、建立ssh连接命令"><a href="#2-4-1、建立ssh连接命令" class="headerlink" title="2.4.1、建立ssh连接命令"></a><strong>2.4.1、建立ssh连接命令</strong></h4><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -X RemoteHost  </span><br></pre></td></tr></table></figure>
+<h5 id="2-4-1-1、选项含义"><a href="#2-4-1-1、选项含义" class="headerlink" title="2.4.1.1、选项含义"></a><strong>2.4.1.1、选项含义</strong></h5><p><strong>1、“-X”</strong><br>表示允许图形界面扩展</p>
+<h5 id="2-4-1-2、ssh-config文件中对应的配置"><a href="#2-4-1-2、ssh-config文件中对应的配置" class="headerlink" title="2.4.1.2、ssh_config文件中对应的配置"></a><strong>2.4.1.2、ssh_config文件中对应的配置</strong></h5><p>“-X”允许图形界面扩展，可以在“ssh_config文件”中配置，具体配置选项是“ForwardX11”。</p>
+<h4 id="2-4-2、原理分析"><a href="#2-4-2、原理分析" class="headerlink" title="2.4.2、原理分析"></a><strong>2.4.2、原理分析</strong></h4><p>建立的SSH连接被应用连接作为隧道，允许打开SSH Server所在机器上的图形界面应用程序并在SSH Client所在机器上显示，本应用场景的另外一个称呼是建立“X11”SSH连接。<br>在本场景中，X Client和X Server并没有通过X Protocol直接连接传输数据，而是通过SSH连接隧道传输数据，因而也属于SSH隧道应用范畴。<br>具体的数据流图如图4所示。</p>
+<p>图4<br><img src="https://blog.dslztx.top/imgs/20170215-0-4.jpg"></p>
+<p>有以下几点需要注意：</p>
+<ul>
+<li>SSH Client开启“-X”选项需要SSH Server的支持，SSH Server可以在“sshd_config文件”中配置是否开启支持“-X”选项。详细内容可参见“man 5 sshd_config”中关于“X11”的内容</li>
+<li>执行<code>ssh -X RemoteHost</code>建立“X11”SSH连接隧道</li>
+<li>根据“X Window System”的介绍，X Server由“DISPLAY”这个环境变量指定，在建立“X11”SSH连接的过程中，会自动配置“RemoteHost”上的“DISPLAY”环境变量，并最终使得SSH Server被作为一个虚拟的X Server。此时SSH Client被作为一个虚拟的X Client</li>
+<li>在“X11”SSH连接建立之后，即SSH连接隧道得以建立，此时由SSH Client发起打开“RemoteHost”上的图形界面应用程序的请求（必须由SSH Client发起，因为SSH Client并没有作为虚拟的X Server），接下来应用程序的图形数据从“RemoteHost”上相应的X Client传递到“RemoteHost”上的SSH Server（虚拟X Server），接着通过SSH隧道传递到本地机器上的SSH Client（虚拟X Client），最后传递给本地机器上的真实X Server。数据流通道为：数据通道2——SSH隧道——数据通道1</li>
+</ul>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><h3 id="3-1、打印日志信息"><a href="#3-1、打印日志信息" class="headerlink" title="3.1、打印日志信息"></a><strong>3.1、打印日志信息</strong></h3><p>在执行ssh命令的时候，可以加入“-v”选项，“-v”选项表示打印日志信息，这有助于我们进行调试，解决遇到的问题。最多可以加入3个“-v”选项，“-v”选项越多，表示打印的日志信息越详细。</p>
+<h3 id="3-2、端口选择原则"><a href="#3-2、端口选择原则" class="headerlink" title="3.2、端口选择原则"></a><strong>3.2、端口选择原则</strong></h3><p>不管是在本地转发，远端转发还是动态转发中，被监听的用来转发的端口的端口号必须大于1023（否则需要root权限），并且该端口不被其他程序所占用。</p>
+<h3 id="3-3、关于在“本地转发，远端转发，动态转发”中提及到的“-bind-address-port”的几点注意事项"><a href="#3-3、关于在“本地转发，远端转发，动态转发”中提及到的“-bind-address-port”的几点注意事项" class="headerlink" title="3.3、关于在“本地转发，远端转发，动态转发”中提及到的“[bind_address:]port”的几点注意事项"></a><strong>3.3、关于在“本地转发，远端转发，动态转发”中提及到的“[bind_address:]port”的几点注意事项</strong></h3><p>1、“bind_address”值为“*”或者“为空”中的“为空”，是指这样的形式“:port”，而不是这样的形式“port”<br>2、在“ssh_config文件”（在远端转发中，相应的是“sshd_config文件”）中可以配置“GatewayPorts”参数值。当该值为“yes”时，“port”等价于“*:port”；当该值为“no”时，“port”等价于“localhost:port”<br>3、在执行ssh命令时，加入“-g”选项，等价于“*:port”的形式<br>4、为了更好的可读性和更精准的定义，“bind_address”还是显式配置比较好</p>
+<br/>
+参考文献：
+[1]man ssh
+[2]http://docstore.mik.ua/orelly/networking_2ndEd/ssh/ch09_03.htm
+[3]http://blog.csdn.net/dslztx/article/details/46654383
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/" title="ssh命令">https://dslztx.github.io/blog/2017/02/15/ssh命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Linux%E5%91%BD%E4%BB%A4/" rel="tag"># Linux命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/02/15/ssh-config%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" rel="prev" title="ssh_config配置文件">
+      <i class="fa fa-chevron-left"></i> ssh_config配置文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/02/15/SSH%E5%8D%8F%E8%AE%AE/" rel="next" title="SSH协议">
+      SSH协议 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2017/02/15/ssh命令/";
+    this.page.title = "ssh命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

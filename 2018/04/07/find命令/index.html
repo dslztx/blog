@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、常用用法1find path [-maxdepth N] test 二、含义与选项2.1、含义在指定路径下，找到符合条件的文件和目录。 2.2、选项“path”：表示查找范围的路径。“-maxdepth N”：表示查找的最深深度为N层。“test”：需要满足的条件。 三、常用的test3.1、关于文件时间的几个test介绍关于文件时间的几个test，见表1。 表1    test 说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="find命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、常用用法1find path [-maxdepth N] test 二、含义与选项2.1、含义在指定路径下，找到符合条件的文件和目录。 2.2、选项“path”：表示查找范围的路径。“-maxdepth N”：表示查找的最深深度为N层。“test”：需要满足的条件。 三、常用的test3.1、关于文件时间的几个test介绍关于文件时间的几个test，见表1。 表1    test 说明">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-04-07T02:50:10.000Z">
+<meta property="article:modified_time" content="2018-04-07T02:50:10.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>find命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          find命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-07 10:50:10" itemprop="dateCreated datePublished" datetime="2018-04-07T10:50:10+08:00">2018-04-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/07/find命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find path [-maxdepth N] test</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>在指定路径下，找到符合条件的文件和目录。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“path”：表示查找范围的路径。<br>“-maxdepth N”：表示查找的最深深度为N层。<br>“test”：需要满足的条件。</p>
+<h2 id="三、常用的test"><a href="#三、常用的test" class="headerlink" title="三、常用的test"></a><strong>三、常用的test</strong></h2><h3 id="3-1、关于文件时间的几个test"><a href="#3-1、关于文件时间的几个test" class="headerlink" title="3.1、关于文件时间的几个test"></a><strong>3.1、关于文件时间的几个test</strong></h3><p>介绍关于文件时间的几个test，见表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>test</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-amin n</td>
+<td>以最后访问文件block节点中数据的时间为判断依据，以多少个分钟为单位</td>
+</tr>
+<tr>
+<td>-atime n</td>
+<td>以最后访问文件block节点中数据的时间为判断依据，以多少个24小时为单位</td>
+</tr>
+<tr>
+<td>-cmin n</td>
+<td>以最后修改文件inode节点中数据的时间为判断依据，以多少个分钟为单位</td>
+</tr>
+<tr>
+<td>-ctime n</td>
+<td>以最后修改文件inode节点中数据的时间为判断依据，以多少个24小时为单位</td>
+</tr>
+<tr>
+<td>-mmin n</td>
+<td>以最后修改文件block节点中数据的时间为判断依据，以多少个分钟为单位</td>
+</tr>
+<tr>
+<td>-mtime n</td>
+<td>以最后修改文件block节点中数据的时间为判断依据，以多少个24小时为单位</td>
+</tr>
+</tbody></table>
+<p><strong>一点说明：</strong><br>1、在以上6个选项中，数字“n”有3种形式，分别是：n，+n，-n</p>
+<p>为了更加透彻完整地理解，可以查看FindUtils包中的“find命令”源代码，经过查看<a target="_blank" rel="noopener" href="http://download.csdn.net/detail/dslztx/8789297">源代码</a>（主要是“pred.c”文件中的<code>pred_timewindow</code>函数），可以归纳得到如下结论。<br>在以下描述中，系统当前时间（NowTime）和文件相应维度的时间（FileTime）都表示成以秒为单位；在以“多少个分钟”为单位的选项中，<code>UNIT=60</code>（1分钟有60秒），在以“多少个24小时”为单位的选项中，<code>UNIT=24*60*3600</code>（24小时有24*60*3600秒）；加了“-daystart”选项后，NowTime就变为当日午夜时间。</p>
+<h4 id="3-1-1、以“多少个分钟”为单位的选项"><a href="#3-1-1、以“多少个分钟”为单位的选项" class="headerlink" title="3.1.1、以“多少个分钟”为单位的选项"></a><strong>3.1.1、以“多少个分钟”为单位的选项</strong></h4><p>“n”和“-n”的情况具有一定的重复区域，即某个时刻“n”能够找到某个文件，“-n”也能够找到相同的文件。<br>1、第一种情况“n”为“n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &gt;= (n-1)*UNIT &amp;&amp; NowTime-FileTime &lt; n*UNIT</span><br></pre></td></tr></table></figure>
+<p>2、第二种情况“n”为“+n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &gt; n*UNIT</span><br></pre></td></tr></table></figure>
+<p>3、第三种情况“n”为“-n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &lt; n*UNIT</span><br></pre></td></tr></table></figure>
+<h4 id="3-1-2、以“多少个24小时”为单位的选项"><a href="#3-1-2、以“多少个24小时”为单位的选项" class="headerlink" title="3.1.2、以“多少个24小时”为单位的选项"></a><strong>3.1.2、以“多少个24小时”为单位的选项</strong></h4><p>1、第一种情况“n”为“n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &gt;= n*UNIT &amp;&amp; NowTime-FileTime &lt; (n+1)*UNIT</span><br></pre></td></tr></table></figure>
+<p>2、第二种情况“n”为“+n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &gt; (n+1)*UNIT</span><br></pre></td></tr></table></figure>
+<p>3、第三种情况“n”为“-n”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NowTime-FileTime &lt; n*UNIT</span><br></pre></td></tr></table></figure>
+<p>注意，这里没有“n+1”，避免了“n”和“-n”情况的重复区域。</p>
+<h4 id="3-1-3、举例说明"><a href="#3-1-3、举例说明" class="headerlink" title="3.1.3、举例说明"></a><strong>3.1.3、举例说明</strong></h4><p>假设系统当前时间为<code>2015-06-09 13:35:50</code>。<br><strong>1、例子1</strong><br>那么<code>find . -amin 10</code>命令，查找的文件的“atime”范围：<code>2015-06-09 13:25:51 -- 2015-06-09 13:26:50</code>。<br><strong>2、例子2</strong><br>那么<code>find . -amin -10</code>命令，查找的文件的“atime”范围：<code>2015-06-09 &gt; 13:25:50</code>（因此，<code>2015-06-09 13:26:30</code>既能通过<code>-amin 10</code>得到，也能通过<code>-amin -10</code>得到）。<br><strong>3、例子3</strong><br>那么<code>find . -amin +10</code>命令，查找的文件的“atime”范围：<code>2015-06-09 &lt; 13:25:50</code>。<br><strong>4、例子4</strong><br>那么<code>find . -atime 5</code>命令，查找的文件的“atime”范围：<code>2015-06-03 13:35:51 -- 2015-06-04 13:35:50</code>。<br><strong>5、例子5</strong><br>那么<code>find . -atime -5</code>命令，查找的文件的“atime”范围：<code>2015-06-04 &gt; 13:35:50</code>。<br><strong>6、例子6</strong><br>那么<code>find . -atime +5</code>命令，查找的文件的“atime”范围：<code>2015-06-03 &lt; 13:35:50</code>。</p>
+<h3 id="3-2、关于文件权限的test"><a href="#3-2、关于文件权限的test" class="headerlink" title="3.2、关于文件权限的test"></a><strong>3.2、关于文件权限的test</strong></h3><p>介绍如表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>test</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-perm mode</td>
+<td>目标文件的权限跟“mode”一致</td>
+</tr>
+<tr>
+<td>-perm -mode</td>
+<td>目标文件的权限包含了“mode”</td>
+</tr>
+<tr>
+<td>-perm &#x2F;mode</td>
+<td>目标文件的权限跟“mode”有交集</td>
+</tr>
+</tbody></table>
+<h3 id="3-3、关于文件类型的test"><a href="#3-3、关于文件类型的test" class="headerlink" title="3.3、关于文件类型的test"></a><strong>3.3、关于文件类型的test</strong></h3><p>关于文件类型的test为“-type c”，其中“c”表示文件类型特征码，对于文件类型特征码的介绍如表3所示。</p>
+<p>表3</p>
+<table>
+<thead>
+<tr>
+<th>文件类型特征码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>b</td>
+<td>block (buffered) special</td>
+</tr>
+<tr>
+<td>c</td>
+<td>character (unbuffered) special</td>
+</tr>
+<tr>
+<td>d</td>
+<td>directory</td>
+</tr>
+<tr>
+<td>p</td>
+<td>named pipe (FIFO)</td>
+</tr>
+<tr>
+<td>f</td>
+<td>regular file</td>
+</tr>
+<tr>
+<td>l</td>
+<td>symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken. If you want to search for symbolic links when -L is in effect, use -xtype</td>
+</tr>
+<tr>
+<td>s</td>
+<td>socket</td>
+</tr>
+<tr>
+<td>D</td>
+<td>door (Solaris)</td>
+</tr>
+</tbody></table>
+<h3 id="3-4、关于文件所属用户的test"><a href="#3-4、关于文件所属用户的test" class="headerlink" title="3.4、关于文件所属用户的test"></a><strong>3.4、关于文件所属用户的test</strong></h3><p>“-user uname”：表示属于“uname”这个用户的文件，“uname”可以是“用户名称”，也可以是“用户ID，即UID”。</p>
+<h3 id="3-5、关于文件所属用户组的test"><a href="#3-5、关于文件所属用户组的test" class="headerlink" title="3.5、关于文件所属用户组的test"></a><strong>3.5、关于文件所属用户组的test</strong></h3><p>“-group gname”：表示属于“gname”这个用户组的文件，“gname”可以是“用户组名称”，也可以是“用户组ID，即GID”。</p>
+<h3 id="3-6、关于文件名称的test"><a href="#3-6、关于文件名称的test" class="headerlink" title="3.6、关于文件名称的test"></a><strong>3.6、关于文件名称的test</strong></h3><p>“-name ‘pattern’”：文件名（去掉前导目录）匹配“pattern”这个通配符模式表达式的文件。使用的通配符模式表达式是一个特定的变种，但主要的语法还是可以参考<a href="/2017/05/10/Linux-Shell%E9%80%9A%E9%85%8D%E7%AC%A6%E6%A8%A1%E5%BC%8F%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="Linux Shell通配符模式表达式">《Linux Shell通配符模式表达式》</a>。有一点跟Linux Shell通配符模式表达式不一样，本通配符模式表达式变种中，“通配符”，“字符类”，“字符范围”可匹配文件名的开头“.”字符，比如有文件“.a.txt”，<code>find . -name &#39;*.txt&#39;</code>命令，<code>find . -name &#39;?a.txt&#39;</code>命令，<code>find . -name &#39;[.]a.txt&#39;</code>命令，<code>find . -name &#39;[!a]a.txt&#39;</code>命令，<code>find . -name &#39;[!a-z]a.txt&#39;</code>命令都可匹配到该文件。</p>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><p>“find”命令的完整定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find [-H] [-L] [-P] [-D debugopts] [-Olevel] [path...] [expression]</span><br></pre></td></tr></table></figure>
+<p>1、我们在使用“find”命令的时候，一般不解析遇到的软符号链接文件，如果解析的话很容易造成递归死循环，一般也不使用调试和优化选项，因此“-H”，“-L”，“-P”，“-D”，“-O”这些选项不使用<br>2、“expression”包括了“options”，“tests”，“actions”，以及它们之间的“operators”这四个部分。“options”一般没有什么用（除了“-maxdepth”这个“option”），“actions”比较复杂，因而我们可以选择先使用简单的“find”命令，找出符合条件的文件，然后再通过管道或者脚本的方式进行操作，作为连接用的“operators”也就不被使用；只剩下“tests”<br>3、因此，最终“-H”，“-L”，“-P”，“-D”，“-O”，“expression”中的“options”，“actions”，“operators”都不需要</p>
+<h2 id="五、例子"><a href="#五、例子" class="headerlink" title="五、例子"></a><strong>五、例子</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># block节点修改时间60分钟以内</span><br><span class="line">find . -mmin -60</span><br><span class="line"></span><br><span class="line"># block节点修改时间60分钟以内，且文件名形如“a*.md”</span><br><span class="line">find . -name &#x27;a*.md&#x27; -mmin -60</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]man find
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/" title="find命令">https://dslztx.github.io/blog/2018/04/07/find命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2018/04/05/%E5%A4%9A%E6%80%81/" rel="prev" title="多态">
+      <i class="fa fa-chevron-left"></i> 多态
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2018/04/11/Java%E5%B8%B8%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93/" rel="next" title="Java常用第三方库">
+      Java常用第三方库 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2018/04/07/find%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2018/04/07/find命令/";
+    this.page.title = "find命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

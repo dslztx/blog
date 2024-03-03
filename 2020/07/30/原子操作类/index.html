@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍java.util.concurrent.atomic包下的原子操作类，使用的JDK是JDK 8。 一、前导知识为理解本文，需要的前导知识列表如下：  volatile变量的内存语义，参见《synchronized-volatile-final关键词》 Unsafe类中的一些方法，参见《Unsafe类》，具体有： 3个CAS操作方法（compareAndSwapInt，compareAnd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原子操作类">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍java.util.concurrent.atomic包下的原子操作类，使用的JDK是JDK 8。 一、前导知识为理解本文，需要的前导知识列表如下：  volatile变量的内存语义，参见《synchronized-volatile-final关键词》 Unsafe类中的一些方法，参见《Unsafe类》，具体有： 3个CAS操作方法（compareAndSwapInt，compareAnd">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-30T14:15:34.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.176Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>原子操作类 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          原子操作类
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-30 22:15:34" itemprop="dateCreated datePublished" datetime="2020-07-30T22:15:34+08:00">2020-07-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/30/原子操作类/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍<code>java.util.concurrent.atomic</code>包下的原子操作类，使用的JDK是JDK 8。</p>
+<h2 id="一、前导知识"><a href="#一、前导知识" class="headerlink" title="一、前导知识"></a><strong>一、前导知识</strong></h2><p>为理解本文，需要的前导知识列表如下：</p>
+<ul>
+<li>volatile变量的内存语义，参见<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a></li>
+<li>Unsafe类中的一些方法，参见<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>，具体有：<ul>
+<li>3个CAS操作方法（<code>compareAndSwapInt</code>，<code>compareAndSwapLong</code>和<code>compareAndSwapObject</code>）</li>
+<li>9个<code>put*Volatile</code>方法和9个<code>get*Volatile</code>方法</li>
+<li><code>putOrderedInt/putOrderedLong/putOrderedObject</code>方法</li>
+</ul>
+</li>
+<li>原子操作与锁，参见<a href="/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/" title="原子操作与锁">《原子操作与锁》</a></li>
+<li>final关键词内存可见语义，参见<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a></li>
+</ul>
+<h2 id="二、java-util-concurrent-atomic包下的原子操作类"><a href="#二、java-util-concurrent-atomic包下的原子操作类" class="headerlink" title="二、java.util.concurrent.atomic包下的原子操作类"></a><strong>二、<code>java.util.concurrent.atomic</code>包下的原子操作类</strong></h2><p>可分成4类：</p>
+<ul>
+<li>基本类型或者引用类型原子修改操作类</li>
+<li>数组元素原子修改操作类</li>
+<li>对象字段原子修改操作类</li>
+<li>原子计数&#x2F;累加操作类</li>
+</ul>
+<h3 id="2-1、基本类型或者引用类型原子修改操作类"><a href="#2-1、基本类型或者引用类型原子修改操作类" class="headerlink" title="2.1、基本类型或者引用类型原子修改操作类"></a><strong>2.1、基本类型或者引用类型原子修改操作类</strong></h3><p>一共有6个类，可分为两类：</p>
+<ul>
+<li>第一类：AtomicInteger，AtomicLong，AtomicReference，AtomicBoolean。我们知道Java数据类型可分为“基本类型（boolean，byte，char，short，int，float，long，double）”和“引用类型”，在Unsafe类下有3个CAS操作方法（<code>compareAndSwapInt</code>，<code>compareAndSwapLong</code>和<code>compareAndSwapObject</code>），直接对应3个原子修改操作类，另外通过一定设计（以int型的“1|0”分别代表boolean型的“true|false”）获得对应于“boolean”基本类型的原子修改操作类<code>AtomicBoolean</code></li>
+<li>第二类：AtomicStampedReference和AtomicMarkableReference。这两个类被设计用来解决CAS操作的ABA问题</li>
+</ul>
+<h4 id="2-1-1、第一类"><a href="#2-1-1、第一类" class="headerlink" title="2.1.1、第一类"></a><strong>2.1.1、第一类</strong></h4><p>AtomicInteger，AtomicLong，AtomicReference，AtomicBoolean这4个类的实现大同小异，接下来以AtomicInteger类为例进行说明。</p>
+<p>AtomicInteger有两个成员变量：</p>
+<ul>
+<li>实例成员变量value，核心操作变量</li>
+<li>类成员变量valueOffset，它保存了AtomicInteger类实例对象的内存起始地址到其内value变量内存起始地址的偏移值，之所以需要这个偏移值是因为所涉及到的几个Unsafe类下方法是以这样的方式去操作value变量的内存</li>
+</ul>
+<p>在类中比较重要的两个方法是<code>addAndGet</code>和<code>lazySet</code>。<br><strong>1、addAndGet(int delta)</strong><br>AtomicInteger类中的<code>addAndGet(int delta)</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">addAndGet</span><span class="params">(<span class="type">int</span> delta)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> unsafe.getAndAddInt(<span class="built_in">this</span>, valueOffset, delta) + delta;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Unsafe类中的<code>getAndAddInt(Object var1, long var2, int var4)</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">getAndAddInt</span><span class="params">(Object var1, <span class="type">long</span> var2, <span class="type">int</span> var4)</span> &#123;</span><br><span class="line">    <span class="type">int</span> var5;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        var5 = <span class="built_in">this</span>.getIntVolatile(var1, var2);</span><br><span class="line">    &#125; <span class="keyword">while</span>(!<span class="built_in">this</span>.compareAndSwapInt(var1, var2, var5, var5 + var4));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> var5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结合<code>getIntVolatile方法具有volatile变量内存语义</code>和<code>compareAndSwapInt方法具有voltile变量内存语义</code>的前导知识，可知正确实现“增加且返回操作”的原子化。</p>
+<br/>
+
+<p>以上是JDK 8版本的实现，接下来对比JDK 6版本的实现。<br>JDK 6中，AtomicInteger类中的<code>addAndGet(int delta)</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">addAndGet</span><span class="params">(<span class="type">int</span> delta)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">current</span> <span class="operator">=</span> get();</span><br><span class="line">        <span class="type">int</span> <span class="variable">next</span> <span class="operator">=</span> current + delta;</span><br><span class="line">        <span class="keyword">if</span> (compareAndSet(current, next))</span><br><span class="line">            <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JDK 6中，AtomicInteger类中的<code>get()</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">get</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两者最大的不同之处在于：具有volatile变量读语义限制地读取value变量，虽然最终等价，但是使用的方式不同——JDK 8使用<code>getIntVolatile</code>方法，JDK 6直接返回value变量，而该变量本就由volatile修饰。</p>
+<p><strong>2、lazySet(int newValue)</strong><br>基于Unsafe类下的<code>putOrderedInt</code>方法实现。根据<code>Unsafe类下putOrderedInt/putOrderedLong/putOrderedObject方法的含义</code>前导知识，我们知道<code>Unsafe.putOrderedInt(Object var1, long var2, int var4)</code>介于“普通变量写语义”和“volatile变量写语义”之间，虽然不具有<code>volatile变量写语义</code>，但是在有些场景中能够获得很大的性能提升，比如“大量写之后，再有一个读，写和读之间的可见性确保由其他机制提供，例如‘synchronized内存语义’，‘volatile内存语义’等”。</p>
+<h4 id="2-1-2、第二类"><a href="#2-1-2、第二类" class="headerlink" title="2.1.2、第二类"></a><strong>2.1.2、第二类</strong></h4><p>我们知道CAS原子操作存在ABA问题，解决ABA问题的常见方案是增加一个版本号，在<code>java.util.concurrent.atomic</code>包下有两个类用于解决这个问题：</p>
+<ul>
+<li>AtomicMarkableReference，引入一个boolean类型的标记位，作为简化形式的版本号，也即只有“true”和“false”两个版本号，它只能解决偶数ABA问题，而不能解决奇数ABA问题，比如“A-B-C-A，假定标记位的变化为‘true-false-true-false’，此时(A,false)并非预期的(A,true)，故修改尝试会失败；A-B-A，假定标记位的变化为‘true-false-true’，此时(A,true)为预期的(A,true)，故修改尝试会成功”</li>
+<li>AtomicStampedReference，引入一个int类型的版本号，正统彻底的解决方案，既能解决偶数ABA问题，也能解决奇数ABA问题</li>
+</ul>
+<p>接下来就主要介绍AtomicStampedReference类。</p>
+<p>首先介绍封装<code>引用变量reference</code>和<code>版本号变量stamp</code>的内部类Pair，它们都由final修饰且都在构造方法中赋值，显而易见满足了<code>final关键词内存可见语义规则</code>的条件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Pair</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">final</span> T reference;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> stamp;</span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Pair</span><span class="params">(T reference, <span class="type">int</span> stamp)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.reference = reference;</span><br><span class="line">        <span class="built_in">this</span>.stamp = stamp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> &lt;T&gt; Pair&lt;T&gt; <span class="title function_">of</span><span class="params">(T reference, <span class="type">int</span> stamp)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Pair</span>&lt;T&gt;(reference, stamp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后介绍<code>compareAndSet(V expectedReference, V newReference, int expectedStamp, int newStamp)</code>这个核心方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">compareAndSet</span><span class="params">(V expectedReference, V newReference, <span class="type">int</span> expectedStamp, <span class="type">int</span> newStamp)</span> &#123;</span><br><span class="line">    AtomicStampedReference.Pair&lt;V&gt; current = pair;</span><br><span class="line">    <span class="keyword">return</span> expectedReference == current.reference &amp;&amp; expectedStamp == current.stamp</span><br><span class="line">        &amp;&amp; ((newReference == current.reference &amp;&amp; newStamp == current.stamp)</span><br><span class="line">            || casPair(current, AtomicStampedReference.Pair.of(newReference, newStamp)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述方法的语义是：只有当“旧值”和“旧版本号”都匹配时，才进行“新值”和“新版本号”的更新，其中<code>(newReference == current.reference &amp;&amp; newStamp == current.stamp)</code>逻辑表示在“旧值”和“新值”，“旧版本号”和“新版本号”都相同的情形下，无需做实际的更新操作，从而避免无必要的CAS原子操作。</p>
+<h3 id="2-2、数组元素原子修改操作类"><a href="#2-2、数组元素原子修改操作类" class="headerlink" title="2.2、数组元素原子修改操作类"></a><strong>2.2、数组元素原子修改操作类</strong></h3><p>包括3个类：AtomicIntegerArray，AtomicLongArray，AtomicReferenceArray。这3个类的实现大同小异，接下来以AtomicIntegerArray类为例进行说明。</p>
+<p>AtomicIntegerArray有3个成员变量：</p>
+<ul>
+<li>实例成员变量int[] array，核心操作变量。由final修饰，在构造方法中赋值，显而易见满足了<code>final关键词内存可见语义规则</code>的条件</li>
+<li>类成员变量base，这里保存了array数组引用对象“内存起始地址”与“数组对象内元素内存起始地址”的偏移量，即数组引用对象对象头的字节数。它的计算方法是<code>Unsafe.arrayBaseOffset(int[].class)</code>。需要注意的是，是否开启指针压缩会影响该值</li>
+<li>类成员变量shift，它的值为2，<code>2^2=4</code>，4是int型所占据的字节大小。它的计算方法是<code>scale=Unsafe.arrayIndexScale(int[].class)</code>和<code>shift=31 - Integer.numberOfLeadingZeros(scale)</code>：前者确定int型所占据的字节大小，后者计算以2为底的<code>log(4)</code>对数值</li>
+</ul>
+<p>通过阅读源码可以发现，对数组中某个元素进行原子修改操作的“路径”是：</p>
+<ol>
+<li>先定位该数组元素的内存地址</li>
+<li>再调用Unsafe类中的操作方法，比如<code>compareAndSwapInt</code>，<code>putIntVolatile</code>等。<font color='red'>本步实现与“基本类型或者引用类型原子修改操作类”的实现并无二致；同时佐证了Unsafe类下CAS方法，<code>put*Volatile</code>和<code>get*Volatile</code>方法的volatile变量内存语义并不要求变量是由volatile修饰的，因为这里的数组元素并非由volatile修饰的</font></li>
+</ol>
+<p>另外有一点值得说明的是：在AtomicReferenceArray类中有一个独有的<code>readObject()</code>方法（与“AtomicIntegerArray”和“AtomicLongArray”类相比），它是为了确保在反序列化时传入的数组类型的确是Object[]类型，而非其他虽然不会报错的数组类型，比如“String[]”，这是作为一个安全补丁而引入的[1]；而在AtomicIntegerArray&#x2F;AtomicLongArray类中，如果传入的数组类型不是int[]&#x2F;long[]则会立即报错。</p>
+<h3 id="2-3、对象字段原子修改操作类"><a href="#2-3、对象字段原子修改操作类" class="headerlink" title="2.3、对象字段原子修改操作类"></a><strong>2.3、对象字段原子修改操作类</strong></h3><p>包括3个类：AtomicIntegerFieldUpdater，AtomicLongFieldUpdater，AtomicReferenceFieldUpdater。这3个类的实现大同小异，接下来以AtomicIntegerFieldUpdater类为例进行说明。</p>
+<p>通过阅读源码可以发现，对对象中某个字段进行原子修改操作的“路径”是：</p>
+<ol>
+<li>先定位对象中该字段的内存地址</li>
+<li>再调用Unsafe类中的操作方法，比如<code>compareAndSwapInt</code>，<code>putIntVolatile</code>等</li>
+</ol>
+<p>这里有两点需要说明：</p>
+<ul>
+<li>在这个使用场景中，字段的操作入口不只限于AtomicIntegerFieldUpdater类，故当混杂其他操作入口时，不能保证所涉及字段操作的有序性、可见性和原子性。比如“对于一个字段A，一处使用AtomicIntegerFieldUpdater类实例进行修改，另外一处直接进行修改”</li>
+<li>在AtomicIntegerFieldUpdater类的JavaDoc中要求所操作字段是由volatile修饰的，而且构造方法也直接作了相应的限定，但其实使用Unsafe类下CAS方法，<code>put*Volatile</code>和<code>get*Volatile</code>方法获得volatile变量内存语义并不要求变量是由volatile修饰的</li>
+</ul>
+<h3 id="2-4、原子计数-累加操作类"><a href="#2-4、原子计数-累加操作类" class="headerlink" title="2.4、原子计数&#x2F;累加操作类"></a><strong>2.4、原子计数&#x2F;累加操作类</strong></h3><p>包括5个类：Striped64，LongAdder，LongAccumulator，DoubleAdder和DoubleAccumulator。<br>Striped64是父类，LongAdder&#x2F;DoubleAdder分别是(LongAdder，LongAccumulator)&#x2F;(DoubleAdder，DoubleAccumulator)系列的代表类，故接下来介绍“Striped64”，“LongAdder”和“DoubleAdder”这3个类。</p>
+<h4 id="2-4-1、Striped64"><a href="#2-4-1、Striped64" class="headerlink" title="2.4.1、Striped64"></a><strong>2.4.1、Striped64</strong></h4><p>基本原理是：通过两处进行计数&#x2F;累加，一处是使用base变量进行基本计数&#x2F;累加，另外一处是通过cells数组进行多线程分段计数&#x2F;累加。</p>
+<p>核心方法是<code>longAccumulate</code>和<code>doubleAccumulate</code>，两者类似，以<code>longAccumulate</code>为例进行说明。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">longAccumulate</span><span class="params">(<span class="type">long</span> x, LongBinaryOperator fn, <span class="type">boolean</span> wasUncontended)</span> &#123;</span><br><span class="line">    <span class="type">int</span> h;</span><br><span class="line">    <span class="keyword">if</span> ((h = getProbe()) == <span class="number">0</span>) &#123;</span><br><span class="line">        ThreadLocalRandom.current(); <span class="comment">// force initialization</span></span><br><span class="line">        h = getProbe();</span><br><span class="line">        wasUncontended = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">collide</span> <span class="operator">=</span> <span class="literal">false</span>; <span class="comment">// True if last slot nonempty</span></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        Cell[] as;</span><br><span class="line">        Cell a;</span><br><span class="line">        <span class="type">int</span> n;</span><br><span class="line">        <span class="type">long</span> v;</span><br><span class="line">        <span class="keyword">if</span> ((as = cells) != <span class="literal">null</span> &amp;&amp; (n = as.length) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((a = as[(n - <span class="number">1</span>) &amp; h]) == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cellsBusy == <span class="number">0</span>) &#123; <span class="comment">// Try to attach new Cell</span></span><br><span class="line">                    <span class="type">Cell</span> <span class="variable">r</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cell</span>(x); <span class="comment">// Optimistically create</span></span><br><span class="line">                    <span class="keyword">if</span> (cellsBusy == <span class="number">0</span> &amp;&amp; casCellsBusy()) &#123;</span><br><span class="line">                        <span class="type">boolean</span> <span class="variable">created</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">                        <span class="keyword">try</span> &#123; <span class="comment">// Recheck under lock</span></span><br><span class="line">                            Cell[] rs;</span><br><span class="line">                            <span class="type">int</span> m, j;</span><br><span class="line">                            <span class="keyword">if</span> ((rs = cells) != <span class="literal">null</span> &amp;&amp; (m = rs.length) &gt; <span class="number">0</span> &amp;&amp; rs[j = (m - <span class="number">1</span>) &amp; h] == <span class="literal">null</span>) &#123;</span><br><span class="line">                                rs[j] = r;</span><br><span class="line">                                created = <span class="literal">true</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                            cellsBusy = <span class="number">0</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">if</span> (created)</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        <span class="keyword">continue</span>; <span class="comment">// Slot is now non-empty</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                collide = <span class="literal">false</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!wasUncontended) <span class="comment">// CAS already known to fail</span></span><br><span class="line">                wasUncontended = <span class="literal">true</span>; <span class="comment">// Continue after rehash</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (a.cas(v = a.value, ((fn == <span class="literal">null</span>) ? v + x : fn.applyAsLong(v, x))))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (n &gt;= NCPU || cells != as)</span><br><span class="line">                collide = <span class="literal">false</span>; <span class="comment">// At max size or stale</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (!collide)</span><br><span class="line">                collide = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (cellsBusy == <span class="number">0</span> &amp;&amp; casCellsBusy()) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (cells == as) &#123; <span class="comment">// Expand table unless stale</span></span><br><span class="line">                        Cell[] rs = <span class="keyword">new</span> <span class="title class_">Cell</span>[n &lt;&lt; <span class="number">1</span>];</span><br><span class="line">                        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; ++i)</span><br><span class="line">                            rs[i] = as[i];</span><br><span class="line">                        cells = rs;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    cellsBusy = <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                collide = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">continue</span>; <span class="comment">// Retry with expanded table</span></span><br><span class="line">            &#125;</span><br><span class="line">            h = advanceProbe(h);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cellsBusy == <span class="number">0</span> &amp;&amp; cells == as &amp;&amp; casCellsBusy()) &#123;</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">init</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">try</span> &#123; <span class="comment">// Initialize table</span></span><br><span class="line">                <span class="keyword">if</span> (cells == as) &#123;</span><br><span class="line">                    Cell[] rs = <span class="keyword">new</span> <span class="title class_">Cell</span>[<span class="number">2</span>];</span><br><span class="line">                    rs[h &amp; <span class="number">1</span>] = <span class="keyword">new</span> <span class="title class_">Cell</span>(x);</span><br><span class="line">                    cells = rs;</span><br><span class="line">                    init = <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                cellsBusy = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (init)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (casBase(v = base, ((fn == <span class="literal">null</span>) ? v + x : fn.applyAsLong(v, x))))</span><br><span class="line">            <span class="keyword">break</span>; <span class="comment">// Fall back on using base</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述方法的主体流程是十分清晰的，就是“通过两处进行计数&#x2F;累加”，但由于需要考虑各种并发情形，且为无锁编程实现方案（使用CAS自旋锁），因此相对来说理解起来较为费劲，牢记“多线程环境存在各种并发可能，关键操作通过CAS方法进行”这点可帮助理解。</p>
+<p>接下来介绍方法中几个关键变量的含义：</p>
+<ul>
+<li><code>cellsBusy</code>变量用作锁用途，<code>cellsBusy=0</code>时表示未锁住态，<code>cellsBusy=1</code>时表示锁住态，使用CAS方法操作该变量</li>
+<li><code>wasUncontended</code>变量，用于一个小性能优化，当其值为false时，表示在调用该方法前已经失败执行<code>a.cas(v = a.value, ((fn == null) ? v + x : fn.applyAsLong(v, x)))</code>的等价语句，故可不执行后续最临近一次的<code>a.cas(v = a.value, ((fn == null) ? v + x : fn.applyAsLong(v, x)))</code>语句</li>
+<li>当<code>collide</code>变量的值为true的时候，表示允许扩展<code>cells</code>数组</li>
+</ul>
+<h4 id="2-4-2、LongAdder"><a href="#2-4-2、LongAdder" class="headerlink" title="2.4.2、LongAdder"></a><strong>2.4.2、LongAdder</strong></h4><p>Long类型的计数类，核心方法在父类Striped64中，本身主要提供获取计数结果&#x2F;重置计数的方法，需要注意的是，<font color='red'>它不是线程安全的计数数据结构</font>，原因参见如下源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">long</span> <span class="title function_">sumThenReset</span><span class="params">()</span> &#123;</span><br><span class="line">    Cell[] as = cells; </span><br><span class="line">    Cell a;</span><br><span class="line">    <span class="type">long</span> <span class="variable">sum</span> <span class="operator">=</span> base;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 此时的计数数据丢失</span></span><br><span class="line"></span><br><span class="line">    base = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">if</span> (as != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; as.length; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((a = as[i]) != <span class="literal">null</span>) &#123;</span><br><span class="line">                sum += a.value;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 此时的计数数据丢失</span></span><br><span class="line"></span><br><span class="line">                a.value = <span class="number">0L</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-3、DoubleAdder"><a href="#2-4-3、DoubleAdder" class="headerlink" title="2.4.3、DoubleAdder"></a><strong>2.4.3、DoubleAdder</strong></h4><p>Double类型的计数类，跟LongAddr类似。一个实现要点是：将Double类型存储成Long类型，可操作的基础是两者都是8个字节大小。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/64622143/why-need-the-readobject-overriding-method-in-atomicreferencearray">https://stackoverflow.com/questions/64622143/why-need-the-readobject-overriding-method-in-atomicreferencearray</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/" title="原子操作类">https://dslztx.github.io/blog/2020/07/30/原子操作类/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/29/Unsafe%E7%B1%BB/" rel="prev" title="Unsafe类">
+      <i class="fa fa-chevron-left"></i> Unsafe类
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" rel="next" title="Java并发编程基础">
+      Java并发编程基础 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/07/30/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB/";
+    this.page.identifier = "2020/07/30/原子操作类/";
+    this.page.title = "原子操作类";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="关于CPU的基本概念、架构和核心参数可参见[1]。 本文介绍Linux下使用“&#x2F;proc&#x2F;cpuinfo”文件查看CPU信息（可以与官网根据CPU具体型号查得的信息进行比对验证）。 一、核心参数获取1.1、CPU数量相关 物理CPU数量：cat &#x2F;proc&#x2F;cpuinfo | grep &quot;physical id&quot; | sort | uniq | wc -l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用&#x2F;proc&#x2F;cpuinfo文件查看CPU信息">
+<meta property="og:url" content="https://dslztx.github.io/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="关于CPU的基本概念、架构和核心参数可参见[1]。 本文介绍Linux下使用“&#x2F;proc&#x2F;cpuinfo”文件查看CPU信息（可以与官网根据CPU具体型号查得的信息进行比对验证）。 一、核心参数获取1.1、CPU数量相关 物理CPU数量：cat &#x2F;proc&#x2F;cpuinfo | grep &quot;physical id&quot; | sort | uniq | wc -l">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-16T02:20:34.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.168Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用/proc/cpuinfo文件查看CPU信息 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用/proc/cpuinfo文件查看CPU信息
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-16 10:20:34" itemprop="dateCreated datePublished" datetime="2023-02-16T10:20:34+08:00">2023-02-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/02/16/使用-proc-cpuinfo文件查看CPU信息/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>关于CPU的基本概念、架构和核心参数可参见[1]。</p>
+<p>本文介绍Linux下使用“&#x2F;proc&#x2F;cpuinfo”文件查看CPU信息（可以与官网根据CPU具体型号查得的信息进行比对验证）。</p>
+<h2 id="一、核心参数获取"><a href="#一、核心参数获取" class="headerlink" title="一、核心参数获取"></a><strong>一、核心参数获取</strong></h2><h3 id="1-1、CPU数量相关"><a href="#1-1、CPU数量相关" class="headerlink" title="1.1、CPU数量相关"></a><strong>1.1、CPU数量相关</strong></h3><ol>
+<li>物理CPU数量：<code>cat /proc/cpuinfo | grep &quot;physical id&quot; | sort | uniq | wc -l</code></li>
+<li>物理CPU Core数量：∑ 物理CPU<sub>k</sub>上物理CPU Core数量</li>
+<li>逻辑CPU Core数量：<code>cat /proc/cpuinfo | grep &quot;processor&quot; | wc -l</code></li>
+</ol>
+<h3 id="1-2、主频"><a href="#1-2、主频" class="headerlink" title="1.2、主频"></a><strong>1.2、主频</strong></h3><p><code>cat /proc/cpuinfo</code>每个逻辑CPU Core描述段落中：</p>
+<ul>
+<li><code>cpu MHz</code>字段值，表示工作实际主频</li>
+<li><code>model name</code>字段值中的频率，表示额定主频</li>
+</ul>
+<h3 id="1-3、缓存大小"><a href="#1-3、缓存大小" class="headerlink" title="1.3、缓存大小"></a><strong>1.3、缓存大小</strong></h3><p><code>cat /proc/cpuinfo</code>每个逻辑CPU Core描述段落中的<code>cache size</code>字段值，在现代CPU架构中其表示L3 Cache大小，在较老CPU架构中其表示L2 Cache大小。</p>
+<h3 id="1-4、其他"><a href="#1-4、其他" class="headerlink" title="1.4、其他"></a><strong>1.4、其他</strong></h3><ol>
+<li>特定物理CPU上的物理CPU Core数量：找到指定物理CPU上任何一个逻辑CPU Core的描述段落，查看<code>cpu cores</code>字段值</li>
+<li>特定物理CPU上的逻辑CPU数量：找到指定物理CPU上任何一个逻辑CPU Core的描述段落，查看<code>siblings</code>字段值</li>
+<li>特定物理CPU是否开启SMT技术：找到指定物理CPU上任何一个逻辑CPU Core的描述段落，当<code>P(P = siblings字段值 / cpu cores字段值) != 1</code>，则表示开启了SMT技术，且为P路-SMT</li>
+</ol>
+<p><strong>[备注]</strong> 在[1]中介绍SMT技术时，未阐明SMT技术的实现粒度是物理CPU还是物理CPU Core，一般情况下，实现粒度是物理CPU。</p>
+<h2 id="二、“-proc-cpuinfo”文件信息解释"><a href="#二、“-proc-cpuinfo”文件信息解释" class="headerlink" title="二、“&#x2F;proc&#x2F;cpuinfo”文件信息解释"></a><strong>二、“&#x2F;proc&#x2F;cpuinfo”文件信息解释</strong></h2><h3 id="2-1、一个样例"><a href="#2-1、一个样例" class="headerlink" title="2.1、一个样例"></a><strong>2.1、一个样例</strong></h3><p>一个样例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br></pre></td><td class="code"><pre><span class="line">processor	: 0</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 2600.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 0</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 0</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 0</span><br><span class="line">initial apicid	: 0</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5200.18</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 1</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 2600.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 0</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 0</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 1</span><br><span class="line">initial apicid	: 1</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.88</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 2</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 2600.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 0</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 1</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 2</span><br><span class="line">initial apicid	: 2</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.89</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 3</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 2600.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 0</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 1</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 3</span><br><span class="line">initial apicid	: 3</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.86</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 4</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 4160.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 1</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 0</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 4</span><br><span class="line">initial apicid	: 4</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.87</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 5</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 4160.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 1</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 0</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 5</span><br><span class="line">initial apicid	: 5</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.90</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 6</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 1300.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 1</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 1</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 6</span><br><span class="line">initial apicid	: 6</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.88</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br><span class="line"></span><br><span class="line">processor	: 7</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 63</span><br><span class="line">model name	: Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz</span><br><span class="line">stepping	: 2</span><br><span class="line">cpu MHz		: 1300.092</span><br><span class="line">cache size	: 20480 KB</span><br><span class="line">physical id	: 1</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 1</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 7</span><br><span class="line">initial apicid	: 7</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 15</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms</span><br><span class="line">bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</span><br><span class="line">bogomips	: 5199.88</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 46 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2、说明"><a href="#2-2、说明" class="headerlink" title="2.2、说明"></a><strong>2.2、说明</strong></h3><p>“&#x2F;proc&#x2F;cpuinfo”文件结构以对一个逻辑CPU Core的描述为一个基本段，有N个逻辑CPU Core就有N段。</p>
+<table>
+<thead>
+<tr>
+<th>参数名称</th>
+<th>参数含义</th>
+<th>样例中的对应</th>
+<th>参数层次说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><font color='red'>processor</font></td>
+<td>逻辑CPU Core编号，从0开始。整体文件信息按照该编号值从小到大排序</td>
+<td>0-7</td>
+<td>逻辑CPU Core本层</td>
+</tr>
+<tr>
+<td><font color='red'>vendor_id</font></td>
+<td>逻辑CPU Core的制造厂商ID</td>
+<td>“GenuineIntel”表示英特尔公司</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU</td>
+</tr>
+<tr>
+<td>cpu family</td>
+<td>逻辑CPU Core的CPU系列，即“微处理器架构代号”</td>
+<td>6</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU</td>
+</tr>
+<tr>
+<td>model</td>
+<td>逻辑CPU Core在具体CPU系列中的CPU具体型号，搜索时须转换成十六进制</td>
+<td>63，即<code>0x3f</code></td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU</td>
+</tr>
+<tr>
+<td><font color='red'>model name</font></td>
+<td>逻辑CPU Core型号名称，包括“品牌商标”，“具体产品编号”，“CPU额定主频”等信息</td>
+<td>“Intel(R) Xeon(R)”：英特尔公司的至强品牌（英特尔品牌商标另外还有<code>Intel(R) Core(TM)-英特尔酷睿品牌</code>，<code>Intel(R) Pentium(TM)-英特尔奔腾品牌</code>，<code>Intel(R) Celeron(TM)-英特尔赛扬品牌</code>等）<br/>“E5-2640 v3”：具体产品编号<br/>“2.60GHz”：额定主频</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU</td>
+</tr>
+<tr>
+<td>stepping</td>
+<td>逻辑CPU Core的更新步进，表示版本小升级编号</td>
+<td>2</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU</td>
+</tr>
+<tr>
+<td><font color='red'>cpu MHz</font></td>
+<td>逻辑CPU Core的工作实际主频</td>
+<td>1300.092&#x2F;2600.092&#x2F;4160.092</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td><font color='red'>cache size</font></td>
+<td>逻辑CPU Core的L3 Cache大小</td>
+<td>20480KB</td>
+<td>继承自所在物理CPU</td>
+</tr>
+<tr>
+<td><font color='red'>physical id</font></td>
+<td>逻辑CPU Core所在物理CPU的编号</td>
+<td>有两个物理CPU，编号分别为0和1</td>
+<td>继承自所在物理CPU</td>
+</tr>
+<tr>
+<td><font color='red'>siblings</font></td>
+<td>逻辑CPU Core所在物理CPU上的逻辑CPU Core数量</td>
+<td>物理CPU 0上有2个物理CPU Core，每个物理CPU Core开启2路超线程技术（<code>*2</code>），故共有<code>2 * 2 = 4</code>个逻辑CPU Core；物理CPU 1相同</td>
+<td>继承自所在物理CPU</td>
+</tr>
+<tr>
+<td><font color='red'>core id</font></td>
+<td>逻辑CPU Core所在物理CPU Core在所在物理CPU中的编号</td>
+<td>物理CPU 0中有两个物理CPU Core，该两个物理CPU Core在物理CPU 0中的编号分别为0和1；物理CPU 1中有两个物理CPU Core，该两个物理CPU Core在物理CPU 1中的编号分别为0和1</td>
+<td>继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td><font color='red'>cpu cores</font></td>
+<td>逻辑CPU Core所在物理CPU中含有的物理CPU Core数量</td>
+<td>物理CPU 0含有2个物理CPU Core；物理CPU 1含有2个物理CPU Core</td>
+<td>继承自所在物理CPU</td>
+</tr>
+<tr>
+<td>apicid</td>
+<td>用来区分不同逻辑CPU Core的编号，不同逻辑CPU Core的此编号必然不同</td>
+<td>0-7</td>
+<td>逻辑CPU Core本层</td>
+</tr>
+<tr>
+<td>initial apicid</td>
+<td>用来区分不同逻辑CPU Core的编号，不同逻辑CPU Core的此编号必然不同</td>
+<td>0-7</td>
+<td>逻辑CPU Core本层</td>
+</tr>
+<tr>
+<td>fpu</td>
+<td>逻辑CPU Core是否具有浮点运算单元（Floating Point Unit）</td>
+<td>yes</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>fpu_exception</td>
+<td>逻辑CPU Core是否支持浮点计算异常</td>
+<td>yes</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>cpuid level</td>
+<td>执行<code>cpuid</code>指令前，EAX寄存器中的值，根据不同的值，<code>cpuid</code>指令会返回不同的内容</td>
+<td>15</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>wp</td>
+<td>逻辑CPU Core是否支持内核态对用户空间的写保护（Write Protection）</td>
+<td>yes</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>flags</td>
+<td>逻辑CPU Core支持的功能，比如“<code>vmx</code>表示支持虚拟化”，“<code>aes</code>表示针对AES算法进行了硬件优化”，“<code>ht</code>表示支持超线程技术”等</td>
+<td><code>fpu vme de ...</code></td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>bugs</td>
+<td>逻辑CPU Core所修复的补丁</td>
+<td><code>cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit srbds</code></td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>bogomips</td>
+<td>逻辑CPU Core在系统内核启动时粗略测算的速度（Million Instructions Per Second）</td>
+<td>5199.90</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>clflush size</td>
+<td>逻辑CPU Core的每次刷新缓存的大小单位</td>
+<td>64</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>cache_alignment</td>
+<td>逻辑CPU Core的高速缓存地址对齐单位</td>
+<td>64</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>address sizes</td>
+<td>逻辑CPU Core的可访问地址空间位数</td>
+<td>46 bits physical, 48 bits virtual</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+<tr>
+<td>power management</td>
+<td>逻辑CPU Core对能源管理的支持</td>
+<td>&#x2F;</td>
+<td>不确定继承自所在物理CPU Core还是所在物理CPU，一般继承自所在物理CPU Core</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2019/06/03/CPU/" title="CPU">《CPU》</a><br>[2]<a target="_blank" rel="noopener" href="http://www.linfo.org/proc_cpuinfo.html">http://www.linfo.org/proc_cpuinfo.html</a><br>[3]<a target="_blank" rel="noopener" href="https://www.intel.cn/content/www/cn/zh/processors/processor-numbers.html">https://www.intel.cn/content/www/cn/zh/processors/processor-numbers.html</a><br>[4]<a target="_blank" rel="noopener" href="https://www.tecmint.com/check-linux-cpu-information/">https://www.tecmint.com/check-linux-cpu-information/</a><br>[5]<a target="_blank" rel="noopener" href="https://www.cnblogs.com/wxxjianchi/p/10522049.html">https://www.cnblogs.com/wxxjianchi/p/10522049.html</a><br>[6]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/68239031">https://zhuanlan.zhihu.com/p/68239031</a><br>[7]<a target="_blank" rel="noopener" href="https://doc.callmematthi.eu/static/webArticles/Understanding%20Linux%20_proc_cpuinfo.pdf">https://doc.callmematthi.eu/static/webArticles/Understanding%20Linux%20_proc_cpuinfo.pdf</a><br>[8]<a target="_blank" rel="noopener" href="https://superuser.com/questions/1093689/what-does-r-and-tm-mean-in-intel-brand-name">https://superuser.com/questions/1093689/what-does-r-and-tm-mean-in-intel-brand-name</a><br>[9]man &#x2F;proc&#x2F;cpuinfo</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/" title="使用&#x2F;proc&#x2F;cpuinfo文件查看CPU信息">https://dslztx.github.io/blog/2023/02/16/使用-proc-cpuinfo文件查看CPU信息/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/02/02/Nacos%E9%9B%86%E7%BE%A4%E8%BF%90%E7%BB%B4/" rel="prev" title="Nacos集群运维">
+      <i class="fa fa-chevron-left"></i> Nacos集群运维
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/02/17/%E4%BD%BF%E7%94%A8lscpu%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/" rel="next" title="使用lscpu命令查看CPU信息">
+      使用lscpu命令查看CPU信息 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/";
+    this.page.identifier = "2023/02/16/使用-proc-cpuinfo文件查看CPU信息/";
+    this.page.title = "使用/proc/cpuinfo文件查看CPU信息";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

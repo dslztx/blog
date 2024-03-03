@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、基本概念光：  本质是电磁波 常见光是复合光，复合光由不同波长（频率）的光组合而成。复合光的光谱就是依照所有构成光的波长（或频率）的大小顺次排列形成的图案。两个复合光完全一致当且仅当两者的光谱完全一致  1.1、可见光与不可见光视见率：表征人眼对不同频率光的反应灵敏度，取人眼对波长为555nm的黄绿光的视见率为最大，取为1；其他波长的可见光的视见率均小于1；红外光和紫外光的视见率为0。 可见光">
+<meta property="og:type" content="article">
+<meta property="og:title" content="光">
+<meta property="og:url" content="https://dslztx.github.io/blog/2023/01/30/%E5%85%89/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、基本概念光：  本质是电磁波 常见光是复合光，复合光由不同波长（频率）的光组合而成。复合光的光谱就是依照所有构成光的波长（或频率）的大小顺次排列形成的图案。两个复合光完全一致当且仅当两者的光谱完全一致  1.1、可见光与不可见光视见率：表征人眼对不同频率光的反应灵敏度，取人眼对波长为555nm的黄绿光的视见率为最大，取为1；其他波长的可见光的视见率均小于1；红外光和紫外光的视见率为0。 可见光">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-30T03:21:45.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.152Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2023/01/30/%E5%85%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>光 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2023/01/30/%E5%85%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          光
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-30 11:21:45" itemprop="dateCreated datePublished" datetime="2023-01-30T11:21:45+08:00">2023-01-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%89%A9%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">物理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2023/01/30/%E5%85%89/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/01/30/光/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>光：</p>
+<ul>
+<li>本质是电磁波</li>
+<li>常见光是复合光，复合光由不同波长（频率）的光组合而成。复合光的光谱就是依照所有构成光的波长（或频率）的大小顺次排列形成的图案。两个复合光完全一致当且仅当两者的光谱完全一致</li>
+</ul>
+<h3 id="1-1、可见光与不可见光"><a href="#1-1、可见光与不可见光" class="headerlink" title="1.1、可见光与不可见光"></a><strong>1.1、可见光与不可见光</strong></h3><p>视见率：表征人眼对不同频率光的反应灵敏度，取人眼对波长为555nm的黄绿光的视见率为最大，取为1；其他波长的可见光的视见率均小于1；红外光和紫外光的视见率为0。</p>
+<p>可见光即视见率大于0的光，不可见光即视见率等于0的光。</p>
+<h3 id="1-2、光危害"><a href="#1-2、光危害" class="headerlink" title="1.2、光危害"></a><strong>1.2、光危害</strong></h3><p>有些波长的光会对人体造成伤害，以下列出常见的光危害。</p>
+<table>
+<thead>
+<tr>
+<th>光</th>
+<th>危害</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>蓝光（并不是所有蓝光都对人体有危害，400-460nm的高能短波蓝光才是影响人体健康的主要波段，其中415-460nm波段的蓝光引起了80%的损伤）</td>
+<td>蓝光的主要危害是对视网膜造成光化学损害，加速黄斑区细胞的氧化损伤。同时，蓝光还可引起视疲劳、泪膜稳定性下降等</td>
+</tr>
+<tr>
+<td>紫外线</td>
+<td>可导致灼伤、皮质性白内障等伤害，引发皮肤恶性黑素瘤、皮肤鳞状细胞癌、皮肤基底细胞癌等疾病</td>
+</tr>
+<tr>
+<td>红外线</td>
+<td>红外线可引起白内障、角膜损伤和日光性视网膜脉络膜烧伤等</td>
+</tr>
+</tbody></table>
+<h3 id="1-3、色温"><a href="#1-3、色温" class="headerlink" title="1.3、色温"></a><strong>1.3、色温</strong></h3><p>色温：与此光源发出相似的光的黑体辐射体所具有的开尔文温度（符合为K），用来量化表征光的颜色，比如“4000K对应自然白”。但是需要注意的是具有相同色温的两个复合光可能具有不同的光谱（因此色温相同的两个光其他属性不同十分正常），比如“色温相同的两个光A和B，A相较B含有更多的蓝光成分”。</p>
+<p>在不同场景中，人眼的适宜色温不同[1]。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>人眼的适宜色温（K）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>家庭，住宅，宿舍，宾馆</td>
+<td>3300以下</td>
+</tr>
+<tr>
+<td>商店，医院，办公室，饭店，餐厅，候车室</td>
+<td>3300-5300</td>
+</tr>
+<tr>
+<td>办公室，会议室，教室，绘图室，设计室，图书馆的阅览室，展览橱窗</td>
+<td>5300以上</td>
+</tr>
+</tbody></table>
+<h3 id="1-4、显色指数"><a href="#1-4、显色指数" class="headerlink" title="1.4、显色指数"></a><strong>1.4、显色指数</strong></h3><p>显色指数（Ra）：表征光源对物体的显色能力，其数值越大（最大值为100），显色性越好。<br>但是需要注意的是具有相同显色指数的两个复合光可能具有不同的光谱（因此显色指数相同的两个光其他属性不同十分正常），比如“显色指数相同的两个光A和B，A的色温高于B”。</p>
+<p>在不同场景中，人眼的需求显色指数不同[2]。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>人眼的需求显色指数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需要色彩精确对比的场所</td>
+<td>90-100</td>
+</tr>
+<tr>
+<td>需要色彩正确判断的场所</td>
+<td>80-89</td>
+</tr>
+<tr>
+<td>需要中等显色性的场所</td>
+<td>60-79</td>
+</tr>
+<tr>
+<td>对显色性的要求较低，色差较小的场所</td>
+<td>40-59</td>
+</tr>
+<tr>
+<td>对显色性无具体要求的场所</td>
+<td>20-39</td>
+</tr>
+</tbody></table>
+<p><strong>[备注]</strong> 为保护眼睛，工作学习照明显色指数须至少大于80。</p>
+<h2 id="二、光通量、光强、照度和亮度"><a href="#二、光通量、光强、照度和亮度" class="headerlink" title="二、光通量、光强、照度和亮度"></a><strong>二、光通量、光强、照度和亮度</strong></h2><h3 id="2-1、概念厘清"><a href="#2-1、概念厘清" class="headerlink" title="2.1、概念厘清"></a><strong>2.1、概念厘清</strong></h3><p>关于“光通量”，“光强”，“照度”和“亮度”这4个概念的权威完整介绍可参见大学教材《工程光学》中的“光度学”章节内容。</p>
+<h4 id="2-1-1、光通量"><a href="#2-1-1、光通量" class="headerlink" title="2.1.1、光通量"></a><strong>2.1.1、光通量</strong></h4><p>光源单位时间发出的通过周围球面的人眼可感知光总能量，即<code>∑ 某一波长光的光能量 * 该波长光的相对视见率（见备注）</code>：</p>
+<ul>
+<li>光的发射是立体的，故光通量的定义基于周围球面 </li>
+<li>光通量跟“光源与周围球面的距离”无关，离光源1m的周围球面与离相同光源10m的周围球面通过光通量相等</li>
+<li>人眼可感知光总能量联接了“光能量”和“人眼对光的感受能力”</li>
+</ul>
+<p>光通量的单位为<code>流明（lm）</code>。</p>
+<p><strong>[备注]</strong> 相对视见率：视见率的定义见“1.1、可见光与不可见光”小节，而相对视见率是指某波长光的视见率与555nm黄绿光的视见率的比值。由于后者的值为1，故在数值上，相对视见率与视见率相等。</p>
+<h4 id="2-1-2、光强"><a href="#2-1-2、光强" class="headerlink" title="2.1.2、光强"></a><strong>2.1.2、光强</strong></h4><p>点光源在给定方向上，单位立体角内发出的光通量，用来描述在给定方向上人眼可感知光能量的强弱。比如“有两个点光源A和B，A和B的光通量一致，A在各个方向上的光强均匀一致（以a指代），B在有些方向上的光强大于a，有些方向上的光强小于a”，“有一个白炽灯灯泡光源A，假定在均匀照射时各个方向的光强都为a，此时在A上装一个不透光、开口向下的伞形灯罩，这会使得各个方向的光线都被灯罩向下反射，向下方向的单位立体角内光通量的空间密度增大，故向下方向的光强会大于a”。</p>
+<p>光强单位为<code>坎德拉（cd）</code>，根据定义有<code>1 cd = 1 lm / 1 sr</code>，其中<code>sr</code>是单位立体角的单位符号。</p>
+<p><strong>[备注]</strong></p>
+<ul>
+<li>平面角：以两射线交点为圆心的圆被射线所截的弧长与半径之比，即<code>弧长 / r</code></li>
+<li>立体角[3]：一个物体对特定点的三维空间的角度，是平面角在三维空间中的类比。具体是：以观测点为球心，构造一个以“观测点与物体距离”为半径r的球面，任意物体投影到该球面上的投影面积A，即为该物体相对于该观测点的立体角，有计算公式<code>Ω = A / r*r</code></li>
+</ul>
+<h4 id="2-1-3、照度"><a href="#2-1-3、照度" class="headerlink" title="2.1.3、照度"></a><strong>2.1.3、照度</strong></h4><p>光源照射到单位面积上的光通量，描述的是拟观察物体（比如“书本”）单位面积上真正接收的光通量。</p>
+<p>照度跟“拟观察物体与光源的距离”相关——拟观察物体距离光源越远照度越低：距离越远，光通量空间密度越小，单位面积上的光通量自然越小。</p>
+<p>照度单位为<code>勒克斯（lx）</code>，有计算公式：<code>1 lx = 1 lm / 1 m*m</code>。</p>
+<p>在不同场景中，人眼的适宜照度不同。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>人眼的适宜照度（lx）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>书房、办公室</td>
+<td>500-1000</td>
+</tr>
+<tr>
+<td>餐桌</td>
+<td>300-500</td>
+</tr>
+<tr>
+<td>浴室、更衣室</td>
+<td>200-500</td>
+</tr>
+<tr>
+<td>客厅（不阅读书报）</td>
+<td>150-300</td>
+</tr>
+<tr>
+<td>电梯、走道</td>
+<td>100-200</td>
+</tr>
+<tr>
+<td>走廊、楼梯</td>
+<td>35-75</td>
+</tr>
+<tr>
+<td>车库、仓储</td>
+<td>30-75</td>
+</tr>
+</tbody></table>
+<p><strong>[备注]</strong> 根据GB&#x2F;T 9473-2017《读写作业台灯性能要求》，合格的读写作业台灯照度有两个等级：1）国A：要求离圆心半径距离在50cm的三分之一扇形区域内照度为250lx以上；2）国AA：要求离圆心半径距离在50cm的三分之一扇形区域内照度为500lx以上。显而易见，国AA等级高于国A。</p>
+<h4 id="2-1-4、亮度"><a href="#2-1-4、亮度" class="headerlink" title="2.1.4、亮度"></a><strong>2.1.4、亮度</strong></h4><p>描述拟观察物体反射后的光强，跟拟观察物体表面性质相关。</p>
+<p>亮度单位为<code>尼特（nit）</code>，有计算公式<code>1 nit = 1 cd / 1 m*m</code>。</p>
+<p><strong>[备注]</strong> 本处对于亮度的理解较为浅层次，待做深层次理解，比如“为何显示屏将亮度作为一个衡量指标”。</p>
+<h3 id="2-2、扩展"><a href="#2-2、扩展" class="headerlink" title="2.2、扩展"></a><strong>2.2、扩展</strong></h3><h4 id="2-2-1、总结与类比"><a href="#2-2-1、总结与类比" class="headerlink" title="2.2.1、总结与类比"></a><strong>2.2.1、总结与类比</strong></h4><p><strong>1、总结</strong><br>“光通量”和“光强”涉及“光源能量”和“人眼对光的感受能力”；“照度”和“亮度”涉及“光源能量”，“人眼对光的感受能力”和“拟观察物体”。</p>
+<p><strong>2、类比</strong><br>类比水龙头出水，具体如下表。</p>
+<table>
+<thead>
+<tr>
+<th>光学度量</th>
+<th>概念类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>光通量</td>
+<td>水龙头单位时间内总出水量</td>
+</tr>
+<tr>
+<td>光强</td>
+<td>水龙头单位时间内单位角向出水量</td>
+</tr>
+<tr>
+<td>照度</td>
+<td>接水盆单位面积接水量</td>
+</tr>
+<tr>
+<td>亮度</td>
+<td>接水盆反弹水，单位时间内单位面积反弹水量</td>
+</tr>
+</tbody></table>
+<h4 id="2-2-2、生活中的光学度量"><a href="#2-2-2、生活中的光学度量" class="headerlink" title="2.2.2、生活中的光学度量"></a><strong>2.2.2、生活中的光学度量</strong></h4><p>生活中的光学度量：</p>
+<ul>
+<li>投影仪，选择“光通量”作为衡量指标之一</li>
+<li>投影仪幕布，使用投影仪幕布能让你获得相比墙面更好的“亮度”</li>
+<li>读写作业台灯，选择“照度”作为衡量指标之一</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%89%B2%E6%B8%A9">https://zh.wikipedia.org/wiki/%E8%89%B2%E6%B8%A9</a><br>[2]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/56286569">https://zhuanlan.zhihu.com/p/56286569</a><br>[3]<a target="_blank" rel="noopener" href="https://zhajiman.github.io/post/solid_angle">https://zhajiman.github.io/post/solid_angle</a><br>[4]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/153355588">https://zhuanlan.zhihu.com/p/153355588</a><br>[5]<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/263533167">https://www.zhihu.com/question/263533167</a><br>[6]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/539740506">https://zhuanlan.zhihu.com/p/539740506</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2023/01/30/%E5%85%89/" title="光">https://dslztx.github.io/blog/2023/01/30/光/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2022/10/19/Linux%E4%B8%8B%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DJava%E8%BF%9B%E7%A8%8B%E5%86%85CPU%E6%B6%88%E8%80%97%E6%9C%80%E5%A4%9A%E7%9A%84Java%E7%BA%BF%E7%A8%8B/" rel="prev" title="Linux下如何定位Java进程内CPU消耗最多的Java线程">
+      <i class="fa fa-chevron-left"></i> Linux下如何定位Java进程内CPU消耗最多的Java线程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/02/01/%E7%81%AF%E5%85%B7%E9%80%89%E6%8B%A9/" rel="next" title="灯具选择">
+      灯具选择 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2023/01/30/%E5%85%89/";
+    this.page.identifier = "2023/01/30/光/";
+    this.page.title = "光";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

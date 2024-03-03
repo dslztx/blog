@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本博文是对《Google Java Style Guide》的阅读笔记，由于在对IDE进行一番配置（参见“对IDE的具体配置”）后，执行Reformat Code命令能够使得自动遵循很多编程规范，因此，接下来只列出需要手动遵循的编程规范。 对IDE的具体配置：1、使用的IDE为：IntelliJ IDEA2、从链接处下载“intellij-java-google-style.xml”配置文件3、选">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Google Java编程规范">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本博文是对《Google Java Style Guide》的阅读笔记，由于在对IDE进行一番配置（参见“对IDE的具体配置”）后，执行Reformat Code命令能够使得自动遵循很多编程规范，因此，接下来只列出需要手动遵循的编程规范。 对IDE的具体配置：1、使用的IDE为：IntelliJ IDEA2、从链接处下载“intellij-java-google-style.xml”配置文件3、选">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-07-28T15:48:14.000Z">
+<meta property="article:modified_time" content="2017-07-28T15:48:14.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Google Java编程规范 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Google Java编程规范
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-07-28 23:48:14" itemprop="dateCreated datePublished" datetime="2017-07-28T23:48:14+08:00">2017-07-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/28/Google-Java编程规范/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本博文是对<a target="_blank" rel="noopener" href="https://google.github.io/styleguide/javaguide.html">《Google Java Style Guide》</a>的阅读笔记，由于在对IDE进行一番配置（参见“对IDE的具体配置”）后，执行<code>Reformat Code</code>命令能够使得自动遵循很多编程规范，因此，接下来只列出需要手动遵循的编程规范。</p>
+<p>对IDE的具体配置：<br>1、使用的IDE为：IntelliJ IDEA<br>2、从<a target="_blank" rel="noopener" href="https://github.com/google/styleguide">链接</a>处下载“intellij-java-google-style.xml”配置文件<br>3、选择“Settings–Editor–Code Style–Java”导入“intellij-java-google-style.xml”配置文件<br>4、勾选“Code–Show Reformat File Dialog”中“Optimize Imports”和“Rearrange Code”两个选项</p>
+<h2 id="一、源文件"><a href="#一、源文件" class="headerlink" title="一、源文件"></a><strong>一、源文件</strong></h2><h3 id="1-1、源文件名"><a href="#1-1、源文件名" class="headerlink" title="1.1、源文件名"></a><strong>1.1、源文件名</strong></h3><p>源文件名由“源文件中主类类名”和“.java扩展名”构成。</p>
+<h3 id="1-2、源文件编码格式"><a href="#1-2、源文件编码格式" class="headerlink" title="1.2、源文件编码格式"></a><strong>1.2、源文件编码格式</strong></h3><p>使用UTF-8编码格式。</p>
+<h3 id="1-3、字符"><a href="#1-3、字符" class="headerlink" title="1.3、字符"></a><strong>1.3、字符</strong></h3><h4 id="1-3-1、空白字符-2"><a href="#1-3-1、空白字符-2" class="headerlink" title="1.3.1、空白字符[2]"></a><strong>1.3.1、空白字符[2]</strong></h4><p>源文件中不能包含除了“换行符和空格字符（0x20）”之外的其他空白字符。<br>这个具有两层含义：</p>
+<ul>
+<li>作为控制和修饰用途的“其他空白字符”不允许被使用。比如不允许出现“Tab字符（按下Tab键）”</li>
+<li>作为实际有意义内容组成部分的“其他空白字符”不允许以“直接形式”被使用，而只能以或者“转义序列”，或者“八进制转义序列”，或者“Unicode转义序列”形式被使用。比如“\t”</li>
+</ul>
+<h4 id="1-3-2、字符表达形式优先级"><a href="#1-3-2、字符表达形式优先级" class="headerlink" title="1.3.2、字符表达形式优先级"></a><strong>1.3.2、字符表达形式优先级</strong></h4><p>字符表达形式有：直接形式（比如“a”），转义序列形式（比如“\b”），八进制转义序列形式（比如“\012”），Unicode转义序列形式（比如“\u000a”）。<font color='red'>每个字符所具有的表达形式是不定的</font>。在源文件中，尝试表达字符时，在该字符所具有的表达形式中依次按照“直接形式，转义序列形式，（八进制转义序列形式，Unicode转义序列形式）”的顺序选取最终表达形式。假如最终表达形式非“直接形式”，那么需添加注释进行说明。<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">unitAbbrev</span> <span class="operator">=</span> <span class="string">&quot;\t&quot;</span>; <span class="comment">// Tab字符</span></span><br><span class="line"><span class="type">String</span> <span class="variable">unitAbbrev</span> <span class="operator">=</span> <span class="string">&quot;μs&quot;</span>;</span><br><span class="line"><span class="keyword">return</span> <span class="string">&#x27;\ufeff&#x27;</span> + content; <span class="comment">// byte order mark</span></span><br></pre></td></tr></table></figure>
+<h2 id="二、源文件文件结构"><a href="#二、源文件文件结构" class="headerlink" title="二、源文件文件结构"></a><strong>二、源文件文件结构</strong></h2><p>1、源文件中依次包括4部分内容：版权信息（可选），package语句（可选），import语句（可选），主类定义<br>2、使用import语句导入类A的静态内部类B时，使用<code>import A.B</code>形式，而不使用<code>import static A.B</code>形式<br>3、重载方法需被置于一起，中间不包含任何其他内容（对于“重载的构造方法”，执行<code>Reformat Code</code>命令时，“重载的构造方法被置于一起”会被自动遵循）</p>
+<h2 id="三、格式化"><a href="#三、格式化" class="headerlink" title="三、格式化"></a><strong>三、格式化</strong></h2><h3 id="3-1、运算表达式中的括号"><a href="#3-1、运算表达式中的括号" class="headerlink" title="3.1、运算表达式中的括号"></a><strong>3.1、运算表达式中的括号</strong></h3><p>在运算表达式中，尽量通过添加<code>()</code>括号对的形式提升运算顺序的可读性。</p>
+<h3 id="3-2、变量定义"><a href="#3-2、变量定义" class="headerlink" title="3.2、变量定义"></a><strong>3.2、变量定义</strong></h3><p>1、每行只定义一个变量，禁止类似<code>int a, b</code>形式<br>2、对于局部变量来说，只在即将需要用到的时候进行局部变量的定义，而不要提前很多进行，从而减小局部变量的作用域<br>3、定义数组类型变量时，采用类似<code>String[] args</code>形式，禁止使用类似<code>String args[]</code>形式，因为类似<code>String[]</code>才是真正的数组类型</p>
+<h3 id="3-3、switch语句"><a href="#3-3、switch语句" class="headerlink" title="3.3、switch语句"></a><strong>3.3、switch语句</strong></h3><p>switch语句中具有“块”的概念，“块”是指：一个或者多个分支语句（“case”或者“default”语句）进入同一个执行逻辑，这些分支语句连同上述的执行逻辑被称为一个“块”，比如下面展现的就是一个“块”。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line"><span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">  prepareOneOrTwo();</span><br></pre></td></tr></table></figure>
+<p>1、在switch语句中，必须包含“default”分支语句<br>2、在switch语句中，“块”的结束方式必须是且只能是下述5种方式之一：“break”，“continue”，“return”，“throw exception”和“<code>// fall through</code>注释语句（该注释语句声明继续执行进入下一个‘块’，但当处于最后‘块’中时，该注释语句可被省略）”<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (input) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">  <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">    prepareOneOrTwo();</span><br><span class="line">    <span class="comment">// fall through</span></span><br><span class="line">  <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">    handleOneTwoOrThree();</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    handleLargeNumber(input);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-4、注解"><a href="#3-4、注解" class="headerlink" title="3.4、注解"></a><strong>3.4、注解</strong></h3><p>当同时存在注解与JavaDoc时，注解应置于JavaDoc之后。</p>
+<h3 id="3-5、修饰符"><a href="#3-5、修饰符" class="headerlink" title="3.5、修饰符"></a><strong>3.5、修饰符</strong></h3><p>Java修饰符的排列顺序应该按照如下顺序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public protected private abstract default static final transient volatile synchronized native strictfp</span><br></pre></td></tr></table></figure>
+<h3 id="3-6、长整型字面量"><a href="#3-6、长整型字面量" class="headerlink" title="3.6、长整型字面量"></a><strong>3.6、长整型字面量</strong></h3><p>在表达一个长整型字面量时，使用<code>L</code>后缀，禁止使用<code>l</code>后缀。<br>示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Long a = 10000L;</span><br><span class="line">long b = 10000L;</span><br></pre></td></tr></table></figure>
+<h2 id="四、命名"><a href="#四、命名" class="headerlink" title="四、命名"></a><strong>四、命名</strong></h2><p>所有Java标识符都由“大写英文字母，小写英文字母，数字和下划线”构成，即JDK正则表达式中“\w”所表达的字符范围。<br>大驼峰命名法：由1个或者多个单词构成，只允许包含“大写英文字母，小写英文字母，数字”，其中大写英文字母只允许在每个单词的首字符位置出现。<br>小驼峰命名法：由1个或者多个单词构成，只允许包含“大写英文字母，小写英文字母，数字”，其中大写英文字母只允许在每个单词（除了第一个单词）的首字符位置出现。</p>
+<h3 id="4-1、包名"><a href="#4-1、包名" class="headerlink" title="4.1、包名"></a><strong>4.1、包名</strong></h3><p>多个部分以“.”字符连接构成，而每个部分又由“小写英文字母和数字”构成。</p>
+<h3 id="4-2、类名"><a href="#4-2、类名" class="headerlink" title="4.2、类名"></a><strong>4.2、类名</strong></h3><p>采用“大驼峰命名法”。<br>1、“具体类，抽象类，枚举类”的类名一般是“名词词组”；“接口”的类名一般是“名词词组”，也可以是“形容词词组”；“注解类”的类名没有特定规范<br>2、测试类的类名是在被测试类的类名之后加上“Test”后缀<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ArrayLis</span> &#123;&#125;</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">List</span> &#123;&#125;</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Readable</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ---分隔---</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CodeUtil</span> &#123;&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CodeUtilTest</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-3、方法名"><a href="#4-3、方法名" class="headerlink" title="4.3、方法名"></a><strong>4.3、方法名</strong></h3><p>采用“小驼峰命名法”，一般是动词词组。测试方法的名称没有特定规范。</p>
+<h3 id="4-4、常量成员变量名称"><a href="#4-4、常量成员变量名称" class="headerlink" title="4.4、常量成员变量名称"></a><strong>4.4、常量成员变量名称</strong></h3><p>由“大写英文字母，数字，下划线”构成，一般是名词词组。<br>“常量成员变量”定义：<br>1、由“static final”修饰符组合修饰的成员变量<br>2、成员变量的类型一般为“基本类型，String类型，不可变类型，元素为不可变类型的不可变集合类型”，更准确的描述是：一旦该成员变量定义完成，使得“包括该成员变量值所在内存区域在内，加上所有级联到内存区域”中的值都不再改变的类型都可作为该成员变量的类型<br>3、根据“枚举类”的定义，其中所有的“枚举值”实质上都是特殊的“常量成员变量名称”<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Constants</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">NUMBER</span> <span class="operator">=</span> <span class="number">5</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ImmutableList&lt;String&gt; NAMES = ImmutableList.of(<span class="string">&quot;Ed&quot;</span>, <span class="string">&quot;Ann&quot;</span>);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ImmutableMap&lt;String, Integer&gt; AGES = ImmutableMap.of(<span class="string">&quot;Ed&quot;</span>, <span class="number">35</span>, <span class="string">&quot;Ann&quot;</span>, <span class="number">32</span>);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Joiner</span> <span class="variable">COMMA_JOINER</span> <span class="operator">=</span> Joiner.on(<span class="string">&#x27;,&#x27;</span>); <span class="comment">// com.google.common.base.Joiner , Joiner is immutable</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> SomeMutableType[] EMPTY_ARRAY = &#123;&#125;;</span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">SomeEnum</span> &#123; ENUM_CONSTANT &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Not constants</span></span><br><span class="line"><span class="keyword">static</span> <span class="type">String</span> <span class="variable">nonFinal</span> <span class="operator">=</span> <span class="string">&quot;non-final&quot;</span>;</span><br><span class="line"><span class="keyword">final</span> <span class="type">String</span> <span class="variable">nonStatic</span> <span class="operator">=</span> <span class="string">&quot;non-static&quot;</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; mutableCollection = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;String&gt;();</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ImmutableSet&lt;SomeMutableType&gt; mutableElements = ImmutableSet.of(mutable);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ImmutableMap&lt;String, SomeMutableType&gt; mutableValues =</span><br><span class="line">    ImmutableMap.of(<span class="string">&quot;Ed&quot;</span>, mutableInstance, <span class="string">&quot;Ann&quot;</span>, mutableInstance2);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> Logger.getLogger(MyClass.getName());</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String[] nonEmptyArray = &#123;<span class="string">&quot;these&quot;</span>, <span class="string">&quot;can&quot;</span>, <span class="string">&quot;change&quot;</span>&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="4-5、非常量成员变量名称"><a href="#4-5、非常量成员变量名称" class="headerlink" title="4.5、非常量成员变量名称"></a><strong>4.5、非常量成员变量名称</strong></h3><p>采用“小驼峰命名法”，一般是名词词组。</p>
+<h3 id="4-6、方法参数变量名称"><a href="#4-6、方法参数变量名称" class="headerlink" title="4.6、方法参数变量名称"></a><strong>4.6、方法参数变量名称</strong></h3><p>采用“小驼峰命名法”，一般是名词词组，禁止只包含1个字符的名称。</p>
+<h3 id="4-7、局部变量名称"><a href="#4-7、局部变量名称" class="headerlink" title="4.7、局部变量名称"></a><strong>4.7、局部变量名称</strong></h3><p>采用“小驼峰命名法”，一般是名词词组。</p>
+<h3 id="4-8、泛型体系中类型参数名称"><a href="#4-8、泛型体系中类型参数名称" class="headerlink" title="4.8、泛型体系中类型参数名称"></a><strong>4.8、泛型体系中类型参数名称</strong></h3><p>泛型体系中类型参数名称有两种形式：1）一个大写英文字母，加上一个可选的数字；2）相应的类名加上“T”字母。<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Request</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Request</span>&lt;RequestT&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Request</span>&lt;T1&gt; &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> &lt;K, V&gt; Map&lt;K, V&gt; <span class="title function_">map</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="五、编程实践"><a href="#五、编程实践" class="headerlink" title="五、编程实践"></a><strong>五、编程实践</strong></h2><h3 id="5-1、使用-Override注解"><a href="#5-1、使用-Override注解" class="headerlink" title="5.1、使用@Override注解"></a><strong>5.1、使用@Override注解</strong></h3><p>出现覆盖情形时，使用@Override注解。</p>
+<h3 id="5-2、处理Caught-Exception"><a href="#5-2、处理Caught-Exception" class="headerlink" title="5.2、处理Caught Exception"></a><strong>5.2、处理Caught Exception</strong></h3><p>在“try-catch-finally”语句块的“catch语句”中，必须对异常进行处理：或者打印日志，或者重新抛出异常，或者进行注释说明。<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125; <span class="keyword">catch</span> (AException a) &#123;</span><br><span class="line">  logger.error(<span class="string">&quot;&quot;</span>, a);</span><br><span class="line">&#125; <span class="keyword">catch</span> (BException b) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>(b);</span><br><span class="line">&#125; <span class="keyword">catch</span> (CException c) &#123;</span><br><span class="line">  <span class="comment">// c exception is impossible</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外，如果是在测试方法中，且“catch语句”对应的异常是被期望的异常，那么可将该异常命名为“expected”或者以“expected”为前缀，而无需再在该“catch语句”中对该异常进行处理。<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  emptyStack.pop();</span><br><span class="line">  fail();</span><br><span class="line">&#125; <span class="keyword">catch</span> (NoSuchElementException expected) &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-3、使用类引用类的静态成员"><a href="#5-3、使用类引用类的静态成员" class="headerlink" title="5.3、使用类引用类的静态成员"></a><strong>5.3、使用类引用类的静态成员</strong></h3><p>使用类引用类的静态成员，禁止使用类的实例引用类的静态成员。</p>
+<h3 id="5-4、禁止依赖Object类的finalize-方法"><a href="#5-4、禁止依赖Object类的finalize-方法" class="headerlink" title="5.4、禁止依赖Object类的finalize()方法"></a><strong>5.4、禁止依赖Object类的finalize()方法</strong></h3><p>禁止依赖Object类的finalize()方法。</p>
+<h2 id="六、JavaDoc"><a href="#六、JavaDoc" class="headerlink" title="六、JavaDoc"></a><strong>六、JavaDoc</strong></h2><p>1、对于类的成员，除非意义明显，否则都应该加上JavaDoc<br>2、每个JavaDoc都应该有一段文字描述<br>3、JavaDoc中，用<code>&lt;p&gt;</code>标签来分隔多段文字描述内容，多段文字描述内容之间以一行空格进行隔开<br>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;first thing</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;second thing</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;third thing</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> return the result</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]https://google.github.io/styleguide/javaguide.html
+[2]https://en.wikipedia.org/wiki/Whitespace_character
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/" title="Google Java编程规范">https://dslztx.github.io/blog/2017/07/28/Google-Java编程规范/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/" rel="prev" title="Git快速入门教程">
+      <i class="fa fa-chevron-left"></i> Git快速入门教程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/08/01/Ubuntu-16-04%E8%AE%BE%E7%BD%AELC-CTYPE%E9%94%99%E8%AF%AF/" rel="next" title="Ubuntu 16.04设置LC_CTYPE错误">
+      Ubuntu 16.04设置LC_CTYPE错误 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/";
+    this.page.identifier = "2017/07/28/Google-Java编程规范/";
+    this.page.title = "Google Java编程规范";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

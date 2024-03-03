@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、基本概念Kafka是一个面向“消息流”的系统，它能够进行消息流的“发布，存储，处理和消费”。在实际生产环境中，Kafka一般以Kafka集群的形式被应用。 二、设计简介2.1、主题特定的消息流以主题名进行指代，即主题名作为特定消息流的名称，不同主题名对应的消息流互相独立。消息流中的消息由“键，值，时间戳”3部分构成。Kafka集群性能跟主题存储所占用大小常系数相关，因此，主题存储所占用大小不是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka官方文档之入门指南">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、基本概念Kafka是一个面向“消息流”的系统，它能够进行消息流的“发布，存储，处理和消费”。在实际生产环境中，Kafka一般以Kafka集群的形式被应用。 二、设计简介2.1、主题特定的消息流以主题名进行指代，即主题名作为特定消息流的名称，不同主题名对应的消息流互相独立。消息流中的消息由“键，值，时间戳”3部分构成。Kafka集群性能跟主题存储所占用大小常系数相关，因此，主题存储所占用大小不是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170909-0-1.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170909-0-2.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170909-0-3.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170909-0-4.jpg">
+<meta property="article:published_time" content="2017-09-09T08:13:46.000Z">
+<meta property="article:modified_time" content="2017-09-09T08:13:46.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170909-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kafka官方文档之入门指南 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kafka官方文档之入门指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-09-09 16:13:46" itemprop="dateCreated datePublished" datetime="2017-09-09T16:13:46+08:00">2017-09-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">系统架构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/%E4%B8%AD%E9%97%B4%E4%BB%B6/" itemprop="url" rel="index"><span itemprop="name">中间件</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/%E4%B8%AD%E9%97%B4%E4%BB%B6/Kafka/" itemprop="url" rel="index"><span itemprop="name">Kafka</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/09/09/Kafka官方文档之入门指南/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>Kafka是一个面向“消息流”的系统，它能够进行消息流的“发布，存储，处理和消费”。在实际生产环境中，Kafka一般以Kafka集群的形式被应用。</p>
+<h2 id="二、设计简介"><a href="#二、设计简介" class="headerlink" title="二、设计简介"></a><strong>二、设计简介</strong></h2><h3 id="2-1、主题"><a href="#2-1、主题" class="headerlink" title="2.1、主题"></a><strong>2.1、主题</strong></h3><p>特定的消息流以主题名进行指代，即主题名作为特定消息流的名称，不同主题名对应的消息流互相独立。消息流中的消息由“键，值，时间戳”3部分构成。<br>Kafka集群性能跟主题存储所占用大小常系数相关，因此，主题存储所占用大小不是影响Kafka集群性能的主要因素。</p>
+<h3 id="2-2、API提供与应用程序角色"><a href="#2-2、API提供与应用程序角色" class="headerlink" title="2.2、API提供与应用程序角色"></a><strong>2.2、API提供与应用程序角色</strong></h3><p>Kafka提供4类API：Producer API，Consumer API，Streams API，Connector API，基于这4类API编程的应用程序分别具有以下4种角色：生产者，消费者，流处理器，连接器。关于这4类API的简要说明见表1，示意图见图1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>基于编程应用程序角色</th>
+<th>简要说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Producer API</td>
+<td>生产者</td>
+<td>允许生产者向主题发布消息</td>
+</tr>
+<tr>
+<td>Consumer API</td>
+<td>消费者</td>
+<td>允许消费者从主题订阅消息</td>
+</tr>
+<tr>
+<td>Streams API</td>
+<td>流处理器</td>
+<td>允许流处理器从主题订阅消息，处理消息，向主题发布消息</td>
+</tr>
+<tr>
+<td>Connector API</td>
+<td>连接器</td>
+<td>允许使用连接器从数据源（比如日志文件，Mysql，HDFS等）导入数据到Kafka的消息流，从Kafka的消息流导出数据到数据目的地（比如日志文件，Mysql，HDFS等）</td>
+</tr>
+</tbody></table>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20170909-0-1.jpg"></p>
+<h3 id="2-3、“发布-订阅”模型中的数据流路径"><a href="#2-3、“发布-订阅”模型中的数据流路径" class="headerlink" title="2.3、“发布-订阅”模型中的数据流路径"></a><strong>2.3、“发布-订阅”模型中的数据流路径</strong></h3><p>根据Kafka提供的API，使用Kafka有3种模型：发布-订阅模型（基于Producer API和Consumer API），流处理模型（基于Streams API）和连接器模型（基于Connector API）。<br>最常见的使用模型是发布-订阅模型，关于该模型的几点描述（以1个特定的主题A为例）如下：</p>
+<ul>
+<li>1到多个生产者向主题A发布消息</li>
+<li>消息消费的基本单元是“消费者组”，而不是“消费者”。基于消息消费的角度，订阅主题A的消费者组之间互相独立，订阅主题A的同一个消费者组内的消费者之间互相排斥，即“主题A对应的消息流中的任意一个消息会被所有订阅消费者组消费，却只会被订阅消费者组内的一个消费者消费”</li>
+</ul>
+<p>该模型的数据流路径有“宏观”和“微观”之分。</p>
+<h4 id="2-3-1、宏观数据流路径"><a href="#2-3-1、宏观数据流路径" class="headerlink" title="2.3.1、宏观数据流路径"></a><strong>2.3.1、宏观数据流路径</strong></h4><p>宏观数据流路径如上所述，示意图如图2所示。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20170909-0-2.jpg"></p>
+<h4 id="2-3-2、微观数据流路径"><a href="#2-3-2、微观数据流路径" class="headerlink" title="2.3.2、微观数据流路径"></a><strong>2.3.2、微观数据流路径</strong></h4><p>微观上，基于“负载均衡”考虑，主题由多个分区构成，同一个主题的所有分区均衡分布于Kafka集群的不同节点上，基于“容错性”考虑，对于“分区”，存在一定数量的“备份分区”，一旦“分区”不能正常工作，会选择相应的一个“备份分区”成为新“分区”。分区可被看作一个存储消息的队列，新消息只能被添加于队尾，新消息会被分配一个该队列中唯一的标识数字（被称为“<font color='red'>offset</font>”）。分区消息删除机制跟“消息是否被消费”无关，当<code>cleanup.policy=delete</code>时，根据配置的有效期或者大小，进行分区消息的删除；当<code>cleanup.policy=compact</code>时，根据“是否能够进行压缩”，进行分区消息的删除。主题分区结构示意图如图3所示。</p>
+<p>图3</p>
+<p><img src="https://blog.dslztx.top/imgs/20170909-0-3.png"></p>
+<p>生产者向主题发布消息，微观上，基于“负载均衡”考虑，生产者将自身的消息基于一定策略（比如“哈希函数”）均衡发布到主题的不同分区。<br>消费者组从主题订阅消息，微观上，基于“负载均衡”考虑，主题的任意一个分区被以一定策略绑定到订阅消费者组的某个特定消费者，分区的消息只被订阅消费者组内的相应绑定消费者消费，基于“负载均衡”考虑，这种绑定关系尽量均衡分布于订阅消费者组内的不同消费者，这种绑定关系是动态的以应对消费者组内消费者的增加和减少，具体由Kafka集群控制。基于上述绑定机制，分区的数量必须大于等于消费者组内的消费者数量，否则便会存在未绑定分区的消费者。另外，消费者被设计可自由消费分区中任意一个消息。<br>基于上述描述，微观数据流路径示意图如图4所示。</p>
+<p>图4</p>
+<p><img src="https://blog.dslztx.top/imgs/20170909-0-4.jpg"></p>
+<h3 id="2-4、设计保证"><a href="#2-4、设计保证" class="headerlink" title="2.4、设计保证"></a><strong>2.4、设计保证</strong></h3><p>Kafka提供以下几点设计保证：</p>
+<ul>
+<li>同一个生产者向同一个主题的同一个分区先后发布两个消息，在该分区中存储这两个消息时保持相同的先后顺序</li>
+<li>消费者所观察到的分区中消息的先后顺序，就是该分区中对应消息存储的先后顺序</li>
+<li>对于主题，假如配置分区的备份因子值为<code>N</code>，则共有N个“分区或者备份分区”，因此至多允许N-1个“分区或者备份分区”不能正常工作，而不丢失消息数据</li>
+</ul>
+<h2 id="三、具体应用"><a href="#三、具体应用" class="headerlink" title="三、具体应用"></a><strong>三、具体应用</strong></h2><h3 id="3-1、发布-订阅模型具体应用"><a href="#3-1、发布-订阅模型具体应用" class="headerlink" title="3.1、发布-订阅模型具体应用"></a><strong>3.1、发布-订阅模型具体应用</strong></h3><p>网站行为收集系统，性能数据收集系统，日志收集系统，事件变化日志系统等。同类产品有ZeroMQ，RabbitMQ，ActiveMQ等。</p>
+<h3 id="3-2、流处理模型具体应用"><a href="#3-2、流处理模型具体应用" class="headerlink" title="3.2、流处理模型具体应用"></a><strong>3.2、流处理模型具体应用</strong></h3><p>新闻素材收集处理推荐系统。同类产品有Apache Storm，Apache Samza等。</p>
+<h3 id="3-3、连接器模型具体应用"><a href="#3-3、连接器模型具体应用" class="headerlink" title="3.3、连接器模型具体应用"></a><strong>3.3、连接器模型具体应用</strong></h3><p>“导入Mysql数据，导出到HDFS”系统，“导入日志数据，导出到Mysql”系统。同类产品有Flume，Scribe等。</p>
+<h2 id="四、快速开始"><a href="#四、快速开始" class="headerlink" title="四、快速开始"></a><strong>四、快速开始</strong></h2><h3 id="4-1、搭建Kafka集群"><a href="#4-1、搭建Kafka集群" class="headerlink" title="4.1、搭建Kafka集群"></a><strong>4.1、搭建Kafka集群</strong></h3><p>Kafka主目录下有文件“config&#x2F;server.properties”，它是Kafka自带的一份完整的配置文件，当下我们只需关注其中的4个配置参数：broker.id，listeners，log.dir，zookeeper.connect。关于这4个配置参数的描述见表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>配置参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>broker.id</td>
+<td>整数，本Kafka节点在Kafka集群中的唯一标识符</td>
+</tr>
+<tr>
+<td>listeners</td>
+<td>本Kafka节点监听地址，客户端通过该地址访问本Kafka节点</td>
+</tr>
+<tr>
+<td>log.dir</td>
+<td>本Kafka节点的日志存放目录</td>
+</tr>
+<tr>
+<td>zookeeper.connect</td>
+<td>Kafka集群使用ZooKeeper集群提供的服务。本配置参数配置ZooKeeper集群客户端监听地址或者地址列表（以逗号隔开）</td>
+</tr>
+</tbody></table>
+<p>假定现有机器A，B，C，D，E，F，在A，B，C上运行ZooKeeper集群（客户端监听端口号都为2181）。<br>在D上，Kafka主目录下“config&#x2F;server.properties”文件内上述4个配置参数的配置值如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">broker.id=0</span><br><span class="line">listeners=PLAINTEXT://:9092</span><br><span class="line">log.dir=/tmp/kafka-logs</span><br><span class="line">zookeeper.connect=A:2181,B:2181,C:2181</span><br></pre></td></tr></table></figure>
+<p>执行<code>bin/kafka-server-start.sh config/server.properties</code>命令，运行D上的Kafka节点。</p>
+<p>在E上，Kafka主目录下“config&#x2F;server.properties”文件内上述4个配置参数的配置值如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">broker.id=1</span><br><span class="line">listeners=PLAINTEXT://:9092</span><br><span class="line">log.dir=/tmp/kafka-logs</span><br><span class="line">zookeeper.connect=A:2181,B:2181,C:2181</span><br></pre></td></tr></table></figure>
+<p>执行<code>bin/kafka-server-start.sh config/server.properties</code>命令，运行E上的Kafka节点。</p>
+<p>在F上，Kafka主目录下“config&#x2F;server.properties”文件内上述4个配置参数的配置值如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">broker.id=2</span><br><span class="line">listeners=PLAINTEXT://:9092</span><br><span class="line">log.dir=/tmp/kafka-logs</span><br><span class="line">zookeeper.connect=A:2181,B:2181,C:2181</span><br></pre></td></tr></table></figure>
+<p>执行<code>bin/kafka-server-start.sh config/server.properties</code>命令，运行F上的Kafka节点。</p>
+<h3 id="4-2、3种Kafka使用模型初体验"><a href="#4-2、3种Kafka使用模型初体验" class="headerlink" title="4.2、3种Kafka使用模型初体验"></a><strong>4.2、3种Kafka使用模型初体验</strong></h3><h4 id="4-2-1、发布-订阅模型初体验"><a href="#4-2-1、发布-订阅模型初体验" class="headerlink" title="4.2.1、发布-订阅模型初体验"></a><strong>4.2.1、发布-订阅模型初体验</strong></h4><p><strong>1、创建主题</strong><br>命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create --zookeeper A:2181 --replication-factor 3 --partitions 3 --topic my-replicated-topic</span><br></pre></td></tr></table></figure>
+<p>“–zookeeper A:2181”：通过ZooKeeper集群中的配置地址连接到Kafka集群，具体ZooKeeper地址是ZooKeeper集群中任意一个（多个）ZooKeeper节点的地址（地址列表）<br>“–replication-factor 3”：分区的备份因子值，当值为<code>N</code>时，表示“每个分区都有<code>N-1</code>个备份分区”<br>“–partitions 3”：配置主题的分区数量<br>“–topic my-replicated-topic”：配置主题名称<br><strong>2、生产者向主题发布消息</strong><br>命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.sh --broker-list D:9092 --topic my-replicated-topic</span><br></pre></td></tr></table></figure>
+<p>“–broker-list D:9092”：Kafka集群内节点地址或者地址列表（以逗号隔开）<br>“–topic my-replicated-topic”：指定主题<br><strong>3、消费者从主题订阅消息</strong><br>命令如下（可认为，消费者组只含有一个消费者）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --bootstrap-server D:9092 --from-beginning --topic my-replicated-topic</span><br></pre></td></tr></table></figure>
+<p>“–bootstrap-server D:9092”：Kafka集群内节点地址<br>“–from-beginning”：从头开始订阅消费主题消息<br>“–topic my-replicated-topic”：指定主题</p>
+<h4 id="4-2-2、流处理模型初体验"><a href="#4-2-2、流处理模型初体验" class="headerlink" title="4.2.2、流处理模型初体验"></a><strong>4.2.2、流处理模型初体验</strong></h4><p>以一个简单的“单词统计”应用程序为例，该独立的应用程序从Kafka集群的“streams-plaintext-input”主题读取单词数据，并将实时统计结果发布到Kafka集群的“streams-wordcount-output”主题。流处理模型初体验详细内容见<a target="_blank" rel="noopener" href="https://kafka.apache.org/0110/documentation/streams/quickstart">链接</a>。<br><strong>1、创建数据源主题</strong><br>创建Kafka集群的“streams-plaintext-input”主题，命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create --zookeeper A:2181 --replication-factor 3 --partitions 3 --topic streams-plaintext-input</span><br></pre></td></tr></table></figure>
+<p><strong>2、创建数据目的地主题</strong><br>创建Kafka集群的“streams-wordcount-output”主题，命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create --zookeeper A:2181 --replication-factor 3 --partitions 3 --topic streams-wordcount-output</span><br></pre></td></tr></table></figure>
+<p><strong>3、运行“单词统计”应用程序</strong><br>命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class.sh org.apache.kafka.streams.examples.wordcount.WordCountDemo</span><br></pre></td></tr></table></figure>
+<p><strong>4、运行生产者向数据源主题发布消息</strong><br>命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.sh --broker-list D:9092 --topic streams-plaintext-input</span><br></pre></td></tr></table></figure>
+<p>运行对应于“streams-plaintext-input”主题的生产者，依次输入“all streams lead to kafka”，“hello kafka streams”，“join kafka summit”发布消息。<br><strong>5、运行消费者从数据目的地主题订阅消息</strong><br>命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --bootstrap-server D:9092 --topic streams-wordcount-output --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer</span><br></pre></td></tr></table></figure>
+<p>运行对应于“streams-wordcount-output”主题的消费者，获取“单词统计”应用程序的实时统计结果。</p>
+<h4 id="4-2-3、连接器模型初体验"><a href="#4-2-3、连接器模型初体验" class="headerlink" title="4.2.3、连接器模型初体验"></a><strong>4.2.3、连接器模型初体验</strong></h4><p>以一个简单的“数据源是普通文本文件，数据目的地是普通文本文件”的应用程序为例，该独立的应用程序运行两个“连接器”：“Source Connector”和“Sink Connector”。“Source Connector”从普通文本文件读取数据并将其以消息的形式发布到Kafka集群的某个主题，“Sink Connector”从Kafka集群的某个主题订阅消费消息并将其写入普通文本文件。<br><strong>1、运行独立应用程序</strong><br>命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties config/connect-file-sink.properties</span><br></pre></td></tr></table></figure>
+<p>“config&#x2F;connect-standalone.properties”：本独立应用程序的配置文件，配置了Kafka集群地址等参数，比如<code>bootstrap.servers=D:9092</code><br>“config&#x2F;connect-file-source.properties”：本独立应用程序调用的“Source Connector”的配置文件，默认配置按行读取“test.txt”文件的字符串作为结构化消息的主体内容，并将消息发布到Kafka集群的“connect-test”主题<br>“config&#x2F;connect-file-sink.properties”：本独立应用程序调用的“Sink Connector”的配置文件，默认配置订阅Kafka集群的“connect-test”主题，消费解析消息并将解析得到的主体内容按行写入“test.sink.txt”文件<br><strong>2、查看“connect-test”主题内容</strong><br>命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --bootstrap-server D:9092 --from-beginning --topic connect-test</span><br></pre></td></tr></table></figure>
+<h2 id="五、生态系统"><a href="#五、生态系统" class="headerlink" title="五、生态系统"></a><strong>五、生态系统</strong></h2><p>Kafka生态系统详细内容见<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/Ecosystem">链接</a>。</p>
+<br/>
+文档地址：https://kafka.apache.org/0110/documentation.html#gettingStarted
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" title="Kafka官方文档之入门指南">https://dslztx.github.io/blog/2017/09/09/Kafka官方文档之入门指南/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/09/06/ZooKeeper%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" rel="prev" title="ZooKeeper官方文档之入门指南">
+      <i class="fa fa-chevron-left"></i> ZooKeeper官方文档之入门指南
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/10/25/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3-%E5%AF%B9%E8%B1%A1%E5%AF%BC%E8%AE%BA/" rel="next" title="Java编程思想#对象导论">
+      Java编程思想#对象导论 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/";
+    this.page.identifier = "2017/09/09/Kafka官方文档之入门指南/";
+    this.page.title = "Kafka官方文档之入门指南";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、基本语义1.1、两种形式、一种锁synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）synchronized方法；2）synchronized(Java对象obj)语句块。 但是本质只有一种synchronized锁，该锁围绕对应的Java对象：  在前者情形中，如果是非静态方法，对应的Java对象为实例对象；如果是静态方法，对应的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="synchronized锁内部实现">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、基本语义1.1、两种形式、一种锁synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）synchronized方法；2）synchronized(Java对象obj)语句块。 但是本质只有一种synchronized锁，该锁围绕对应的Java对象：  在前者情形中，如果是非静态方法，对应的Java对象为实例对象；如果是静态方法，对应的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-0.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-1.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-2.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-3.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-4.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-5.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-6.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-7.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-8.svg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20200326-0-9.svg">
+<meta property="article:published_time" content="2020-03-26T14:49:15.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.240Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20200326-0-0.svg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>synchronized锁内部实现 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          synchronized锁内部实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-26 22:49:15" itemprop="dateCreated datePublished" datetime="2020-03-26T22:49:15+08:00">2020-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/26/synchronized锁内部实现/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、基本语义"><a href="#一、基本语义" class="headerlink" title="一、基本语义"></a><strong>一、基本语义</strong></h2><h3 id="1-1、两种形式、一种锁"><a href="#1-1、两种形式、一种锁" class="headerlink" title="1.1、两种形式、一种锁"></a><strong>1.1、两种形式、一种锁</strong></h3><p>synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）<code>synchronized方法</code>；2）<code>synchronized(Java对象obj)语句块</code>。</p>
+<p>但是本质只有一种synchronized锁，该锁围绕对应的Java对象：</p>
+<ul>
+<li>在前者情形中，如果是非静态方法，对应的Java对象为实例对象；如果是静态方法，对应的Java对象为类对象</li>
+<li>在后者情形中，对应的Java对象就是obj</li>
+</ul>
+<h3 id="1-2、申请锁和释放锁"><a href="#1-2、申请锁和释放锁" class="headerlink" title="1.2、申请锁和释放锁"></a><strong>1.2、申请锁和释放锁</strong></h3><p><strong>申请锁</strong>：“<code>synchronized方法</code>进入”或者“<code>synchronized(Java对象obj)语句块</code>进入”。<br><strong>释放锁</strong>：“<code>synchronized方法</code>退出”或者“<code>synchronized(Java对象obj)语句块</code>退出”。</p>
+<h3 id="1-3、锁分类"><a href="#1-3、锁分类" class="headerlink" title="1.3、锁分类"></a><strong>1.3、锁分类</strong></h3><p>从不同维度进行锁分类，synchronized锁属于：</p>
+<ul>
+<li>悲观锁</li>
+<li>排他锁</li>
+<li>阻塞锁</li>
+<li>可重入锁</li>
+<li>非公平锁</li>
+</ul>
+<h2 id="二、内部实现之4种锁状态"><a href="#二、内部实现之4种锁状态" class="headerlink" title="二、内部实现之4种锁状态"></a><strong>二、内部实现之4种锁状态</strong></h2><p>接下来所作内部实现讨论所基于操作系统为Linux。<br>最初的synchronized锁内部实现中，只有“无锁”和“有锁”两种锁状态，“有锁”的实现基于<code>Monitor（参见“3.1.3、Monitor”小节）</code>，但是存在“Monitor操作使用代价高昂，有些锁使用场景不必须使用Monitor”的问题，比如“一些工具类方法为提供线程安全性会加上synchronized关键词，但在实际应用中却只是在单线程语境下使用”。<br>因此，为提升synchronized锁性能，引入“偏向锁”和“轻量级锁”两种锁状态，将原来的“有锁”锁状态重命名为“重量级锁”，故共有4个锁状态：无锁、偏向锁、轻量级锁、重量级锁。4个锁状态适用的锁使用场景如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>适用锁使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无锁</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>偏向锁</td>
+<td>一个线程竞争锁</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>多个线程交替竞争锁（线程T1申请锁，释放锁后，线程T2申请锁，释放锁，…）</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>多个线程无序竞争锁（即锁竞争非常激烈）</td>
+</tr>
+</tbody></table>
+<br/>
+偏向锁、轻量级锁、重量级锁的锁分类如表2。
+
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>锁类别\锁分类</th>
+<th>悲观锁</th>
+<th>排他锁</th>
+<th>阻塞锁</th>
+<th>可重入锁</th>
+<th>非公平锁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>偏向锁</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+<td>是</td>
+<td><font color='red'>无意义</font></td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+<td>是</td>
+<td><font color='red'>无意义</font></td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<p><strong>备注：</strong></p>
+<ul>
+<li>根据“公平锁”和“非公平锁”的定义，由于“偏向锁”和“轻量级锁”不涉及到等待队列，故关于“偏向锁&#x2F;轻量级锁是否为公平锁&#x2F;非公平锁”的问题没有意义</li>
+</ul>
+<h2 id="三、内部实现之OpenJDK源代码阅读"><a href="#三、内部实现之OpenJDK源代码阅读" class="headerlink" title="三、内部实现之OpenJDK源代码阅读"></a><strong>三、内部实现之OpenJDK源代码阅读</strong></h2><p>这里的OpenJDK源代码指的是OpenJDK 8源代码。</p>
+<p>在继续讨论之前，首先定义一些名词：</p>
+<ul>
+<li><code>lockObj</code>，表示synchronized锁所围绕的Java对象，这个Java对象可以是实例对象，也可以是类对象<sup>1</sup>。比如“<code>synchronized(obj)&#123;&#125;</code>中的obj”，“<code>synchronized(A.class)&#123;&#125;</code>中的类A所对应的对象”</li>
+<li><code>kclassObj</code>，表示lockObj所对应的类对象<sup>2</sup>，这个类对象<sup>2</sup>属于VM进程内部实现层面，对Java语言层面不可见，并不是属于Java语言层面的类对象<sup>1</sup></li>
+<li><code>lockObj-&gt;markword</code>，表示lockObj这个Java对象的Mark Word字段</li>
+<li><code>kclassObj-&gt;prototype_markword</code>，表示kclassObj这个类对象<sup>2</sup>的原型Mark Word字段</li>
+</ul>
+<p><font color='red'>另外需要注意的是，本文注重描述主体脉络，一些具体细节并未涉及到。</font></p>
+<h3 id="3-1、数据结构"><a href="#3-1、数据结构" class="headerlink" title="3.1、数据结构"></a><strong>3.1、数据结构</strong></h3><h4 id="3-1-1、Mark-Word"><a href="#3-1-1、Mark-Word" class="headerlink" title="3.1.1、Mark Word"></a><strong>3.1.1、Mark Word</strong></h4><p>根据synchronized关键词的用法可知，实例对象和类对象都可作为锁对象，锁对象的Mark Word字段被设计用于保存相应的锁状态信息。<br>Mark Word可分为32位和64位，接下来以32位Mark Word为例。</p>
+<p>32位Mark Word字段保存锁状态信息的方案设计如表3所示。</p>
+<p>表3</p>
+<table>
+<thead>
+<tr><th rowspan=4>对象状态</th></tr>
+<tr><th colspan=5>Mark Word</th></tr>
+<tr><th colspan=2>25bit</th><th>4bit</th><th>1bit</th><th>2bit</th></tr>
+<tr><th>23bit</th><th>2bit</th><th></th><th>是否可偏向</th><th>锁标志位</th></tr>
+</thead>
+<tbody>
+<tr><th>无锁</th><th colspan=2>HashCode</th><th>对象分代年龄</th><th>0</th><th>01</th></tr>
+<tr><th>偏向锁</th><th>ThreadID</th><th>Epoch</th><th>对象分代年龄</th><th>1</th><th>01</th></tr>
+<tr><th>轻量级锁</th><th colspan=4>Lock Record指针</th><th>00</th></tr>
+<tr><th>重量级锁</th><th colspan=4>Monitor指针</th><th>10</th></tr>
+<tr><th>标记为GC</th><th colspan=4>无</th><th>11</th></tr>
+</tbody>
+</table>
+
+<h4 id="3-1-2、Lock-Record"><a href="#3-1-2、Lock-Record" class="headerlink" title="3.1.2、Lock Record"></a><strong>3.1.2、Lock Record</strong></h4><p>锁最终被线程持有，线程使用线程栈中的Lock Record来记录本线程的锁持有情况。<br>Lock Record主要有两个字段：1）obj，指向对应的lockObj；2）displaced_header，释放轻量级锁时作为Mark Word的复制来源。</p>
+<p>具体定义如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A BasicObjectLock associates a specific Java object with a BasicLock.</span></span><br><span class="line"><span class="comment">// It is currently embedded in an interpreter frame.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BasicObjectLock</span> VALUE_OBJ_CLASS_SPEC &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    BasicLock _lock; <span class="comment">// the lock, must be double word aligned</span></span><br><span class="line">    oop _obj; <span class="comment">// object holds the lock;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BasicLock</span> VALUE_OBJ_CLASS_SPEC &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">volatile</span> markOop _displaced_header;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-2-1、创建"><a href="#3-1-2-1、创建" class="headerlink" title="3.1.2.1、创建"></a><strong>3.1.2.1、创建</strong></h5><p>每次线程T0申请lockObj的锁时，都会在T0的线程栈中申请一个用于lockObj的Lock Record，创建过程描述如下：<br>0. 从T0线程栈的空闲Lock Record列表中取“上限下内存地址最高的Lock Record”，“上限下内存地址最高的Lock Record”的含义是“如果已经存在obj指向lockObj的Lock Record，其中最低内存地址为A0，那么下次再申请用于lockObj的Lock Record时，内存地址上限为A0；如果未存在obj指向lockObj的Lock Record，那么下次再申请用于lockObj的Lock Record时，内存地址上限为空闲Lock Record列表的本身内存地址上限”<br>0. 假设拿到的空Lock Record为LR0，那么LR0的obj字段指向lockObj<br>0. LR0的displaced_header字段填充分为3种情形：<br>    - 申请的是偏向锁，那么displaced_header的值不管是首次申请成功，还是锁重入，始终为NULL<br>    - 申请的是轻量级锁，如果是首次申请成功，设为该轻量级锁释放后Mark Word需要还原到的值；如果是锁重入，那么displaced_header的值为NULL<br>    - 申请的是重量级锁，那么displaced_header的值不管是首次申请成功，还是锁重入，都为某个特定的值，这个特定的值没有任何语义，只是为了标识持有锁状态为重量级锁</p>
+<h5 id="3-1-2-2、销毁"><a href="#3-1-2-2、销毁" class="headerlink" title="3.1.2.2、销毁"></a><strong>3.1.2.2、销毁</strong></h5><p>每次线程T0释放lockObj的锁时，在T0线程栈的Lock Record列表中找到属于lockObj的最低内存地址的Lock Record进行销毁，即将其obj字段置为NULL。</p>
+<h5 id="3-1-2-3、Lock-Record的意义"><a href="#3-1-2-3、Lock-Record的意义" class="headerlink" title="3.1.2.3、Lock Record的意义"></a><strong>3.1.2.3、Lock Record的意义</strong></h5><p>线程T0线程栈中属于lockObj的Lock Record列表是能表达T0对lockObj<code>持有状态</code>和<code>持有次数</code>最准确的数据。</p>
+<table>
+<thead>
+<tr>
+<th>&#92;</th>
+<th>持有状态</th>
+<th>持有次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>偏向锁</td>
+<td>当T0释放偏向锁且为最后一次释放（即不为偏向锁锁重入的释放）后，相应Mark Word上的ThreadID并未更新，<font color='red'>此时Mark Word的ThreadID表达持有状态是不准确的</font>，只有此时最后一个Lock Record也被销毁才能准确表达这个锁持有状态的变化</td>
+<td>只能通过Lock Record来表达</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>通过Mark Word上Lock Record指针准确表达：当为NULL，表示未持有锁；当不为NULL，Lock Record所在线程持有锁</td>
+<td>只能通过Lock Record来表达</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>通过Mark Word上Monitor指针准确表达：当为NULL，表示未持有锁；当不为NULL，所指向Monitor对象的owner字段直接或者间接表征（此时，owner的值为指向Lock Record的指针）持有线程，当然如果owner字段为NULL，同样表示未持有锁</td>
+<td><font color='red'>当升级到重量级锁时，如果原来并没有“偏向锁和轻量级锁”的锁重入，此时recursions字段能表达锁重入次数，否则recursions字段不能表达锁重入次数，只有Lock Record表达锁重入次数恒久保持准确</font></td>
+</tr>
+</tbody></table>
+<h4 id="3-1-3、Monitor"><a href="#3-1-3、Monitor" class="headerlink" title="3.1.3、Monitor"></a><strong>3.1.3、Monitor</strong></h4><p>即重量级锁，对应的数据结构为<code>ObjectMonitor</code>，其文件路径是<code>hotspot/src/share/vm/runtime/objectMonitor.hpp:77</code>。</p>
+<h3 id="3-2、VM参数"><a href="#3-2、VM参数" class="headerlink" title="3.2、VM参数"></a><strong>3.2、VM参数</strong></h3><p>在synchronized锁的源代码实现中有两个VM参数值得说明：</p>
+<ul>
+<li><code>-XX:+/-UseBiasedLocking</code>：是否开启&#x2F;关闭偏向锁</li>
+<li><code>-XX:+/-UseHeavyMonitors</code>：是否只使用重量级锁，而不使用偏向锁和轻量级锁，<code>-XX:+UseHeavyMonitors</code>隐式包含了<code>-XX:-UseBiasedLocking</code></li>
+</ul>
+<h3 id="3-3、锁申请和锁释放"><a href="#3-3、锁申请和锁释放" class="headerlink" title="3.3、锁申请和锁释放"></a><strong>3.3、锁申请和锁释放</strong></h3><p>关于“锁申请”和“锁释放”这里作简单说明，详见源代码。<br><strong>1、锁申请</strong><br>线程T1持有锁，线程T2竞争申请锁，且过程中T1不释放锁，那么：</p>
+<ul>
+<li>当锁状态为重量级锁时，T2阻塞</li>
+<li>当锁状态为偏向锁或者轻量级锁，锁最终升级为重量级锁（可能有中间状态的轻量级锁），锁升级后仍由T1持有（包括中间状态的轻量级锁），T2阻塞。锁升级后仍由T1持有是<font color='red'>显而易见的，否则就是“在线程T1持有锁的过程中，允许锁的持有权被抢断式转移”，这违背happens-before规则——“对一个锁的解锁，happens-before于随后对这个锁的加锁”</font></li>
+</ul>
+<p><strong>2、锁释放</strong><br>锁释放分为两种情形“重入锁释放”和“非重入锁释放”：</p>
+<ul>
+<li>重入锁释放。偏向锁、轻量级锁、重量级锁的释放操作正常无特别之处</li>
+<li>非重入锁释放。1）偏向锁释放时，不会被置为匿名偏向状态，即“Mark Word的ThreadID域值不会被置为全0值，而是保持原值”，考虑到“一个线程竞争锁”的偏向锁使用场景（T0持有偏向锁，释放，稍后再度申请持有时，无需CAS操作修改Mark Word，直接持有偏向锁成功），这个设计是合理的；2）轻量级锁释放时，会使用<code>displaced_header</code>重置Mark Word，且<code>displaced_header</code>值必为无锁状态；3）重量级锁释放时，不会回退到无锁，考虑到“升级到重量级锁意味着锁竞争十分激烈，现在回退后后续仍然有很大概率继续升级”，这个设计是合理的</li>
+</ul>
+<h3 id="3-4、偏向锁"><a href="#3-4、偏向锁" class="headerlink" title="3.4、偏向锁"></a><strong>3.4、偏向锁</strong></h3><h4 id="3-4-1、匿名偏向和非匿名偏向"><a href="#3-4-1、匿名偏向和非匿名偏向" class="headerlink" title="3.4.1、匿名偏向和非匿名偏向"></a><strong>3.4.1、匿名偏向和非匿名偏向</strong></h4><p><strong>匿名偏向</strong>：表示开启偏向锁，但是还未偏向具体线程，此时Mark Word中的ThreadID域值为全0。<br><strong>非匿名偏向</strong>：即正常偏向，表示开启偏向锁，也已经偏向到具体线程，此时Mark Word中的ThreadID域值为该具体线程的ID。</p>
+<h4 id="3-4-2、控制是否开启偏向锁"><a href="#3-4-2、控制是否开启偏向锁" class="headerlink" title="3.4.2、控制是否开启偏向锁"></a><strong>3.4.2、控制是否开启偏向锁</strong></h4><p>有两个途径控制是否开启偏向锁：</p>
+<ul>
+<li><code>-XX:+/-UseBiasedLocking</code>VM参数，须知<code>-XX:+/-UseHeavyMonitors</code>VM参数只是通过隐式设置<code>-XX:+/-UseBiasedLocking</code>VM参数来间接控制是否开启偏向锁。这个途径是静态固定的</li>
+<li><code>kclassObj-&gt;prototype_markword</code>上的锁标志位，为<code>101</code>表示开启偏向锁，否则表示关闭偏向锁。这个途径是动态可变的，具体是“开始开启偏向锁，经过偏向锁使用数据统计发现属于该kclassObj的lockObj不适合使用偏向锁，关闭偏向锁”</li>
+</ul>
+<p>在创建lockObj对象分配内存时，当开启偏向锁时，Mark Word的初始状态为匿名偏向状态，否则为无锁状态。</p>
+<p><strong>备注</strong>：笔者不能确定<code>-XX:+/-UseBiasedLocking</code>VM参数和“kclassObj-&gt;prototype_markword上初始锁标志位”两者之间的关系，推测是“如果设置了<code>-XX:-UseBiasedLocking</code>VM参数，那么kclassObj-&gt;prototype_markword上的初始锁标志位不为101”</p>
+<h4 id="3-4-3、重偏向和撤销"><a href="#3-4-3、重偏向和撤销" class="headerlink" title="3.4.3、重偏向和撤销"></a><strong>3.4.3、重偏向和撤销</strong></h4><p>首先介绍两个概念：</p>
+<ul>
+<li>VM线程，即VM Thread，该线程会在进入安全点时，从VMOperationQueue队列中取出需要在安全点执行的操作去执行，比如GC操作</li>
+<li>安全点，即Safe Point，其代表一个状态，在该状态下所有线程都是暂停的，除了VM线程</li>
+</ul>
+<p><strong>1、重偏向</strong><br><strong>重偏向</strong>：<code>lockObj-&gt;markword</code>处于正常偏向状态，且ThreadID域的值表征线程T1，但实际上T1已释放掉该偏向锁，那么如果此时T2申请该偏向锁，则可成功，ThreadID域的值置为线程T2，这就是偏向锁的重偏向。</p>
+<p>重偏向过程的重点在于“如何知晓T1已释放掉偏向锁？”。因为根据“3.3、锁申请和锁释放”小节内容可知，偏向锁释放时<code>Mark Word的ThreadID域值不会被置为全0值，而是保持原值</code>，有两种策略：1）主动侦测线程T1是否仍然持有偏向锁；2）查看<code>lockObj-&gt;markword</code>中Epoch域值与对应的<code>kclassObj-&gt;prototype_markword</code>中Epoch域值是否不一致，即Epoch阈值是否过期，如果过期，则表征T1已释放掉该偏向锁。<font color='red'>这个不一致状态是由“批量重偏向”过程设置的</font></p>
+<p>上述提及的“批量重偏向”过程命名有一定歧义性，因为本质上并没有完成重偏向，而只是为后续完成重偏向作了预处理。另外，关于这个“批量重偏向”过程有4点说明：</p>
+<ul>
+<li>触发条件是基于统计数据，满足设定的批量重偏向阈值时进行</li>
+<li>方法名是<code>bulk_revoke_or_rebias_at_safepoint()</code></li>
+<li>执行时机是：在安全点，VM线程执行</li>
+<li>具体过程是：所传入lockObj对应的<code>kclassObj-&gt;prototype_markword</code>中的Epoch域值+1，遍历所有存活线程，所持有锁对应lockObj0的<code>lockObj0-&gt;markword</code>中的Epoch域值同步+1，相对的，未被存活线程持有锁对应lockObj0的<code>lockObj0-&gt;markword</code>中的Epoch域值未被同步+1。需要注意的是，上述lockObj0与所传入lockObj属于同一个<code>kclassObj</code></li>
+</ul>
+<p><strong>2、撤销</strong><br><strong>撤销</strong>：从“已偏向锁”状态置为“无锁、匿名偏向锁、轻量级锁”。</p>
+<p>关于“批量撤销”有4点说明：</p>
+<ul>
+<li>触发条件是基于统计数据，满足设定的批量撤销阈值时进行</li>
+<li>方法名是<code>bulk_revoke_or_rebias_at_safepoint()</code></li>
+<li>执行时机是：在安全点，VM线程执行</li>
+<li>具体过程是：所传入lockObj对应的<code>kclassObj-&gt;prototype_markword</code>中的锁标志位设为“关闭偏向锁”，遍历所有存活线程，如果所持有锁对应lockObj与所传入lockObj属于同一个<code>kclassObj</code>时，撤销该偏向锁</li>
+</ul>
+<h3 id="3-5、轻量级锁"><a href="#3-5、轻量级锁" class="headerlink" title="3.5、轻量级锁"></a><strong>3.5、轻量级锁</strong></h3><p>相对最简单的锁形态。<br>所指向Lock Record的<code>displaced_header</code>字段存放释放该轻量级锁后需要还原到的Mark Word值，是一个无锁状态的值。</p>
+<h3 id="3-6、重量级锁"><a href="#3-6、重量级锁" class="headerlink" title="3.6、重量级锁"></a><strong>3.6、重量级锁</strong></h3><p>接下来对重量级锁的申请和释放过程作进一步细化描述，首先须知的是对应于重量级锁的数据结构ObjectMonitor内有两个相关等待队列<code>ContentionList（简称为cxq）</code>和<code>EntryList</code>，其内部元素对象数据结构为ObjectWaiter。<br>现假定线程T0已获得重量级锁M0：</p>
+<ul>
+<li>后续一系列线程T1，T2，T3，…申请锁，首先尝试直接竞争锁，如果成功直接返回，否则基于线程本身构造一个ObjectWaiter对象加入cxq队列，调用阻塞方法阻塞线程本身，这里的阻塞分为两种情形：<ul>
+<li>无超时阻塞，只会被唤醒方法唤醒，唤醒后尝试竞争锁，如果成功直接返回，否则继续下一轮无超时阻塞</li>
+<li>超时阻塞，除了会被唤醒方法唤醒外，还会在设定超时时间到期后自动唤醒，唤醒后尝试竞争锁，如果成功直接返回，否则继续下一轮无超时阻塞。被选中的超时阻塞线程称为“_Responsible”线程</li>
+</ul>
+</li>
+<li>T0释放锁，首先合并<code>cxq</code>和<code>EntryList</code>队列，选取合并后队列首元素ObjectWaiter，唤醒对应的线程，该选中线程又被称为“假定继承人（称为假定是因为不一定能竞争锁成功）”，结合上面描述可知，这个假定继承人可能是“_Responsible”线程，也可能不是“_Responsible”线程</li>
+<li>根据上面描述可知，极端情况下同时竞争锁的线程最多有3个来源：申请锁的新线程、无超时阻塞线程被唤醒、超时阻塞线程设定超时时间到期后自动唤醒</li>
+</ul>
+<p><font color='red'>根据上面叙述，重量级锁为非公平锁。</font></p>
+<h3 id="3-7、HashCode计算"><a href="#3-7、HashCode计算" class="headerlink" title="3.7、HashCode计算"></a><strong>3.7、HashCode计算</strong></h3><p>根据表3可知，在无锁状态时，Mark Word中有个HashCode字段，该字段用来保存第一次计算原生HashCode值（调用未被覆盖的hashCode()方法，即<code>lockObj.hashCode()</code>，覆盖后的hashCode()方法计算值无需保存；或者调用System.identityHashCode()方法，即<code>System.identityHashCode(lockObj)</code>）的结果值，避免后续重复计算。</p>
+<p>在“偏向锁”或者“轻量级锁”状态时，没有字段存放原生HashCode值，故此种情形下，为了能够存放原生HashCode值，也会进行锁升级，即最终升级到重量级锁，在重量级锁对应的ObjectMonitor数据结构中有个字段可用来存放该原生HashCode值。</p>
+<h3 id="3-8、锁状态转移图"><a href="#3-8、锁状态转移图" class="headerlink" title="3.8、锁状态转移图"></a><strong>3.8、锁状态转移图</strong></h3><p>锁状态示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20200326-0-0.svg"></p>
+<p>关于锁状态转移有以下几点说明：</p>
+<ul>
+<li>关于“锁申请、锁释放、偏向锁的重偏向和撤销”已经在上文中涉及。这里主要说明下“重量级锁-&gt;无锁（即图示中<code>重量级锁降级[1]</code>）”的状态转移过程，根据“3.3、锁申请和锁释放”可知，释放重量级锁时，该过程并不会发生，但实际上该过程是客观存在的，对应的具体方法路径是“hotspot&#x2F;src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;synchronizer.cpp”源文件内的<code>deflate_idle_monitors()</code>方法，而对于该方法的具体调用条件、时机等，笔者并不是很清楚。关于这点，《Java并发编程的艺术》一书中作者说到“重量级锁没有锁降级机制”应该是个错误</li>
+<li>“合法的锁升级”包含：|无锁、偏向锁| -&gt; |轻量级锁|，|无锁、轻量级锁| -&gt; |重量级锁|；“合法的锁降级”包含：|轻量级锁、重量级锁| -&gt; |无锁|</li>
+</ul>
+<h3 id="3-9、源代码阅读"><a href="#3-9、源代码阅读" class="headerlink" title="3.9、源代码阅读"></a><strong>3.9、源代码阅读</strong></h3><p>synchronized锁有两种使用形式，对应着两条源代码实现路径，synchronized锁的两种使用示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">g</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>依次执行<code>javac SynchronizedExample.java</code>和<code>javap -v SynchronizedExample</code>命令，得到以上类的JVM指令形式。</p>
+<p>f()方法和g()方法的JVM指令片段分别如下：</p>
+<p>f()方法的JVM指令片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void f();</span><br><span class="line">  descriptor: ()V</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SYNCHRONIZED</span><br><span class="line">  Code:</span><br><span class="line">    stack=2, locals=1, args_size=1</span><br><span class="line">       0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">       3: ldc           #3                  // String hello world</span><br><span class="line">       5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">       8: return</span><br><span class="line">    LineNumberTable:</span><br><span class="line">      line 4: 0</span><br><span class="line">      line 5: 8</span><br></pre></td></tr></table></figure>
+
+<p>g()方法的JVM指令片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public void g();</span><br><span class="line">  descriptor: ()V</span><br><span class="line">  flags: ACC_PUBLIC</span><br><span class="line">  Code:</span><br><span class="line">    stack=2, locals=3, args_size=1</span><br><span class="line">       0: aload_0</span><br><span class="line">       1: dup</span><br><span class="line">       2: astore_1</span><br><span class="line">       3: monitorenter</span><br><span class="line">       4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">       7: ldc           #3                  // String hello world</span><br><span class="line">       9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">      12: aload_1</span><br><span class="line">      13: monitorexit</span><br><span class="line">      14: goto          22</span><br><span class="line">      17: astore_2</span><br><span class="line">      18: aload_1</span><br><span class="line">      19: monitorexit</span><br><span class="line">      20: aload_2</span><br><span class="line">      21: athrow</span><br><span class="line">      22: return</span><br><span class="line">    Exception table:</span><br><span class="line">       from    to  target type</span><br><span class="line">           4    14    17   any</span><br><span class="line">          17    20    17   any</span><br><span class="line">    LineNumberTable:</span><br><span class="line">      line 8: 0</span><br><span class="line">      line 9: 4</span><br><span class="line">      line 10: 12</span><br><span class="line">      line 11: 22</span><br><span class="line">    StackMapTable: number_of_entries = 2</span><br><span class="line">      frame_type = 255 /* full_frame */</span><br><span class="line">        offset_delta = 17</span><br><span class="line">        locals = [ class SynchronizedExample, class java/lang/Object ]</span><br><span class="line">        stack = [ class java/lang/Throwable ]</span><br><span class="line">      frame_type = 250 /* chop */</span><br><span class="line">        offset_delta = 4</span><br></pre></td></tr></table></figure>
+<p>在f()方法的JVM指令片段中，使用<code>ACC_SYNCHRONIZED</code>来标记synchronized方法（最终也会转换成锁申请和释放操作），在g()方法的JVM指令片段中，使用<code>monitorenter</code>和<code>monitorexit</code>分别标记锁申请和释放。两者对应两条源代码实现路径（虽然这两条源代码实现路径相似度非常高），接下来基于后者对应的源代码实现路径来进行介绍。</p>
+<p>接下来在JVM源码中寻找解析“monitorenter”和“monitorexit”指令的地方，有两处标的：<code>hotspot/src/share/vm/interpreter/bytecodeInterpreter.cpp:1884</code>和<code>hotspot/src/cpu/x86/vm/templateTable_x86_64.cpp:3668</code>。第一处标的是“字节码解释器”实现形式，用C++语言实现，其优点是“实现相对简单且容易理解”，缺点是“执行慢”；第二处标的是“模板解释器”实现形式，用汇编语言实现，其优点是“执行快”，缺点是“不好理解”。两者的实现是等价的，为了便于理解，跟踪阅读第一处标的。</p>
+<p><font color='red'>另外</font>，在源代码中有一个出现频率非常高的CAS方法<code>cmpxchg_ptr(newV, addr, oldV)</code>，这个CAS方法是属于C++语言层面的，底层会映射到处理器的CAS指令，其含义是“如果内存地址addr当下值等于oldV，则其值原子更新成newV，否则更新失败，方法恒返回内存地址当下值”。</p>
+<h4 id="3-9-1、申请锁"><a href="#3-9-1、申请锁" class="headerlink" title="3.9.1、申请锁"></a><strong>3.9.1、申请锁</strong></h4><table>
+<thead>
+<tr>
+<th>方法&#x2F;语句块</th>
+<th>方法&#x2F;语句块对应的流程图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;interpreter&#x2F;bytecodeInterpreter.cpp”源文件： <code>CASE(_monitorenter)</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-1.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;interpreter&#x2F;interpreterRuntime.cpp”源文件： <code>InterpreterRuntime::monitorenter()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-2.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;synchronizer.cpp”源文件： <code>ObjectSynchronizer::slow_enter()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-3.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;biasedLocking.cpp”源文件： <code>BiasedLocking::Condition bulk_revoke_or_rebias_at_safepoint()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-4.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;biasedLocking.cpp”源文件： <code>BiasedLocking::Condition revoke_bias()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-5.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;synchronizer.cpp”源文件： <code>ObjectSynchronizer::inflate()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-6.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;objectMonitor.cpp”源文件： <code>ObjectMonitor::enter()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-7.svg"></td>
+</tr>
+</tbody></table>
+<h4 id="3-9-2、释放锁"><a href="#3-9-2、释放锁" class="headerlink" title="3.9.2、释放锁"></a><strong>3.9.2、释放锁</strong></h4><table>
+<thead>
+<tr>
+<th>方法&#x2F;语句块</th>
+<th>方法&#x2F;语句块对应的流程图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;interpreter&#x2F;bytecodeInterpreter.cpp”源文件： <code>CASE(_monitorexit)</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-8.svg"></td>
+</tr>
+<tr>
+<td>“src&#x2F;share&#x2F;vm&#x2F;runtime&#x2F;objectMonitor.cpp”源文件： <code>ObjectMonitor::exit()</code></td>
+<td><img src="https://blog.dslztx.top/imgs/20200326-0-9.svg"></td>
+</tr>
+</tbody></table>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><h3 id="4-1、一个Bug"><a href="#4-1、一个Bug" class="headerlink" title="4.1、一个Bug"></a><strong>4.1、一个Bug</strong></h3><p>Bug描述：配置了<code>-XX:+UseHeavyMonitors</code>VM参数，意图不使用偏向锁和轻量级锁，但是由下面会执行到的方法可知，还是有可能会去申请轻量级锁的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">ObjectSynchronizer::slow_enter</span><span class="params">(Handle obj, BasicLock* lock, TRAPS)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    markOop mark = obj-&gt;<span class="built_in">mark</span>();</span><br><span class="line">    <span class="built_in">assert</span>(!mark-&gt;<span class="built_in">has_bias_pattern</span>(), <span class="string">&quot;should not see bias pattern here&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mark-&gt;<span class="built_in">is_neutral</span>()) &#123;</span><br><span class="line">        <span class="comment">// Anticipate successful CAS -- the ST of the displaced mark must</span></span><br><span class="line">        <span class="comment">// be visible &lt;= the ST performed by the CAS.</span></span><br><span class="line">        <span class="comment">// 申请轻量级锁</span></span><br><span class="line">        lock-&gt;<span class="built_in">set_displaced_header</span>(mark);</span><br><span class="line">        <span class="keyword">if</span> (mark == (markOop)Atomic::<span class="built_in">cmpxchg_ptr</span>(lock, <span class="built_in">obj</span>()-&gt;<span class="built_in">mark_addr</span>(), mark)) &#123;</span><br><span class="line">            <span class="built_in">TEVENT</span>(slow_enter</span><br><span class="line">                   : release stacklock);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Fall through to inflate() ...</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mark-&gt;<span class="built_in">has_locker</span>() &amp;&amp; THREAD-&gt;<span class="built_in">is_lock_owned</span>((address)mark-&gt;<span class="built_in">locker</span>())) &#123;</span><br><span class="line">        <span class="built_in">assert</span>(lock != mark-&gt;<span class="built_in">locker</span>(), <span class="string">&quot;must not re-lock the same lock&quot;</span>);</span><br><span class="line">        <span class="built_in">assert</span>(lock != (BasicLock*)obj-&gt;<span class="built_in">mark</span>(), <span class="string">&quot;don&#x27;t relock with same BasicLock&quot;</span>);</span><br><span class="line">        lock-&gt;<span class="built_in">set_displaced_header</span>(<span class="literal">NULL</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2、阻塞"><a href="#4-2、阻塞" class="headerlink" title="4.2、阻塞"></a><strong>4.2、阻塞</strong></h3><p>对于synchronized锁来说，竞争不到锁阻塞，本质是对于重量级锁状态而言，如果是无锁、偏向锁和轻量级锁状态，则最终会升级成重量级锁再阻塞。</p>
+<br/>
+
+<h2 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a><strong>参考文献：</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://github.com/farmerjohngit/myblog/issues/12">https://github.com/farmerjohngit/myblog/issues/12</a><br>[2]<a target="_blank" rel="noopener" href="https://github.com/farmerjohngit/myblog/issues/13">https://github.com/farmerjohngit/myblog/issues/13</a><br>[3]<a target="_blank" rel="noopener" href="https://github.com/farmerjohngit/myblog/issues/14">https://github.com/farmerjohngit/myblog/issues/14</a><br>[4]<a target="_blank" rel="noopener" href="https://github.com/farmerjohngit/myblog/issues/15">https://github.com/farmerjohngit/myblog/issues/15</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/" title="synchronized锁内部实现">https://dslztx.github.io/blog/2020/03/26/synchronized锁内部实现/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" rel="prev" title="内存屏障">
+      <i class="fa fa-chevron-left"></i> 内存屏障
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/" rel="next" title="原子操作与锁">
+      原子操作与锁 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/";
+    this.page.identifier = "2020/03/26/synchronized锁内部实现/";
+    this.page.title = "synchronized锁内部实现";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、统计类型Storm统计问题有两种类型：时间点统计和窗口统计。时间点统计：需要的是某一时间点的统计量，比如某秒钟，某分钟，某小时，某天的统计量。窗口统计：需要的是某一窗口的统计量，比如最近5分钟，最近1小时，最近一天的统计量。 二、最佳实践之统计技术2.1、统计数据缓存技术Storm统计面对的是流式数据，为了减小对Redis&#x2F;Mysql等存放统计的中间结果或者最终结果的数据库的压力，可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Storm统计最佳实践">
+<meta property="og:url" content="https://dslztx.github.io/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、统计类型Storm统计问题有两种类型：时间点统计和窗口统计。时间点统计：需要的是某一时间点的统计量，比如某秒钟，某分钟，某小时，某天的统计量。窗口统计：需要的是某一窗口的统计量，比如最近5分钟，最近1小时，最近一天的统计量。 二、最佳实践之统计技术2.1、统计数据缓存技术Storm统计面对的是流式数据，为了减小对Redis&#x2F;Mysql等存放统计的中间结果或者最终结果的数据库的压力，可">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-07-27T11:09:10.000Z">
+<meta property="article:modified_time" content="2016-07-27T11:09:10.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Storm统计">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Storm统计最佳实践 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Storm统计最佳实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-07-27 19:09:10" itemprop="dateCreated datePublished" datetime="2016-07-27T19:09:10+08:00">2016-07-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%B9%B3%E5%8F%B0/" itemprop="url" rel="index"><span itemprop="name">大数据平台</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%B9%B3%E5%8F%B0/Storm/" itemprop="url" rel="index"><span itemprop="name">Storm</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/07/27/Storm最佳实践/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、统计类型"><a href="#一、统计类型" class="headerlink" title="一、统计类型"></a><strong>一、统计类型</strong></h2><p>Storm统计问题有两种类型：时间点统计和窗口统计。<br>时间点统计：需要的是某一时间点的统计量，比如某秒钟，某分钟，某小时，某天的统计量。<br>窗口统计：需要的是某一窗口的统计量，比如最近5分钟，最近1小时，最近一天的统计量。</p>
+<h2 id="二、最佳实践之统计技术"><a href="#二、最佳实践之统计技术" class="headerlink" title="二、最佳实践之统计技术"></a><strong>二、最佳实践之统计技术</strong></h2><h3 id="2-1、统计数据缓存技术"><a href="#2-1、统计数据缓存技术" class="headerlink" title="2.1、统计数据缓存技术"></a><strong>2.1、统计数据缓存技术</strong></h3><p>Storm统计面对的是流式数据，为了减小对Redis&#x2F;Mysql等存放统计的中间结果或者最终结果的数据库的压力，可以缓存一定时间的统计数据，比如1分钟，这些缓存的统计数据最终被一次性处理。</p>
+<h3 id="2-2、时间戳迁移技术"><a href="#2-2、时间戳迁移技术" class="headerlink" title="2.2、时间戳迁移技术"></a><strong>2.2、时间戳迁移技术</strong></h3><p>引入“2.1、统计数据缓存技术”之后，不得不面对的一个问题是：本属于某个时间点统计量的统计数据可能由于缓存的存在，过了该时间点之后，才被更新到该时间点统计量。比如现有一个“2016072719”时间点统计量，201607271959分钟的统计数据由于缓存的存在，直到201607272001分钟才被更新到“2016072719”时间点统计量，这意味着在“201607272000”到“201607272001”分钟时间区间内，“2016072719”时间点统计量是“缺失”的。<br>“时间戳迁移技术”的原理是：往前迁移统计数据的时间戳，也即针对“缓存造成的时间滞后”现象，“将计就计”。比如在以上例子中，如果采用“往前迁移2分钟”技术，那么201607271959分钟的统计数据的时间戳为“201607272001”，此时，该份统计数据归属于“2016072720”时间点统计量，因而“2016072719”时间点统计量不再有处于“缺失”状态的时间区间。</p>
+<h3 id="2-3、减少访问Redis次数"><a href="#2-3、减少访问Redis次数" class="headerlink" title="2.3、减少访问Redis次数"></a><strong>2.3、减少访问Redis次数</strong></h3><p>访问Redis非常耗费时间，需要不断优化，从而使得尽量减少对Redis的访问次数。减少访问Mysql等数据库次数的技术的思想是类似的。</p>
+<h4 id="2-3-1、仔细设计存储结构"><a href="#2-3-1、仔细设计存储结构" class="headerlink" title="2.3.1、仔细设计存储结构"></a><strong>2.3.1、仔细设计存储结构</strong></h4><p>根据应用场景，仔细设计存储结构，可以有效减少访问Redis次数。<br>比如：<br>1、需要统计某个key在1440分钟内出现的总次数。一种存储结构方案是：键为“key+分钟后缀”，值为“该key相应分钟内的出现次数”，那么下次统计该key在1440分钟内出现的总次数时，需要访问1440次Redis（虽然可以采用Pipeline机制，但还是需要“1440&#x2F;N”次，其中“N”表示每累计到“N”条命令就请求一次Redis，如果下次统计区间长度从“1440”变为“2880”，那么就需要“2880&#x2F;N”次）；另外一种存储结构方案是：键为“key”，值为“分钟1：相应分钟出现次数1；分钟2：相应分钟出现次数2；分钟3：相应分钟出现次数3；…”（分隔符是自定义的），那么下次统计该key在1440分钟内出现的总次数时，只需要访问1次Redis。<br>2、需要统计某个key在1440分钟内维度1下不同元素数量，维度2下不同元素数量，维度3下不同元素数量。一种存储结构方案是：键为“key+维度标识符+分钟后缀”，值为“一个Set集合，保存该key相应分钟相应维度下的不同元素集合”，那么下次统计时，需要访问“1440*3”次Redis；另外一种存储结构方案是：键为“key”，值为“分钟1：相应分钟维度1下不同元素集合；相应分钟维度2下不同元素集合；相应分钟维度3下不同元素集合#分钟2：相应分钟维度1下不同元素集合；相应分钟维度2下不同元素集合；相应分钟维度3下不同元素集合#分钟3：相应分钟维度1下不同元素集合；相应分钟维度2下不同元素集合；相应分钟维度3下不同元素集合#…”（分钟间分隔符，不同维度间分隔符和集合元素间分隔符是自定义的），那么下次统计时，只需要访问1次Redis。</p>
+<h4 id="2-3-2、本地进行缓存"><a href="#2-3-2、本地进行缓存" class="headerlink" title="2.3.2、本地进行缓存"></a><strong>2.3.2、本地进行缓存</strong></h4><p>本地进行缓存，从而使得本来需要访问Redis才能获取的数据，可以直接从本地缓存获取。</p>
+<h3 id="2-4、窗口统计中，待排除时间点数据获取技术"><a href="#2-4、窗口统计中，待排除时间点数据获取技术" class="headerlink" title="2.4、窗口统计中，待排除时间点数据获取技术"></a><strong>2.4、窗口统计中，待排除时间点数据获取技术</strong></h3><p>在窗口统计中，如何获取待排除时间点数据？比如在以5分钟为窗口长度的一个窗口统计中，每次更新，都需要获取当前最新分钟的key集合和前第6分钟的key集合，这两分钟的key集合并集是待更新key集合。<br>有两种方案。</p>
+<h4 id="2-4-1、缓存方案"><a href="#2-4-1、缓存方案" class="headerlink" title="2.4.1、缓存方案"></a><strong>2.4.1、缓存方案</strong></h4><p>在当前任务中保存最近6分钟数据，那么下次需要当前最新分钟的key集合和前第6分钟的key集合时，能够直接获取到。</p>
+<h4 id="2-4-2、分发方案"><a href="#2-4-2、分发方案" class="headerlink" title="2.4.2、分发方案"></a><strong>2.4.2、分发方案</strong></h4><p>独立运行一个任务，从Redis&#x2F;Mysql等数据库中获取前第6分钟的数据，然后使用Storm Topology的流机制进行数据分发。以上方案的正确性得到保证的前提是：有一个Bolt（称为B），另外有两个对象（称为A和C，A和C或者都为Bolt，或者一个为Spout，另外一个为Bolt）向B分发数据，且采用相同分发机制，比如都根据“Key”进行“fieldsGrouping”，那么A和C数据流中具有相同“Key”值的数据应该在B的同一个任务中。而在Storm Topology中，以上这点是能够得到保证的。</p>
+<h2 id="三、最佳实践之统计原则"><a href="#三、最佳实践之统计原则" class="headerlink" title="三、最佳实践之统计原则"></a><strong>三、最佳实践之统计原则</strong></h2><h3 id="3-1、数据丢失"><a href="#3-1、数据丢失" class="headerlink" title="3.1、数据丢失"></a><strong>3.1、数据丢失</strong></h3><p>Redis&#x2F;Mysql等存放统计的中间结果或者最终结果的数据库中存放的数据，在正常情况下，被认为不会丢失；Storm Topology非常容易挂掉或者重启，因而，在Storm Topology运行时，内存中存放的数据被认为很容易就丢失掉。</p>
+<h3 id="3-2、窗口统计中，使用“全量更新”，禁用“增量更新”"><a href="#3-2、窗口统计中，使用“全量更新”，禁用“增量更新”" class="headerlink" title="3.2、窗口统计中，使用“全量更新”，禁用“增量更新”"></a><strong>3.2、窗口统计中，使用“全量更新”，禁用“增量更新”</strong></h3><p>在窗口统计中，计算某个key的最新值，有两种方案：使用“全量更新”和使用“增量更新”。“全量更新”就是，对于某个key，获取该key窗口中所有时间点的值，累加起来；“增量更新”就是，对于某个key，获取该key窗口中最新一个时间点的值a，最老一个时间点的值b以及该key上一个窗口统计值c，那么该key最新窗口统计值为<code>c+a-b</code>。<br>接下来是两个方案的比较：<br>1、“增量更新”方案非常容易受到干扰，比如获取“a，b，c”这3个值时，任意一个值获取失败，都会导致最新窗口统计值计算失败，<font color='red'>而且更重要的是，当前的错误会一直向后传导。</font><br>2、“全量更新”方案虽然也非常容易受到干扰，<font color='red'>但是当前错误不会向后传导。</font><br>综上，在窗口统计中，应该使用“全量更新”，禁用“增量更新”。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Storm统计最佳实践">https://dslztx.github.io/blog/2016/07/27/Storm最佳实践/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Storm%E7%BB%9F%E8%AE%A1/" rel="tag"># Storm统计</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2016/07/05/%E8%81%AA%E6%98%8E%E4%BA%BA%E4%B8%8E%E4%B8%80%E8%88%AC%E4%BA%BA%E7%9A%84%E6%80%9D%E7%BB%B4%E6%96%B9%E5%BC%8F%E5%B7%AE%E5%BC%82-%E8%BD%AC/" rel="prev" title="聪明人与一般人的思维方式差异[转]">
+      <i class="fa fa-chevron-left"></i> 聪明人与一般人的思维方式差异[转]
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2016/07/28/Redis%E4%BD%BF%E7%94%A8%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" rel="next" title="Redis使用最佳实践">
+      Redis使用最佳实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2016/07/27/Storm%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/";
+    this.page.identifier = "2016/07/27/Storm最佳实践/";
+    this.page.title = "Storm统计最佳实践";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。 在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ScheduledThreadPoolExecutor">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。 在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：  前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20210514-0-0.svg">
+<meta property="article:published_time" content="2021-05-14T12:23:33.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.236Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20210514-0-0.svg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ScheduledThreadPoolExecutor | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ScheduledThreadPoolExecutor
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-14 20:23:33" itemprop="dateCreated datePublished" datetime="2021-05-14T20:23:33+08:00">2021-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/05/14/ScheduledThreadPoolExecutor/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/05/14/ScheduledThreadPoolExecutor/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。</p>
+<p>在JDK中，执行“一次性时延”或者“周期性”任务的组件还有Timer类，STPE跟Timer的主要对比如下：</p>
+<ul>
+<li>前者支持多线程，后者固定单线程。当配置前者只有1个线程，主要功能跟Timer是等价的</li>
+<li>前者支持多种时间单位，后者只支持“日期时间”和“毫秒”</li>
+</ul>
+<p>STPE继承类图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210514-0-0.svg"></p>
+<h2 id="一、核心原理"><a href="#一、核心原理" class="headerlink" title="一、核心原理"></a><strong>一、核心原理</strong></h2><p>查看ScheduledThreadPoolExecutor类源码，理解其核心原理。带有笔者注释的版本见<a target="_blank" rel="noopener" href="https://github.com/dslztx/jdk8_study/blob/master/src/main/java/java/util/concurrent/ScheduledThreadPoolExecutor.java">链接</a>。</p>
+<h3 id="1-0、三种任务"><a href="#1-0、三种任务" class="headerlink" title="1.0、三种任务"></a><strong>1.0、三种任务</strong></h3><p>在STPE中，任务的表示类为<code>ScheduledFutureTask</code>，其详细介绍可见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>。</p>
+<p>ScheduledFutureTask类中有两个字段：</p>
+<ul>
+<li><code>long time</code>，单位为纳秒，表示任务的计划执行时间。需要注意的是，它表示“计划执行时间”与“本JVM进程基准时间”之间的差值，而不是跟<code>System.currentTimeMillis()</code>一样以<code>midnight, January 1, 1970 UTC</code>为基准时间，不同JVM进程的基准时间可能不同，一个JVM进程的生命周期内基准时间不变</li>
+<li><code>long period</code>，单位为纳秒，用以区分3种任务类型<ul>
+<li><code>period=0</code>，一次性时延任务</li>
+<li><code>period&gt;0</code>，周期性固定间隔任务</li>
+<li><code>period&lt;0</code>，周期性固定时延任务</li>
+</ul>
+</li>
+</ul>
+<p>关于3种类型任务的介绍：</p>
+<ul>
+<li>一次性时延任务：执行一次就结束</li>
+<li>周期性固定间隔任务：本次执行完后将该任务再次加入workQueue，设置<code>time=time+period</code></li>
+<li>周期性固定时延任务：本次执行完后将该任务再次加入workQueue，设置<code>time=System.nanoTime()+(-period)</code>（<code>System.nanoTime()</code>表示“当前时间”与“本JVM进程基准时间”之间的差值，单位为纳秒）</li>
+</ul>
+<p>ScheduledFutureTask类的<code>run()</code>方法源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">periodic</span> <span class="operator">=</span> isPeriodic();</span><br><span class="line">    <span class="keyword">if</span> (!canRunInCurrentRunState(periodic))</span><br><span class="line">        cancel(<span class="literal">false</span>);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!periodic)</span><br><span class="line">        ScheduledFutureTask.<span class="built_in">super</span>.run();</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (ScheduledFutureTask.<span class="built_in">super</span>.runAndReset()) &#123;</span><br><span class="line">        <span class="comment">// 周期性任务执行如果返回false，这个周期性任务也不加回去了</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//outerTask也不能指向别的任务，不然setNextRunTime()这个time值白设置了</span></span><br><span class="line">        setNextRunTime();</span><br><span class="line">        reExecutePeriodic(outerTask);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">reExecutePeriodic</span><span class="params">(RunnableScheduledFuture&lt;?&gt; task)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (canRunInCurrentRunState(<span class="literal">true</span>)) &#123;</span><br><span class="line">        <span class="built_in">super</span>.getQueue().add(task);</span><br><span class="line">        <span class="keyword">if</span> (!canRunInCurrentRunState(<span class="literal">true</span>) &amp;&amp; remove(task))</span><br><span class="line">            task.cancel(<span class="literal">false</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            ensurePrestart();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="title function_">canRunInCurrentRunState</span><span class="params">(<span class="type">boolean</span> periodic)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> isRunningOrShutdown(periodic ?</span><br><span class="line">                               continueExistingPeriodicTasksAfterShutdown :</span><br><span class="line">                               executeExistingDelayedTasksAfterShutdown);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">isRunningOrShutdown</span><span class="params">(<span class="type">boolean</span> shutdownOK)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">rs</span> <span class="operator">=</span> runStateOf(ctl.get());</span><br><span class="line">    <span class="keyword">return</span> rs == RUNNING || (rs == SHUTDOWN &amp;&amp; shutdownOK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于以上<code>run()</code>方法源码的几点说明：</p>
+<ol>
+<li>以上源码中展示了3种类型任务的执行</li>
+<li>对于周期性任务，通过<code>time=time+period</code>或者<code>time=System.nanoTime()+(-period)</code>更新<code>time</code>值，看似有运算溢出可能，实则几乎不可能，因为<code>Long.MAX_VALUE - System.nanoTime()</code>差值十分大</li>
+<li>跟TPE中的任务执行不同，此处在任务执行时会再去结合执行器的状态，判断本任务是否需要执行，即<code>canRunInCurrentRunState(boolean periodic)</code>语句，该语句的含义如下：<ul>
+<li>当执行器状态<code>=RUNNING</code>，返回<code>true</code></li>
+<li>当执行器状态<code>&gt;=STOP</code>，返回<code>false</code></li>
+<li>当执行器状态<code>=SHUTDOWN</code>，此时如果是周期性任务，结果跟<code>成员变量continueExistingPeriodicTasksAfterShutdown值（默认为false）</code>一致；如果不是周期性任务，结果跟<code>成员变量executeExistingDelayedTasksAfterShutdown值（默认为true）</code>一致</li>
+</ul>
+</li>
+</ol>
+<h3 id="1-1、执行器状态和Worker数量上限表示值"><a href="#1-1、执行器状态和Worker数量上限表示值" class="headerlink" title="1.1、执行器状态和Worker数量上限表示值"></a><strong>1.1、执行器状态和Worker数量上限表示值</strong></h3><p>跟父类差异点：</p>
+<ul>
+<li>SHUTDOWN，值为<code>0&lt;&lt;29</code>，即<code>000,[29个0]</code>，继续执行“Worker中当前正在执行的任务”和“<font color='red'>筛选过的workQueue中的任务（这个筛选过程在<code>onShutDown()</code>方法中实现，详细见“2.3、关闭执行器”小节）</font>”，禁止新提交任务，当所有Worker都退出后，经历<code>TIDYING -&gt; TERMINATED</code></li>
+</ul>
+<p>另外，根据上面叙述可知，以ScheduledFutureTask表示的任务在执行<code>run()</code>方法时会使用<code>canRunInCurrentRunState(boolean periodic)</code>方法判断“本任务在当前执行器状态下是否能够执行”，但是对于触发执行器状态改变的线程来说，的确是<code>继续执行“Worker中当前正在执行的任务”</code>，即上面<code>继续执行“Worker中当前正在执行的任务”</code>叙述没有错</p>
+<h3 id="1-2、任务队列"><a href="#1-2、任务队列" class="headerlink" title="1.2、任务队列"></a><strong>1.2、任务队列</strong></h3><p>STPE实例对象的<code>workQueue</code>隐式指定——<code>workQueue = new DelayedWorkQueue()</code>。</p>
+<p>DelayWorkQueue类的特点如下：</p>
+<ul>
+<li>无界队列，虽然实际上限为<code>Integer.MAX_VALUE</code>，这么设计的原因在于：新提交的“一次性时延”或者“周期性”任务如果计划执行时间还未到不能直接交给Worker执行，只能插入到队列，故队列应该是无界的</li>
+<li>Worker每次获取任务时，获取到的任务须满足“计划执行时间在队列中最小，且小于等于当前时间（当两个任务的计划执行时间一致时，先提交任务优先级高）”，DelayWorkQueue队列内部通过维护一个堆数据结构实现了上述需求</li>
+</ul>
+<h3 id="1-3、拒绝执行策略"><a href="#1-3、拒绝执行策略" class="headerlink" title="1.3、拒绝执行策略"></a><strong>1.3、拒绝执行策略</strong></h3><p>跟父类相同！</p>
+<h3 id="1-4、线程工厂方法类"><a href="#1-4、线程工厂方法类" class="headerlink" title="1.4、线程工厂方法类"></a><strong>1.4、线程工厂方法类</strong></h3><p>跟父类相同！</p>
+<h3 id="1-5、Worker"><a href="#1-5、Worker" class="headerlink" title="1.5、Worker"></a><strong>1.5、Worker</strong></h3><h4 id="1-5-1、基本"><a href="#1-5-1、基本" class="headerlink" title="1.5.1、基本"></a><strong>1.5.1、基本</strong></h4><p>跟父类相同！</p>
+<h4 id="1-5-2、运转"><a href="#1-5-2、运转" class="headerlink" title="1.5.2、运转"></a><strong>1.5.2、运转</strong></h4><p><code>runWorker(Worker w)</code>方法的核心逻辑是：不断获取任务调度执行。</p>
+<p>任务来源只有1个：</p>
+<ul>
+<li>调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到任务时挂起</li>
+</ul>
+<p>父类中Worker运转的任务来源还有另外一个——<code>创建生成Worker实例时传递的初始任务</code>，但是在这里，任务的计划执行时间很可能还未到，故直接排除掉这种任务来源。</p>
+<h4 id="1-5-3、退出机制"><a href="#1-5-3、退出机制" class="headerlink" title="1.5.3、退出机制"></a><strong>1.5.3、退出机制</strong></h4><p>有3种退出机制：</p>
+<ol>
+<li>退出机制1：任务执行过程中抛出未被内部catch住的异常，导致Worker退出</li>
+<li>退出机制2：一般情况下，调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到时恒挂起。但是当<code>Worker数量&gt;corePoolSize || 成员变量allowCoreThreadTimeOut=true</code>条件判断语句返回结果为<code>true</code>时：<ul>
+<li><code>成员变量keepAliveTime&gt;0</code>，尝试从workQueue队列获取任务，挂起成员变量keepAliveTime指定时间，如果过期仍未获取到任务，则<code>getTask()</code>方法返回<code>NULL</code>，继而导致Worker退出</li>
+<li><code>成员变量keepAliveTime=0</code>，尝试从workQueue队列获取任务，不进行挂起，<code>getTask()</code>方法直接返回<code>NULL</code>，继而导致Worker退出</li>
+</ul>
+</li>
+<li>退出机制3：一般情况下，调用<code>getTask()</code>方法从workQueue队列获取任务，获取不到时恒挂起。但是当<code>执行器的状态&gt;=STOP || (执行器的状态=SHUTDOWN &amp;&amp; workQueue为空)</code>，此时调用<code>getTask()</code>方法会直接返回<code>NULL</code>，继而导致Worker退出</li>
+</ol>
+<p><font color='red'>需要注意的是</font>：每次Worker退出都会去调用<code>tryTerminate()</code>方法，查看执行器是否能够进入<code>TERMINATED</code>状态。</p>
+<p>以上跟父类相同，跟父类不同的是：在STPE中，对于<code>Worker数量&gt;corePoolSize</code>条件不可能成立，详见“1.5.5、数量”，而根据STPE JavaDoc中如下片段可知，成员变量“allowCoreThreadTimeOut”也不被推荐设置成<code>true</code>，故“退出机制2”可认为无效。</p>
+<blockquote>
+<p>Additionally, it is almost never a good idea to set {@code corePoolSize} to zero or use {@code allowCoreThreadTimeOut} because this may leave the pool without threads to handle tasks once they become eligible to run.</p>
+</blockquote>
+<h4 id="1-5-4、中断"><a href="#1-5-4、中断" class="headerlink" title="1.5.4、中断"></a><strong>1.5.4、中断</strong></h4><p>跟父类相同！</p>
+<h4 id="1-5-5、数量"><a href="#1-5-5、数量" class="headerlink" title="1.5.5、数量"></a><strong>1.5.5、数量</strong></h4><h5 id="1-5-5-1、执行器状态-RUNNING"><a href="#1-5-5-1、执行器状态-RUNNING" class="headerlink" title="1.5.5.1、执行器状态&#x3D;RUNNING"></a><strong>1.5.5.1、执行器状态&#x3D;RUNNING</strong></h5><p><strong>影响Worker数量之提交任务</strong>：</p>
+<ul>
+<li>对于新提交的任务，立即无条件插入到workQueue队列</li>
+<li>Worker数量的变化趋势：最开始也即没有提交任何任务时，此时<code>Worker数量=0</code>，随着任务的提交，线性递增Worker数量直到<code>Worker数量=corePoolSize</code>，此后Worker数量不会再增加</li>
+</ul>
+<p><font color='red'>注意以上跟父类有很大的不同！</font></p>
+<p><strong>影响Worker数量之Worker退出</strong>：</p>
+<ol>
+<li>退出机制1</li>
+</ol>
+<h5 id="1-5-5-2、执行器状态-SHUTDOWN"><a href="#1-5-5-2、执行器状态-SHUTDOWN" class="headerlink" title="1.5.5.2、执行器状态&gt;&#x3D;SHUTDOWN"></a><strong>1.5.5.2、执行器状态&gt;&#x3D;SHUTDOWN</strong></h5><p><strong>影响Worker数量之提交任务</strong>：禁止提交，触发“拒绝执行策略”。</p>
+<p><strong>影响Worker数量之Worker退出</strong>：</p>
+<ol>
+<li>退出机制1</li>
+<li>退出机制3</li>
+</ol>
+<h2 id="二、具体动作"><a href="#二、具体动作" class="headerlink" title="二、具体动作"></a><strong>二、具体动作</strong></h2><h3 id="2-1、构造STPE"><a href="#2-1、构造STPE" class="headerlink" title="2.1、构造STPE"></a><strong>2.1、构造STPE</strong></h3><p>构造方法涉及到的所有参数如下：</p>
+<ul>
+<li><code>int corePoolSize</code>，对应成员变量<code>int corePoolSize</code></li>
+<li><code>ThreadFactory threadFactory</code>，对应成员变量<code>ThreadFactory threadFactory</code></li>
+<li><code>RejectedExecutionHandler handler</code>，对应成员变量<code>RejectedExecutionHandler handler</code></li>
+</ul>
+<p>跟父类的构造方法最多支持7个传入参数相比，少了4个传入参数，对应的成员变量直接隐式指定：</p>
+<ul>
+<li><code>成员变量workQueue=new DelayedWorkQueue()</code>，根据STPE的定义，存放任务的workQueue需要是一个优先级队列，参见“1.2、任务队列”小节</li>
+<li><code>成员变量maximumPoolSize=Integer.MAX_VALUE</code>，根据“1.5.5.1、执行器状态&#x3D;RUNNING”小节，Worker数量不会大于<code>corePoolSize</code>，这里设置<code>maximumPoolSize=Integer.MAX_VALUE</code>纯粹只是在满足字段大小语义（<code>maximumPoolSize&gt;corePoolSize</code>）的前提下而取用了一个特殊大值<code>Integer.MAX_VALUE</code></li>
+<li><code>成员变量keepAliveTime=0</code>，根据“1.5.3、退出机制”小节可知，“退出机制2”可认为无效，故自然可认为成员变量“keepAliveTime”的设置无实际效果，这里只是取了一个特殊值0而已</li>
+</ul>
+<p>上述成员变量在STPE实例构造完成后都可被动态修改，除了<code>BlockingQueue&lt;Runnable&gt; workQueue</code>成员变量，<font color='red'>但是不推荐进行动态修改，特别是动态改变原隐式指定的成员变量更是违反设计</font>。</p>
+<h3 id="2-2、提交任务"><a href="#2-2、提交任务" class="headerlink" title="2.2、提交任务"></a><strong>2.2、提交任务</strong></h3><h4 id="2-2-1、继承自TPE类的方法"><a href="#2-2-1、继承自TPE类的方法" class="headerlink" title="2.2.1、继承自TPE类的方法"></a><strong>2.2.1、继承自TPE类的方法</strong></h4><p>继承自TPE类的方法，分为两类：</p>
+<ol>
+<li>只提交任务，不关注执行结果，不能对执行过程进行控制：<ul>
+<li><code>public void execute(Runnable command)</code>，执行<code>command</code>实例对象的<code>run()</code>方法，不关注执行结果，其实也没有执行结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ul>
+</li>
+<li>提交任务后，通过Future可获取执行结果，也可对执行过程进行控制（关于Future，Runnable，Callable的关系可详见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>）：<ul>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，执行<code>task</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
+<li><code>public Future&lt;?&gt; submit(Runnable task)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，执行<code>task</code>实例对象的<code>run()</code>方法，获取的执行结果为预设的执行结果result，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ul>
+</li>
+</ol>
+<p>在STPE类中为了实现上的统一（比如“加入workQueue队列的任务实际类型可以统一”），对以上4个方法进行了覆盖实现，覆盖实现只是简单转发调用了“2.2.2、STPE类增加的方法”小节中的方法。</p>
+<h4 id="2-2-2、STPE类增加的方法"><a href="#2-2-2、STPE类增加的方法" class="headerlink" title="2.2.2、STPE类增加的方法"></a><strong>2.2.2、STPE类增加的方法</strong></h4><p>STPE类中增加了4个提交任务的方法，这几个方法的性质都是“提交任务后，通过ScheduledFuture可获取执行结果，可对执行过程进行控制，也能获得计划执行时间与当前时间的纳秒时间差值（关于ScheduledFuture，Runnable，Callable的关系可详见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>）”：</p>
+<ul>
+<li><code>public ScheduledFuture&lt;?&gt; schedule(Runnable command, long delay, TimeUnit unit)</code>，一次性时延任务，计划执行时间为<code>当前时间加上“delay”和“unit”联合指定的差值</code>，执行<code>command</code>实例对象的<code>run()</code>方法，获取的执行结果为预设值NULL，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+<li><code>public &lt;V&gt; ScheduledFuture&lt;V&gt; schedule(Callable&lt;V&gt; callable, long delay, TimeUnit unit)</code>，一次性时延任务，计划执行时间为<code>当前时间加上“delay”和“unit”联合指定的差值</code>，执行<code>callable</code>实例对象的<code>call()</code>方法，获取的执行结果为<code>call()</code>方法的执行结果</li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</code>，周期性固定间隔任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>P+N*(“period”和“unit”联合指定的固定间隔时间)</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，<font color='red'>无谓获取执行结果，具体可参见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>博文中“1.2.2、核心方法”小节下的“2、runAndReset()”内容</font></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</code>，周期性固定时延任务，首次计划执行时间为P——<code>当前时间加上“initialDelay”和“unit”联合指定的差值</code>，后续的计划执行时间为<code>前一次执行完成时间+“delay”和“unit”联合指定的固定时延时间</code>，每次执行时，执行<code>command</code>实例对象的<code>run()</code>方法，<font color='red'>无谓获取执行结果，具体可参见<a href="/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">《FutureTask和ScheduledFutureTask》</a>博文中“1.2.2、核心方法”小节下的“2、runAndReset()”内容</font></li>
+</ul>
+<h3 id="2-3、关闭执行器"><a href="#2-3、关闭执行器" class="headerlink" title="2.3、关闭执行器"></a><strong>2.3、关闭执行器</strong></h3><p>有两个关闭方法：<code>shutdown()</code>和<code>shutdownNow()</code>。<br><strong>1、shutdown()</strong><br>调用TPE的<code>shutdown()</code>。</p>
+<p>唯一的一点变化是TPE中的<code>onShutDown()</code>方法是空实现，在STPE中覆盖实现了该方法，现在该方法的逻辑是：在当前执行器状态为<code>SHUTDOWN</code>的前提下，根据<code>成员变量continueExistingPeriodicTasksAfterShutdown（默认为false）</code>和<code>成员变量executeExistingDelayedTasksAfterShutdown（默认为true）</code>的值从workQueue队列中筛选掉一些任务，该筛选逻辑跟“1.0、三种任务”小节中“当执行器状态<code>=SHUTDOWN</code>，此时如果是周期性任务…”部分逻辑一致，本质也是对其的呼应——既然后续<code>run()</code>方法运行时会有对这个任务的筛选，这里就提前进行筛选。</p>
+<p><strong>2、shutdownNow()</strong><br>调用TPE的<code>shutdownNow()</code>。</p>
+<h2 id="三、监控"><a href="#三、监控" class="headerlink" title="三、监控"></a><strong>三、监控</strong></h2><p>跟父类相同！</p>
+<h2 id="四、最佳实践"><a href="#四、最佳实践" class="headerlink" title="四、最佳实践"></a><strong>四、最佳实践</strong></h2><h3 id="4-1、核心Worker数量"><a href="#4-1、核心Worker数量" class="headerlink" title="4.1、核心Worker数量"></a><strong>4.1、核心Worker数量</strong></h3><p>跟父类相同！</p>
+<h3 id="4-2、一般情况下只需关注执行器的RUNNING状态"><a href="#4-2、一般情况下只需关注执行器的RUNNING状态" class="headerlink" title="4.2、一般情况下只需关注执行器的RUNNING状态"></a><strong>4.2、一般情况下只需关注执行器的<code>RUNNING</code>状态</strong></h3><p>跟父类相同！</p>
+<h3 id="4-3、STPE中任务的“计划执行时间”与“实际执行时间”"><a href="#4-3、STPE中任务的“计划执行时间”与“实际执行时间”" class="headerlink" title="4.3、STPE中任务的“计划执行时间”与“实际执行时间”"></a><strong>4.3、STPE中任务的“计划执行时间”与“实际执行时间”</strong></h3><p>在TPE中任务没有“计划执行时间”概念，故什么时候实际调度执行都没有关系；但在STPE中任务有“计划执行时间”概念，此时如果“实际调度执行时间”大大超过“计划执行时间”（两个时间如果相差不大，则认为处于可接受范围），有违背业务需求之嫌，故对于在STPE中提交的任务要求执行时间不可过久，否则极易导致后续没有空闲Worker调度执行到期的任务T，而最终使得T的“实际调度执行时间”大大超过“计划执行时间”。</p>
+<h3 id="4-4、一个happens-before关系"><a href="#4-4、一个happens-before关系" class="headerlink" title="4.4、一个happens-before关系"></a><strong>4.4、一个happens-before关系</strong></h3><p>存在一个happens-before关系：一个周期性任务，前一次执行happens-before于后一次执行。JavaDoc原叙述为：<code>Successive executions of a task scheduled via scheduleAtFixedRate or scheduleWithFixedDelay do not overlap. While different executions may be performed by different threads, the effects of prior executions happen-before those of subsequent ones.</code></p>
+<p>接下来进行证明。</p>
+<p>查看周期性任务执行的外围方法<code>runAndReset()</code>的源代码，其中&#x2F;&#x2F;2处是真实业务执行逻辑调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">runAndReset</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="built_in">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="literal">null</span>, Thread.currentThread()))    <span class="comment">//1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">ran</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> state;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="literal">null</span> &amp;&amp; s == NEW) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                c.call(); <span class="comment">// don&#x27;t set result                          //2</span></span><br><span class="line">                ran = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">        <span class="comment">// prevent concurrent calls to run()</span></span><br><span class="line">        runner = <span class="literal">null</span>;                                                 <span class="comment">//3</span></span><br><span class="line">        <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">        <span class="comment">// leaked interrupts</span></span><br><span class="line">        s = state;</span><br><span class="line">        <span class="keyword">if</span> (s &gt;= INTERRUPTING)</span><br><span class="line">            handlePossibleCancellationInterrupt(s);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ran &amp;&amp; s == NEW;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体证明过程：以volatile变量<code>runner</code>为基点，根据分析可知，“后一次执行的&#x2F;&#x2F;1处”必得读取到“前一次执行的&#x2F;&#x2F;3处对runner写入的NULL值”，符合happens-before规则——“volatile变量规则”，结合happens-before规则——“程序顺序规则”和“传递性规则”，有：前一次执行的&#x2F;&#x2F;1 -hb-&gt; 前一次执行的&#x2F;&#x2F;2 -hb-&gt; 前一次执行的&#x2F;&#x2F;3 -hb-&gt; 后一次执行的&#x2F;&#x2F;1-hb-&gt; 后一次执行的&#x2F;&#x2F;2，到此得证。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/" title="ScheduledThreadPoolExecutor">https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/05/13/ThreadPoolExecutor/" rel="prev" title="ThreadPoolExecutor">
+      <i class="fa fa-chevron-left"></i> ThreadPoolExecutor
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/05/15/Executors/" rel="next" title="Executors">
+      Executors <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/05/14/ScheduledThreadPoolExecutor/";
+    this.page.identifier = "2021/05/14/ScheduledThreadPoolExecutor/";
+    this.page.title = "ScheduledThreadPoolExecutor";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

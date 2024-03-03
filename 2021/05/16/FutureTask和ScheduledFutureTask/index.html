@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：  Runnable Future RunnableFuture FutureTask Callable ScheduledFuture RunnableScheduledFuture ScheduledFutureTask  相关继承类图如图1所示。 图1  本文接下来基于具体实现类“FutureTask”和“ScheduledFutur">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FutureTask和ScheduledFutureTask">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：  Runnable Future RunnableFuture FutureTask Callable ScheduledFuture RunnableScheduledFuture ScheduledFutureTask  相关继承类图如图1所示。 图1  本文接下来基于具体实现类“FutureTask”和“ScheduledFutur">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20210516-0-0.svg">
+<meta property="article:published_time" content="2021-05-16T12:23:33.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.196Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20210516-0-0.svg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>FutureTask和ScheduledFutureTask | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FutureTask和ScheduledFutureTask
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-16 20:23:33" itemprop="dateCreated datePublished" datetime="2021-05-16T20:23:33+08:00">2021-05-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/05/16/FutureTask和ScheduledFutureTask/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：</p>
+<ul>
+<li>Runnable</li>
+<li>Future</li>
+<li>RunnableFuture</li>
+<li>FutureTask</li>
+<li>Callable</li>
+<li>ScheduledFuture</li>
+<li>RunnableScheduledFuture</li>
+<li>ScheduledFutureTask</li>
+</ul>
+<p>相关继承类图如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210516-0-0.svg"></p>
+<p>本文接下来基于具体实现类“FutureTask”和“ScheduledFutureTask”梳理上述类和接口的脉络关系，以便于理解。</p>
+<h2 id="一、FutureTask"><a href="#一、FutureTask" class="headerlink" title="一、FutureTask"></a><strong>一、FutureTask</strong></h2><h3 id="1-1、演进"><a href="#1-1、演进" class="headerlink" title="1.1、演进"></a><strong>1.1、演进</strong></h3><p>需求：向线程池提交一个任务后，能够控制过程和获取结果。</p>
+<p>演进：</p>
+<ol start="0">
+<li>设计Future接口作为向线程池提交任务后的返回对象，通过它控制过程和获取结果</li>
+<li>线程池中执行任务，任务的最终载体必然是Runnable接口，其与返回的Future结果属于跨线程关系，因此两者产生关联的唯一途径是共享内存，自然而然设计RunnableFuture接口</li>
+<li>执行RunnableFuture接口的<code>run()</code>方法，然后将执行结果赋值到RunnableFuture实例的某个成员变量</li>
+<li>FutureTask是RunnableFuture接口的实现类，引入一个<code>Callable callable</code>成员变量，在<code>run()</code>方法中执行该Callable接口的<code>call()</code>方法，然后<code>call()</code>方法的返回结果被赋值到<code>Object outcome</code>成员变量</li>
+<li>由以上点可知，FutureTask的<code>run()</code>方法中调度执行Callable接口的<code>call()</code>方法：如果在调度任务时直接传入Callable接口，自然没啥问题；但是如果传入的是Runnable接口，则需要进行适配，具体是通过Executors.RunnableAdapter类，它实现了Callable接口，查看Executors.RunnableAdapter类的唯一构造方法，须传入两个参数，一个是<code>Runnable task</code>，另外一个是<code>T result</code>，后者表示预设的<code>call()</code>方法返回结果，因为Runnable实例的<code>run()</code>方法并没有执行结果</li>
+</ol>
+<p>Future接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Future</span>&lt;V&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">cancel</span><span class="params">(<span class="type">boolean</span> mayInterruptIfRunning)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isCancelled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isDone</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    V <span class="title function_">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException;</span><br><span class="line"></span><br><span class="line">    V <span class="title function_">get</span><span class="params">(<span class="type">long</span> timeout, TimeUnit unit)</span></span><br><span class="line">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>RunnableFuture接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RunnableFuture</span>&lt;V&gt; <span class="keyword">extends</span> <span class="title class_">Runnable</span>, Future&lt;V&gt; &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Sets this Future to the result of its computation</span></span><br><span class="line"><span class="comment">     * unless it has been cancelled.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>FutureTask类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FutureTask</span>&lt;V&gt; <span class="keyword">implements</span> <span class="title class_">RunnableFuture</span>&lt;V&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> Callable&lt;V&gt; callable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Object outcome; <span class="comment">// non-volatile, protected by state reads/writes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Callable接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Callable</span>&lt;V&gt; &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Computes a result, or throws an exception if unable to do so.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> computed result</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception if unable to compute a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    V <span class="title function_">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>RunnableAdapter类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">RunnableAdapter</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">Callable</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">final</span> Runnable task;</span><br><span class="line">    <span class="keyword">final</span> T result;</span><br><span class="line">    RunnableAdapter(Runnable task, T result) &#123;</span><br><span class="line">        <span class="built_in">this</span>.task = task;</span><br><span class="line">        <span class="built_in">this</span>.result = result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">call</span><span class="params">()</span> &#123;</span><br><span class="line">        task.run();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2、源码阅读"><a href="#1-2、源码阅读" class="headerlink" title="1.2、源码阅读"></a><strong>1.2、源码阅读</strong></h3><p>带有笔者注释的FutureTask源码版本见<a target="_blank" rel="noopener" href="https://github.com/dslztx/jdk8_study/blob/master/src/main/java/java/util/concurrent/FutureTask.java">链接</a>。</p>
+<h4 id="1-2-1、内部状态"><a href="#1-2-1、内部状态" class="headerlink" title="1.2.1、内部状态"></a><strong>1.2.1、内部状态</strong></h4><p>有成员变量<code>volatile int state</code>，表征内部状态。</p>
+<p>其内部状态列表如下：</p>
+<ul>
+<li><code>NEW=0</code>，初始状态</li>
+<li><code>COMPLETING=1</code>，转向<code>NORMAL</code>或者<code>EXCEPTIONAL</code>时的临时中间状态</li>
+<li><code>NORMAL=2</code>，<code>run()</code>方法内调用<code>call()</code>方法未抛异常，调用正常退出</li>
+<li><code>EXCEPTIONAL=3</code>，<code>run()</code>方法内调用<code>call()</code>方法抛异常，调用非正常退出</li>
+<li><code>CANCELLED=4</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=false</code>，内部状态从<code>NEW</code>转为<code>CANCELLED</code></li>
+<li><code>INTERRUPTING=5</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=true</code>，内部状态从<code>NEW</code>转为<code>INTERRUPTING</code></li>
+<li><code>INTERRUPTED=6</code>，调用<code>cancel()</code>方法时，如果传入参数<code>mayInterruptIfRunning=true</code>，内部状态从<code>NEW</code>转为<code>INTERRUPTING</code>，等发出中断信号后，内部状态再转为<code>INTERRUPTED</code></li>
+</ul>
+<h4 id="1-2-2、核心方法"><a href="#1-2-2、核心方法" class="headerlink" title="1.2.2、核心方法"></a><strong>1.2.2、核心方法</strong></h4><p><strong>1、run()</strong><br>执行任务，具体逻辑是：</p>
+<ol start="0">
+<li>调用成员变量<code>callable</code>的<code>call()</code>方法</li>
+<li>根据<code>call()</code>方法的调用是否抛出异常分为两种情况：<ul>
+<li>不抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; NORMAL</code>；2）<code>call()</code>方法的返回结果赋值给成员变量<code>outcome</code></li>
+<li>抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</code>；2）抛出的Throwable对象赋值给成员变量<code>outcome</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>2、runAndReset()</strong><br>STPE中提交的“周期性任务”调度执行时执行本方法，它的具体逻辑是：</p>
+<ol start="0">
+<li>调用成员变量<code>callable</code>的<code>call()</code>方法</li>
+<li>根据<code>call()</code>方法的调用是否抛出异常分为两种情况：<ul>
+<li>不抛出异常：1）<font color='red'>内部状态仍为<code>NEW</code>，否则下一个周期不能执行</font>；2）<font color='red'><code>call()</code>方法的返回结果不赋值给成员变量<code>outcome</code></font>，即使赋值了，在<code>NEW</code>内部状态下，调用<code>get()</code>方法获取结果恒挂起，调用<code>get(long timeout, TimeUnit unit)</code>方法获取结果超时后抛出<code>TimeoutException</code>异常；3）<code>runAndReset()</code>方法返回<code>true</code>值，<font color='red'>表征该周期性任务会再被加入到workQueue队列进行后续调度</font>[1]</li>
+<li>抛出异常：1）内部状态经历<code>NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</code>；2）抛出的Throwable对象赋值给成员变量<code>outcome</code>；3）<code>runAndReset()</code>方法返回<code>false</code>值，<font color='red'>表征该周期性任务不会再被加入到workQueue队列进行后续调度</font>[1]</li>
+</ul>
+</li>
+</ol>
+<p><strong>3、cancel(boolean mayInterruptIfRunning)</strong><br>调用<code>cancel(boolean mayInterruptIfRunning)</code>方法尝试取消<code>run()</code>或者<code>runAndReset()</code>方法的运行。</p>
+<p>其核心逻辑是：</p>
+<ul>
+<li>如果当前内部状态不为<code>NEW</code>，表明已经执行完成，不能再取消</li>
+<li>如果当前内部状态为<code>NEW</code>，表明未执行完成，尝试取消：<ul>
+<li>如果传入参数<code>mayInterruptIfRunning=false</code>，则经历<code>内部状态从NEW转为CANCELLED</code>过程</li>
+<li>如果传入参数<code>mayInterruptIfRunning=true</code>，则经历<code>内部状态从NEW转为INTERRUPTING -&gt; 给正在执行当前任务的线程发中断信号 -&gt; 内部状态转为INTERRUPTED</code>过程</li>
+</ul>
+</li>
+</ul>
+<p><strong>4、isCancelled()</strong><br>当内部状态是<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>时（即成功调用<code>cancel(boolean mayInterruptIfRunning)</code>方法的可能结果），返回true，否则返回false。</p>
+<p><strong>5、isDone()</strong><br>当内部状态不是<code>NEW</code>时，返回true，否则返回false。</p>
+<p><strong>6、get()</strong><br>获取<code>run()</code>或者<code>runAndReset()</code>方法的执行结果：</p>
+<ul>
+<li>当内部状态&lt;&#x3D;<code>COMPLETING</code>时，恒挂起</li>
+<li>当内部状态&gt;<code>COMPLETING</code>时，分为3种情况：<ul>
+<li>内部状态为<code>NORMAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行未抛出异常，成功退出，这里返回成员变量<code>outcome</code>值（即<code>call()</code>方法的返回结果）</li>
+<li>内部状态为<code>EXCEPTIONAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行抛出异常，这里抛出<code>ExecutionException</code>异常</li>
+<li>内部状态&gt;&#x3D;<code>CANCELLED</code>，即为<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>，表示被取消执行，这里抛出<code>CancellationException</code>异常</li>
+</ul>
+</li>
+</ul>
+<p><strong>7、get(long timeout, TimeUnit unit)</strong><br>获取<code>run()</code>或者<code>runAndReset()</code>方法的执行结果：</p>
+<ul>
+<li>当内部状态&lt;&#x3D;<code>COMPLETING</code>时，挂起指定时间，如果到期仍是&lt;&#x3D;<code>COMPLETING</code>，则抛出<code>TimeoutException</code>异常</li>
+<li>当内部状态&gt;<code>COMPLETING</code>时，分为3种情况：<ul>
+<li>内部状态为<code>NORMAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行未抛出异常，成功退出，这里返回成员变量<code>outcome</code>值（即<code>call()</code>方法的返回结果）</li>
+<li>内部状态为<code>EXCEPTIONAL</code>，表示成员变量<code>callable</code>的<code>call()</code>方法执行抛出异常，这里抛出<code>ExecutionException</code>异常</li>
+<li>内部状态&gt;&#x3D;<code>CANCELLED</code>，即为<code>CANCELLED</code>、<code>INTERRUPTING</code>或者<code>INTERRUPTED</code>，表示被取消执行，这里抛出<code>CancellationException</code>异常</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、ScheduledFutureTask"><a href="#二、ScheduledFutureTask" class="headerlink" title="二、ScheduledFutureTask"></a><strong>二、ScheduledFutureTask</strong></h2><p>相较于FutureTask，ScheduledFutureTask额外继承实现了3个接口的方法：</p>
+<ul>
+<li>Comparable接口的<code>public int compareTo(T o)</code>方法，ScheduledFutureTask被加入到STPE中属于DelayedWorkQueue类型的workQueue，DelayedWorkQueue是一个优先级队列，需要其中的元素实现Comparable接口的上述方法</li>
+<li>Delay接口的<code>long getDelay(TimeUnit unit)</code>方法，获取任务计划执行时间与当前时间的时间差值，时间差值的单位由“TimeUnit unit”指定</li>
+<li>RunnableScheduledFuture接口的<code>boolean isPeriodic()</code>方法，判断当前任务是否是周期性任务</li>
+</ul>
+<h2 id="三、关于源码的两个困惑"><a href="#三、关于源码的两个困惑" class="headerlink" title="三、关于源码的两个困惑"></a><strong>三、关于源码的两个困惑</strong></h2><h3 id="3-1、困惑1"><a href="#3-1、困惑1" class="headerlink" title="3.1、困惑1"></a><strong>3.1、困惑1</strong></h3><p>困惑1描述：调用<code>get()/get(long timeout, TimeUnit unit)</code>方法获取<code>set(V v)/setException(Throwable t)</code>方法中设置的变量<code>outcome</code>结果时，如何证明设置的值对其是可见的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(V v)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="built_in">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = v;                                                            <span class="comment">//1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//上面有介绍，取巧的做法，不会影响结果</span></span><br><span class="line">        UNSAFE.putOrderedInt(<span class="built_in">this</span>, stateOffset, NORMAL); <span class="comment">// final state         //2</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">setException</span><span class="params">(Throwable t)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="built_in">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = t;                                                             <span class="comment">//3</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//上面有介绍，取巧的做法，不会影响结果</span></span><br><span class="line">        UNSAFE.putOrderedInt(<span class="built_in">this</span>, stateOffset, EXCEPTIONAL); <span class="comment">// final state     //4</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> V <span class="title function_">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> state;</span><br><span class="line">    <span class="keyword">if</span> (s &lt;= COMPLETING)</span><br><span class="line">        s = awaitDone(<span class="literal">false</span>, <span class="number">0L</span>);</span><br><span class="line">    <span class="keyword">return</span> report(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> V <span class="title function_">report</span><span class="params">(<span class="type">int</span> s)</span> <span class="keyword">throws</span> ExecutionException &#123;</span><br><span class="line">                                                                                 <span class="comment">//5，表示这里必有state&gt;COMPLETING</span></span><br><span class="line"></span><br><span class="line">    <span class="type">Object</span> <span class="variable">x</span> <span class="operator">=</span> outcome;                                                          <span class="comment">//6</span></span><br><span class="line">    <span class="keyword">if</span> (s == NORMAL)</span><br><span class="line">        <span class="keyword">return</span> (V)x;</span><br><span class="line">    <span class="keyword">if</span> (s &gt;= CANCELLED)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">CancellationException</span>();</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ExecutionException</span>((Throwable)x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以<code>get()</code>方法为例进行说明（<code>get(long timeout, TimeUnit unit)</code>方法的说明是类似的），相关源代码已贴在上面。</p>
+<p><strong>具体证明如下</strong>：根据<code>get()</code>方法的实现逻辑可知，在调用<code>report()</code>方法之前必有<code>state&gt;COMPLETING</code>，本讨论中只关心两个状态<code>NORMAL</code>和<code>EXCEPTIONAL</code>，<code>NORMAL</code>状态通过<code>set()</code>方法中的<code>UNSAFE.putOrderedInt(this, stateOffset, NORMAL)</code>语句设置&#x2F;<code>EXCEPTIONAL</code>状态通过<code>setException(Throwable t)</code>方法中的<code>UNSAFE.putOrderedInt(this, stateOffset, EXCEPTIONAL)</code>语句设置，<code>state</code>是volatile变量，在<code>get()</code>方法或者<code>awaitDone(boolean timed, long nanos)</code>方法中以“一般直白”形式读取故具有volatile变量读语义，根据<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>中的“广义的volatile变量happens-before规则”，再结合happens-before规则——“程序顺序规则”和“传递性规则”，有“&#x2F;&#x2F;1 -hb-&gt; &#x2F;&#x2F;2 -hb-&gt; &#x2F;&#x2F;5 -hb-&gt; &#x2F;&#x2F;6”或者“&#x2F;&#x2F;3 -hb-&gt; &#x2F;&#x2F;4 -hb-&gt; &#x2F;&#x2F;5 -hb&gt; &#x2F;&#x2F;6”，因此&#x2F;&#x2F;1处或者&#x2F;&#x2F;3处对<code>outcome</code>的设置对&#x2F;&#x2F;6处可见。</p>
+<h3 id="3-2、困惑2"><a href="#3-2、困惑2" class="headerlink" title="3.2、困惑2"></a><strong>3.2、困惑2</strong></h3><p>困惑2描述：调用<code>cancel(true)</code>方法发送的中断信号可能会泄漏而递延到下一个任务的执行过程，而导致影响其执行吗？<font color='red'>答案是否定的。</font></p>
+<p>根据具体执行方法是<code>run()</code>还是<code>runAndReset()（STPE中提交的“周期性任务”调度执行时执行该方法）</code>分为两种情形进行讨论证明。</p>
+<h4 id="3-2-1、run"><a href="#3-2-1、run" class="headerlink" title="3.2.1、run()"></a><strong>3.2.1、run()</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">cancel</span><span class="params">(<span class="type">boolean</span> mayInterruptIfRunning)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!(state == NEW &amp;&amp;</span><br><span class="line">          UNSAFE.compareAndSwapInt(<span class="built_in">this</span>, stateOffset, NEW,</span><br><span class="line">              mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))       <span class="comment">//1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;    <span class="comment">// in case call to interrupt throws exception</span></span><br><span class="line">        <span class="keyword">if</span> (mayInterruptIfRunning) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> runner;</span><br><span class="line">                <span class="keyword">if</span> (t != <span class="literal">null</span>)</span><br><span class="line">                    t.interrupt();                                      <span class="comment">//2</span></span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123; <span class="comment">// final state</span></span><br><span class="line">                <span class="comment">//上面有介绍，取巧的做法，不会影响结果</span></span><br><span class="line">                UNSAFE.putOrderedInt(<span class="built_in">this</span>, stateOffset, INTERRUPTED);   <span class="comment">//3</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="built_in">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="literal">null</span>, Thread.currentThread()))</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="literal">null</span> &amp;&amp; state == NEW) &#123;</span><br><span class="line">            V result;</span><br><span class="line">            <span class="type">boolean</span> ran;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result = c.call();</span><br><span class="line">                ran = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                result = <span class="literal">null</span>;</span><br><span class="line">                ran = <span class="literal">false</span>;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ran)</span><br><span class="line">                set(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">        <span class="comment">// prevent concurrent calls to run() 见最开始的判断语句</span></span><br><span class="line">        runner = <span class="literal">null</span>;</span><br><span class="line">        <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">        <span class="comment">// leaked interrupts</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> state;                                                  <span class="comment">//4</span></span><br><span class="line">        <span class="keyword">if</span> (s &gt;= INTERRUPTING)   </span><br><span class="line">            handlePossibleCancellationInterrupt(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handlePossibleCancellationInterrupt</span><span class="params">(<span class="type">int</span> s)</span> &#123;</span><br><span class="line">    <span class="comment">// It is possible for our interrupter to stall before getting a</span></span><br><span class="line">    <span class="comment">// chance to interrupt us.  Let&#x27;s spin-wait patiently.</span></span><br><span class="line">    <span class="keyword">if</span> (s == INTERRUPTING)</span><br><span class="line">        <span class="keyword">while</span> (state == INTERRUPTING)</span><br><span class="line">            Thread.<span class="keyword">yield</span>(); <span class="comment">// wait out pending interrupt</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// assert state == INTERRUPTED;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// We want to clear any interrupt we may have received from</span></span><br><span class="line">    <span class="comment">// cancel(true).  However, it is permissible to use interrupts</span></span><br><span class="line">    <span class="comment">// as an independent mechanism for a task to communicate with</span></span><br><span class="line">    <span class="comment">// its caller, and there is no way to clear only the</span></span><br><span class="line">    <span class="comment">// cancellation interrupt.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// Thread.interrupted();</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 就是有可能c.call()中有发出有用的中断信号，不能区分cancel()方法发出的还是c.call()发出的，故不能复位中断信号</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">runWorker</span><span class="params">(Worker w)</span> &#123;</span><br><span class="line">    <span class="type">Thread</span> <span class="variable">wt</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="type">Runnable</span> <span class="variable">task</span> <span class="operator">=</span> w.firstTask;</span><br><span class="line">    w.firstTask = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//针对的是构造时的`setState(-1)`语句，后续可以调用`interruptIfStarted()`方法了，否则是没有效果的</span></span><br><span class="line">    w.unlock(); <span class="comment">// allow interrupts</span></span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">completedAbruptly</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (task != <span class="literal">null</span> || (task = getTask()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            w.lock();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// If pool is stopping, ensure thread is interrupted;</span></span><br><span class="line">            <span class="comment">// if not, ensure thread is not interrupted.  This</span></span><br><span class="line">            <span class="comment">// requires a recheck in second case to deal with</span></span><br><span class="line">            <span class="comment">// shutdownNow race while clearing interrupt</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//就是只有处于STOP状态，已经产生的interrupt信号才传递给任务，否则都清理掉；处于STOP状态，如果没有传递的interrupt信号，则自中断</span></span><br><span class="line">            <span class="keyword">if</span> ((runStateAtLeast(ctl.get(), STOP) ||</span><br><span class="line">                 (Thread.interrupted() &amp;&amp;</span><br><span class="line">                  runStateAtLeast(ctl.get(), STOP))) &amp;&amp;</span><br><span class="line">                !wt.isInterrupted())                                        <span class="comment">//5</span></span><br><span class="line">                wt.interrupt();                                             </span><br><span class="line">    ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Runnable <span class="title function_">getTask</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">timedOut</span> <span class="operator">=</span> <span class="literal">false</span>; <span class="comment">// Did the last poll() time out?</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">       </span><br><span class="line">        ... </span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Runnable</span> <span class="variable">r</span> <span class="operator">=</span> timed ?</span><br><span class="line">                workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :</span><br><span class="line">                workQueue.take();</span><br><span class="line">            <span class="keyword">if</span> (r != <span class="literal">null</span>)</span><br><span class="line">                <span class="keyword">return</span> r;</span><br><span class="line">            timedOut = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException retry) &#123;</span><br><span class="line">            timedOut = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>1、前导</strong></p>
+<ol>
+<li>在<code>cancel(boolean mayInterruptIfRunning)</code>方法中，<code>Thread t = runner</code>语句内隐含的加载<code>runner</code>操作不能被重排序到<code>UNSAFE.compareAndSwapInt(this, stateOffset, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED)</code>语句之前，因为结合<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>和<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>可知，后者隐式带有StoreLoad绑定型内存屏障，故后续的Load操作不能被重排序到该Store操作之前</li>
+<li>同理，在<code>run()</code>方法中，<code>int s = state</code>语句内隐含的加载<code>state</code>操作不能被重排序到会调用的<code>set(V v)</code>或者<code>setException(Throwable t)</code>方法内的<code>UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)</code>语句之前</li>
+<li>同理，在<code>run()</code>方法中，<code>int s = state</code>语句内隐含的加载<code>state</code>操作不能被重排序到<code>runner = null</code>语句之前，因为后者是一个volatile变量写入，隐式带有StoreLoad内存屏障</li>
+</ol>
+<p><strong>2、具体证明</strong><br>根据以上贴出的源码，进行具体证明，以“&#x2F;&#x2F;4处加载到最新state时机”为讨论基点S，根据在S点时&#x2F;&#x2F;1处CAS操作的执行情况分为3类完备情况（如果不是CAS操作，考虑到可见性问题，则有不只3类完备情况）：</p>
+<ol>
+<li>在S点时，&#x2F;&#x2F;1处操作已执行且返回true<ul>
+<li>如果此时S点的<code>state=CANCELLED</code>，则不发出中断信号</li>
+<li>如果此时S点的<code>state=INTERRUPTING | INTERRUPTED</code>，需要注意的是，<code>INTERRUPTED</code>状态通过<code>UNSAFE.putOrderedInt(this, stateOffset, INTERRUPTED)</code>语句设置，并不立即可见。查看&#x2F;&#x2F;4处后<code>handlePossibleCancellationInterrupt(s)</code>方法，存在一个确保逻辑：如果当前<code>state=INTERRUPTING</code>，则进入一个循环，直到<code>state!=INTERRUPTING</code>，根据可能的state状态转移，此时必有<code>state=INTERRUPTED</code>。根据<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>中的“广义的volatile变量happens-before规则”，再结合happens-before规则——“程序顺序规则”和“传递性规则”，有<code>//2 -hb-&gt; //3 -hb-&gt; TPE类中runWorker()方法内的下一轮getTask()语句执行 -hb-&gt; TPE类中runWorker()方法内的下一轮//5语句执行</code>，如果&#x2F;&#x2F;2处实际上未执行到，自然不发出中断信号；如果&#x2F;&#x2F;2处实际执行到了，且出现中断信号泄漏（如果该中断信号在真实任务执行逻辑内部被复位掉，即<code>c.call();</code>内部，则没有泄漏），根据分析可知，此时该泄漏的中断信号必然会在<code>getTask()</code>方法的<code>workQueue.poll或者take</code>语句处或者&#x2F;&#x2F;5处（当执行器的状态为<code>RUNNING</code>）被复位，故不会递延到下一个任务的执行过程，得证</li>
+</ul>
+</li>
+<li>在S点时，&#x2F;&#x2F;1处操作已执行且返回false，此时不发出中断信号</li>
+<li>在S点时，&#x2F;&#x2F;1处操作未执行，根据前导第2点，S点时必有<code>state&gt;=COMPLETING</code>，此时执行&#x2F;&#x2F;1处操作会返回false，故不发出中断信号</li>
+</ol>
+<p><strong>3、其他</strong><br><code>run()</code>方法中<code>int s = state</code>语句前有一个注释<code>state must be re-read after nulling runner to prevent leaked interrupts</code>，就是说在这里需要加载最新的state，避免中断信号泄漏。接下来给出一种不重新加载最新state导致中断信号泄漏的情形：线程T2执行<code>cancel(true)</code>方法，执行到<code>T1.interrupt()</code>语句时等待CPU资源，此时state的状态为<code>INTERRUPTING</code>，线程T1执行<code>run()</code>方法，执行到<code>if (s &gt;= INTERRUPTING)</code>语句时，由于s没有重新加载最新的state值，因此还是<code>NEW</code>，条件判断失败，不会执行<code>handlePossibleCancellationInterrupt(s)</code>方法，继续执行直到下一个真实任务的执行逻辑，此时T2分配到CPU资源，执行<code>T1.interrupt()</code>语句，发出中断信号，即出现了“中断信号泄漏”。</p>
+<h4 id="3-2-2、runAndReset"><a href="#3-2-2、runAndReset" class="headerlink" title="3.2.2、runAndReset()"></a><strong>3.2.2、runAndReset()</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">runAndReset</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="built_in">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="literal">null</span>, Thread.currentThread()))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">ran</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> state;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="literal">null</span> &amp;&amp; s == NEW) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                c.call(); <span class="comment">// don&#x27;t set result</span></span><br><span class="line">                ran = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">        <span class="comment">// prevent concurrent calls to run()</span></span><br><span class="line">        runner = <span class="literal">null</span>;</span><br><span class="line">        <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">        <span class="comment">// leaked interrupts</span></span><br><span class="line">        s = state;                                                <span class="comment">//44</span></span><br><span class="line">        <span class="keyword">if</span> (s &gt;= INTERRUPTING)</span><br><span class="line">            handlePossibleCancellationInterrupt(s);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//只有成功执行，未抛出异常，才是一个合法的周期性任务</span></span><br><span class="line">    <span class="keyword">return</span> ran &amp;&amp; s == NEW;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>1、前导</strong></p>
+<ol>
+<li>在<code>cancel(boolean mayInterruptIfRunning)</code>方法中，<code>Thread t = runner</code>语句内隐含的加载<code>runner</code>操作不能被重排序到<code>UNSAFE.compareAndSwapInt(this, stateOffset, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED)</code>语句之前，因为结合<a href="/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a>和<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>可知，后者隐式带有StoreLoad绑定型内存屏障，故后续的Load操作不能被重排序到该Store操作之前</li>
+<li>同理，在<code>runAndReset()</code>方法中，<code>int s = state</code>语句内隐含的加载<code>state</code>操作不能被重排序到会调用的<code>setException(Throwable t)</code>方法内的<code>UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)</code>语句之前</li>
+<li>同理，在<code>runAndReset()</code>方法中，<code>int s = state</code>语句内隐含的加载<code>state</code>操作不能被重排序到<code>runner = null</code>语句之前，因为后者是一个volatile变量写入，隐式带有StoreLoad内存屏障</li>
+</ol>
+<p><strong>2、具体证明</strong><br>根据以上贴出的源码和“3.2.1、run()”小节中贴出的源码，进行具体证明，以“&#x2F;&#x2F;44处加载到最新state时机”为讨论基点S，根据在S点时&#x2F;&#x2F;1处CAS操作的执行情况分为3类完备情况（如果不是CAS操作，考虑到可见性问题，则有不只3类完备情况）：</p>
+<ol>
+<li>在S点时，&#x2F;&#x2F;1处操作已执行且返回true<ul>
+<li>如果此时S点的<code>state=CANCELLED</code>，则不发出中断信号</li>
+<li>如果此时S点的<code>state=INTERRUPTING | INTERRUPTED</code>，需要注意的是，<code>INTERRUPTED</code>状态通过<code>UNSAFE.putOrderedInt(this, stateOffset, INTERRUPTED)</code>语句设置，并不立即可见。查看&#x2F;&#x2F;44处后<code>handlePossibleCancellationInterrupt(s)</code>方法，存在一个确保逻辑：如果当前<code>state=INTERRUPTING</code>，则进入一个循环，直到<code>state!=INTERRUPTING</code>，根据可能的state状态转移，此时必有<code>state=INTERRUPTED</code>。根据<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a>中的“广义的volatile变量happens-before规则”，再结合happens-before规则——“程序顺序规则”和“传递性规则”，有<code>//2 -hb-&gt; //3 -hb-&gt; TPE类中runWorker()方法内的下一轮getTask()语句执行 -hb-&gt; TPE类中runWorker()方法内的下一轮//5语句执行</code>，如果&#x2F;&#x2F;2处实际上未执行到，自然不发出中断信号；如果&#x2F;&#x2F;2处实际执行到了，且出现中断信号泄漏（如果该中断信号在真实任务执行逻辑内部被复位掉，即<code>c.call();</code>内部，则没有泄漏），根据分析可知，此时该泄漏的中断信号必然会在<code>getTask()</code>方法的<code>workQueue.poll或者take</code>语句处或者&#x2F;&#x2F;5处（当执行器的状态为<code>RUNNING</code>）被复位，故不会递延到下一个任务的执行过程，得证</li>
+</ul>
+</li>
+<li>在S点时，&#x2F;&#x2F;1处操作已执行且返回false，此时不发出中断信号</li>
+<li>在S点时，&#x2F;&#x2F;1处操作未执行：<ul>
+<li>如果有执行<code>setException(ex)</code>语句，根据前导第2点，S点时必有<code>state&gt;=COMPLETING</code>，此时执行&#x2F;&#x2F;1处操作会返回false，故不发出中断信号</li>
+<li>如果未有执行<code>setException(ex)</code>语句，根据前导第1和第3点，此时执行&#x2F;&#x2F;1处操作，<code>runner = null</code>语句必然已经执行完且结果对其可见，<code>Thread t = runner</code>语句不可能重排序到&#x2F;&#x2F;1处操作之前，故<code>if (t != null)</code>判断语句结果为false，不会发出中断信号</li>
+</ul>
+</li>
+</ol>
+<p><strong>3、其他</strong><br>针对“在S点时，&#x2F;&#x2F;1处操作未执行，且未执行<code>setException(ex)</code>语句”情形，本来笔者还认为存在一种“中断信号泄漏递延给下一个任务”的可能，具体是“线程T1执行<code>runAndReset()</code>方法，S点时有<code>state=NEW</code>，<code>runner = null;</code>语句重排序到&#x2F;&#x2F;44之后，故此时<code>runner!=NULL</code>，另外一个线程T2在S点时执行<code>cancel(true)</code>方法，执行到<code>T1.interrupt()</code>语句时等待CPU资源分配，T1继续执行直到下一个真实任务的执行逻辑（不会调用<code>handlePossibleCancellationInterrupt(s)</code>方法，因为<code>if (s &gt;= INTERRUPTING)</code>判断语句返回false），然后T2此时发出中断信号，该中断信号对新任务的执行过程可见，即出现了‘中断信号泄漏’”。针对以上“中断信号泄漏”可能，还特地向OpenJDK反馈了一个<a target="_blank" rel="noopener" href="https://bugs.openjdk.java.net/browse/JDK-8269467">Bug</a>，后面根据Doug Lea的回复——<code>The case presented here includes assumption of a reordering that should be precluded because fields state and runner are volatile.</code>，才意识到了以上分析的错误在于没有考虑到前导第1和第3点。</p>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><p>根据以下TPE类中<code>runWorker(Worker w)</code>方法源码可知，在TPE和STPE中调度执行的任务，<font color='red'>必须</font>在内部<code>catch</code>住自身过程抛出的<code>Throwable</code>，否则会导致执行该任务的Worker异常退出（虽然会被弥补）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">runWorker</span><span class="params">(Worker w)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (task != <span class="literal">null</span> || (task = getTask()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            w.lock();</span><br><span class="line"></span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                beforeExecute(wt, task);</span><br><span class="line">                <span class="type">Throwable</span> <span class="variable">thrown</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    task.run();                    <span class="comment">//1</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (RuntimeException x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Error x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(x);</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    afterExecute(task, thrown);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                task = <span class="literal">null</span>;</span><br><span class="line">                w.completedTasks++;</span><br><span class="line">                w.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        completedAbruptly = <span class="literal">false</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        processWorkerExit(w, completedAbruptly);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来针对TPE和STPE中的所有任务提交形式一一进行分析说明。</p>
+<h3 id="4-1、TPE"><a href="#4-1、TPE" class="headerlink" title="4.1、TPE"></a><strong>4.1、TPE</strong></h3><p>存在4种提交形式，分为两类：</p>
+<ol start="0">
+<li>第一类：&#x2F;&#x2F;1处的<code>task</code>就是真实的任务实体，在该情形中，真实任务实体的执行方法<font color='red'>必须</font>在内部catch住自身过程抛出的<code>Throwable</code><ul>
+<li><code>public void execute(Runnable command)</code>，真实任务实体是<code>command</code>，<font color='red'>必须</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+</li>
+<li>第二类：&#x2F;&#x2F;1处的<code>task</code>指代FutureTask实例，查看<code>FutureTask.run()</code>方法源码，可知在调用真实任务实体执行方法的外围有catch住异常的逻辑，故不会导致Worker异常退出，但是为统一起见，<font color='red'>建议</font>还是在真实任务实体执行方法内部catch住自身过程抛出的<code>Throwable</code><ul>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.call()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public Future&lt;?&gt; submit(Runnable task)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code>，真实任务实体是<code>task</code>，<font color='red'>建议</font>在<code>task.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="4-2、STPE"><a href="#4-2、STPE" class="headerlink" title="4.2、STPE"></a><strong>4.2、STPE</strong></h3><p>存在8种提交形式，包括从TPE继承下来的4种提交形式（在STPE中覆盖实现），查看源码可知&#x2F;&#x2F;1处的<code>task</code>指代ScheduledFutureTask实例，查看<code>ScheduledFutureTask.run()</code>方法源码，其转发调用FutureTask的<code>run()</code>或者<code>runAndReset()</code>方法，查看上述两个方法源码，可知在调用真实任务实体执行方法的外围有catch住异常的逻辑，故不会导致Worker异常退出，但是为统一起见，<font color='red'>建议</font>还是在真实任务实体执行方法内部catch住自身过程抛出的<code>Throwable</code>：</p>
+<ul>
+<li>继承下来的4个方法说明见“4.1、TPE”小节</li>
+<li><code>public ScheduledFuture&lt;?&gt; schedule(Runnable command, long delay, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public &lt;V&gt; ScheduledFuture&lt;V&gt; schedule(Callable&lt;V&gt; callable, long delay, TimeUnit unit)</code>，真实任务实体是<code>callable</code>，<font color='red'>建议</font>在<code>callable.call()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+<li><code>public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</code>，真实任务实体是<code>command</code>，<font color='red'>建议</font>在<code>command.run()</code>方法内部catch住自身过程抛出的<code>Throwable</code></li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/05/14/ScheduledThreadPoolExecutor/" title="ScheduledThreadPoolExecutor">《ScheduledThreadPoolExecutor》</a>中的ScheduledFutureTask类的<code>run()</code>方法<br>[2]<a target="_blank" rel="noopener" href="https://www.cnblogs.com/thisiswhy/p/13791966.html">https://www.cnblogs.com/thisiswhy/p/13791966.html</a><br>[3]<a href="/2020/07/29/Unsafe%E7%B1%BB/" title="Unsafe类">《Unsafe类》</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/" title="FutureTask和ScheduledFutureTask">https://dslztx.github.io/blog/2021/05/16/FutureTask和ScheduledFutureTask/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/05/15/Executors/" rel="prev" title="Executors">
+      <i class="fa fa-chevron-left"></i> Executors
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/" rel="next" title="Java容器">
+      Java容器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/";
+    this.page.identifier = "2021/05/16/FutureTask和ScheduledFutureTask/";
+    this.page.title = "FutureTask和ScheduledFutureTask";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

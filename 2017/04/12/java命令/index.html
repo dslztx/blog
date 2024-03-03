@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="使用的JDK版本为jdk1.7.0_79。 一、常用用法1.1、常用用法11java [Options] class [Arguments] 1.2、常用用法21java [Options] -jar file.jar [Arguments] 二、含义2.1、常用用法1含义运行一个JVM进程，入口类为“class”（内含“public static void main(String[] args)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="使用的JDK版本为jdk1.7.0_79。 一、常用用法1.1、常用用法11java [Options] class [Arguments] 1.2、常用用法21java [Options] -jar file.jar [Arguments] 二、含义2.1、常用用法1含义运行一个JVM进程，入口类为“class”（内含“public static void main(String[] args)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-04-12T14:53:03.000Z">
+<meta property="article:modified_time" content="2017-04-12T14:53:03.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="JDK命令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>java命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-12 22:53:03" itemprop="dateCreated datePublished" datetime="2017-04-12T22:53:03+08:00">2017-04-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/12/java命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>使用的JDK版本为jdk1.7.0_79。</p>
+<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><h3 id="1-1、常用用法1"><a href="#1-1、常用用法1" class="headerlink" title="1.1、常用用法1"></a><strong>1.1、常用用法1</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java [Options] class [Arguments]</span><br></pre></td></tr></table></figure>
+<h3 id="1-2、常用用法2"><a href="#1-2、常用用法2" class="headerlink" title="1.2、常用用法2"></a><strong>1.2、常用用法2</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java [Options] -jar file.jar [Arguments]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><h3 id="2-1、常用用法1含义"><a href="#2-1、常用用法1含义" class="headerlink" title="2.1、常用用法1含义"></a><strong>2.1、常用用法1含义</strong></h3><p>运行一个JVM进程，入口类为“class”（内含“public static void main(String[] args)”方法）。</p>
+<h3 id="2-2、常用用法2含义"><a href="#2-2、常用用法2含义" class="headerlink" title="2.2、常用用法2含义"></a><strong>2.2、常用用法2含义</strong></h3><p>运行一个JVM进程，入口类为“file.jar”指代的可执行JAR包内“MANIFEST.MF”文件中“Main-Class”参数配置的Java类（内含“public static void main(String[] args)”方法）。</p>
+<h2 id="三、选项"><a href="#三、选项" class="headerlink" title="三、选项"></a><strong>三、选项</strong></h2><p>“Arguments”，表示传递给“public static void main(String[] args)”方法的参数。<br>接下来主要介绍“Options”，本文称其为“虚拟机参数”。<br><font color='red'>需要特别注意的是，关于“虚拟机参数”有两点不确定性：1）JVM进程支持的所有“虚拟机参数”和详细使用说明是不确定的（比如通过“-XX:+UnlockDiagnosticVMOptions -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+PrintFlagsFinal”虚拟机参数也只能获取到部分“-XX”类型虚拟机参数），除非查看OpenJDK源代码；2）“虚拟机参数”被传给JVM进程后，由于JVM进程存在缺省配置，“虚拟机参数”之间存在冲突（比如“-Xmn”和“-XX:NewRatio”）等因素，最终产生效果是不确定的，除非查看OpenJDK源代码。<br>即要想获得准确的关于“虚拟机参数”的信息，必须查看OpenJDK源代码。</font>[3][4]<br>因此，接下来只介绍一些常见的“虚拟机参数”。</p>
+<h3 id="3-1、一般虚拟机参数"><a href="#3-1、一般虚拟机参数" class="headerlink" title="3.1、一般虚拟机参数"></a><strong>3.1、一般虚拟机参数</strong></h3><h4 id="3-1-1、常用"><a href="#3-1-1、常用" class="headerlink" title="3.1.1、常用"></a><strong>3.1.1、常用</strong></h4><p>描述见表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-classpath&#x2F;-cp classpath</td>
+<td>配置用户自定义类路径</td>
+</tr>
+<tr>
+<td>-Dproperty&#x3D;value</td>
+<td>配置环境变量</td>
+</tr>
+<tr>
+<td>-verbose&#x2F;-verbose:class</td>
+<td>打印类加载日志</td>
+</tr>
+<tr>
+<td>-verbose:gc</td>
+<td>打印GC简单日志</td>
+</tr>
+<tr>
+<td>-verbose:jni</td>
+<td>打印本地方法使用日志</td>
+</tr>
+</tbody></table>
+<h4 id="3-1-2、其他"><a href="#3-1-2、其他" class="headerlink" title="3.1.2、其他"></a><strong>3.1.2、其他</strong></h4><p>描述见表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-client</td>
+<td>以“client”模式运行JVM进程</td>
+</tr>
+<tr>
+<td>-server</td>
+<td>以“server”模式运行JVM进程</td>
+</tr>
+<tr>
+<td>-d32</td>
+<td>以32位模式运行JVM进程，需要本身支持才可，否则会报错</td>
+</tr>
+<tr>
+<td>-d64</td>
+<td>以64位模式运行JVM进程，需要本身支持才可，否则会报错</td>
+</tr>
+<tr>
+<td>-agentlib:libname[&#x3D;options]</td>
+<td>加载JVMTI实现库[5]</td>
+</tr>
+<tr>
+<td>-agentpath:pathname[&#x3D;options]</td>
+<td>另外一种形式加载JVMTI实现库[5]</td>
+</tr>
+<tr>
+<td>-javaagent:jarpath[&#x3D;options]</td>
+<td>加载Instrumentation机制代理程序包[6]</td>
+</tr>
+<tr>
+<td>-disableassertions&#x2F;-da[:package name”…”&#124;:class name]</td>
+<td>关闭assert语法</td>
+</tr>
+<tr>
+<td>-enableassertions&#x2F;-ea[:package name”…”&#124;:class name]</td>
+<td>开启assert语法</td>
+</tr>
+<tr>
+<td>-disablesystemassertions&#x2F;-dsa</td>
+<td>关闭系统类中的assert语法</td>
+</tr>
+<tr>
+<td>-enablesystemassertions&#x2F;-esa</td>
+<td>开启系统类中的assert语法</td>
+</tr>
+<tr>
+<td>-splash:imagepath</td>
+<td>运行JVM进程时，显示路径指定的图片</td>
+</tr>
+<tr>
+<td>-help&#x2F;-?</td>
+<td>打印帮助信息</td>
+</tr>
+<tr>
+<td>-version</td>
+<td>显示JVM版本信息，退出</td>
+</tr>
+<tr>
+<td>-showversion</td>
+<td>显示JVM版本信息，不退出</td>
+</tr>
+<tr>
+<td>-version:release</td>
+<td>指定需要的JVM版本</td>
+</tr>
+<tr>
+<td>-jre-restrict-search</td>
+<td>进行版本搜索时，包含私有JRE[7]</td>
+</tr>
+<tr>
+<td>-no-jre-restrict-search</td>
+<td>进行版本搜索时，不包含私有JRE[7]</td>
+</tr>
+</tbody></table>
+<h3 id="3-2、“-X”类型虚拟机参数"><a href="#3-2、“-X”类型虚拟机参数" class="headerlink" title="3.2、“-X”类型虚拟机参数"></a><strong>3.2、“-X”类型虚拟机参数</strong></h3><h4 id="3-2-1、常用"><a href="#3-2-1、常用" class="headerlink" title="3.2.1、常用"></a><strong>3.2.1、常用</strong></h4><p>描述见表3。</p>
+<p>表3</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-Xloggc:file</td>
+<td>配置GC日志文件路径</td>
+</tr>
+<tr>
+<td>-Xmn&#60;SIZE&#62;</td>
+<td>年轻代精确大小</td>
+</tr>
+<tr>
+<td>-Xms&#60;SIZE&#62;</td>
+<td>Java堆初始值和最小值</td>
+</tr>
+<tr>
+<td>-Xmx&#60;SIZE&#62;</td>
+<td>Java堆最大值</td>
+</tr>
+<tr>
+<td>-Xss&#60;SIZE&#62;</td>
+<td>Java虚拟机栈&#x2F;本地方法栈的精确大小</td>
+</tr>
+</tbody></table>
+<h4 id="3-2-2、其他"><a href="#3-2-2、其他" class="headerlink" title="3.2.2、其他"></a><strong>3.2.2、其他</strong></h4><p>描述见表4。</p>
+<p>表4</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-Xint</td>
+<td>对于字节码，使用解释器解释执行，而不使用编译器编译成汇编码或者机器码后执行[16]</td>
+</tr>
+<tr>
+<td>-Xcomp</td>
+<td>对于字节码，使用编译器编译成汇编码或者机器码后执行，而不使用解释器解释执行[16]</td>
+</tr>
+<tr>
+<td>-Xmixed</td>
+<td>默认方式。对于字节码，一般使用解释器解释执行；对于热点代码[17]，使用编译器编译成汇编码或者机器码后执行[16]</td>
+</tr>
+<tr>
+<td>-Xbatch</td>
+<td>关闭后台编译机制</td>
+</tr>
+<tr>
+<td>-Xbootclasspath:bootclasspath</td>
+<td>配置bootclasspath</td>
+</tr>
+<tr>
+<td>-Xbootclasspath&#x2F;a:path</td>
+<td>在原有的bootclasspath后增加path</td>
+</tr>
+<tr>
+<td>-Xbootclasspath&#x2F;p:path</td>
+<td>在原有的bootclasspath前增加path</td>
+</tr>
+<tr>
+<td>-Xcheck:jni</td>
+<td>对本地方法进行额外检查</td>
+</tr>
+<tr>
+<td>-Xfuture</td>
+<td>对Class文件进行严格检查</td>
+</tr>
+<tr>
+<td>-Xnoclassgc</td>
+<td>关闭对永久代的垃圾收集[8]</td>
+</tr>
+<tr>
+<td>-Xincgc</td>
+<td>等价于“-XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode”，而“-XX:+CMSIncrementalMode”表示的“增量式并发收集模式”已经被声明废弃[9]</td>
+</tr>
+<tr>
+<td>-Xprof</td>
+<td>在标准输出中打印JVM进程一些指标统计值</td>
+</tr>
+<tr>
+<td>-Xrs</td>
+<td>减少对操作系统信号量的使用</td>
+</tr>
+<tr>
+<td>-Xverify:mode</td>
+<td>配置字节码校验模式</td>
+</tr>
+</tbody></table>
+<h3 id="3-3、“-XX”类型虚拟机参数"><a href="#3-3、“-XX”类型虚拟机参数" class="headerlink" title="3.3、“-XX”类型虚拟机参数"></a><strong>3.3、“-XX”类型虚拟机参数</strong></h3><p>“-XX”类型虚拟机参数具有如下格式：如果为布尔型，以“-XX:+&#x2F;-name”形式进行开或关的配置；否则，以“-XX:name&#x3D;value”形式进行值的配置。</p>
+<h4 id="3-3-1、常用"><a href="#3-3-1、常用" class="headerlink" title="3.3.1、常用"></a><strong>3.3.1、常用</strong></h4><p>描述见表5。</p>
+<p>表5</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-XX:MaxHeapSize&#x3D;N</td>
+<td>Java堆最大值，与“-Xmx&#60;SIZE&#62;”等价，两者具有相等优先级</td>
+</tr>
+<tr>
+<td>-XX:NewSize&#x3D;N</td>
+<td>配置年轻代的初始值和最小值</td>
+</tr>
+<tr>
+<td>-XX:MaxNewSize&#x3D;N</td>
+<td>配置年轻代最大值</td>
+</tr>
+<tr>
+<td>-XX:PermSize&#x3D;N</td>
+<td>设置永久代初始值和最小值</td>
+</tr>
+<tr>
+<td>-XX:MaxPermSize&#x3D;N</td>
+<td>设置永久代最大值</td>
+</tr>
+<tr>
+<td>-XX:MaxDirectMemorySize&#x3D;N</td>
+<td>设置“直接内存”最大值</td>
+</tr>
+<tr>
+<td>-XX:SurvivorRatio&#x3D;N</td>
+<td>Eden区与Survivor区大小比值为N</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseSerialGC</td>
+<td>是否使用Serial+Serial Old收集器组合</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseParNewGC</td>
+<td>是否使用ParNew+Serial Old收集器组合</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseConcMarkSweepGC</td>
+<td>是否使用ParNew+CMS+Serial Old收集器组合，Serial Old垃圾收集器作为CMS收集器出现Concurrent Mode Failure失败后的后备收集器</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseParallelGC</td>
+<td>是否使用Parallel Scavenge+Serial Old收集器组合</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseParallelOldGC</td>
+<td>是否使用Parallel Scavenge+Parallel Old收集器组合</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseG1GC</td>
+<td>是否使用G1收集器</td>
+</tr>
+<tr>
+<td>-XX:ParallelGCThreads&#x3D;N</td>
+<td>并行GC时，允许的最大线程数</td>
+</tr>
+<tr>
+<td>-XX:PretenureSizeThreshold&#x3D;N</td>
+<td>阈值，大于该值的对象直接在老年代分配</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-HandlePromotionFailure</td>
+<td>是否允许“分配担保失败”</td>
+</tr>
+<tr>
+<td>-XX:MaxGCPauseMillis&#x3D;N</td>
+<td>配置GC时最大停顿时间，收集器将尽量使得不超过该时间，仅在使用Parallel Scavenge收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:GCTimeRatio&#x3D;N</td>
+<td>用户程序运行时间与GC时间比值为N，仅在使用Parallel Scavenge收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseAdaptiveSizePolicy</td>
+<td>开启自动调节机制，不再需要手工指定新生代的大小，Eden区与Survivor区大小比值，晋升老年代对象年龄等细节参数</td>
+</tr>
+<tr>
+<td>-XX:CMSInitiatingOccupancyFraction&#x3D;N</td>
+<td>当老年代占用空间大于N%，则进行GC，仅在使用CMS收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseCMSCompactAtFullCollection</td>
+<td>当进行Full GC时，进行内存碎片整理，仅在使用CMS收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:CMSFullGCsBeforeCompaction&#x3D;N</td>
+<td>进行N次不进行整理的Full GC，然后执行1次带整理的Full GC，仅在使用CMS收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-CMSClassUnloadingEnabled</td>
+<td>是否对永久代进行垃圾回收，仅在使用CMS收集器时生效</td>
+</tr>
+<tr>
+<td>-XX:MaxTenuringThreshold&#x3D;N</td>
+<td>阈值，当年轻代中对象年龄大于该值，则晋升到老年代</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-CMSParallelRemarkEnabled</td>
+<td>是否允许CMS的重新标记阶段进行并行GC</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseCompressedOops</td>
+<td>64位JVM上是否压缩普通对象指针</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseTLAB</td>
+<td>是否使用TLAB机制</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-HeapDumpOnOutOfMemoryError</td>
+<td>OutOfMemoryError发生时是否生成堆转存快照</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintTenuringDistribution</td>
+<td>打印GC日志时，打印Survivor区中对象年龄分布信息</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGC</td>
+<td>是否打印GC简单日志，等价于“-verbose:gc”</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGCDetails</td>
+<td>是否打印GC详细日志</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGCTimeStamps</td>
+<td>打印GC日志时，是否打印相对时间戳（自JVM进程启动以来经过多少秒）</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGCDateStamps</td>
+<td>打印GC日志时，是否打印绝对和相对时间戳</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGCApplicationStoppedTime</td>
+<td>打印GC日志时，是否打印应用程序暂停了多少秒</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintGCApplicationConcurrentTime</td>
+<td>打印GC日志时，是否打印应用程序运行了多少秒</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-TraceClassLoading</td>
+<td>是否打印类加载过程信息</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-TraceClassUnLoading</td>
+<td>是否打印类卸载过程信息</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-DisableExplicitGC</td>
+<td>是否忽略来自System.gc()方法触发的垃圾收集请求</td>
+</tr>
+<tr>
+<td>-XX:MaxHeapFreeRatio&#x3D;N</td>
+<td>当Xmx值比Xms值大时，Java堆可以动态收缩与扩展，这个参数控制当堆空闲大于指定比率时自动收缩</td>
+</tr>
+<tr>
+<td>-XX:MinHeapFreeRatio&#x3D;N</td>
+<td>当Xmx值比Xms值大时，Java堆可以动态收缩与扩展，这个参数控制当堆空闲小于指定比率时自动扩展</td>
+</tr>
+<tr>
+<td>-XX:LargePageSizeInBytes&#x3D;N</td>
+<td>使用指定大小的内存分页，需要操作系统的支持</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseFastAccessorMethods</td>
+<td>当频繁反射执行某个方法时，生成字节码来加快反射的执行速度</td>
+</tr>
+</tbody></table>
+<h4 id="3-3-2、其他"><a href="#3-3-2、其他" class="headerlink" title="3.3.2、其他"></a><strong>3.3.2、其他</strong></h4><p>描述见表6。</p>
+<p>表6</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-XX:+&#x2F;-UseSpinning</td>
+<td>是否开启自旋锁避免线程频繁挂起和唤醒</td>
+</tr>
+<tr>
+<td>-XX:PreBlockSpin&#x3D;N</td>
+<td>使用自旋锁时默认的自旋次数</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseThreadPriorities</td>
+<td>是否使用本地线程优先级</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-UseBiasedLocking</td>
+<td>是否使用偏向锁</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-AggressiveOpts</td>
+<td>是否使用激进的优化策略，需要根据具体应用特点进行分析，从而来判定采用该策略是否对性能有好处</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-PrintConcurrentLocks</td>
+<td>是否打印J.U.C中锁的状态</td>
+</tr>
+<tr>
+<td>-XX:OnOutOfMemoryError&#x3D;”COMMAND”</td>
+<td>当抛出OutOfMemoryError异常时，执行指定的命令COMMAND</td>
+</tr>
+<tr>
+<td>-XX:OnError&#x3D;”COMMAND”</td>
+<td>当抛出Error异常时，执行指定的命令COMMAND</td>
+</tr>
+<tr>
+<td>-XX:+&#x2F;-DisableAttachMechanism</td>
+<td>是否关闭Dynamic Attach机制</td>
+</tr>
+</tbody></table>
+<h2 id="四、补充"><a href="#四、补充" class="headerlink" title="四、补充"></a><strong>四、补充</strong></h2><h3 id="4-1、类路径"><a href="#4-1、类路径" class="headerlink" title="4.1、类路径"></a><strong>4.1、类路径</strong></h3><p>使用“java”命令尝试运行JVM进程时，类路径有3类：Bootstrap Classpath（默认值为“jre&#x2F;lib”，可通过“-Xbootclasspath:bootclasspath”，“-Xbootclasspath&#x2F;a:path”，“-Xbootclasspath&#x2F;p:path”虚拟机参数更改），Extension Classpath（默认值为“jre&#x2F;lib&#x2F;ext”，没有途径更改），User Classpath（默认值为“.”，可通过“-classpath”，“-cp”虚拟机参数更改）。[10]</p>
+<h3 id="4-2、JVM运行模式client和server"><a href="#4-2、JVM运行模式client和server" class="headerlink" title="4.2、JVM运行模式client和server"></a><strong>4.2、JVM运行模式client和server</strong></h3><p>自从JDK 5开始，当使用“java”命令尝试运行一个JVM进程时，JVM会判断一系列条件，当条件满足时，以server模式运行JVM进程，否则以client模式运行JVM进程，除非显式指定了“-client”或者“-server”。[11]</p>
+<h3 id="4-3、配置Java堆中年轻代大小参数-12-13-14"><a href="#4-3、配置Java堆中年轻代大小参数-12-13-14" class="headerlink" title="4.3、配置Java堆中年轻代大小参数[12][13][14]"></a><strong>4.3、配置Java堆中年轻代大小参数[12][13][14]</strong></h3><p>配置Java堆中年轻代大小的参数有：-XX:NewRatio&#x3D;N，-XX:NewSize&#x3D;N，-XX:MaxNewSize&#x3D;N，-Xmn&#60;SIZE&#62;。描述如表7。</p>
+<p>表7</p>
+<table>
+<thead>
+<tr>
+<th>参数&#x2F;参数组合</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-XX:NewRatio&#x3D;N</td>
+<td>老年代与年轻代大小比值为N，即年轻代与Java堆大小比值为1&#x2F;N+1</td>
+</tr>
+<tr>
+<td>-XX:NewSize&#x3D;N，-XX:MaxNewSize&#x3D;N</td>
+<td>NewSize配置年轻代初始值和最小值，MaxNewSize配置年轻代最大值</td>
+</tr>
+<tr>
+<td>-Xmn&#60;SIZE&#62;</td>
+<td>-Xmn&#60;SIZE&#62;精确配置年轻代大小为SIZE</td>
+</tr>
+</tbody></table>
+<p>以上3个“参数&#x2F;参数组合”的优先级顺序为：“-Xmn&#60;SIZE&#62;” &#x3D; “-XX:NewSize&#x3D;N，-XX:MaxNewSize&#x3D;N” &gt; “-XX:NewRatio&#x3D;N”，相等优先级情形下，位于后面的“参数&#x2F;参数组合”覆盖前面而真正生效。接下来进行验证。<br>现有如下一段代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class Example &#123;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">        Thread.sleep(10 * 60 * 1000L);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译后，执行<code>java -XX:NewRatio=4 -Xms10M -Xmx20M Example</code>命令，在该JVM进程（假设JVM进程ID为25101）还在运行时，执行<code>jstat -gcnewcapacity 25101 1000 3</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC </span><br><span class="line">    2048.0     4096.0     2048.0    384.0    192.0    384.0    192.0     3328.0     1664.0     0     0</span><br><span class="line">    2048.0     4096.0     2048.0    384.0    192.0    384.0    192.0     3328.0     1664.0     0     0</span><br><span class="line">    2048.0     4096.0     2048.0    384.0    192.0    384.0    192.0     3328.0     1664.0     0     0</span><br></pre></td></tr></table></figure>
+<p>再执行<code>java -Xmn8M -XX:NewRatio=4 -Xms10M -Xmx20M Example</code>命令，在该JVM进程（假设JVM进程ID为25165）还在运行时，执行<code>jstat -gcnewcapacity 25165 1000 3</code>命令，得到如下所示结果，结合上一个结果，得到“-Xmn&#60;SIZE&#62;”优先级 &gt; “-XX:NewRatio&#x3D;N”优先级结论：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC </span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br></pre></td></tr></table></figure>
+<p>再分别执行<code>java -Xmn8M -XX:NewSize=4M -XX:MaxNewSize=7M -Xms10M -Xmx20M Example</code>和<code>java -XX:NewSize=4M -XX:MaxNewSize=7M -Xmn8M -Xms10M -Xmx20M Example</code>命令，在JVM进程（假设JVM进程ID分别为25328和25369）还在运行时，分别执行<code>jstat -gcnewcapacity 25328 1000 3</code>和<code>jstat -gcnewcapacity 25369 1000 3</code>命令，得到如下两个所示结果，据此可得“-Xmn&#60;SIZE&#62;”优先级 &#x3D; “-XX:NewSize&#x3D;N，-XX:MaxNewSize&#x3D;N”优先级结论：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC </span><br><span class="line">    4096.0     7168.0     4096.0    704.0    384.0    704.0    384.0     5760.0     3328.0     0     0</span><br><span class="line">    4096.0     7168.0     4096.0    704.0    384.0    704.0    384.0     5760.0     3328.0     0     0</span><br><span class="line">    4096.0     7168.0     4096.0    704.0    384.0    704.0    384.0     5760.0     3328.0     0     0</span><br><span class="line"></span><br><span class="line">---分割线---</span><br><span class="line"></span><br><span class="line">NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC </span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br><span class="line">    8192.0     8192.0     8192.0    768.0    768.0    768.0    768.0     6656.0     6656.0     0     0</span><br></pre></td></tr></table></figure>
+<p>综上，这3个“参数&#x2F;参数组合”的优先级顺序已经得到验证。</p>
+<h3 id="4-4、常用虚拟机参数组合片段"><a href="#4-4、常用虚拟机参数组合片段" class="headerlink" title="4.4、常用虚拟机参数组合片段"></a><strong>4.4、常用虚拟机参数组合片段</strong></h3><p>接下来介绍一些常用虚拟机参数组合片段，需要注意的是，这些常用虚拟机参数组合片段只适用于一般情形，如果是特殊情形，还是需要进行针对性调优的。</p>
+<h4 id="4-4-1、打印GC日志"><a href="#4-4-1、打印GC日志" class="headerlink" title="4.4.1、打印GC日志"></a><strong>4.4.1、打印GC日志</strong></h4><p>打印GC日志场景的常用虚拟机参数组合片段如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime -Xloggc:file</span><br></pre></td></tr></table></figure>
+<h4 id="4-4-2、服务器上运行JVM服务进程"><a href="#4-4-2、服务器上运行JVM服务进程" class="headerlink" title="4.4.2、服务器上运行JVM服务进程"></a><strong>4.4.2、服务器上运行JVM服务进程</strong></h4><p>服务器上运行JVM服务进程场景的常用虚拟机参数组合片段如下[15]：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-server -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:NewSize=256m -XX:MaxNewSize=256m -Xms768m -Xmx768m -XX:MaxPermSize=128m -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -XX:+UseTLAB</span><br></pre></td></tr></table></figure>
+<h4 id="4-4-3、打印常见部分“-XX”类型虚拟机参数"><a href="#4-4-3、打印常见部分“-XX”类型虚拟机参数" class="headerlink" title="4.4.3、打印常见部分“-XX”类型虚拟机参数"></a><strong>4.4.3、打印常见部分“-XX”类型虚拟机参数</strong></h4><p>打印常见部分“-XX”类型虚拟机参数（包括参数类型，名称，值等信息）场景的常用虚拟机参数组合片段如下[3][4]：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UnlockDiagnosticVMOptions -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+PrintFlagsFinal</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]http://docs.oracle.com/javase/7/docs/technotes/tools/solaris/java.html
+[2]man java
+[3]http://www.javaworld.com/article/2073676/hotspot-jvm-options-displayed---xx--printflagsinitial-and--xx--printflagsfinal.html
+[4]http://q-redux.blogspot.hk/2011/01/inspecting-hotspot-jvm-options.html
+[5]https://www.ibm.com/developerworks/cn/java/j-lo-jpda2/
+[6]https://www.ibm.com/developerworks/cn/java/j-lo-jse61/
+[7]http://stackoverflow.com/questions/19510169/what-are-the-differences-between-private-jre-and-public-jre
+[8]http://stackoverflow.com/questions/27844418/java-xnoclassgc
+[9]https://news.ycombinator.com/item?id=3170354
+[10]https://docs.oracle.com/javase/7/docs/technotes/tools/findingclasses.html
+[11]http://docs.oracle.com/javase/7/docs/technotes/guides/vm/server-class.html
+[12]http://eyesmore.iteye.com/blog/1530996
+[13]http://stackoverflow.com/questions/23880891/what-does-xmn-jvm-option-stands-for
+[14]https://gist.github.com/rednaxelafx/1066883
+[15]https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmgc.html
+[16]http://ifeve.com/useful-jvm-flags-part-1-jvm-types-and-compiler-modes-2
+[17]http://www.importnew.com/20575.html
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/" title="java命令">https://dslztx.github.io/blog/2017/04/12/java命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/JDK%E5%91%BD%E4%BB%A4/" rel="tag"># JDK命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/04/09/jinfo%E5%91%BD%E4%BB%A4/" rel="prev" title="jinfo命令">
+      <i class="fa fa-chevron-left"></i> jinfo命令
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/" rel="next" title="jmap命令">
+      jmap命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2017/04/12/java命令/";
+    this.page.title = "java命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

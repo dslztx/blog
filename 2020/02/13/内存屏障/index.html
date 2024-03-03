@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="内存屏障，英文名为“memory barrier”，又可被称为“内存栅栏”，“内存栅障”等，用来指代内存同步原语。 一、内存屏障的作用内存屏障的作用：  禁止重排序 刷新缓存到主存 使缓存失效  备注：  内存屏障可具有上述作用，但不一定需要具备上述所有作用  二、内存屏障的存在形式本节内容属于笔者自我理解，如有错误，敬请指正。 内存屏障的存在形式分为“独立型”和“绑定型”两种：  独立型。“内存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存屏障">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="内存屏障，英文名为“memory barrier”，又可被称为“内存栅栏”，“内存栅障”等，用来指代内存同步原语。 一、内存屏障的作用内存屏障的作用：  禁止重排序 刷新缓存到主存 使缓存失效  备注：  内存屏障可具有上述作用，但不一定需要具备上述所有作用  二、内存屏障的存在形式本节内容属于笔者自我理解，如有错误，敬请指正。 内存屏障的存在形式分为“独立型”和“绑定型”两种：  独立型。“内存">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-13T10:53:06.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.160Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>内存屏障 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          内存屏障
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-13 18:53:06" itemprop="dateCreated datePublished" datetime="2020-02-13T18:53:06+08:00">2020-02-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/13/内存屏障/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>内存屏障，英文名为“memory barrier”，又可被称为“内存栅栏”，“内存栅障”等，用来指代内存同步原语。</p>
+<h2 id="一、内存屏障的作用"><a href="#一、内存屏障的作用" class="headerlink" title="一、内存屏障的作用"></a><strong>一、内存屏障的作用</strong></h2><p>内存屏障的作用：</p>
+<ul>
+<li>禁止重排序</li>
+<li>刷新缓存到主存</li>
+<li>使缓存失效</li>
+</ul>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>内存屏障可具有上述作用，但不一定需要具备上述所有作用</li>
+</ul>
+<h2 id="二、内存屏障的存在形式"><a href="#二、内存屏障的存在形式" class="headerlink" title="二、内存屏障的存在形式"></a><strong>二、内存屏障的存在形式</strong></h2><p><font color='red'>本节内容属于笔者自我理解，如有错误，敬请指正。</font></p>
+<p>内存屏障的存在形式分为“独立型”和“绑定型”两种：</p>
+<ul>
+<li>独立型。“内存屏障指令”独立于“业务指令”存在，比如“在X86指令集中的<code>lfence</code>指令”</li>
+<li>绑定型。“内存屏障指令”与“业务指令”绑定在一起，比如“在X86指令集中，给一条业务汇编指令加上<code>LOCK汇编指令前缀</code>，则其既为汇编指令，也为内存屏障指令”</li>
+</ul>
+<p>对于“独立型内存屏障指令”，与“业务指令”之间可能被插入其他指令；而对于“绑定型内存屏障指令”，与“其绑定的业务指令”之间不允许被插入其他指令。</p>
+<h2 id="三、不同指令-语言层级的内存屏障"><a href="#三、不同指令-语言层级的内存屏障" class="headerlink" title="三、不同指令&#x2F;语言层级的内存屏障"></a><strong>三、不同指令&#x2F;语言层级的内存屏障</strong></h2><p>对应于指令&#x2F;语言层级，内存屏障一般分为3类：机器指令集中的内存屏障，汇编指令集中的内存屏障，程序语言中的内存屏障。</p>
+<h3 id="3-1、机器指令集中的内存屏障"><a href="#3-1、机器指令集中的内存屏障" class="headerlink" title="3.1、机器指令集中的内存屏障"></a><strong>3.1、机器指令集中的内存屏障</strong></h3><p>不同的机器指令集具有不同的“内存屏障机器指令”。</p>
+<h3 id="3-2、汇编指令集中的内存屏障"><a href="#3-2、汇编指令集中的内存屏障" class="headerlink" title="3.2、汇编指令集中的内存屏障"></a><strong>3.2、汇编指令集中的内存屏障</strong></h3><p>不同的汇编指令集具有不同的“内存屏障汇编指令”。<br>比如在X86指令集中，内存屏障汇编指令有：</p>
+<ul>
+<li>lfence，sfence，mfence</li>
+<li>给汇编指令加上<code>LOCK汇编指令前缀</code>便使得具有内存屏障效果</li>
+<li>…</li>
+</ul>
+<h3 id="3-3、程序语言中的内存屏障"><a href="#3-3、程序语言中的内存屏障" class="headerlink" title="3.3、程序语言中的内存屏障"></a><strong>3.3、程序语言中的内存屏障</strong></h3><p>不同的程序语言具有不同的“内存屏障语言指令”，“内存屏障语言指令”是一个<code>逻辑虚概念</code>，不像“内存屏障机器指令”和“内存屏障汇编指令”是<code>客观实概念</code>。编译器编译或者解释器解释时根据“语言关键词”和“语言设计机制”达成<code>语言语句禁止重排序</code>和<code>插入“内存屏障汇编指令”</code>效果，等价于存在一个“内存屏障语言指令”。</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>JVM语言字节码形式中的“内存屏障字节码指令”也是类似的<code>逻辑虚概念</code></li>
+</ul>
+<h4 id="3-3-1、Java中的内存屏障"><a href="#3-3-1、Java中的内存屏障" class="headerlink" title="3.3.1、Java中的内存屏障"></a><strong>3.3.1、Java中的内存屏障</strong></h4><p>在Java程序语言中，有4种内存屏障。</p>
+<table>
+<thead>
+<tr>
+<th>内存屏障名称</th>
+<th>使用示例</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LoadLoad</td>
+<td>Load1;LoadLoad;Load2</td>
+<td>确保Load1数据的装载执行完成之后再执行Load2及所有后续装载指令的装载</td>
+</tr>
+<tr>
+<td>StoreStore</td>
+<td>Store1;StoreStore;Store2</td>
+<td>确保Store1数据对其他处理器可见（即刷新到主存）执行完成之后再执行Store2及所有后续存储指令的存储</td>
+</tr>
+<tr>
+<td>LoadStore</td>
+<td>Load1;LoadStore;Store2</td>
+<td>确保Load1数据装载执行完成之后再执行Store2及所有后续存储指令的刷新到主存</td>
+</tr>
+<tr>
+<td>StoreLoad</td>
+<td>Store1;StoreLoad;Load2</td>
+<td>确保Store1数据对其他处理器变得可见（即刷新到主存）执行完成之后再执行Load2及所有后续装载指令的装载。<br/><font color='red'>StoreLoad会使该屏障之前的所有内存访问指令（存储和装载指令）完成之后，才执行该屏障之后的内存访问指令，这个特性使得本内存屏障同时具有其他3个内存屏障的效果，故被称为“全能型”内存屏障</font></td>
+</tr>
+</tbody></table>
+<p>上述内存屏障都是<code>逻辑虚概念</code>，但经过编译&#x2F;解释后最终会映射到汇编指令集&#x2F;机器指令集中<code>客观实概念</code>的内存屏障。因此，接下来看似针对“Java中内存屏障”的讨论，实则针对最终所映射到的汇编指令集&#x2F;机器指令集中的内存屏障：</p>
+<ul>
+<li>StoreLoad内存屏障被大多现代的多处理器支持，其他3个内存屏障则不然</li>
+<li>执行StoreLoad内存屏障开销会很昂贵，因为当前处理器通常要把写缓冲区中的数据全部刷新到主存中</li>
+</ul>
+<h2 id="四、最终形态"><a href="#四、最终形态" class="headerlink" title="四、最终形态"></a><strong>四、最终形态</strong></h2><p>相应于“程序语言 -&gt; 汇编语言 -&gt; 机器语言”的编译&#x2F;解释过程，存在“内存屏障语言指令 -&gt; 内存屏障汇编指令 -&gt; 内存屏障机器指令”的内存屏障编译&#x2F;解释过程。<br>我们知道，编译&#x2F;解释得到的汇编指令&#x2F;机器指令，跟具体平台相关，这自然也涵盖内存屏障，故而编译&#x2F;解释得到的内存屏障汇编指令&#x2F;机器指令也跟具体平台相关。<font color='red'>特别需要注意的是</font>，在有些平台上，内存屏障汇编指令&#x2F;机器指令可能会被优化消除掉，比如“在X86体系架构中，除了“StoreLoad”内存屏障所映射到的内存屏障汇编指令&#x2F;机器指令需要保留外，其他内存屏障都无需保留，因为相应的重排序在该体系架构中根本不会发生”。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]《Java并发编程的艺术》<br>[2]<a target="_blank" rel="noopener" href="http://read.pudn.com/downloads100/doc/project/409708/IA-32%BE%ED3%A3%BA%CF%B5%CD%B3%B1%E0%B3%CC%D6%B8%C4%CF[123457%2011%2012].pdf">http://read.pudn.com/downloads100/doc/project/409708/IA-32%BE%ED3%A3%BA%CF%B5%CD%B3%B1%E0%B3%CC%D6%B8%C4%CF[123457%2011%2012].pdf</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" title="内存屏障">https://dslztx.github.io/blog/2020/02/13/内存屏障/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/01/14/CAS/" rel="prev" title="CAS">
+      <i class="fa fa-chevron-left"></i> CAS
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/" rel="next" title="synchronized锁内部实现">
+      synchronized锁内部实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/";
+    this.page.identifier = "2020/02/13/内存屏障/";
+    this.page.title = "内存屏障";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="作者的操作系统环境是Ubuntu。 一、简介Git由Linux内核开发者Linus使用C语言开发创建，是一个分布式版本控制系统工具。 二、安装在Ubuntu上安装Git的命令如下： 1sudo apt-get install git 三、起点首先需创建一个Git的本地仓库，有两种方式：  在某个目录下执行git init命令，初始化创建得到一个Git的本地仓库 执行git clone 远程仓库地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git快速入门教程">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="作者的操作系统环境是Ubuntu。 一、简介Git由Linux内核开发者Linus使用C语言开发创建，是一个分布式版本控制系统工具。 二、安装在Ubuntu上安装Git的命令如下： 1sudo apt-get install git 三、起点首先需创建一个Git的本地仓库，有两种方式：  在某个目录下执行git init命令，初始化创建得到一个Git的本地仓库 执行git clone 远程仓库地址">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170719-0-1.jpg">
+<meta property="article:published_time" content="2017-07-19T13:10:14.000Z">
+<meta property="article:modified_time" content="2017-07-19T13:10:14.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170719-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Git快速入门教程 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git快速入门教程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-07-19 21:10:14" itemprop="dateCreated datePublished" datetime="2017-07-19T21:10:14+08:00">2017-07-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">生产力工具</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/Git/" itemprop="url" rel="index"><span itemprop="name">Git</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/19/Git快速入门教程/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>作者的操作系统环境是Ubuntu。</p>
+<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a><strong>一、简介</strong></h2><p>Git由Linux内核开发者Linus使用C语言开发创建，是一个分布式版本控制系统工具。</p>
+<h2 id="二、安装"><a href="#二、安装" class="headerlink" title="二、安装"></a><strong>二、安装</strong></h2><p>在Ubuntu上安装Git的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git</span><br></pre></td></tr></table></figure>
+<h2 id="三、起点"><a href="#三、起点" class="headerlink" title="三、起点"></a><strong>三、起点</strong></h2><p>首先需创建一个Git的本地仓库，有两种方式：</p>
+<ol>
+<li>在某个目录下执行<code>git init</code>命令，初始化创建得到一个Git的本地仓库</li>
+<li>执行<code>git clone 远程仓库地址</code>命令，克隆远程仓库创建得到一个Git的本地仓库</li>
+</ol>
+<p>作者采用第1种方式，具体是在“dslztx”目录下执行<code>git init</code>命令，此时“dslztx”目录便是一个Git的本地仓库，在“dslztx”目录下执行<code>ls -A</code>命令，打印结果如下，即目录下存在一个名为“.git”的目录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dsl@ubuntu:~/tmp2/dslztx$ ls -A</span><br><span class="line">.git</span><br></pre></td></tr></table></figure>
+<h2 id="四、基础操作"><a href="#四、基础操作" class="headerlink" title="四、基础操作"></a><strong>四、基础操作</strong></h2><h3 id="4-1、说明"><a href="#4-1、说明" class="headerlink" title="4.1、说明"></a><strong>4.1、说明</strong></h3><p>本地仓库由两部分构成：“本地工作区域”和“.git目录区域”。“.git目录区域”是本地仓库的核心数据区域，尽量不要进行手动更改。“.git目录区域”内包含有“配置文件，数据文件，提交节点拓扑图，暂存区”等内容，其中对我们理解Git工作原理比较重要的是“暂存区”和“提交节点拓扑图”。</p>
+<h4 id="4-1-1、本地工作区域"><a href="#4-1-1、本地工作区域" class="headerlink" title="4.1.1、本地工作区域"></a><strong>4.1.1、本地工作区域</strong></h4><p>本地仓库下除“.git目录区域”以外的区域，在这里对文件进行直接操作。</p>
+<h4 id="4-1-2、暂存区"><a href="#4-1-2、暂存区" class="headerlink" title="4.1.2、暂存区"></a><strong>4.1.2、暂存区</strong></h4><p>通过Git命令将在“本地工作区域”中的操作记录保存到“暂存区”，在执行<code>git commit</code>命令时，保存在“暂存区”中的操作记录会被最终提交。</p>
+<h4 id="4-1-3、提交节点拓扑图"><a href="#4-1-3、提交节点拓扑图" class="headerlink" title="4.1.3、提交节点拓扑图"></a><strong>4.1.3、提交节点拓扑图</strong></h4><p>每次成功执行<code>git commit</code>命令都会创建一个相应的“提交节点”，每个提交节点都包含有“提交节点ID，提交用户，提交用户邮箱，日期，提交说明”等内容，<font color='red'>每个“提交节点”实质上对应一个完整的版本快照，因此“提交节点ID”可作为版本号</font>。<br>每个“提交节点”还包含有另外一个重要的字段内容：一个“来源提交节点指针列表”，指针列表中的指针指向本提交节点的“来源提交节点”。每个提交节点的“来源提交节点指针列表”的大小大于等于1（除了“根提交节点”，它的指针列表的大小等于0，即没有“来源提交节点”），即每个“提交节点”至少有一个“来源提交节点”。因此，在一系列提交之后，最终可获得一个“提交节点拓扑图”。<br><font color='red'>“提交节点ID”由40个十六进制字符构成，为了便于操作，Git支持使用“提交节点ID”的可区别（可与已经存在的其他“提交节点ID”进行区别）的前缀子序列来指代该“提交节点”。比如有一个“提交节点”，它的“提交节点ID”为“46400e7d7bffaf8b9921bd4d48d3286364809cc2”，可使用“46400e”来指代该“提交节点”（假设“46400e”是可区别的前缀子序列）。</font></p>
+<h3 id="4-2、实战"><a href="#4-2、实战" class="headerlink" title="4.2、实战"></a><strong>4.2、实战</strong></h3><h4 id="4-2-1、提交"><a href="#4-2-1、提交" class="headerlink" title="4.2.1、提交"></a><strong>4.2.1、提交</strong></h4><p><strong>1、命令和说明</strong><br><code>git commit</code>：最终提交保存在暂存区中的操作记录，如上所述，每次成功提交都会创建一个相应的提交节点。<br><strong>2、实战</strong><br>参见下面小节。</p>
+<h4 id="4-2-2、增"><a href="#4-2-2、增" class="headerlink" title="4.2.2、增"></a><strong>4.2.2、增</strong></h4><p><strong>1、命令和说明</strong><br><code>git add FILE_NAME</code>：如果是新增文件，则将文件的新增操作记录保存到暂存区；如果是非新增文件，则将文件的修改操作记录保存到暂存区。<br><strong>2、实战</strong><br>新建文件“readme.md”，先执行<code>git add readme.md</code>命令，再执行<code>git commit . -m &#39;add&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“46400e7d7bffaf8b9921bd4d48d3286364809cc2”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 46400e7d7bffaf8b9921bd4d48d3286364809cc2</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 17:22:40 2017 +0800</span><br><span class="line"></span><br><span class="line">    add</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* 46400e7 (HEAD, master) add</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-3、改——修改内容"><a href="#4-2-3、改——修改内容" class="headerlink" title="4.2.3、改——修改内容"></a><strong>4.2.3、改——修改内容</strong></h4><p><strong>1、命令和说明</strong><br>修改内容没有特定的Git命令，使用VIM等文本编辑器即可，但是修改好后需要执行<code>git add FILE_NAME</code>命令，将文件的修改操作记录保存到暂存区。<br><strong>2、实战</strong><br>修改“readme.md”文件，修改后内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">床前明月光</span><br></pre></td></tr></table></figure>
+<p>执行<code>git add readme.md</code>命令，再执行<code>git commit . -m &#39;alter&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“4c4c21a00b0d75acf853e5f7de1cd1c8fe87c0e4”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 4c4c21a00b0d75acf853e5f7de1cd1c8fe87c0e4</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 20:44:21 2017 +0800</span><br><span class="line"></span><br><span class="line">    alter</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* 4c4c21a (HEAD, master) alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-4、改——重命名"><a href="#4-2-4、改——重命名" class="headerlink" title="4.2.4、改——重命名"></a><strong>4.2.4、改——重命名</strong></h4><p><strong>1、命令和说明</strong><br><code>git mv FILE_NAME NEW_FILE_NAME</code>：将名为“FILE_NAME”的文件重命名为“NEW_FILE_NAME”，将文件的修改操作记录保存到暂存区。</p>
+<p>备注：<br><code>git mv FILE_NAME NEW_FILE_NAME</code>实质上就是<code>git rm FILE_NAME</code>和<code>git add NEW_FILE_NAME</code>的命令组合。在执行<code>git mv FILE_NAME NEW_FILE_NAME</code>命令后，分别独立执行<code>git reset HEAD FILE_NAME</code>和<code>git reset HEAD NEW_FILE_NAME</code>命令得到两个不同的结果，可以借此加以辅证。<br><strong>2、实战</strong><br>先执行<code>git mv readme.md rename_readme.md</code>命令，再执行<code>git commit . -m &#39;rename&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“ba32a2c15af27a44080e813a8b37dc143dab7eb2”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit ba32a2c15af27a44080e813a8b37dc143dab7eb2</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 20:50:00 2017 +0800</span><br><span class="line"></span><br><span class="line">    rename</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">* ba32a2c (HEAD, master) rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-5、撤销——未保存到暂存区"><a href="#4-2-5、撤销——未保存到暂存区" class="headerlink" title="4.2.5、撤销——未保存到暂存区"></a><strong>4.2.5、撤销——未保存到暂存区</strong></h4><p><strong>1、命令和说明</strong><br><code>git checkout -- FILE_NAME</code>：对文件进行了修改，但修改操作记录还未保存到暂存区，执行该命令可撤销修改。<br><strong>2、实战</strong><br>修改“rename_readme.md”文件，修改后内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">床前明月光</span><br><span class="line">疑是地上霜</span><br></pre></td></tr></table></figure>
+<p>执行<code>git checkout -- rename_readme.md</code>命令，撤销修改。</p>
+<h4 id="4-2-6、撤销——已保存到暂存区"><a href="#4-2-6、撤销——已保存到暂存区" class="headerlink" title="4.2.6、撤销——已保存到暂存区"></a><strong>4.2.6、撤销——已保存到暂存区</strong></h4><p><strong>1、命令和说明</strong><br>依次执行<code>git reset HEAD FILE_NAME（其实质就是“特定文件版本跳转”，详见“4.2.9、特定文件版本跳转”）</code>和<code>git checkout -- FILE_NAME</code>：对文件进行了修改，且修改操作记录已保存到暂存区，执行该组合命令可撤销修改。<br><strong>2、实战</strong><br>修改“rename_readme.md”文件，修改后内容如下，再执行<code>git add rename_readme.md</code>命令将修改操作记录保存到暂存区：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">床前明月光</span><br><span class="line">疑是地上霜</span><br></pre></td></tr></table></figure>
+<p>依次执行<code>git reset HEAD rename_readme.md</code>和<code>git checkout -- rename_readme.md</code>命令，撤销修改。</p>
+<h4 id="4-2-7、删"><a href="#4-2-7、删" class="headerlink" title="4.2.7、删"></a><strong>4.2.7、删</strong></h4><p><strong>1、命令和说明</strong><br><code>git rm FILE_NAME</code>：删除文件，将删除操作记录保存到暂存区。<br><strong>2、实战</strong><br>先执行<code>git rm rename_readme.md</code>命令，再执行<code>git commit . -m &#39;delete&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“5fb58d0a15f1dc3d1fe1963832b7ddb3f774f036”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 5fb58d0a15f1dc3d1fe1963832b7ddb3f774f036</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 21:16:35 2017 +0800</span><br><span class="line"></span><br><span class="line">    delete</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* 5fb58d0 (HEAD, master) delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-8、版本跳转"><a href="#4-2-8、版本跳转" class="headerlink" title="4.2.8、版本跳转"></a><strong>4.2.8、版本跳转</strong></h4><p><strong>1、命令和说明</strong><br>可跳转到“过去版本”，也可在处于“过去版本”时跳转到“过去的<font color='red'>将来已存在版本（当然不能是未存在的版本）</font>”，即可在已存在版本间进行任意跳转。<br>版本跳转有两种方式：绝对跳转和相对跳转。<font color='red'>个人推荐使用绝对跳转</font>。</p>
+<ul>
+<li>绝对跳转：显式指定需要跳转到版本的版本号，由上述描述可知，即对应的“提交节点ID”，具体命令为<code>git reset 提交节点ID</code></li>
+<li>相对跳转：使用“HEAD”标号，比如“git reset HEAD<del>N”形式，它表示跳转到当前版本的前第N个版本，另外还可使用“git reset HEAD<sup>^N</sup>”形式，“HEAD<sup>^N</sup>”等价于“HEAD</del>N”，比如“HEAD<sup>^</sup>”等价于“HEAD<del>1”，“HEAD<sup>^^</sup>”等价于“HEAD</del>2”。</li>
+</ul>
+<p>备注：<br>当处于“过去版本”时欲再跳转到“过去的将来已存在版本”时，有可能出现不能获取到“欲跳转到版本的版本号”的情形，此时可尝试使用<code>git reflog</code>命令，即通过Git命令历史记录尝试获取“欲跳转到版本的版本号”。<br><strong>2、实战</strong><br>经过上述一系列操作，本地仓库下除了“.git”目录外没有任何文件。执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* 5fb58d0 (HEAD, master) delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<p>执行<code>git reset 46400e7</code>命令，跳转到版本“46400e7d7bffaf8b9921bd4d48d3286364809cc2”，此时有文件“readme.md”，且该文件的内容为空；接着执行<code>git reset ba32a2c</code>命令，跳转到版本“ba32a2c15af27a44080e813a8b37dc143dab7eb2”，此时文件“readme.md”有内容“床前明月光”，且已被重命名为“rename_readme.md”；继续执行<code>git rm rename_readme.md</code>命令，最后执行<code>git commit . -m &#39;delete again&#39;</code>命令进行提交。<br>此时执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“45c6a0062a302375ae5e1f8f7e9e47b798f74f76”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 45c6a0062a302375ae5e1f8f7e9e47b798f74f76</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 22:08:28 2017 +0800</span><br><span class="line"></span><br><span class="line">    delete again</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* 45c6a00 (HEAD, master) delete again</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<p><font color='red'>最后执行<code>git reset 5fb58d0</code>命令，进行版本回跳</font>，执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* 5fb58d0 (HEAD, master) delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-9、特定文件版本跳转"><a href="#4-2-9、特定文件版本跳转" class="headerlink" title="4.2.9、特定文件版本跳转"></a><strong>4.2.9、特定文件版本跳转</strong></h4><p><strong>1、命令和说明</strong><br>“4.2.8、版本跳转”小节介绍了整体版本跳转，有时候我们也需要“特定文件的版本跳转”，两者使用的命令几乎一致，只不过后者增加了一个“文件名参数”，因此命令形式为<code>git reset 提交节点ID FILE_NAME</code>。<br><strong>2、实战</strong><br>增加文件“1.txt”和“2.txt”，内容分别如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">昔人已乘黄鹤去，此地空余黄鹤楼</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">渭城朝雨浥轻尘</span><br></pre></td></tr></table></figure>
+<p>执行<code>git add .</code>命令，再执行<code>git commit . &#39;add again&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“d0c01f40c5205e69b4487e4581cb94f9c27fd79e”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit d0c01f40c5205e69b4487e4581cb94f9c27fd79e</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 22:40:30 2017 +0800</span><br><span class="line"></span><br><span class="line">    add again</span><br></pre></td></tr></table></figure>
+<p>修改文件“1.txt”和“2.txt”，修改后内容分别如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">昔人已乘黄鹤去，此地空余黄鹤楼</span><br><span class="line">黄鹤一去不复返，白云千载空悠悠</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">渭城朝雨浥轻尘</span><br><span class="line">客舍青青柳色新</span><br></pre></td></tr></table></figure>
+<p>执行<code>git add .</code>命令，再执行<code>git commit . &#39;alter again&#39;</code>命令，最后执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“7a9965c9fc2f328aeaf6434c93c2634fde8317e8”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 7a9965c9fc2f328aeaf6434c93c2634fde8317e8</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Sat Jul 8 22:42:38 2017 +0800</span><br><span class="line"></span><br><span class="line">    alter again</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">* 7a9965c (HEAD, master) alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<p>执行<code>git reset d0c01f4 1.txt</code>命令，跳转到版本“d0c01f40c5205e69b4487e4581cb94f9c27fd79e”，此时文件“1.txt”的内容为<code>昔人已乘黄鹤去，此地空余黄鹤楼</code>，文件“2.txt”的内容保持不变。</p>
+<h2 id="五、进阶——分支"><a href="#五、进阶——分支" class="headerlink" title="五、进阶——分支"></a><strong>五、进阶——分支</strong></h2><h3 id="5-1、说明"><a href="#5-1、说明" class="headerlink" title="5.1、说明"></a><strong>5.1、说明</strong></h3><p>在Git中，具有“分支”的概念，从提交节点拓扑图的角度来看，从分支当前最新提交节点回溯到根提交节点的路径就是分支的完整内容。每条分支都具有一个相应的“分支名称变量”，该分支名称变量是一个指针变量，它指向该分支的当前最新提交节点。另外还有一个已在上面提及的“HEAD变量”，它也是一个指针变量，它始终指向当前分支的分支名称变量。<br>默认具有一条名为“master”的分支，上述描述操作都基于该条分支。</p>
+<p>综上，具有多条分支的提交节点拓扑图示意图如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20170719-0-1.jpg"></p>
+<p>一些分支相关操作的实现机理描述如下：</p>
+<ol>
+<li>整体版本跳转。当前分支的分支名称变量指向欲跳转到版本对应的提交节点</li>
+<li>特定文件的版本跳转。当前分支的分支名称变量指向的提交节点保持不变</li>
+<li>查看分支。查看所有分支以及当前分支。</li>
+<li>创建分支。创建一个与新建分支名称对应的分支名称变量，它的初始值与创建分支时当前分支的分支名称变量值一致，即指向创建分支时当前分支的最新提交节点。在切换到该新建分支并进行一系列提交之后，该新建分支的分支名称变量会指向该新建分支中的最新提交节点</li>
+<li>切换分支。切换分支时，HEAD变量指向欲切换到分支的分支名称变量，直接修改工作区的内容（关于这点，注意跟“整体版本跳转”和“特定文件的版本跳转”中的相关行为进行区分）</li>
+<li>合并分支。在合并分支时，合并两个分支的内容，直接修改工作区的内容（关于这点，注意跟“整体版本跳转”和“特定文件的版本跳转”中的相关行为进行区分），并且可能自动提交创建一个最新的提交节点</li>
+<li>删除分支。直接删除对应分支的分支名称变量，其他保持不变</li>
+</ol>
+<h3 id="5-2、实战"><a href="#5-2、实战" class="headerlink" title="5.2、实战"></a><strong>5.2、实战</strong></h3><h4 id="5-2-1、查看分支"><a href="#5-2-1、查看分支" class="headerlink" title="5.2.1、查看分支"></a><strong>5.2.1、查看分支</strong></h4><p><strong>1、命令和说明</strong><br><code>git branch</code>：查看所有分支以及当前分支（名称前有“*”符号的即为当前分支）。<br><strong>2、实战</strong><br>参见下面小节。</p>
+<h4 id="5-2-2、创建分支"><a href="#5-2-2、创建分支" class="headerlink" title="5.2.2、创建分支"></a><strong>5.2.2、创建分支</strong></h4><p><strong>1、命令和说明</strong><br><code>git branch BRANCH_NAME</code>：创建名为“BRANCH_NAME”的新分支。<br><strong>2、实战</strong><br>执行<code>git branch dev</code>命令创建新分支dev，再执行<code>git branch</code>命令查看分支，结果如下（master分支为当前分支）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">  dev</span><br><span class="line">* master</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">* 7a9965c (HEAD, master, dev) alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="5-2-3、切换分支"><a href="#5-2-3、切换分支" class="headerlink" title="5.2.3、切换分支"></a><strong>5.2.3、切换分支</strong></h4><p><strong>1、命令和说明</strong><br><code>git checkout BRANCH_NAME</code>：切换到名为“BRANCH_NAME”的分支。<br><strong>2、实战</strong><br>执行<code>git checkout dev</code>命令切换到dev分支，再执行<code>git branch</code>命令查看分支，结果如下（dev分支为当前分支）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* dev</span><br><span class="line">  master</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">* 7a9965c (HEAD, master, dev) alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="5-2-4、合并分支"><a href="#5-2-4、合并分支" class="headerlink" title="5.2.4、合并分支"></a><strong>5.2.4、合并分支</strong></h4><p><strong>1、命令和说明</strong><br><code>git merge BRANCH_NAME</code>：合并名为“BRANCH_NAME”的分支到当前分支，如果合并有冲突需首先解决冲突。<br><strong>2、实战</strong><br>在master分支下，添加文件“3.txt”，并提交到Git本地仓库，执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“5c28268b825ec3d00f5908929b96cca99fe724b0”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 5c28268b825ec3d00f5908929b96cca99fe724b0</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Mon Jul 17 18:51:10 2017 +0800</span><br><span class="line"></span><br><span class="line">    3.txt</span><br></pre></td></tr></table></figure>
+<p>在dev分支下，添加文件“4.txt”，并提交到Git本地仓库，执行<code>git log</code>命令，打印最近提交信息结果如下，可知本次提交的“提交节点ID”为“6252efa4705464efccb4213580a7376811c954e8”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 6252efa4705464efccb4213580a7376811c954e8</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Mon Jul 17 18:52:09 2017 +0800</span><br><span class="line"></span><br><span class="line">    4.txt</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">* 6252efa (HEAD, dev) 4.txt</span><br><span class="line">| * 5c28268 (master) 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<p>切换到master分支，执行<code>git merge dev</code>命令合并dev分支到当前master分支。再执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下（合并时做了一次自动提交）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa (dev) 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h4 id="5-2-5、删除分支"><a href="#5-2-5、删除分支" class="headerlink" title="5.2.5、删除分支"></a><strong>5.2.5、删除分支</strong></h4><p><strong>1、命令和说明</strong><br><code>git branch -d BRANCH_NAME</code>：删除名为“BRANCH_NAME”的分支。<br><strong>2、实战</strong><br>执行<code>git branch -d dev</code>命令删除dev分支，再执行<code>git branch</code>命令查看分支，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* master</span><br></pre></td></tr></table></figure>
+<p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
+<h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#x6d;">&#103;&#x69;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#x62;&#46;&#x63;&#111;&#x6d;">&#103;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#x62;&#46;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#x69;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;">&#x67;&#x69;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
+<h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
+<h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
+<h4 id="7-2-3、创建标签"><a href="#7-2-3、创建标签" class="headerlink" title="7.2.3、创建标签"></a><strong>7.2.3、创建标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag TAG_NAME [COMMIT_ID]</code>：给指定的提交节点添加名为“TAG_NAME”的标签，如果未指定提交节点，则默认给当前最新的提交节点添加标签。<br><strong>2、实战</strong><br>执行<code>git tag &quot;v1.0&quot; 5ba2e1</code>命令给“5ba2e1ab2756fdf2c1ed9f36cc01b2deb20d8b9b”提交节点添加标签“v1.0”，再分别执行<code>git tag</code>和<code>git show &quot;v1.0&quot;</code>命令，得到结果分别如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v1.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">commit 5ba2e1ab2756fdf2c1ed9f36cc01b2deb20d8b9b</span><br><span class="line">Merge: 5c28268 6252efa</span><br><span class="line">Author: dslztx &lt;dslztx@email.com&gt;</span><br><span class="line">Date:   Mon Jul 17 19:02:22 2017 +0800</span><br><span class="line"></span><br><span class="line">    Merge branch &#x27;dev&#x27;</span><br></pre></td></tr></table></figure>
+<h4 id="7-2-4、推送标签到远程仓库"><a href="#7-2-4、推送标签到远程仓库" class="headerlink" title="7.2.4、推送标签到远程仓库"></a><strong>7.2.4、推送标签到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin TAG_NAME</code>或者<code>git push origin --tags</code>：推送指定标签或者所有标签到远程仓库。<br><strong>2、实战</strong><br>执行<code>git push origin &quot;v1.0&quot;</code>命令，将“v1.0”标签推送到远程仓库。</p>
+<h4 id="7-2-5、删除标签"><a href="#7-2-5、删除标签" class="headerlink" title="7.2.5、删除标签"></a><strong>7.2.5、删除标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag -d TAG_NAME</code>：删除名为“TAG_NAME”的标签。<br><strong>2、实战</strong><br>执行<code>git tag -d &quot;v1.0&quot;</code>命令，删除“v1.0”标签。</p>
+<h4 id="7-2-6、删除远程仓库标签"><a href="#7-2-6、删除远程仓库标签" class="headerlink" title="7.2.6、删除远程仓库标签"></a><strong>7.2.6、删除远程仓库标签</strong></h4><p><strong>1、命令和说明</strong><br>先在本地执行<code>git tag -d TAG_NAME</code>命令删除“TAG_NAME”标签，然后再执行<code>git push origin :refs/tags/TAG_NAME</code>命令将删除“TAG_NAME”标签操作推送到远程仓库。<br><strong>2、实战</strong><br>在“7.2.5、删除标签”小节中已删除本地“v1.0”标签的前提下，再执行<code>git push origin :refs/tags/v1.0</code>命令删除远程仓库中的“v1.0”标签。</p>
+<h2 id="八、其他"><a href="#八、其他" class="headerlink" title="八、其他"></a><strong>八、其他</strong></h2><h3 id="8-1、配置管理"><a href="#8-1、配置管理" class="headerlink" title="8.1、配置管理"></a><strong>8.1、配置管理</strong></h3><p>执行<code>git commit</code>命令时需要指定“提交用户”和“提交用户邮箱”（即提交信息中“Author:”字段的两部分内容），可使用<code>git config</code>命令进行配置，根据配置的作用域不同，可主要分为两种方式：用户级作用域和仓库级作用域。<br><strong>1、用户级作用域</strong><br>示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;dslztx&quot;</span><br><span class="line">git config --global user.email &quot;dslztx@email.com&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>2、仓库级作用域</strong><br>示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --local user.name &quot;dslztx&quot;</span><br><span class="line">git config --local user.email &quot;dslztx@email.com&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="8-2、文件过滤"><a href="#8-2、文件过滤" class="headerlink" title="8.2、文件过滤"></a><strong>8.2、文件过滤</strong></h3><p>Git允许使用名为“.gitignore”的特殊文件，在该特殊文件内可编写用于描述需要被过滤文件的表达式。一些常用的文件过滤表达式可参见<a target="_blank" rel="noopener" href="https://github.com/github/gitignore">链接</a>。</p>
+<h3 id="8-3、命令缩写"><a href="#8-3、命令缩写" class="headerlink" title="8.3、命令缩写"></a><strong>8.3、命令缩写</strong></h3><p>Git提供命令缩写机制，具体命令配置形式为<code>git config alias.SHORT_NAME FULL_NAME</code>，在配置后，执行<code>git SHORT_NAME</code>即等价于执行<code>git FULL_NAME</code>。根据配置的作用域不同，可主要分为两种方式：用户级作用域和仓库级作用域。<br><strong>1、用户级作用域</strong><br>示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global alias.st status</span><br></pre></td></tr></table></figure>
+<p><strong>2、仓库级作用域</strong><br>示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --local alias.st status</span><br></pre></td></tr></table></figure>
+<h2 id="九、博文定位"><a href="#九、博文定位" class="headerlink" title="九、博文定位"></a><strong>九、博文定位</strong></h2><p>本博文的定位是作为Git快速入门的教程，因此，一些深入的细节并未探讨和涉及，比如下面这些内容：</p>
+<ul>
+<li>一些Git命令被实现得越来越智能，使得有些前导步骤可被省略。比如<code>git commit</code>命令：欲删除已在Git仓库中的文件，本来应依次执行<code>git rm</code>和<code>git commit</code>命令，现在依次执行<code>rm</code>和<code>git commit</code>命令也能达到等价的效果；欲提交对已存在Git仓库中的文件的修改，本来应依次执行<code>git add</code>和<code>git commit</code>命令，现在直接执行<code>git commit</code>命令即可达到等价的效果</li>
+<li>对于本地仓库与远程仓库之间的内容推送和拉取，本文只讨论了默认单分支的简单情形，而没有考虑多分支等复杂情形</li>
+<li>几个基础简单的命令并未进行讲解，默认读者都已经掌握，比如“git diff”，“git status”等命令</li>
+</ul>
+<br/>
+参考文献：
+[1]http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000
+[2]https://gist.github.com/datagrok/4221767
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/" title="Git快速入门教程">https://dslztx.github.io/blog/2017/07/19/Git快速入门教程/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/07/02/JDK%E5%91%BD%E4%BB%A4%E4%B9%8B%E4%B8%A4%E5%A4%A7%E7%B3%BB%E5%88%97%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" rel="prev" title="JDK命令之两大系列使用总结">
+      <i class="fa fa-chevron-left"></i> JDK命令之两大系列使用总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/07/28/Google-Java%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83/" rel="next" title="Google Java编程规范">
+      Google Java编程规范 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/07/19/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/";
+    this.page.identifier = "2017/07/19/Git快速入门教程/";
+    this.page.title = "Git快速入门教程";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文讨论垃圾收集和内存分配技术。我们知道： 12虚拟机进程内存管理对所使用的“Native Memory”的具体分类为：程序计数器，Java虚拟机栈，本地方法栈，Java堆，方法区，直接内存，自己写的JNI方法直接所分配内存，虚拟机进程运行自身需要内存和其他使用内存。 关于这些内存区域的“垃圾收集和内存分配”有以下几点：  “程序计数器，Java虚拟机栈，本地方法栈”这3个内存区域随线程而生，随线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文讨论垃圾收集和内存分配技术。我们知道： 12虚拟机进程内存管理对所使用的“Native Memory”的具体分类为：程序计数器，Java虚拟机栈，本地方法栈，Java堆，方法区，直接内存，自己写的JNI方法直接所分配内存，虚拟机进程运行自身需要内存和其他使用内存。 关于这些内存区域的“垃圾收集和内存分配”有以下几点：  “程序计数器，Java虚拟机栈，本地方法栈”这3个内存区域随线程而生，随线">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-1.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-2.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-3.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-3.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-2.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-3.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-4.jpg">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20170316-0-5.jpg">
+<meta property="article:published_time" content="2017-03-16T12:05:40.000Z">
+<meta property="article:modified_time" content="2017-03-16T12:05:40.000Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20170316-0-1.jpg">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-03-16 20:05:40" itemprop="dateCreated datePublished" datetime="2017-03-16T20:05:40+08:00">2017-03-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/TODEL/" itemprop="url" rel="index"><span itemprop="name">TODEL</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/03/16/《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文讨论垃圾收集和内存分配技术。我们知道：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">虚拟机进程内存管理对所使用的“Native Memory”的具体分类为：</span><br><span class="line">程序计数器，Java虚拟机栈，本地方法栈，Java堆，方法区，直接内存，自己写的JNI方法直接所分配内存，虚拟机进程运行自身需要内存和其他使用内存。</span><br></pre></td></tr></table></figure>
+<p>关于这些内存区域的“垃圾收集和内存分配”有以下几点：</p>
+<ul>
+<li>“程序计数器，Java虚拟机栈，本地方法栈”这3个内存区域随线程而生，随线程而灭，栈中的栈帧（栈帧需要多少内存在类结构确定时就大体已知）随着方法的进入和退出执行出栈和入栈操作，线程结束时，这3个区域的内存自然就跟随着被回收，因此这3个区域的垃圾收集和内存分配具备确定性</li>
+<li>“直接内存”这个内存区域的垃圾收集和内存分配跟C&#x2F;C++语言类似：手动回收和分配内存（使用“直接内存”有使用“sun.misc.Unsafe”和“java.nio.ByteBuffer”两种方式，使用“java.nio.ByteBuffer”方式时，“回收内存”的方法会被自动调用，此时内存回收“不再手动”）[1]</li>
+<li>“自己写的JNI方法直接所分配内存，虚拟机进程运行自身需要内存，其他使用内存”这3个内存区域的垃圾收集和内存分配方式是“手动的”</li>
+<li>对于“Java堆和方法区”这两个内存区域而言，垃圾收集和内存分配是动态的。由于两者存储对象的性质不同，因此，两者的垃圾收集和内存分配策略也不尽相同</li>
+</ul>
+<p><font color='red'>由于“Java堆”是虚拟机进程中最重要的内存区域，因此，接下来围绕“Java堆”这个内存区域介绍垃圾收集和内存分配技术。不同JDK版本，采用的机制和实现有可能不同，本文选定JDK6版本（具体是jdk1.6.0_23）。</font><br>为了更好地管理“Java堆”内存，“Java堆”分为“新生代（又被称为“New”）”和“老年代（又被称为“Old”或者“Tenured”）两个年代区域。“新生代”又由“1个Eden区和2个Survivor区”构成，“新生代”可使用总内存为“1个Eden区与1个Survivor区”内存之和。</p>
+<h2 id="一、可达性分析——判断对象能否被回收"><a href="#一、可达性分析——判断对象能否被回收" class="headerlink" title="一、可达性分析——判断对象能否被回收"></a><strong>一、可达性分析——判断对象能否被回收</strong></h2><h3 id="1-1、“引用”的扩展概念"><a href="#1-1、“引用”的扩展概念" class="headerlink" title="1.1、“引用”的扩展概念"></a><strong>1.1、“引用”的扩展概念</strong></h3><p>在JDK 1.2之后，“引用”概念被扩展，分为：强引用（Strong Reference），软引用（Soft Reference），弱引用（Weak Reference）和虚引用（Phantom Reference）。详细描述见表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>详细介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>强引用</td>
+<td>普遍存在于Java代码中，类似于<code>Object obj=new Object()</code></td>
+</tr>
+<tr>
+<td>软引用</td>
+<td><font color='red'>在抛出内存溢出异常之前</font>，虚拟机会断掉“软引用”关系，并进行一次垃圾收集，如果在垃圾收集后，内存还是不足，才会真正抛出内存溢出异常。JDK中关于“软引用”的相关类为<code>java.lang.ref.SoftReference</code></td>
+</tr>
+<tr>
+<td>弱引用</td>
+<td>“弱引用”关系只能经历一次垃圾收集过程，之后该“弱引用”关系便会断掉。JDK中关于“弱引用”的相关类为<code>java.lang.ref.WeakReference</code></td>
+</tr>
+<tr>
+<td>虚引用</td>
+<td>被“虚引用”的对象相当于没被引用，“虚引用”关系存在的唯一目的是：在被“虚引用”的对象被回收时，能够得到一个系统通知。JDK中关于“虚引用”的相关类为<code>java.lang.ref.PhantomReference</code></td>
+</tr>
+</tbody></table>
+<h3 id="1-2、可达性分析算法"><a href="#1-2、可达性分析算法" class="headerlink" title="1.2、可达性分析算法"></a><strong>1.2、可达性分析算法</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">以一系列被称为“GC Roots”的对象作为起始点，如果某个对象被引用可达，那么该对象不可被回收，否则，该对象可被回收。</span><br></pre></td></tr></table></figure>
+<p>Java语言中，可作为“GC Roots”的对象包括下面几种：</p>
+<ul>
+<li>Java虚拟机栈中引用的对象</li>
+<li>本地方法栈中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+</ul>
+<p><font color='red'>需要注意的是，上述“引用可达”中的“引用”包括“强引用，软引用和弱引用”，另外，由上一小节内容可知，“软引用”和“弱引用”关系在某些条件下会“断掉”，“断掉”就意味着“不可达”。</font></p>
+<h3 id="1-3、能否“死而复生”"><a href="#1-3、能否“死而复生”" class="headerlink" title="1.3、能否“死而复生”"></a><strong>1.3、能否“死而复生”</strong></h3><p>对象真正可被回收，需要得到两次标记：<br>1、对象从“GC Roots”不可达，得到1次标记<br>2、“对象没有覆盖finalize()方法”或者“对象覆盖了finalize()方法，且该方法被虚拟机调用过1次”，得到1次标记；否则，有一个由虚拟机自动建立的低优先级的Finalizer线程会去触发执行该对象的finalize()方法，然后该对象得到1次标记</p>
+<p><font color='red'>备注：</font><br>1、Finalizer线程触发执行对象的finalize()方法，但是并不保证finalize()方法一定会执行完成<br>2、对象的finalize()方法最多被触发执行1次<br>3、对象的finalize()方法执行过程中，可将对象自身变为从“GC Roots”可达，从而“死而复生”<br>4、对象的finalize()方法运行代价高昂，而且该方法能做的使用“try-finally”或者其他方式都可以做到，因此，应该完全忘记掉该方法的存在</p>
+<h2 id="二、垃圾收集"><a href="#二、垃圾收集" class="headerlink" title="二、垃圾收集"></a><strong>二、垃圾收集</strong></h2><h3 id="2-1、基本垃圾收集算法描述"><a href="#2-1、基本垃圾收集算法描述" class="headerlink" title="2.1、基本垃圾收集算法描述"></a><strong>2.1、基本垃圾收集算法描述</strong></h3><p>基本垃圾收集算法描述见表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>中文名称</th>
+<th>英文名称</th>
+<th>描述</th>
+<th>不足</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标记-清除</td>
+<td>Mark-Sweep</td>
+<td>“标记阶段”：标记所有需要回收的对象；“清除阶段”：统一回收被标记的对象</td>
+<td>“标记阶段”和“清除阶段”效率不高，标记清除之后会产生大量内存碎片</td>
+</tr>
+<tr>
+<td>复制</td>
+<td>Copying</td>
+<td>将可用内存分为相同大小的两半内存。“标记阶段”：标记所有需要回收的对象；“回收阶段”时，将一半内存中未在“标记阶段”被标记的对象复制到另外一半内存</td>
+<td>可使用内存减少一半</td>
+</tr>
+<tr>
+<td>标记-整理</td>
+<td>Mark-Compact</td>
+<td>“标记阶段”：标记所有需要回收的对象；“整理阶段”：保留未被标记的对象，并进行紧凑整理</td>
+<td>“标记阶段”和“整理阶段”效率不高</td>
+</tr>
+</tbody></table>
+<h3 id="2-2、垃圾收集器"><a href="#2-2、垃圾收集器" class="headerlink" title="2.2、垃圾收集器"></a><strong>2.2、垃圾收集器</strong></h3><p>在继续介绍之前，先介绍几个概念：<br><strong>1、并行和并发</strong><br>“原始并行”的含义是：存在多CPU，多个进程&#x2F;线程在不同CPU上同时运行；“原始并发”的含义是：存在单CPU，多个进程&#x2F;线程在该单CPU上交替运行。“本文上下文的并行”的含义是：多个GC线程并行&#x2F;并发运行，用户线程暂停；“本文上下文的并发”的含义是：GC线程和用户线程并行&#x2F;并发运行。<br><strong>2、吞吐量和停顿时间控制平衡</strong><br>吞吐量&#x3D;用户线程运行时间&#x2F;（用户线程运行时间+GC线程运行时间）。想要减小停顿时间，在不考虑优化垃圾回收算法前提下，只能减小待回收垃圾内存空间的大小，这会导致虽然单次垃圾回收停顿时间减小，但是在一个恒定时间区间内，垃圾回收次数增加，停顿时间总和增加，因此，停顿时间减小，吞吐量也随之减小。<br>停顿时间越小，越适合交互应用程序；吞吐量越大，越适合后台计算式不需要太多交互的应用程序。<br><strong>3、不同年代垃圾回收具有独立性</strong><br>通过一定技术手段，新生代和老年代的垃圾收集器能够独立完成所处年代的垃圾回收工作。<font color='red'>即可独立完成所处年代的可达性分析，并进行垃圾回收。</font><br><strong>4、安全点、安全区域和STW</strong><br>为完成垃圾回收过程的一些关键步骤，必须暂停所有用户线程，只允许运行GC线程，此时的状态被称为“Stop The World（STW）”。此时，用户线程或暂停于安全点（Safepoint），或处于安全区域（Safe Region）中（处于安全区域中的用户线程或处于Running状态，或处于Sleep状态，或处于Blocked状态，或跟安全点处的用户线程一样处于暂停状态。<font color='red'>需要注意的是，处于Sleep或者Blocked状态的用户线程一定处于安全区域中</font>）。“安全区域”可被认为是扩展的“安全点”，接下来的图示中，以“安全点”涵盖“安全点和安全区域”。<br><strong>5、新生代垃圾收集器与老年代垃圾收集器配对</strong><br>新生代的垃圾收集器与老年代的垃圾收集器不能任意匹配，存在一个配对关系。如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-1.jpg"></p>
+<h4 id="2-2-1、Serial收集器"><a href="#2-2-1、Serial收集器" class="headerlink" title="2.2.1、Serial收集器"></a><strong>2.2.1、Serial收集器</strong></h4><p>采用“复制算法”的“新生代”垃圾收集器，JVM运行在Client模式下首选的“新生代”垃圾收集器，主要关注点在于尽量小的停顿时间。进行GC过程时，既不“并行”，也不“并发”，需要“Stop The World”。示意图如图2所示。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-2.jpg"></p>
+<h4 id="2-2-2、ParNew收集器"><a href="#2-2-2、ParNew收集器" class="headerlink" title="2.2.2、ParNew收集器"></a><strong>2.2.2、ParNew收集器</strong></h4><p>采用“复制算法”的“新生代”垃圾收集器，JVM运行在Server模式下首选的“新生代”垃圾收集器，主要关注点在于尽量小的停顿时间。进行GC过程时，“并行”不“并发”，需要“Stop The World”。示意图如图3所示。</p>
+<p>图3</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-3.jpg"></p>
+<h4 id="2-2-3、Parallel-Scavenge收集器"><a href="#2-2-3、Parallel-Scavenge收集器" class="headerlink" title="2.2.3、Parallel Scavenge收集器"></a><strong>2.2.3、Parallel Scavenge收集器</strong></h4><p>采用“复制算法”的“新生代”垃圾收集器，主要关注点在于达到可控制的吞吐量，<font color='red'>且能够进行自适应调节</font>。进行GC过程时，“并行”不“并发”，需要“Stop The World”。示意图如图4所示。</p>
+<p>图4</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-3.jpg"></p>
+<h4 id="2-2-4、Serial-Old收集器"><a href="#2-2-4、Serial-Old收集器" class="headerlink" title="2.2.4、Serial Old收集器"></a><strong>2.2.4、Serial Old收集器</strong></h4><p>采用“标记-整理算法”的“老年代”垃圾收集器，主要关注点在于尽量小的停顿时间。进行GC过程时，既不“并行”，也不“并发”，需要“Stop The World”。示意图如图5所示。</p>
+<p>图5</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-2.jpg"></p>
+<h4 id="2-2-5、Parallel-Old收集器"><a href="#2-2-5、Parallel-Old收集器" class="headerlink" title="2.2.5、Parallel Old收集器"></a><strong>2.2.5、Parallel Old收集器</strong></h4><p>采用“标记-整理算法”的“老年代”垃圾收集器，主要关注点在于达到可控制的吞吐量，<font color='red'>且能够进行自适应调节。</font>进行GC过程时，“并行”不“并发”，需要“Stop The World”。示意图如图6所示。</p>
+<p>图6</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-3.jpg"></p>
+<h4 id="2-2-6、CMS收集器"><a href="#2-2-6、CMS收集器" class="headerlink" title="2.2.6、CMS收集器"></a><strong>2.2.6、CMS收集器</strong></h4><p>采用“标记-清除算法”的“老年代”垃圾收集器，主要关注点在于尽量小的停顿时间。整个GC过程分为4个步骤：初始标记，并发标记，重新标记和并发清除。示意图如图7所示。</p>
+<p>图7</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-4.jpg"></p>
+<p><strong>1、初始标记</strong><br>标记GC Roots能直接可达的对象。既不“并发”，也不“并行”。需要“Stop The World”。<br><strong>2、并发标记</strong><br>标记GC Roots间接可达的对象。“并发”不“并行”。<br><strong>3、重新标记</strong><br>修正“2、并发标记”阶段由于用户程序运行造成的变动。“并行”不“并发”。需要“Stop The World”。<br><strong>4、并发清除</strong><br>清除不可达对象。“并发”不“并行”。</p>
+<p><font color='red'>几个缺点：</font><br>1、“并发”导致“吞吐量”下降<br>2、会出现“浮动垃圾”；如果“并发清除”阶段用户线程运行内存需求得不到满足，会导致出现“Concurrent Mode Failure”<br>3、具有“标记-清除算法”的固有缺点，即产生大量内存碎片</p>
+<h2 id="三、内存分配"><a href="#三、内存分配" class="headerlink" title="三、内存分配"></a><strong>三、内存分配</strong></h2><p>内存分配的几条重要原则如下：<br>1、对象优先在新生代的Eden区进行分配<br>2、大对象直接进入老年代，涉及到的JVM参数为<code>PretenureSizeThreshold</code><br>3、新生代中能够长期存活的对象将进入老年代，而不是一直处于新生代的Survivor区中，涉及到的JVM参数为<code>MaxTenuringThreshold</code><br>4、如果新生代Survivor区中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或者等于该年龄的对象可直接进入老年代<br>在内存分配过程中，如果出现分配失败，会触发垃圾收集过程（涉及到“新生代和老年代的垃圾收集过程”，也涉及到“Minor GC，Major GC和Full GC等过程”）。<font color='red'>具体详细的内存分配过程和垃圾收集触发过程非常复杂，网上也缺少这方面的资料，因此最好的方式是阅读OpenJDK相应模块的源代码。</font></p>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><h3 id="4-1、JVM运行的Client模式和Server模式"><a href="#4-1、JVM运行的Client模式和Server模式" class="headerlink" title="4.1、JVM运行的Client模式和Server模式"></a><strong>4.1、JVM运行的Client模式和Server模式</strong></h3><p>JVM的运行模式之分。JVM运行在Client模式，启动速度快，适合于交互应用程序；JVM运行在Server模式，启动速度慢，整体性能好，适合后台计算式不需要太多交互的应用程序。</p>
+<h3 id="4-2、JDK的product，debug和fastdebug版本"><a href="#4-2、JDK的product，debug和fastdebug版本" class="headerlink" title="4.2、JDK的product，debug和fastdebug版本"></a><strong>4.2、JDK的product，debug和fastdebug版本</strong></h3><p>JDK的版本之分。不同的版本具有不同的应用场景，比如“product版本的JDK”经过优化，运行速度快；“debug版本的JDK”未经过优化，但能够打印很多有用的日志信息；“fastdebug版本的JDK”介于“product版本”和“debug版本”之间。从源代码编译生成JDK时，通过不同的编译参数可生成不同的JDK版本。</p>
+<h3 id="4-3、Minor-GC，Majoc-GC和Full-GC"><a href="#4-3、Minor-GC，Majoc-GC和Full-GC" class="headerlink" title="4.3、Minor GC，Majoc GC和Full GC"></a><strong>4.3、Minor GC，Majoc GC和Full GC</strong></h3><p>Minor GC指代发生在新生代的垃圾收集过程，由于新生代内的对象具有朝生夕灭的特性，因而Minor GC回收速度快，但也发生得非常频繁。<br>“Major GC”和“Full GC”都没有官方正式的定义，因此想要了解它们具体详细的含义，最好查看OpenJDK源代码。不过可以明确的一点是，“Major GC”和“Full GC”指代的垃圾收集过程相对于“Minor GC”速度慢得多。</p>
+<h3 id="4-4、G1收集器"><a href="#4-4、G1收集器" class="headerlink" title="4.4、G1收集器"></a><strong>4.4、G1收集器</strong></h3><p>G1收集器管控新生代和老年代，整体采用“标记-整理算法”，局部采用“复制算法”，主要关注点在于尽量小的停顿时间，<font color='red'>并且已经达到“可预测的停顿时间”水平</font>。在G1收集器模型中，新生代和老年代的内存区域不再连续，Java堆被分为多个大小相等的区域（Region），该模型下的新生代和老年代都是一部分Region（不需要连续）的集合。G1收集器保存Region内对象的价值大小（回收该对象获得的空间大小和回收该对象所需时间的经验值），在后台维护一个优先列表，在进行垃圾回收过程时，优先回收价值最大的Region（这也是Garbage-First名称的由来）。<br>G1收集器进行垃圾回收时，整个GC过程分为4个步骤：初始标记，并发标记，最终标记和筛选回收。示意图如图8所示。</p>
+<p>图8</p>
+<p><img src="https://blog.dslztx.top/imgs/20170316-0-5.jpg"></p>
+<p><strong>1、初始标记</strong><br>标记GC Roots能直接可达的对象。既不“并发”，也不“并行”。需要“Stop The World”。<br><strong>2、并发标记</strong><br>标记GC Roots间接可达的对象。“并发”不“并行”。<br><strong>3、最终标记</strong><br>修正“2、并发标记”阶段由于用户程序运行造成的变动。“并行”不“并发”。需要“Stop The World”。<br><strong>4、筛选回收</strong><br>根据Region回收价值大小进行排序，依优先级回收Region。“并行”不“并发”。需要“Stop The World”。</p>
+<h3 id="4-5、GC日志阅读"><a href="#4-5、GC日志阅读" class="headerlink" title="4.5、GC日志阅读"></a><strong>4.5、GC日志阅读</strong></h3><p>GC日志中关键内容的格式描述如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[GC/Full GC &#123;Java堆GC前后内存变化描述&#125; 可有可无的“两者之间逗号” &#123;方法区/永久代GC前后内存变化描述&#125;, 整个GC过程耗费时间]</span><br><span class="line"></span><br><span class="line">Java堆GC前后内存变化描述=[年代名称:该年代的&#123;GC前后内存变化描述&#125; 可有可无的“该年代GC过程耗费时间”]...[年代名称:该年代的&#123;GC前后内存变化描述&#125; 可有可无的“该年代GC过程耗费时间”] Java堆的&#123;GC前后内存变化描述&#125;</span><br><span class="line"></span><br><span class="line">方法区/永久代GC前后内存变化描述=[方法区/永久代名称:该年代的&#123;GC前后内存变化描述&#125; 可有可无的“该年代GC过程耗费时间”]</span><br><span class="line"></span><br><span class="line">GC前后内存变化描述=GC前占用内存-&gt;GC后占用内存(总内存)</span><br></pre></td></tr></table></figure>
+<p>关于年代名称的值列表如表3。</p>
+<p>表3</p>
+<table>
+<thead>
+<tr>
+<th>年代</th>
+<th>名称值列表</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java堆的年轻代</td>
+<td>DefNew，PSYoungGen</td>
+<td>无</td>
+</tr>
+<tr>
+<td>Java堆的老年代</td>
+<td>Tenured，CMS，PSOldGen，ParOldGen</td>
+<td>无</td>
+</tr>
+<tr>
+<td>方法区&#x2F;永久代</td>
+<td>Perm，CMS Perm，PSPermGen</td>
+<td>方法区&#x2F;永久代在不同垃圾收集器中具有不同名称</td>
+</tr>
+</tbody></table>
+<p>GC日志例子如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[GC [DefNew: 4679K-&gt;371K(9216K), 0.0034140 secs] 4679K-&gt;4467K(19456K), 0.0035090 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</span><br><span class="line">[GC [Tenured: 0K-&gt;4467K(10240K), 0.0093960 secs] 4679K-&gt;4467K(19456K), [Perm : 29K-&gt;29K(12288K)], 0.0095620 secs] [Times: user=0.00 sys=0.00, real=0.02 secs]</span><br><span class="line">[Full GC [Tenured: 4467K-&gt;4454K(10240K), 0.0065910 secs] 4467K-&gt;4454K(19456K), [Perm : 29K-&gt;23K(12288K)], 0.0067530 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]</span><br><span class="line">[Full GC [PSYoungGen: 376K-&gt;0K(9216K)] [PSOldGen: 4096K-&gt;4467K(10240K)] 4472K-&gt;4467K(19456K) [PSPermGen: 1698K-&gt;1698K(12288K)], 0.0029130 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]</span><br><span class="line">[Full GC [PSYoungGen: 0K-&gt;0K(9216K)] [ParOldGen: 4467K-&gt;4454K(10240K)] 4467K-&gt;4454K(19456K) [PSPermGen: 1697K-&gt;1692K(12288K)], 0.0067000 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]http://blog.csdn.net/aitangyong/article/details/39323125
+[2]http://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client
+[3]https://blogs.oracle.com/kto/entry/mustang_jdk_6_0_fastdebug
+[4]https://plumbr.eu/blog/garbage-collection/minor-gc-vs-major-gc-vs-full-gc
+[5]http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/gc01/index.html
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/" title="《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略">https://dslztx.github.io/blog/2017/03/16/《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/03/10/Version-Control-With-Git/" rel="prev" title="Version Control With Git">
+      <i class="fa fa-chevron-left"></i> Version Control With Git
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/03/20/%E3%80%8AVersion-Control-With-Git%E3%80%8B%E5%85%A5%E9%97%A8/" rel="next" title="《Version Control With Git》入门">
+      《Version Control With Git》入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/";
+    this.page.identifier = "2017/03/16/《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略/";
+    this.page.title = "《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

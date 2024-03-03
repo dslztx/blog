@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍并发Map，有几点说明：  其在Java容器中的划分位置见[1] 根接口为Map，“键”和“键值”是否允许NULL值由具体实现子类决定 根接口为Map，它不像Collection接口继承Iterable接口，故本身没有iterator()方法获取迭代器，但是通过Set&lt;K&gt; keySet()，Collection&lt;V&gt; values()和Set&lt;Map.Ent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发Map">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍并发Map，有几点说明：  其在Java容器中的划分位置见[1] 根接口为Map，“键”和“键值”是否允许NULL值由具体实现子类决定 根接口为Map，它不像Collection接口继承Iterable接口，故本身没有iterator()方法获取迭代器，但是通过Set&lt;K&gt; keySet()，Collection&lt;V&gt; values()和Set&lt;Map.Ent">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-04T09:45:41.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.144Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>并发Map | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          并发Map
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-04 17:45:41" itemprop="dateCreated datePublished" datetime="2021-12-04T17:45:41+08:00">2021-12-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/12/04/并发Map/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍并发Map，有几点说明：</p>
+<ul>
+<li>其在Java容器中的划分位置见[1]</li>
+<li>根接口为Map，“键”和“键值”是否允许<code>NULL</code>值由具体实现子类决定</li>
+<li>根接口为Map，它不像Collection接口继承Iterable接口，故本身没有<code>iterator()</code>方法获取迭代器，但是通过<code>Set&lt;K&gt; keySet()</code>，<code>Collection&lt;V&gt; values()</code>和<code>Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet()</code>方法获取到的3个视图的类型分别为<code>Set</code>，<code>Collection</code>和<code>Set</code>，它们属于Collection接口体系，有<code>iterator()</code>方法获取迭代器（迭代器类型跟具体实现相关），这些间接的迭代器在这里不是主要矛盾，因此本文不作介绍</li>
+<li>接下来介绍其常见的三个子类：<ul>
+<li>Hashtable</li>
+<li>SynchronizedMap</li>
+<li>ConcurrentHashMap</li>
+</ul>
+</li>
+</ul>
+<br/>
+
+<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
+<ul>
+<li>“键”和“键值”是否允许<code>NULL</code>值</li>
+<li>实现映射表的核心机制，比如“节点数组+哈希”，“树”</li>
+<li>实现操作的线程安全策略及该种线程安全策略下的并发性能</li>
+</ul>
+<h2 id="一、Hashtable"><a href="#一、Hashtable" class="headerlink" title="一、Hashtable"></a><strong>一、Hashtable</strong></h2><p>核心原理：</p>
+<ul>
+<li>“键”和“键值”都不允许<code>NULL</code>值</li>
+<li>实现映射表的核心机制：基于“节点数组+哈希”</li>
+<li>使用<code>synchronized</code>锁实现操作的线程安全，故属于<code>同步容器</code>。锁粒度为“整体”，所有并发操作（比如“put”，“remove”，“get”，“size”等）都要竞争同一把锁，并发性能较差</li>
+</ul>
+<br/>
+
+<p>接下来主要介绍“哈希和碰撞”和“大小”两个问题。<font color='red'>需要说明的两点是：1）接下来的时间复杂度分析不考虑获取synchronized锁，如果考虑的话便会不可分析；2）“时间复杂度分析”跟“并发性能”属于两个维度</font>。</p>
+<h3 id="1-1、哈希和碰撞"><a href="#1-1、哈希和碰撞" class="headerlink" title="1.1、哈希和碰撞"></a><strong>1.1、哈希和碰撞</strong></h3><p><strong>1、哈希算法</strong></p>
+<ol>
+<li>第一次哈希：键的<code>hashCode()</code>方法值</li>
+<li>第二次哈希：其源代码为<code>hash &amp; 0x7FFFFFFF</code>（<code>hash</code>为第一次哈希的结果值），其含义是：去掉最高位1，避免第三次哈希出现“负数取余操作”情形</li>
+<li>第三次哈希：本次哈希是为了散列到槽，其计算公式为<code>p % n</code>[假定节点数组大小为n，经过前两次哈希的结果值为p]</li>
+</ol>
+<p><strong>2、碰撞解决策略</strong><br>碰撞可通过“链地址法”解决，对应的链可称之为“碰撞冲突链”，假定链表的长度为K，此时增删改查的时间复杂度为<code>O(K)</code>。</p>
+<h3 id="1-2、大小"><a href="#1-2、大小" class="headerlink" title="1.2、大小"></a><strong>1.2、大小</strong></h3><p>Hashtable涉及到两类大小：映射记录大小和节点数组大小。</p>
+<h4 id="1-2-1、映射记录大小"><a href="#1-2-1、映射记录大小" class="headerlink" title="1.2.1、映射记录大小"></a><strong>1.2.1、映射记录大小</strong></h4><p>指Hashtable中映射记录数量，比如“节点数组大小为8，在且只在第3个节点（槽）有一个长度为4的链表（碰撞冲突链），则映射记录大小为4”：</p>
+<ul>
+<li>对应于实例成员变量<code>private transient int count</code></li>
+<li>对应于实例成员方法<code>public synchronized int size()</code>的返回值（不考虑映射记录大小大于<code>Integer.MAX_VALUE</code>的情形），该方法直接返回成员变量<code>count</code>的值，因此时间复杂度是<code>O(1)</code></li>
+</ul>
+<h4 id="1-2-2、节点数组大小"><a href="#1-2-2、节点数组大小" class="headerlink" title="1.2.2、节点数组大小"></a><strong>1.2.2、节点数组大小</strong></h4><p>指Hashtable中节点数组大小，即成员变量<code> private transient Entry&lt;?,?&gt;[] table</code>的大小。</p>
+<p>接下来介绍“初始化节点数组大小”和“扩容节点数组大小”，在介绍之前首先作以下几点说明：</p>
+<ul>
+<li>为简化描述和便于理解，不考虑极值大小的情况，比如<code>节点数组大小&gt;=MAX_ARRAY_SIZE(Integer.MAX_VALUE - 8)</code></li>
+<li>成员变量<code>loadFactor</code>的语义是：负载因子，当<code>映射记录大小 &gt;= 节点数组大小*loadFactor</code>时扩容节点数组</li>
+<li>成员变量<code>threshold</code>的语义是：<code>threshold=节点数组大小*loadFactor</code>，即<code>当映射记录大小 &gt;= threshold</code>时扩容节点数组</li>
+</ul>
+<h5 id="1-2-2-1、初始化"><a href="#1-2-2-1、初始化" class="headerlink" title="1.2.2.1、初始化"></a><strong>1.2.2.1、初始化</strong></h5><p>即时初始化。</p>
+<p><strong>1、构造方法</strong><br>构造方法初始化节点数组，设置成员变量<code>loadFactor</code>和<code>threshold</code>的值，具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>构造方法\设置</th>
+<th>节点数组初始化大小</th>
+<th>loadFactor</th>
+<th>threshold</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Hashtable(int initialCapacity, float loadFactor)</code></td>
+<td>等于传入的<code>initialCapacity</code></td>
+<td>等于传入的<code>loadFactor</code></td>
+<td>等于<code>initialCapacity * loadFactor</code></td>
+</tr>
+<tr>
+<td><code>Hashtable(int initialCapacity)</code></td>
+<td>等于传入的<code>initialCapacity</code></td>
+<td>等于默认的<code>0.75f</code></td>
+<td>等于<code>initialCapacity * loadFactor</code></td>
+</tr>
+<tr>
+<td><code>Hashtable()</code></td>
+<td>等于默认的<code>11</code></td>
+<td>等于默认的<code>0.75f</code></td>
+<td>等于<code>initialCapacity * loadFactor</code></td>
+</tr>
+<tr>
+<td><code>Hashtable(Map&lt;? extends K, ? extends V&gt; t)</code></td>
+<td>等于<code>max(2*t.size(), 11)</code></td>
+<td>等于默认的<code>0.75f</code></td>
+<td>等于<code>initialCapacity * loadFactor</code></td>
+</tr>
+</tbody></table>
+<p><strong>有一点说明</strong>：后续可知，扩容操作十分耗费性能（申请新节点数组内存资源，对原映射记录进行rehash操作），因此在创建Hashtable实例时最好能够根据预估的“映射记录大小”预计算“节点数组的初始化大小”。由于当<code>映射记录大小 &gt;= 节点数组大小*loadFactor</code>时进行扩容，故为尽量避免扩容，须使得满足<code>节点数组大小 &gt; 映射记录大小/loadFactor</code>不等式，上述第4个构造方法中的<code>max(2*t.size(),11)</code>就是在<code>loadFactor</code>取常见默认值<code>0.75f</code>情况下符合该不等式的一个等式，我们自己在创建Hashtable实例时也应该使用该等式预计算传入的节点数组初始化大小。</p>
+<h5 id="1-2-2-2、扩容"><a href="#1-2-2-2、扩容" class="headerlink" title="1.2.2.2、扩容"></a><strong>1.2.2.2、扩容</strong></h5><p>节点数组只有“扩容”，没有“收缩”，扩容条件为：<code>映射记录大小 &gt;= threshold</code>。</p>
+<p>扩容过程描述如下：</p>
+<ul>
+<li>假定节点数组原大小为<code>N</code>，则扩容后大小为<code>M=N*2+1</code>。成员变量<code>threshold</code>的值为<code>M * loadFactor</code>（语义不变）</li>
+<li>对原映射记录进行rehash操作</li>
+</ul>
+<h2 id="二、SynchronizedMap"><a href="#二、SynchronizedMap" class="headerlink" title="二、SynchronizedMap"></a><strong>二、SynchronizedMap</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
+<p><strong>1、核心原理</strong></p>
+<ul>
+<li>由所传入的Map实例，决定“键”和“键值”是否允许<code>NULL</code>值</li>
+<li>由所传入的Map实例，确定实现映射表的核心机制</li>
+<li>使用<code>synchronized</code>锁实现操作的线程安全，故属于<code>同步容器</code>。锁粒度为“整体”，所有并发操作（比如“put”，“remove”，“get”，“size”等）都要竞争同一把锁，并发性能较差</li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Map&lt;K,V&gt; m</code>：SynchronizedMap实例所基于的底层Map实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
+<li><code>Object mutex</code>：传入的锁对象</li>
+</ul>
+<h2 id="三、ConcurrentHashMap"><a href="#三、ConcurrentHashMap" class="headerlink" title="三、ConcurrentHashMap"></a><strong>三、ConcurrentHashMap</strong></h2><p>详见<a href="/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/" title="HashMap和ConcurrentHashMap">《HashMap和ConcurrentHashMap》</a>博文中对ConcurrentHashMap的介绍。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/" title="并发Map">https://dslztx.github.io/blog/2021/12/04/并发Map/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/" rel="prev" title="HashMap和ConcurrentHashMap">
+      <i class="fa fa-chevron-left"></i> HashMap和ConcurrentHashMap
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/12/10/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="next" title="深入理解Java虚拟机">
+      深入理解Java虚拟机 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/12/04/%E5%B9%B6%E5%8F%91Map/";
+    this.page.identifier = "2021/12/04/并发Map/";
+    this.page.title = "并发Map";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

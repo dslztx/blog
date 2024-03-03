@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Surfingkeys是Chrome浏览器的一个扩展插件，它使得在大多数情况下，我们得以以快捷键的方式与Chrome浏览器进行交互。但是需要注意的是，在有些情形下，它不能正常工作，因此，需要辅以Chrome浏览器的自身快捷键。通过如下配置自定义“J，K”两个快捷键： 12mapkey(&#x27;K&#x27;, &#x27;#2Scroll a page up&#x27;, Normal.scr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Surfingkeys快捷键">
+<meta property="og:url" content="https://dslztx.github.io/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="Surfingkeys是Chrome浏览器的一个扩展插件，它使得在大多数情况下，我们得以以快捷键的方式与Chrome浏览器进行交互。但是需要注意的是，在有些情形下，它不能正常工作，因此，需要辅以Chrome浏览器的自身快捷键。通过如下配置自定义“J，K”两个快捷键： 12mapkey(&#x27;K&#x27;, &#x27;#2Scroll a page up&#x27;, Normal.scr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-05-29T18:46:09.000Z">
+<meta property="article:modified_time" content="2018-05-29T18:46:09.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Chrome">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Surfingkeys快捷键 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Surfingkeys快捷键
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-05-30 02:46:09" itemprop="dateCreated datePublished" datetime="2018-05-30T02:46:09+08:00">2018-05-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">生产力工具</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%94%9F%E4%BA%A7%E5%8A%9B%E5%B7%A5%E5%85%B7/%E9%94%AE%E7%9B%98%E6%B5%81/" itemprop="url" rel="index"><span itemprop="name">键盘流</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/30/Surfingkeys快捷键/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Surfingkeys是Chrome浏览器的一个扩展插件，它使得在大多数情况下，我们得以以快捷键的方式与Chrome浏览器进行交互。但是需要注意的是，在有些情形下，它不能正常工作，因此，需要辅以Chrome浏览器的自身快捷键。<br>通过如下配置自定义“J，K”两个快捷键：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mapkey(&#x27;K&#x27;, &#x27;#2Scroll a page up&#x27;, Normal.scroll.bind(Normal, &quot;pageUp&quot;), &#123;repeatIgnore: true&#125;);</span><br><span class="line">mapkey(&#x27;J&#x27;, &#x27;#2Scroll a page down&#x27;, Normal.scroll.bind(Normal, &quot;pageDown&quot;), &#123;repeatIgnore: true&#125;);</span><br></pre></td></tr></table></figure>
+<p>使用快捷键<code>?</code>可打开Surfingkeys帮助页。</p>
+<h2 id="一、鼠标点击"><a href="#一、鼠标点击" class="headerlink" title="一、鼠标点击"></a><strong>一、鼠标点击</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>f</td>
+<td>在当前标签页打开链接，如果拨号键有重叠按SHIFT，按下拨号键的大写字母形式，可强制在新标签页打开链接</td>
+</tr>
+<tr>
+<td>cf</td>
+<td>在新标签页打开多个链接</td>
+</tr>
+<tr>
+<td>gi</td>
+<td>跳到第一个输入框</td>
+</tr>
+<tr>
+<td>i</td>
+<td>选择输入框</td>
+</tr>
+</tbody></table>
+<h2 id="二、滚动页面-元素"><a href="#二、滚动页面-元素" class="headerlink" title="二、滚动页面&#x2F;元素"></a><strong>二、滚动页面&#x2F;元素</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>j</td>
+<td>向下滚动</td>
+</tr>
+<tr>
+<td>k</td>
+<td>向上滚动</td>
+</tr>
+<tr>
+<td>J</td>
+<td>向下滚动一页，<font color='red'>自定义</font></td>
+</tr>
+<tr>
+<td>K</td>
+<td>向上滚动一页，<font color='red'>自定义</font></td>
+</tr>
+<tr>
+<td>G</td>
+<td>滚到最下边</td>
+</tr>
+<tr>
+<td>gg</td>
+<td>滚到最上边</td>
+</tr>
+<tr>
+<td>h</td>
+<td>向左滚动</td>
+</tr>
+<tr>
+<td>l</td>
+<td>向右滚动</td>
+</tr>
+<tr>
+<td>0</td>
+<td>滚到最左边</td>
+</tr>
+<tr>
+<td>$</td>
+<td>滚到最右边</td>
+</tr>
+<tr>
+<td>cs</td>
+<td>切换滚动目标</td>
+</tr>
+<tr>
+<td>cS</td>
+<td>重置滚动目标</td>
+</tr>
+<tr>
+<td>w</td>
+<td>切换frames</td>
+</tr>
+</tbody></table>
+<h2 id="三、标签页"><a href="#三、标签页" class="headerlink" title="三、标签页"></a><strong>三、标签页</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>g0</td>
+<td>跳到第一个标签页</td>
+</tr>
+<tr>
+<td>g$</td>
+<td>跳到最后一个标签页</td>
+</tr>
+<tr>
+<td>x</td>
+<td>关闭当前标签页</td>
+</tr>
+<tr>
+<td>X</td>
+<td>恢复刚关闭的标签页</td>
+</tr>
+<tr>
+<td>gx0</td>
+<td>关闭左侧所有标签页</td>
+</tr>
+<tr>
+<td>gx$</td>
+<td>关闭右侧所有标签页</td>
+</tr>
+<tr>
+<td>yt</td>
+<td>复制当前标签页</td>
+</tr>
+</tbody></table>
+<h2 id="四、网页浏览"><a href="#四、网页浏览" class="headerlink" title="四、网页浏览"></a><strong>四、网页浏览</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>su</td>
+<td>用VIM编辑器编辑当前地址，按下<code>:w</code>在新标签页打开编辑后地址，按下<code>:q</code>不打开编辑后地址</td>
+</tr>
+<tr>
+<td>S</td>
+<td>后退</td>
+</tr>
+<tr>
+<td>D</td>
+<td>前进</td>
+</tr>
+<tr>
+<td>r</td>
+<td>刷新当前标签页</td>
+</tr>
+<tr>
+<td>B</td>
+<td>基于标签页访问历史，后退一个标签页</td>
+</tr>
+<tr>
+<td>F</td>
+<td>基于标签页访问历史，前进一个标签页</td>
+</tr>
+</tbody></table>
+<h2 id="五、搜索选中文本"><a href="#五、搜索选中文本" class="headerlink" title="五、搜索选中文本"></a><strong>五、搜索选中文本</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sg</td>
+<td>用谷歌搜索选中文本，在新标签页打开</td>
+</tr>
+</tbody></table>
+<h2 id="六、剪贴板"><a href="#六、剪贴板" class="headerlink" title="六、剪贴板"></a><strong>六、剪贴板</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cc</td>
+<td>在新标签页打开选中的网址或系统剪贴板里的网址</td>
+</tr>
+<tr>
+<td>ya</td>
+<td>复制链接元素链接</td>
+</tr>
+<tr>
+<td>yd</td>
+<td>复制当前正在下载的链接</td>
+</tr>
+<tr>
+<td>yy</td>
+<td>复制当前地址</td>
+</tr>
+<tr>
+<td>yg</td>
+<td>截屏</td>
+</tr>
+<tr>
+<td>yG</td>
+<td>截长屏，当存在滚动条时，“yg”和“yG”体现区别</td>
+</tr>
+<tr>
+<td>yS</td>
+<td>截屏当前滚动对象</td>
+</tr>
+<tr>
+<td>ymv</td>
+<td>选择复制多个指定文本</td>
+</tr>
+<tr>
+<td>ymc</td>
+<td>复制表格的多列</td>
+</tr>
+</tbody></table>
+<h2 id="七、搜索栏"><a href="#七、搜索栏" class="headerlink" title="七、搜索栏"></a><strong>七、搜索栏</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>go</td>
+<td>在当前标签页打开网页。输入关键词，在候选数据源（包括“最近关闭，书签，访问历史记录”数据）中选择匹配项可直接打开，否则用谷歌搜索关键词</td>
+</tr>
+<tr>
+<td>t</td>
+<td>在新标签页打开网页。输入关键词，在候选数据源（包括“最近关闭，书签，访问历史记录”数据）中选择匹配项可直接打开，否则用谷歌搜索关键词</td>
+</tr>
+<tr>
+<td>b</td>
+<td>遍历书签</td>
+</tr>
+<tr>
+<td>&#60;Ctrl-.&#62;</td>
+<td>显示下一页搜索结果，针对<code>go</code>，<code>t</code>和<code>b</code>快捷键情境</td>
+</tr>
+<tr>
+<td>&#60;Ctrl-,&#62;</td>
+<td>显示上一页搜索结果，针对<code>go</code>，<code>t</code>和<code>b</code>快捷键情境</td>
+</tr>
+<tr>
+<td>向下方向键&#x2F;&#60;Tab&#62;</td>
+<td>切到下一个匹配项，针对<code>go</code>，<code>t</code>和<code>b</code>快捷键情境</td>
+</tr>
+<tr>
+<td>向上方向键&#x2F;&#60;Shift-Tab&#62;</td>
+<td>切回上一个匹配项，针对<code>go</code>，<code>t</code>和<code>b</code>快捷键情境</td>
+</tr>
+<tr>
+<td>Q</td>
+<td>打开搜索栏查单词</td>
+</tr>
+<tr>
+<td>ab</td>
+<td>保存当前页面作为书签</td>
+</tr>
+<tr>
+<td>;db</td>
+<td>从书签删除当前网址</td>
+</tr>
+</tbody></table>
+<h2 id="八、可视模式"><a href="#八、可视模式" class="headerlink" title="八、可视模式"></a><strong>八、可视模式</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v</td>
+<td>切换可视模式</td>
+</tr>
+<tr>
+<td>0</td>
+<td>跳到行首</td>
+</tr>
+<tr>
+<td>$</td>
+<td>跳到行尾</td>
+</tr>
+<tr>
+<td>l</td>
+<td>前进一个字符</td>
+</tr>
+<tr>
+<td>h</td>
+<td>后退一个字符</td>
+</tr>
+<tr>
+<td>j</td>
+<td>下一行</td>
+</tr>
+<tr>
+<td>k</td>
+<td>上一行</td>
+</tr>
+<tr>
+<td>)</td>
+<td>前进一个句子</td>
+</tr>
+<tr>
+<td>(</td>
+<td>后退一个句子</td>
+</tr>
+<tr>
+<td>}</td>
+<td>前进一个段落</td>
+</tr>
+<tr>
+<td>{</td>
+<td>后退一个段落</td>
+</tr>
+<tr>
+<td>&#x2F;</td>
+<td>在当前页查找</td>
+</tr>
+<tr>
+<td>*</td>
+<td>在当前页查找选中文本</td>
+</tr>
+<tr>
+<td>n</td>
+<td>下一处查找命中</td>
+</tr>
+<tr>
+<td>N</td>
+<td>上一处查找命中</td>
+</tr>
+<tr>
+<td>&#60;Enter&#62;</td>
+<td>点击光标下的元素，<font color='red'>很好的“f”和“cf”快捷键的补充机制</font></td>
+</tr>
+</tbody></table>
+<h2 id="九、Chrome内置功能"><a href="#九、Chrome内置功能" class="headerlink" title="九、Chrome内置功能"></a><strong>九、Chrome内置功能</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>;j</td>
+<td>关闭下载完毕的提示框，如果下载未完成，则取消下载，<font color='red'>并且会清空下载管理器内容</font></td>
+</tr>
+<tr>
+<td>gb</td>
+<td>打开书签管理器</td>
+</tr>
+<tr>
+<td>gd</td>
+<td>打开下载管理器</td>
+</tr>
+<tr>
+<td>gs</td>
+<td>查看网页源码</td>
+</tr>
+</tbody></table>
+<h2 id="十、类Vim书签"><a href="#十、类Vim书签" class="headerlink" title="十、类Vim书签"></a><strong>十、类Vim书签</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>m</td>
+<td>定义类Vim书签。如果定义书签名称位于<code>a-z</code>范围内，那么书签有效作用域限于定义所处标签页；如果定义书签名称位于<code>A-Z0-9</code>范围内，那么书签有效作用域跨标签页</td>
+</tr>
+<tr>
+<td>‘</td>
+<td>跳转到类Vim书签。如果定义书签名称位于<code>a-z</code>范围内，那么跳转到书签定义所对应页面位置；如果定义书签名称位于<code>A-Z0-9</code>范围内，那么在当前标签页打开书签定义所对应页面</td>
+</tr>
+</tbody></table>
+<p><strong>备注：</strong><br>基于使用简化考虑，只考虑<code>a-zA-Z0-9</code>类Vim书签名称</p>
+<h2 id="十一、其他"><a href="#十一、其他" class="headerlink" title="十一、其他"></a><strong>十一、其他</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>;s</td>
+<td>在“Chrome浏览器内置PDF阅读器”与“Surfingkeys PDF阅读器”间切换</td>
+</tr>
+<tr>
+<td>&#60;Alt-s&#62;</td>
+<td>在当前网站开关Surfingkeys</td>
+</tr>
+</tbody></table>
+<br/>
+参考文献：
+[1]参考“在网页按下‘?’字符打开的默认快捷键表”
+[2]https://github.com/brookhong/surfingkeys
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/" title="Surfingkeys快捷键">https://dslztx.github.io/blog/2018/05/30/Surfingkeys快捷键/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Chrome/" rel="tag"># Chrome</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2018/05/30/Chrome%E9%94%AE%E7%9B%98%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="prev" title="Chrome键盘快捷键">
+      <i class="fa fa-chevron-left"></i> Chrome键盘快捷键
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2018/05/30/Thunderbird%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="next" title="Thunderbird快捷键">
+      Thunderbird快捷键 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2018/05/30/Surfingkeys%E5%BF%AB%E6%8D%B7%E9%94%AE/";
+    this.page.identifier = "2018/05/30/Surfingkeys快捷键/";
+    this.page.title = "Surfingkeys快捷键";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

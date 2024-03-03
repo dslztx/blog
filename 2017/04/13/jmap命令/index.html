@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="使用的JDK版本为jdk1.7.0_79。 一、常用用法1jmap [-F] [-dump:format&#x3D;b,file&#x3D;FILENAME|-heap|-histo|-permstat] 进程ID 二、含义“进程ID”是指JVM进程ID，以上常用用法的含义是：打印或者保存相应JVM进程的Java堆信息。 三、选项假设现在运行有一个进程ID为3937的JVM进程，以该JVM进程为实验对象，对“选项”进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jmap命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="使用的JDK版本为jdk1.7.0_79。 一、常用用法1jmap [-F] [-dump:format&#x3D;b,file&#x3D;FILENAME|-heap|-histo|-permstat] 进程ID 二、含义“进程ID”是指JVM进程ID，以上常用用法的含义是：打印或者保存相应JVM进程的Java堆信息。 三、选项假设现在运行有一个进程ID为3937的JVM进程，以该JVM进程为实验对象，对“选项”进">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-04-13T11:35:40.000Z">
+<meta property="article:modified_time" content="2017-04-13T11:35:40.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="JDK命令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>jmap命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jmap命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-13 19:35:40" itemprop="dateCreated datePublished" datetime="2017-04-13T19:35:40+08:00">2017-04-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/13/jmap命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>使用的JDK版本为jdk1.7.0_79。</p>
+<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap [-F] [-dump:format=b,file=FILENAME|-heap|-histo|-permstat] 进程ID</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>“进程ID”是指JVM进程ID，以上常用用法的含义是：打印或者保存相应JVM进程的Java堆信息。</p>
+<h2 id="三、选项"><a href="#三、选项" class="headerlink" title="三、选项"></a><strong>三、选项</strong></h2><p>假设现在运行有一个进程ID为3937的JVM进程，以该JVM进程为实验对象，对“选项”进行说明。</p>
+<h3 id="3-1、“-F”"><a href="#3-1、“-F”" class="headerlink" title="3.1、“-F”"></a><strong>3.1、“-F”</strong></h3><p>“-F”选项可与接下来的几个选项结合使用，不能单独使用。使用“-F”选项后，会开启“HotSpot Serviceability Agent”机制，这使得JVM进程收到一个“SIGSTOP”信号而被“Hung”，只有当请求的信息获取完成后，该JVM进程才会收到一个“SIGCONT”信号而重新运行。[3][4][5]</p>
+<h3 id="3-2、“-dump-format-b-file-FILENAME”"><a href="#3-2、“-dump-format-b-file-FILENAME”" class="headerlink" title="3.2、“-dump:format&#x3D;b,file&#x3D;FILENAME”"></a><strong>3.2、“-dump:format&#x3D;b,file&#x3D;FILENAME”</strong></h3><p>保存Java堆堆转存快照到文件“FILENAME”，供后续进行分析，堆转存快照的格式为“hprof二进制格式”。</p>
+<h3 id="3-3、“-heap”"><a href="#3-3、“-heap”" class="headerlink" title="3.3、“-heap”"></a><strong>3.3、“-heap”</strong></h3><p>打印Java堆的如下信息：使用的垃圾收集器，Java堆相关的几个虚拟机参数值，Java堆不同内存区域的使用情况，“字符串常量池”使用情况等。注意跟“jstat”命令的统计信息有所重叠。<br>执行<code>jmap -heap 3937</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 3937, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Client compiler detected.</span><br><span class="line">JVM version is 24.79-b02</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Mark Sweep Compact GC</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio = 40</span><br><span class="line">   MaxHeapFreeRatio = 70</span><br><span class="line">   MaxHeapSize      = 536870912 (512.0MB)</span><br><span class="line">   NewSize          = 1048576 (1.0MB)</span><br><span class="line">   MaxNewSize       = 4294901760 (4095.9375MB)</span><br><span class="line">   OldSize          = 4194304 (4.0MB)</span><br><span class="line">   NewRatio         = 2</span><br><span class="line">   SurvivorRatio    = 8</span><br><span class="line">   PermSize         = 12582912 (12.0MB)</span><br><span class="line">   MaxPermSize      = 67108864 (64.0MB)</span><br><span class="line">   G1HeapRegionSize = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">New Generation (Eden + 1 Survivor Space):</span><br><span class="line">   capacity = 7471104 (7.125MB)</span><br><span class="line">   used     = 790304 (0.753692626953125MB)</span><br><span class="line">   free     = 6680800 (6.371307373046875MB)</span><br><span class="line">   10.578142132675438% used</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 6684672 (6.375MB)</span><br><span class="line">   used     = 790304 (0.753692626953125MB)</span><br><span class="line">   free     = 5894368 (5.621307373046875MB)</span><br><span class="line">   11.822629442401961% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 786432 (0.75MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 786432 (0.75MB)</span><br><span class="line">   0.0% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 786432 (0.75MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 786432 (0.75MB)</span><br><span class="line">   0.0% used</span><br><span class="line">tenured generation:</span><br><span class="line">   capacity = 16429056 (15.66796875MB)</span><br><span class="line">   used     = 7500296 (7.152839660644531MB)</span><br><span class="line">   free     = 8928760 (8.515129089355469MB)</span><br><span class="line">   45.65262909810521% used</span><br><span class="line">Perm Generation:</span><br><span class="line">   capacity = 12582912 (12.0MB)</span><br><span class="line">   used     = 9098864 (8.677352905273438MB)</span><br><span class="line">   free     = 3484048 (3.3226470947265625MB)</span><br><span class="line">   72.31127421061198% used</span><br><span class="line"></span><br><span class="line">4104 interned Strings occupying 306480 bytes.</span><br></pre></td></tr></table></figure>
+<h3 id="3-4、“-histo”"><a href="#3-4、“-histo”" class="headerlink" title="3.4、“-histo”"></a><strong>3.4、“-histo”</strong></h3><p>打印每个类的统计信息：类的实例数量，类的实例字节数，类的全限定名称等等。<br>执行<code>jmap -histo 3937</code>命令，得到如下所示结果（限于篇幅，只截取了第一页结果）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">num     #instances         #bytes  class name</span><br><span class="line">----------------------------------------------</span><br><span class="line">   1:         26723        3048040  &lt;constMethodKlass&gt;</span><br><span class="line">   2:          4967        2283080  [B</span><br><span class="line">   3:         11530        2245392  [C</span><br><span class="line">   4:         26723        1927712  &lt;methodKlass&gt;</span><br><span class="line">   5:           322        1648520  [I</span><br><span class="line">   6:          2768        1435312  &lt;constantPoolKlass&gt;</span><br><span class="line">   7:          2768        1051720  &lt;instanceKlassKlass&gt;</span><br><span class="line">   8:          2118         783680  &lt;constantPoolCacheKlass&gt;</span><br><span class="line">   9:          9216         368640  org.apache.lucene.index.FreqProxTermsWriter$PostingList</span><br><span class="line">  10:         10801         259224  java.lang.String</span><br><span class="line">  11:          2959         254872  java.lang.Class</span><br><span class="line">  12:          4057         198384  [S</span><br><span class="line">  13:          4340         193960  [[I</span><br><span class="line">  14:          1802         160184  [Ljava.util.HashMap$Entry;</span><br><span class="line">  15:          3964         126848  java.util.LinkedHashMap$Entry</span><br><span class="line">  16:           288         122976  [Lorg.apache.lucene.index.RawPostingList;</span><br><span class="line">  17:          1798         108408  [Ljava.lang.Object;</span><br><span class="line">  18:          4136          99264  java.util.concurrent.ConcurrentHashMap$HashEntry</span><br><span class="line">  19:          3254          78096  java.util.HashMap$Entry</span><br><span class="line">  20:          1014          56784  java.util.LinkedHashMap</span><br><span class="line">  21:          1133          54384  java.util.HashMap</span><br><span class="line">  22:           174          54288  &lt;objArrayKlassKlass&gt;</span><br><span class="line">  23:           190          39152  [Ljava.util.concurrent.ConcurrentHashMap$HashEntry;</span><br><span class="line">  24:           456          36480  java.lang.reflect.Method</span><br><span class="line">  25:           550          35200  java.lang.reflect.Field</span><br><span class="line">  26:          4059          32472  java.lang.Object</span><br><span class="line">  27:          1201          28824  java.util.ArrayList</span><br><span class="line">  28:          1079          25896  com.google.inject.TypeLiteral</span><br><span class="line">  29:           366          23424  org.apache.lucene.index.SegmentInfo</span><br><span class="line">  30:           290          18560  java.lang.reflect.Constructor</span><br><span class="line">  31:           622          14928  com.google.inject.Key</span><br><span class="line">  32:           586          14064  java.util.Hashtable$Entry</span><br><span class="line">  33:           437          13984  java.lang.ref.SoftReference</span><br><span class="line">  34:           545          13080  com.google.common.collect.CustomConcurrentHashMap$StrongEntry</span><br><span class="line">  35:           144          12672  org.apache.lucene.index.TermsHashPerField</span><br><span class="line">  36:           513          12312  sun.reflect.annotation.AnnotationInvocationHandler</span><br><span class="line">  37:           204           9792  java.lang.Package</span><br><span class="line">  38:            96           9216  java.io.ObjectStreamClass</span><br><span class="line">  39:           383           9192  com.google.inject.spi.Dependency</span><br><span class="line">  40:           555           8880  com.google.common.collect.CustomConcurrentHashMap$StrongValueReference</span><br><span class="line">  41:           152           8512  java.net.URL</span><br><span class="line">  42:           210           8400  com.google.inject.internal.ProviderInstanceBindingImpl</span><br><span class="line">  43:           255           8160  java.lang.ref.Finalizer</span><br><span class="line">  44:           507           8112  java.lang.Integer</span><br></pre></td></tr></table></figure>
+<h3 id="3-5、“-permstat”"><a href="#3-5、“-permstat”" class="headerlink" title="3.5、“-permstat”"></a><strong>3.5、“-permstat”</strong></h3><p>打印类加载器信息：类加载器名称，类加载器加载的类数量，类加载器加载的类字节数，父“类加载器”名称，是否存活标志，类加载器类型等等。<br>执行<code>jmap -permstat 3937</code>命令，得到如下所示结果（限于篇幅，只截取了第一页结果）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 3937, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Client compiler detected.</span><br><span class="line">JVM version is 24.79-b02</span><br><span class="line">finding class loader instances ..done.</span><br><span class="line">computing per loader stat ..done.</span><br><span class="line">please wait.. computing liveness............................................................................done.</span><br><span class="line">class_loader	classes	bytes	parent_loader		alive?	type</span><br><span class="line"></span><br><span class="line">&lt;bootstrap&gt;	1143	4158120	  null  	live	&lt;internal&gt;</span><br><span class="line">0x9b343750	0	0	0x9b2c85c0	live	java/util/ResourceBundle$RBClassLoader@0xb0bdf870</span><br><span class="line">0x9b69c608	1	1752	0x9b2c85c0	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b3a17d0	0	0	0x9b2c85c0	live	org/sonatype/guice/plexus/scanners/CloningClassLoader@0xb0d62e30</span><br><span class="line">0x9b744a98	1	1752	0x9b2c85c0	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b2c9490	1	1768	  null  	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b2c93e8	1	1768	  null  	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b2c85c0	1827	5868816	0x9b2c9440	live	sun/misc/Launcher$AppClassLoader@0xb0957068</span><br><span class="line">0x9b5d9d70	1	1752	0x9b2c85c0	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b995630	1	1768	  null  	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b744a60	1	1864	0x9b2c85c0	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b2c94e8	1	1768	  null  	dead	sun/reflect/DelegatingClassLoader@0xb0835250</span><br><span class="line">0x9b2c9440	8	40640	  null  	live	sun/misc/Launcher$ExtClassLoader@0xb091e048</span><br><span class="line">0x9b339138	1	16760	0x9b2c85c0	live	org/codehaus/plexus/classworlds/realm/ClassRealm@0xb0b389f0</span><br><span class="line"></span><br><span class="line">total = 14	2987	10098528	    N/A    	alive=6, dead=8	    N/A</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jmap.html
+[2]man jmap
+[3]http://stackoverflow.com/questions/26140182/running-jmap-getting-unable-to-open-socket-file
+[4]https://major.io/2009/06/15/two-great-signals-sigstop-and-sigcont/
+[5]http://velocity.oreilly.com.cn/2013/ppts/java_web_serviceability_agent.pdf
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/" title="jmap命令">https://dslztx.github.io/blog/2017/04/13/jmap命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/JDK%E5%91%BD%E4%BB%A4/" rel="tag"># JDK命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/" rel="prev" title="java命令">
+      <i class="fa fa-chevron-left"></i> java命令
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/04/19/jhat%E5%91%BD%E4%BB%A4/" rel="next" title="jhat命令">
+      jhat命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2017/04/13/jmap%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2017/04/13/jmap命令/";
+    this.page.title = "jmap命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

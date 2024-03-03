@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在X86中，加上LOCK指令前缀，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，但是这里只讨论“原子化”效果。 一、原子操作原子操作的本质描述是：当且仅当操作物理或者逻辑不可中断（不可中断：操作所涉内存不可被读取和修改）时，该操作才是原子的。原子操作存在于各个指令&#x2F;语言层级，比如“机器指令层级的原子操作”，“汇编指令层级的原子操作”，“Java语言层级的原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原子操作与锁">
+<meta property="og:url" content="https://dslztx.github.io/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="在X86中，加上LOCK指令前缀，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，但是这里只讨论“原子化”效果。 一、原子操作原子操作的本质描述是：当且仅当操作物理或者逻辑不可中断（不可中断：操作所涉内存不可被读取和修改）时，该操作才是原子的。原子操作存在于各个指令&#x2F;语言层级，比如“机器指令层级的原子操作”，“汇编指令层级的原子操作”，“Java语言层级的原">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-21T09:48:33.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.176Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>原子操作与锁 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          原子操作与锁
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-21 17:48:33" itemprop="dateCreated datePublished" datetime="2020-07-21T17:48:33+08:00">2020-07-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/Java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">Java并发</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/21/原子操作与锁/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在X86中，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，但是这里只讨论“原子化”效果。</p>
+<h2 id="一、原子操作"><a href="#一、原子操作" class="headerlink" title="一、原子操作"></a><strong>一、原子操作</strong></h2><p>原子操作的本质描述是：当且仅当操作物理或者逻辑不可中断（不可中断：操作所涉内存不可被<font color='red'>读取</font>和修改）时，该操作才是原子的。<br>原子操作存在于各个指令&#x2F;语言层级，比如“机器指令层级的原子操作”，“汇编指令层级的原子操作”，“Java语言层级的原子操作”等。</p>
+<br/>
+
+<p>关于原子操作的一些具体描述如下：</p>
+<ul>
+<li>在机器指令层级，大多数机器指令是非原子的，只有一些机器指令是原子的（又可被称为“天生原子机器指令”）</li>
+<li>关于机器指令“原子”与“中断”的关系：在单核中，不可中断的机器指令是原子的，可中断的机器指令不一定是原子的；在多核中，可中断的机器指令不一定是原子的，<font color='red'>不可中断的机器指令也不一定是原子的</font>，比如“不可中断指令M在CPU核C1上执行，在CPU核C2上执行的指令可观察到M指令的中间过程，此时M指令不是原子的”</li>
+<li>高级语言语句A&#x2F;汇编指令B最终被编译&#x2F;解释成一段机器指令C，A&#x2F;B是否是原子的取决于C是否是原子的</li>
+<li>通过加锁，可将“非原子操作”原子化。比如：给非原子汇编指令A加上<code>LOCK指令前缀</code>将其原子化，在这里<code>LOCK指令前缀</code>是作为一种锁机制的，<code>LOCK指令前缀</code>会带来以下效果：1）被修饰的汇编指令在执行期间，会在内存总线上声言一个<code>#LOCK</code>信号导致内存被锁住，直到该汇编指令执行完成。因此，A执行期间不可能发生涉及到的内存值被读取和修改的情形，故此时A的执行是原子的；2）方案1锁住内存，期间内存不能被读取和修改，代价非常大，因此，现在一般是采用“缓存锁定”的方案，避免降低内存的存取速度。具体是：在指令执行期间锁住所涉及到的Cache Line，此时其他CPU核不能存取其内缓存中对应的Cache Line</li>
+<li>“缓存一致性协议”与“指令操作的原子性”关系：缓存一致性协议（比如“MESI”）只能用来保证多CPU核内的缓存一致性，并不能保证“指令操作的原子性”。比如“现有CPU核A和B，执行相同的‘自增1’指令C，可分别以AC和BC代指，C所涉及的变量V在Cache Line D上，可分别以AD&#x2F;AC和BD&#x2F;BC代指，假定AV和BV的初始值为0，并发执行AC和BC，由于AD和BD并未被锁住，因此AC和BC获取得到的AV和BV的值可能都为0，此时AC和BC的执行结果都为1，在整个过程中，缓存一致性协议正常工作，可发现其并不能使得C的执行是原子的，否则AC和BC的执行结果应该分别是[1,2]或者[2,1]”</li>
+</ul>
+<h2 id="二、锁"><a href="#二、锁" class="headerlink" title="二、锁"></a><strong>二、锁</strong></h2><p>锁是一种同步机制，类似于“原子操作”，锁也存在于各个指令&#x2F;语言层级中，比如“机器指令层级的锁”，“汇编指令层级的锁”，“Java语言层级的锁”等。</p>
+<h3 id="2-1、原子操作与锁"><a href="#2-1、原子操作与锁" class="headerlink" title="2.1、原子操作与锁"></a><strong>2.1、原子操作与锁</strong></h3><p>“原子操作”与“锁”的关系：实现“原子操作”必借助于“锁”，使用“锁”不一定能够实现“原子操作”。<br>比如：</p>
+<ul>
+<li>“天生原子机器指令”使用隐式锁机制</li>
+<li>X86处理器的<code>LOCK指令前缀+CMPXCHG汇编指令</code>构成一个CAS原子指令，这里<code>LOCK指令前缀</code>是作为一种锁机制</li>
+<li>在Java程序中，可借助“synchronized关键词&#x2F;高级锁”实现一段Java代码，如果实现得好，该段Java代码是一个原子操作；但是如果实现得不好（比如“中间状态可被他人存取”），该段Java代码就不是一个原子操作</li>
+</ul>
+<h3 id="2-2、锁分类"><a href="#2-2、锁分类" class="headerlink" title="2.2、锁分类"></a><strong>2.2、锁分类</strong></h3><p>可基于各种角度对锁进行分类。<br>常见的锁有：</p>
+<ul>
+<li>Java语言层级的“synchronized锁”和“高级锁”</li>
+<li>C++，Rust，Go语言层级的内置锁</li>
+<li>CAS自旋锁，其本质是<code>CAS+自旋（不断循环）</code>，它跟通常所理解的锁有点不一样，但是从用于解决原子操作问题的角度，它跟通常所理解的锁又无二致</li>
+<li><code>LOCK指令前缀</code></li>
+<li>“天生原子机器指令”使用的隐式锁</li>
+</ul>
+<p>常见的锁分类有：</p>
+<ul>
+<li>悲观锁 vs 乐观锁</li>
+<li>阻塞锁 vs 非阻塞锁</li>
+<li>公平锁 vs 非公平锁</li>
+<li>可重入锁 vs 非可重入锁</li>
+<li>共享锁 vs 排他锁</li>
+</ul>
+<h4 id="2-2-1、悲观锁-vs-乐观锁"><a href="#2-2-1、悲观锁-vs-乐观锁" class="headerlink" title="2.2.1、悲观锁 vs 乐观锁"></a><strong>2.2.1、悲观锁 vs 乐观锁</strong></h4><p>分类角度：对同步资源的并发修改是否频繁，不关心对同步资源的读取（当然，如果对同步资源的读取产生了线程安全问题，可能仍然得用锁的方式予以解决，只不过“悲观锁”和“乐观锁”的分类不关注对同步资源的读取）。</p>
+<p><strong>悲观锁</strong>：对同步资源的并发修改十分频繁，修改前先加锁，适合“同步资源竞争激烈”的场景，比如“synchronized锁”。<br><strong>乐观锁</strong>：对同步资源的并发修改不频繁，修改前无需加锁，到真正修改时才去尝试处理竞争修改的情形，适合“同步资源竞争不激烈”的场景，<font color='red'>一般就是“CAS自旋锁”</font>。</p>
+<h4 id="2-2-2、阻塞锁-vs-非阻塞锁"><a href="#2-2-2、阻塞锁-vs-非阻塞锁" class="headerlink" title="2.2.2、阻塞锁 vs 非阻塞锁"></a><strong>2.2.2、阻塞锁 vs 非阻塞锁</strong></h4><p>分类角度：申请锁而不得时，申请线程是否需要阻塞。</p>
+<p><strong>阻塞锁</strong>：申请锁而不得时，申请线程需要阻塞，具有“阻塞-唤醒”过程成本，比如“synchronized锁”。<br><strong>非阻塞锁</strong>：申请锁而不得时，申请线程不需要阻塞，具有“持续占用分配到的CPU时间片”的成本，<font color='red'>一般就是“CAS自旋锁”</font>。</p>
+<h4 id="2-2-3、公平锁-vs-非公平锁"><a href="#2-2-3、公平锁-vs-非公平锁" class="headerlink" title="2.2.3、公平锁 vs 非公平锁"></a><strong>2.2.3、公平锁 vs 非公平锁</strong></h4><p>分类角度：多个线程是否按照申请锁的顺序来获取锁。</p>
+<p><strong>公平锁</strong>：多个线程是按照申请锁的顺序来获取锁，比如“ReentrantLock内的FairSync锁”。</p>
+<ul>
+<li>优点：等待锁的线程不会饿死</li>
+<li>缺点：对于每个申请线程，都要付出“阻塞-唤醒”过程成本，由此导致整体吞吐效率相对于<code>非公平锁</code>要低</li>
+</ul>
+<p><strong>非公平锁</strong>：多个线程不是按照申请锁的顺序来获取锁，比如“synchronized锁”、“ReentrantLock内的NonfairSync锁”。</p>
+<ul>
+<li>优点：对于每个申请线程，可能可避免付出“阻塞-唤醒”过程成本，由此导致整体吞吐效率相对于<code>公平锁</code>要高</li>
+<li>缺点：处于等待队列中的线程可能会饿死，或者，等很久才能获得锁</li>
+</ul>
+<h4 id="2-2-4、可重入锁-vs-非可重入锁"><a href="#2-2-4、可重入锁-vs-非可重入锁" class="headerlink" title="2.2.4、可重入锁 vs 非可重入锁"></a><strong>2.2.4、可重入锁 vs 非可重入锁</strong></h4><p>分类角度：已获得锁的线程在不释放该锁的前提下是否可再次获得该锁。</p>
+<p><strong>可重入锁</strong>：已获得锁的线程在不释放该锁的前提下可再次获得该锁，比如“synchronized锁”、“ReentrantLock锁”。<br><strong>非可重入锁</strong>：已获得锁的线程在不释放该锁的前提下不可再次获得该锁，除非先释放掉该锁，比如“NonReentrantLock锁”。</p>
+<h4 id="2-2-5、共享锁-vs-排他锁"><a href="#2-2-5、共享锁-vs-排他锁" class="headerlink" title="2.2.5、共享锁 vs 排他锁"></a><strong>2.2.5、共享锁 vs 排他锁</strong></h4><p>分类角度：锁是否只能被一个线程所获取。</p>
+<p><strong>共享锁</strong>：锁能被多个线程同时所获取，比如“读写锁中的读锁”。<br><strong>排他锁</strong>：锁只能被一个线程所获取，比如“synchronized锁”、“读写锁中的写锁”。</p>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><h3 id="3-1、原子操作与事务"><a href="#3-1、原子操作与事务" class="headerlink" title="3.1、原子操作与事务"></a><strong>3.1、原子操作与事务</strong></h3><p>原子操作与事务的关系是：“事务”是“原子操作”；“原子操作”不一定是“事务”，因为“原子操作”不一定有“回滚”语义。</p>
+<h3 id="3-2、无锁化编程"><a href="#3-2、无锁化编程" class="headerlink" title="3.2、无锁化编程"></a><strong>3.2、无锁化编程</strong></h3><p>对于“无锁化编程”，完整的语境是：在并发环境中，以“无锁”的方式解决原子操作问题。而根据<code>实现“原子操作”必借助于“锁”</code>可知，<code>以“无锁”的方式解决原子操作问题</code>不可能，所以“无锁化编程”只是玩个文字游戏，本质还是需要锁的。<br>因此，我们平常在讨论“无锁化编程”时，实际上说的是：</p>
+<ul>
+<li>使用CAS自旋锁</li>
+<li>使用“天生原子机器指令”，比如“在JDK 8的AtomicLong类，<code>VM_SUPPORTS_LONG_CAS</code>变量的JavaDoc中有提到一个天生原子机器指令，它实现了针对long变量的CAS操作”</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://tech.meituan.com/2018/11/15/java-lock.html">https://tech.meituan.com/2018/11/15/java-lock.html</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/" title="原子操作与锁">https://dslztx.github.io/blog/2020/07/21/原子操作与锁/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/" rel="prev" title="synchronized锁内部实现">
+      <i class="fa fa-chevron-left"></i> synchronized锁内部实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/07/22/%E4%BC%AA%E5%85%B1%E4%BA%AB/" rel="next" title="伪共享">
+      伪共享 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2020/07/21/%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%94%81/";
+    this.page.identifier = "2020/07/21/原子操作与锁/";
+    this.page.title = "原子操作与锁";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、常用用法1ls -abFhltr --color&#x3D;auto [FILE] 二、含义与选项2.1、含义列出文件或者目录的信息。 2.2、选项2.2.1、“a”列出以“.”开头的隐藏文件。 2.2.2、“b”对于非图形字符加上反义字符，比如“hello\ world”中对空格字符加了反义字符“\”。 2.2.3、“F”显示指示符。指示符含义介绍如表1。 表1    指示符 含义    @ 表示软链">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ls命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、常用用法1ls -abFhltr --color&#x3D;auto [FILE] 二、含义与选项2.1、含义列出文件或者目录的信息。 2.2、选项2.2.1、“a”列出以“.”开头的隐藏文件。 2.2.2、“b”对于非图形字符加上反义字符，比如“hello\ world”中对空格字符加了反义字符“\”。 2.2.3、“F”显示指示符。指示符含义介绍如表1。 表1    指示符 含义    @ 表示软链">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-10-18T12:53:38.000Z">
+<meta property="article:modified_time" content="2016-10-18T12:53:38.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Linux命令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ls命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ls命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-10-18 20:53:38" itemprop="dateCreated datePublished" datetime="2016-10-18T20:53:38+08:00">2016-10-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/10/18/ls命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -abFhltr --color=auto [FILE]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>列出文件或者目录的信息。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><h4 id="2-2-1、“a”"><a href="#2-2-1、“a”" class="headerlink" title="2.2.1、“a”"></a><strong>2.2.1、“a”</strong></h4><p>列出以“.”开头的隐藏文件。</p>
+<h4 id="2-2-2、“b”"><a href="#2-2-2、“b”" class="headerlink" title="2.2.2、“b”"></a><strong>2.2.2、“b”</strong></h4><p>对于非图形字符加上反义字符，比如“hello\ world”中对空格字符加了反义字符“\”。</p>
+<h4 id="2-2-3、“F”"><a href="#2-2-3、“F”" class="headerlink" title="2.2.3、“F”"></a><strong>2.2.3、“F”</strong></h4><p>显示指示符。指示符含义介绍如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>指示符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@</td>
+<td>表示软链接文件或者具有扩展属性</td>
+</tr>
+<tr>
+<td>*</td>
+<td>表示可执行文件</td>
+</tr>
+<tr>
+<td>&#x3D;</td>
+<td>表示socket</td>
+</tr>
+<tr>
+<td>&#124;</td>
+<td>表示命名管道</td>
+</tr>
+<tr>
+<td>&gt;</td>
+<td>表示door</td>
+</tr>
+<tr>
+<td>&#x2F;</td>
+<td>表示目录</td>
+</tr>
+</tbody></table>
+<h4 id="2-2-4、“h”"><a href="#2-2-4、“h”" class="headerlink" title="2.2.4、“h”"></a><strong>2.2.4、“h”</strong></h4><p>以可视化的形式列出文件和目录的大小。</p>
+<h4 id="2-2-5、“l”"><a href="#2-2-5、“l”" class="headerlink" title="2.2.5、“l”"></a><strong>2.2.5、“l”</strong></h4><p>详细展现模式，共有7列数据来展现文件信息。对这7列数据的描述见表2。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一列</td>
+<td>代表这个文件的类型和权限配置。共有10个字符，第1个字符表示文件类型，描述见表3；接下来的9个字符以3个为一组，分别配置了“文件所有者，文件所属组组用户，其他用户”对该文件所拥有的权限</td>
+</tr>
+<tr>
+<td>第二列</td>
+<td>表示文件的inode节点上的硬链接计数（一个目录至少有2个硬链接计数，因为目录里面有一个“..”文件，再加上自身的1个硬链接，最后的硬链接计数为2）</td>
+</tr>
+<tr>
+<td>第三列</td>
+<td>表示文件的所有者</td>
+</tr>
+<tr>
+<td>第四列</td>
+<td>表示文件的所属组</td>
+</tr>
+<tr>
+<td>第五列</td>
+<td>表示文件的大小。对于“一般文件”，显示的是“使用大小”；对于“目录文件”，并没有累加统计该目录文件下的子文件的大小，而是显示该目录文件自身的“占用大小”（关于文件的“使用大小”和“占用大小”可见<a href="/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" title="Ext文件系统中，文件的“占用大小”和“使用大小”">《Ext文件系统中，文件的“占用大小”和“使用大小”》</a>）</td>
+</tr>
+<tr>
+<td>第六列</td>
+<td>表示文件的“mtime”值（即最后修改block节点中内容的时间）</td>
+</tr>
+<tr>
+<td>第七列</td>
+<td>表示文件名</td>
+</tr>
+</tbody></table>
+<p>表3</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>d</td>
+<td>表示目录</td>
+</tr>
+<tr>
+<td>-</td>
+<td>表示文件</td>
+</tr>
+<tr>
+<td>l</td>
+<td>表示链接文件</td>
+</tr>
+<tr>
+<td>b</td>
+<td>表示设备文件里面的可供存储的接口设备</td>
+</tr>
+<tr>
+<td>c</td>
+<td>表示设备文件里面的串行端口设备</td>
+</tr>
+<tr>
+<td>s</td>
+<td>表示套接字（sockets）数据接口文件</td>
+</tr>
+<tr>
+<td>p</td>
+<td>表示管道文件</td>
+</tr>
+</tbody></table>
+<h4 id="2-2-6、“t”"><a href="#2-2-6、“t”" class="headerlink" title="2.2.6、“t”"></a><strong>2.2.6、“t”</strong></h4><p>根据“mtime”值从小到大排序。</p>
+<h4 id="2-2-7、“r”"><a href="#2-2-7、“r”" class="headerlink" title="2.2.7、“r”"></a><strong>2.2.7、“r”</strong></h4><p>反向排序。</p>
+<h4 id="2-2-8、“–color-auto”"><a href="#2-2-8、“–color-auto”" class="headerlink" title="2.2.8、“–color&#x3D;auto”"></a><strong>2.2.8、“–color&#x3D;auto”</strong></h4><p>展现文件和目录的颜色。</p>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>有如下现象：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">不加“h”选项时，假定文件大小为“N”，加上“h”选项时，假定相同文件大小为“M(k)”，“M(k)”值并不能通过“N/1024”得到</span><br></pre></td></tr></table></figure>
+<p>比如分别执行<code>ls -l file.md</code>和<code>ls -lh file.md</code>命令，有如下两个执行结果，“35(k)”并不能通过“34998&#x2F;1024”得到。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-rw-rw-r-- 1 dsl dsl 34998 10月 17 21:32 file.md</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-rw-rw-r-- 1 dsl dsl 35K 10月 17 21:32 file.md</span><br></pre></td></tr></table></figure>
+<p>个人推测原因如下：<code>ls</code>命令统计文件大小是分段统计的（“分段”可能跟“inode&#x2F;block”体系中的block节点集合相关），如果有加上“h”选项，在分段统计的过程中，就会发生单位的转化（一个block节点集合中，任何一个block节点都有可能未被填满，而不仅仅只是最后一个block节点），误差的累积导致上述现象。</p>
+<br/>
+参考文献：
+[1]man ls
+[2]http://stackoverflow.com/questions/17319940/how-to-escape-a-pipe-char-in-a-code-statement-in-a-markdown-table
+[3]https://www.reddit.com/r/bugs/comments/3my1yt/cannot_escape_pipe_character_in_tables/
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/" title="ls命令">https://dslztx.github.io/blog/2016/10/18/ls命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Linux%E5%91%BD%E4%BB%A4/" rel="tag"># Linux命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" rel="prev" title="Ext文件系统中，文件的“占用大小”和“使用大小”">
+      <i class="fa fa-chevron-left"></i> Ext文件系统中，文件的“占用大小”和“使用大小”
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2016/10/20/cat%E5%91%BD%E4%BB%A4/" rel="next" title="cat命令">
+      cat命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2016/10/18/ls%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2016/10/18/ls命令/";
+    this.page.title = "ls命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

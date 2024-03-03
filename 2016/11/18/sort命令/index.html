@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、常用用法1sort [-d | -g | -M | -h | -n] [-r] [-f] [-t CHAR] [-k KEYDEF [-k KEYDEF ... -k KEYDEF]] FILE 二、含义与选项2.1、含义对文件中的记录进行排序。 2.2、选项表示的意思“-d”：按照字典序排序，默认就是按照字典序排序的。“-g”：按照数字大小排序，支持科学计数表示法。“-M”：按照月份大小排序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sort命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、常用用法1sort [-d | -g | -M | -h | -n] [-r] [-f] [-t CHAR] [-k KEYDEF [-k KEYDEF ... -k KEYDEF]] FILE 二、含义与选项2.1、含义对文件中的记录进行排序。 2.2、选项表示的意思“-d”：按照字典序排序，默认就是按照字典序排序的。“-g”：按照数字大小排序，支持科学计数表示法。“-M”：按照月份大小排序">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-11-18T13:13:42.000Z">
+<meta property="article:modified_time" content="2016-11-18T13:13:42.000Z">
+<meta property="article:author" content="dslztx">
+<meta property="article:tag" content="Linux命令">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>sort命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          sort命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-11-18 21:13:42" itemprop="dateCreated datePublished" datetime="2016-11-18T21:13:42+08:00">2016-11-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/18/sort命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort [-d | -g | -M | -h | -n] [-r] [-f] [-t CHAR] [-k KEYDEF [-k KEYDEF ... -k KEYDEF]] FILE</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>对文件中的记录进行排序。</p>
+<h3 id="2-2、选项表示的意思"><a href="#2-2、选项表示的意思" class="headerlink" title="2.2、选项表示的意思"></a><strong>2.2、选项表示的意思</strong></h3><p>“-d”：按照字典序排序，默认就是按照字典序排序的。<br>“-g”：按照数字大小排序，支持科学计数表示法。<br>“-M”：按照月份大小排序，比如<code>JAN&lt;DEC</code>。<br>“-h”：支持识别人类可读形式单位然后进行排序，比如<code>2K&lt;1G</code>。<br>“-n”：按照数字大小排序，不支持科学计数表示法。<br>“-r”：表示反方向排序。<br>“-f”：排序比较时，忽略大小写。<br>“-t CHAR”：以“CHAR”字符作为字段间分隔符，默认是以“空格符”或者“Tab”作为分隔符。<br>“-k KEYDEF”：见“2.2.1、‘-k KEYDEF’”。</p>
+<h4 id="2-2-1、“-k-KEYDEF”"><a href="#2-2-1、“-k-KEYDEF”" class="headerlink" title="2.2.1、“-k KEYDEF”"></a><strong>2.2.1、“-k KEYDEF”</strong></h4><h5 id="2-2-1-1、选项用途"><a href="#2-2-1-1、选项用途" class="headerlink" title="2.2.1.1、选项用途"></a><strong>2.2.1.1、选项用途</strong></h5><p>默认排序时以整行记录作为比较关键词，通过“-k KEYDEF”选项可以自己指定一个或者多个比较关键词。</p>
+<h5 id="2-2-1-2、KEYDEF"><a href="#2-2-1-2、KEYDEF" class="headerlink" title="2.2.1.2、KEYDEF"></a><strong>2.2.1.2、KEYDEF</strong></h5><p>“KEYDEF”形如“F[.C][b][,F[.C][b]][OPTS]”。<br><strong>1、第一个“F[.C][b]”</strong><br>第一个“F[.C][b]”用来指定关键词的起始位置。“F”表示记录中的第“F”个字段（字段从1开始计数）；“C”表示该字段中的第“C”个字符（字符从1开始计数），<font color='red'>需要注意的是，省略“.C”，等价于“.1”（即表示该字段的第一个字符）</font>；“b”选项表示不将字段的前导分隔符作为该字段的一部分，如果不加“b”选项，那么“F.1”指向的其实是第“F”个字段的前导分隔符。<br><strong>2、第二个“F[.C][b]”</strong><br>第二个“F[.C][b]”用来指定关键词的结束位置，如果省略，以行结尾作为该关键词的结束位置。“F”表示记录中的第“F”个字段（字段从1开始计数）；“C”表示该字段中的第“C”个字符（字符从1开始计数），<font color='red'>需要注意的是，省略“.C”，等价于表示该字段的最后一个字符</font>；“b”选项表示不将字段的前导分隔符作为该字段的一部分，如果不加“b”选项，那么“F.1”指向的其实是第“F”个字段的前导分隔符。<br><strong>3、OPTS</strong><br>“OTPS”用来指定排序选项，可选值有“dgMhnrf”。注意跟“2.2、选项表示的意思”中的排序选项进行比对。<br><strong>4、举例</strong><br>见实验8，9，10，11，12，13。</p>
+<h2 id="三、实验"><a href="#三、实验" class="headerlink" title="三、实验"></a><strong>三、实验</strong></h2><h3 id="3-1、实验1"><a href="#3-1、实验1" class="headerlink" title="3.1、实验1"></a><strong>3.1、实验1</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">d</span><br><span class="line">c</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">c</span><br><span class="line">d</span><br></pre></td></tr></table></figure>
+
+<p>备注：<br>执行<code>sort -d a.txt</code>命令，得到相同结果。</p>
+<h3 id="3-2、实验2"><a href="#3-2、实验2" class="headerlink" title="3.2、实验2"></a><strong>3.2、实验2</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.2E10</span><br><span class="line">2.4</span><br><span class="line">01.245</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -g a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">01.245</span><br><span class="line">2.4</span><br><span class="line">1.2E10</span><br></pre></td></tr></table></figure>
+<h3 id="3-3、实验3"><a href="#3-3、实验3" class="headerlink" title="3.3、实验3"></a><strong>3.3、实验3</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">JAN</span><br><span class="line">SEP</span><br><span class="line">DEC</span><br><span class="line">OCT</span><br></pre></td></tr></table></figure>
+<p>执行<code>LC_ALL=C sort -M a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">JAN</span><br><span class="line">SEP</span><br><span class="line">OCT</span><br><span class="line">DEC</span><br></pre></td></tr></table></figure>
+
+<p><font color='red'>注意：</font><br>执行命令时加上“LC_ALL&#x3D;C”是因为在有些语系环境中，“JAN，SEP，DEC，OCT”并不表示月份，故而<code>JAN&lt;SEP&lt;OCT&lt;DEC</code>也不成立。比如执行<code>LC_ALL=zh_CN.utf8 sort -M a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DEC</span><br><span class="line">JAN</span><br><span class="line">OCT</span><br><span class="line">SEP</span><br></pre></td></tr></table></figure>
+<p>如果将“a.txt”内容改为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">06月</span><br><span class="line">07月</span><br><span class="line">12月</span><br><span class="line">01月</span><br></pre></td></tr></table></figure>
+<p>此时再执行<code>LC_ALL=zh_CN.utf8 sort -M a.txt</code>命令，就能得到如下所示结果，这符合预期。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">01月</span><br><span class="line">06月</span><br><span class="line">07月</span><br><span class="line">12月</span><br></pre></td></tr></table></figure>
+<h3 id="3-4、实验4"><a href="#3-4、实验4" class="headerlink" title="3.4、实验4"></a><strong>3.4、实验4</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1G</span><br><span class="line">1K</span><br><span class="line">1M</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -h a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1K</span><br><span class="line">1M</span><br><span class="line">1G</span><br></pre></td></tr></table></figure>
+<h3 id="3-5、实验5"><a href="#3-5、实验5" class="headerlink" title="3.5、实验5"></a><strong>3.5、实验5</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">100</span><br><span class="line">0000001</span><br><span class="line">000000001000</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -n a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0000001</span><br><span class="line">100</span><br><span class="line">000000001000</span><br></pre></td></tr></table></figure>
+<h3 id="3-6、实验6"><a href="#3-6、实验6" class="headerlink" title="3.6、实验6"></a><strong>3.6、实验6</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -r a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">c</span><br><span class="line">b</span><br><span class="line">a</span><br></pre></td></tr></table></figure>
+<h3 id="3-7、实验7"><a href="#3-7、实验7" class="headerlink" title="3.7、实验7"></a><strong>3.7、实验7</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">b</span><br><span class="line">B</span><br><span class="line">A</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort a.txt</code>命令，得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">A</span><br><span class="line">b</span><br><span class="line">B</span><br></pre></td></tr></table></figure>
+<p>发现此时有“LC_ALL&#x3D;zh_CN.utf8”，由此可知在“zh_CN.utf8”语系环境中，字典序中的大小写字母紧邻而列。<br>再执行<code>LC_ALL=C sort a.txt</code>命令，得到结果如“结果1”所示，由此可知在“C”语系环境中，字典序中的大小写字母非紧邻而列，需要加上“-f”选项，才能达到“使大小写字母紧邻而列”的要求，即执行<code>LC_ALL=C sort -f a.txt</code>命令，执行命令后得到结果如“结果2”所示，这符合预期。</p>
+<p>结果1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A</span><br><span class="line">B</span><br><span class="line">a</span><br><span class="line">b</span><br></pre></td></tr></table></figure>
+
+<p>结果2</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A</span><br><span class="line">a</span><br><span class="line">B</span><br><span class="line">b</span><br></pre></td></tr></table></figure>
+<h3 id="3-8、实验8"><a href="#3-8、实验8" class="headerlink" title="3.8、实验8"></a><strong>3.8、实验8</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2 1 1 1</span><br><span class="line">1 2 3 6</span><br><span class="line">3 2 4 5</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort a.txt</code>命令（以整行记录内容作为比较关键词），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 2 3 6</span><br><span class="line">2 1 1 1</span><br><span class="line">3 2 4 5</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -k 2n a.txt</code>命令（从第2个字段前导分隔符开始到行尾为止内容作为比较关键词），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2 1 1 1</span><br><span class="line">1 2 3 6</span><br><span class="line">3 2 4 5</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -k 2,2n -k 4,4n a.txt</code>命令（第一个比较关键词是“从第2个字段前导分隔符开始到第2个字段末尾字符为止内容”，第二个比较关键词是“从第4个字段前导分隔符开始到第4个字段末尾字符为止内容”），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2 1 1 1</span><br><span class="line">3 2 4 5</span><br><span class="line">1 2 3 6</span><br></pre></td></tr></table></figure>
+<h3 id="3-9、实验9"><a href="#3-9、实验9" class="headerlink" title="3.9、实验9"></a><strong>3.9、实验9</strong></h3><p>有文件“c.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 R2 a</span><br><span class="line">4 R3 b</span><br><span class="line">3 R10 c</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -k 2.2n c.txt</code>命令（从第2个字段第2个字符开始到行尾为止内容作为比较关键词，“第2个字段第2个字符”实际是3行中的“R”字符，前导分隔符作为字段一部分），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 R2 a</span><br><span class="line">3 R10 c</span><br><span class="line">4 R3 b</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -k 2.3n c.txt</code>命令（从第2个字段第3个字符开始到行尾为止内容作为比较关键词，3行中的“第2个字段第3个字符”分别是“2”，“3”和“1”，前导分隔符作为字段一部分），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 R2 a</span><br><span class="line">4 R3 b</span><br><span class="line">3 R10 c</span><br></pre></td></tr></table></figure>
+<p>执行<code>sort -k 2.2b,2n c.txt</code>命令（从第2个字段第2个字符开始到第2个字段末尾字符为止内容作为比较关键词，由于加上“b”选项，不将字段前导分隔符作为字段一部分，故而3行中的“第2个字段第2个字符”分别是“2”，“3”和“1”），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 R2 a</span><br><span class="line">4 R3 b</span><br><span class="line">3 R10 c</span><br></pre></td></tr></table></figure>
+<h3 id="3-10、实验10"><a href="#3-10、实验10" class="headerlink" title="3.10、实验10"></a><strong>3.10、实验10</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1 bat 51</span><br><span class="line">2 animal 62</span><br><span class="line">3 check 75</span><br><span class="line">4 car 84</span><br></pre></td></tr></table></figure>
+<p>执行<code>LC_ALL=C sort -k 2.1b,2.1b -k 3.2b,3.2bn a.txt</code>命令（第一个比较关键词是“第2个字段的第1个字符”，第二个比较关键词是“第3个字段的第2个字符”，前导分隔符不作为字段一部分），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2 animal 62</span><br><span class="line">1 bat 51</span><br><span class="line">4 car 84</span><br><span class="line">3 check 75</span><br></pre></td></tr></table></figure>
+<h3 id="3-11、实验11"><a href="#3-11、实验11" class="headerlink" title="3.11、实验11"></a><strong>3.11、实验11</strong></h3><p>有文件“a.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ab1 2ef</span><br><span class="line">cd0 5hi</span><br><span class="line">ef3 4jk</span><br><span class="line">aa3 1cc</span><br><span class="line">bb0 4dd</span><br></pre></td></tr></table></figure>
+<p>执行<code>LC_ALL=C sort -k 1.3b,2.1bn a.txt</code>命令（从第1个字段第3个字符开始到第2个字段第1个字符为止内容作为比较关键词，即“比较关键词”横跨两个字段，前导分隔符不作为字段一部分），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bb0 4dd</span><br><span class="line">cd0 5hi</span><br><span class="line">ab1 2ef</span><br><span class="line">aa3 1cc</span><br><span class="line">ef3 4jk</span><br></pre></td></tr></table></figure>
+<h3 id="3-12、实验12"><a href="#3-12、实验12" class="headerlink" title="3.12、实验12"></a><strong>3.12、实验12</strong></h3><p>有文件“e.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">126 Mar  8 07:45:09 nod1 /sbin/ccccilio[12712]: INFO: sadasdasdas</span><br><span class="line">  2 Mar  9 08:16:22 nod1 /sbin/zzzzo[12712]: sadsdasdas</span><br><span class="line">  3 JUN  3 10:16:22 nod1 /sbin/hah</span><br><span class="line">  1 Mar  8 17:20:01 nod1 /usr/sbin/cron[1826]: asdasdas</span><br><span class="line">  4 Mar  9 06:24:01 nod1 /USR/SBIN/CRON[27199]: aaaasdsd</span><br><span class="line">  1 Mar  9 06:24:01 nod1 /USR/SBIN/CRON[27201]: aaadas</span><br></pre></td></tr></table></figure>
+<p>执行<code>LC_ALL=C sort -k 2b,2bM -k 3b,3bn -k 4b,4b e.txt</code>命令（第一个比较关键词是“第2个字段，不包括前导分隔符”，第二个比较关键词是“第3个字段，不包括前导分隔符”，第三个比较关键词是“第4个字段，不包括前导分隔符”），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">126 Mar  8 07:45:09 nod1 /sbin/ccccilio[12712]: INFO: sadasdasdas</span><br><span class="line">  1 Mar  8 17:20:01 nod1 /usr/sbin/cron[1826]: asdasdas</span><br><span class="line">  1 Mar  9 06:24:01 nod1 /USR/SBIN/CRON[27201]: aaadas</span><br><span class="line">  4 Mar  9 06:24:01 nod1 /USR/SBIN/CRON[27199]: aaaasdsd</span><br><span class="line">  2 Mar  9 08:16:22 nod1 /sbin/zzzzo[12712]: sadsdasdas</span><br><span class="line">  3 JUN  3 10:16:22 nod1 /sbin/hah</span><br></pre></td></tr></table></figure>
+<p>以上命令的效果是根据时间排序。</p>
+<h3 id="3-13、实验13"><a href="#3-13、实验13" class="headerlink" title="3.13、实验13"></a><strong>3.13、实验13</strong></h3><p>有文件“e.txt”，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Feb 27 2011 23:05 SOMETHING 2011.02.24.avi</span><br><span class="line">Feb 11 2011 20:06 SOMETHING 2011.02.10.avi</span><br><span class="line">Jan 23 2011 10:42 SOMETHING 2007.12.20.avi</span><br><span class="line">Jan 29 2011 09:17 SOMETHING 2011.01.27.avi</span><br><span class="line">Feb 12 2010 SOMETHING 2010.02.11.avi</span><br><span class="line">Jun 26 2009 SOMETHING 2009.06.25.avi</span><br></pre></td></tr></table></figure>
+<p>执行<code>LC_ALL=C sort -k 3b,3bnr -k 1b,1bMr -k 2b,2bnr -k 4b,4br e.txt</code>命令（第一个比较关键词是“第3个字段，不包括前导分隔符”，第二个比较关键词是“第1个字段，不包括前导分隔符”，第三个比较关键词是“第2个字段，不包括前导分隔符”，第四个比较关键词是“第4个字段，不包括前导分隔符”），得到如下所示结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Feb 27 2011 23:05 SOMETHING 2011.02.24.avi</span><br><span class="line">Feb 11 2011 20:06 SOMETHING 2011.02.10.avi</span><br><span class="line">Jan 29 2011 09:17 SOMETHING 2011.01.27.avi</span><br><span class="line">Jan 23 2011 10:42 SOMETHING 2007.12.20.avi</span><br><span class="line">Feb 12 2010 SOMETHING 2010.02.11.avi</span><br><span class="line">Jun 26 2009 SOMETHING 2009.06.25.avi</span><br></pre></td></tr></table></figure>
+<p>以上命令的效果是根据时间逆序排序。</p>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><p>程序实现中使用“LC_COLLATE，LC_ALL，LC_CTYPE”等环境变量，因而最终结果受到“LC_COLLATE，LC_ALL，LC_CTYPE”等环境变量的控制。</p>
+<br/>
+参考文献：
+[1]man sort
+[2]info sort
+[3]http://stackoverflow.com/questions/1255782/whats-the-difference-between-general-numeric-sort-and-numeric-sort-options
+[4]http://stackoverflow.com/questions/12162210/sort-by-just-month-name-and-day-bash
+[5]http://unix.stackexchange.com/questions/8352/sorting-by-date
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/" title="sort命令">https://dslztx.github.io/blog/2016/11/18/sort命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Linux%E5%91%BD%E4%BB%A4/" rel="tag"># Linux命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2016/11/04/%E5%9C%A8%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85fcitx%E7%9A%84Ubuntu%E4%B8%8A%E5%AE%89%E8%A3%85fcitx-googlepinyin%E8%BE%93%E5%85%A5%E6%B3%95/" rel="prev" title="在没有安装fcitx的Ubuntu上安装fcitx-googlepinyin输入法">
+      <i class="fa fa-chevron-left"></i> 在没有安装fcitx的Ubuntu上安装fcitx-googlepinyin输入法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2016/11/18/cut%E5%91%BD%E4%BB%A4/" rel="next" title="cut命令">
+      cut命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2016/11/18/sort%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2016/11/18/sort命令/";
+    this.page.title = "sort命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

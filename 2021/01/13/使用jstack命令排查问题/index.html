@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文的描述基于Linux操作系统。 一、jstack命令结果格式说明为便于叙述，运行“示例代码1”，使用jstack命令打印对应进程的线程栈信息，得到“线程栈信息示例1”。 示例代码1： 123456789101112131415161718192021222324252627282930313233343536373839public class Main &#123;    public st">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用jstack命令排查问题">
+<meta property="og:url" content="https://dslztx.github.io/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文的描述基于Linux操作系统。 一、jstack命令结果格式说明为便于叙述，运行“示例代码1”，使用jstack命令打印对应进程的线程栈信息，得到“线程栈信息示例1”。 示例代码1： 123456789101112131415161718192021222324252627282930313233343536373839public class Main &#123;    public st">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-12T16:46:30.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.164Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用jstack命令排查问题 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用jstack命令排查问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-13 00:46:30" itemprop="dateCreated datePublished" datetime="2021-01-13T00:46:30+08:00">2021-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">语言</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AF%AD%E8%A8%80/Java/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/01/13/使用jstack命令排查问题/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文的描述基于Linux操作系统。</p>
+<h2 id="一、jstack命令结果格式说明"><a href="#一、jstack命令结果格式说明" class="headerlink" title="一、jstack命令结果格式说明"></a><strong>一、jstack命令结果格式说明</strong></h2><p>为便于叙述，运行“示例代码1”，使用jstack命令打印对应进程的线程栈信息，得到“线程栈信息示例1”。</p>
+<p>示例代码1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">objA</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">        <span class="type">Object</span> <span class="variable">objB</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">threadA</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (objA) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">10000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">synchronized</span> (objB) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;threadA&quot;</span>);</span><br><span class="line"></span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">        threadA.start();</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">threadB</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (objB) &#123;</span><br><span class="line">                    <span class="keyword">synchronized</span> (objA) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;world&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;threadB&quot;</span>);</span><br><span class="line">        threadB.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<p>线程栈信息示例1：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line">2021-01-13 21:02:17</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.211-b12 mixed mode):</span><br><span class="line"></span><br><span class="line">&quot;Attach Listener&quot; #12 daemon prio=9 os_prio=0 tid=0x00007f0584001000 nid=0x5112 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;DestroyJavaVM&quot; #11 prio=5 os_prio=0 tid=0x00007f05bc00a800 nid=0x50e1 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;threadB&quot; #10 prio=5 os_prio=0 tid=0x00007f05bc0f0000 nid=0x50f1 waiting for monitor entry [0x00007f05a589d000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at Main$2.run(Main.java:32)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line"></span><br><span class="line">&quot;threadA&quot; #9 prio=5 os_prio=0 tid=0x00007f05bc0ee000 nid=0x50f0 waiting for monitor entry [0x00007f05a599e000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at Main$1.run(Main.java:18)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line"></span><br><span class="line">&quot;Service Thread&quot; #8 daemon prio=9 os_prio=0 tid=0x00007f05bc0d2000 nid=0x50ed runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;C1 CompilerThread2&quot; #7 daemon prio=9 os_prio=0 tid=0x00007f05bc0bd000 nid=0x50ec waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread1&quot; #6 daemon prio=9 os_prio=0 tid=0x00007f05bc0bb000 nid=0x50eb waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread0&quot; #5 daemon prio=9 os_prio=0 tid=0x00007f05bc0b8800 nid=0x50ea waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;Signal Dispatcher&quot; #4 daemon prio=9 os_prio=0 tid=0x00007f05bc0b7000 nid=0x50e9 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;Finalizer&quot; #3 daemon prio=8 os_prio=0 tid=0x00007f05bc084000 nid=0x50e8 in Object.wait() [0x00007f05a6e83000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000786608ed0&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)</span><br><span class="line">	- locked &lt;0x0000000786608ed0&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)</span><br><span class="line">	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:216)</span><br><span class="line"></span><br><span class="line">&quot;Reference Handler&quot; #2 daemon prio=10 os_prio=0 tid=0x00007f05bc081800 nid=0x50e7 in Object.wait() [0x00007f05a6f84000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000786606bf8&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x0000000786606bf8&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)</span><br><span class="line"></span><br><span class="line">&quot;VM Thread&quot; os_prio=0 tid=0x00007f05bc078000 nid=0x50e6 runnable </span><br><span class="line"></span><br><span class="line">&quot;GC task thread#0 (ParallelGC)&quot; os_prio=0 tid=0x00007f05bc01f800 nid=0x50e2 runnable </span><br><span class="line"></span><br><span class="line">&quot;GC task thread#1 (ParallelGC)&quot; os_prio=0 tid=0x00007f05bc021000 nid=0x50e3 runnable </span><br><span class="line"></span><br><span class="line">&quot;GC task thread#2 (ParallelGC)&quot; os_prio=0 tid=0x00007f05bc023000 nid=0x50e4 runnable </span><br><span class="line"></span><br><span class="line">&quot;GC task thread#3 (ParallelGC)&quot; os_prio=0 tid=0x00007f05bc024800 nid=0x50e5 runnable </span><br><span class="line"></span><br><span class="line">&quot;VM Periodic Task Thread&quot; os_prio=0 tid=0x00007f05bc0dd000 nid=0x50ee waiting on condition </span><br><span class="line"></span><br><span class="line">JNI global references: 5</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line">&quot;threadB&quot;:</span><br><span class="line">  waiting to lock monitor 0x00007f058c002418 (object 0x000000078665b048, a java.lang.Object),</span><br><span class="line">  which is held by &quot;threadA&quot;</span><br><span class="line">&quot;threadA&quot;:</span><br><span class="line">  waiting to lock monitor 0x00007f058c0064b8 (object 0x000000078665b058, a java.lang.Object),</span><br><span class="line">  which is held by &quot;threadB&quot;</span><br><span class="line"></span><br><span class="line">Java stack information for the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line">&quot;threadB&quot;:</span><br><span class="line">	at Main$2.run(Main.java:32)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">&quot;threadA&quot;:</span><br><span class="line">	at Main$1.run(Main.java:18)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-1、线程栈信息主体"><a href="#1-1、线程栈信息主体" class="headerlink" title="1.1、线程栈信息主体"></a><strong>1.1、线程栈信息主体</strong></h3><p>主体就是对一个个Java线程打印时状态的信息描述，在“线程栈信息示例1”中就是从<code>&quot;Attach Listener&quot; #12 daemon prio=9 os_prio=0 tid=0x00007f0584001000 nid=0x5112 waiting on condition [0x0000000000000000]</code>到<code>&quot;VM Periodic Task Thread&quot; os_prio=0 tid=0x00007f05bc0dd000 nid=0x50ee waiting on condition</code>的部分。</p>
+<p>在一个Java进程中，线程分为“业务线程”和“VM线程”两种。<br>在“线程栈信息示例1”中，业务线程有：</p>
+<ul>
+<li>threadA</li>
+<li>threadB</li>
+</ul>
+<p>在“线程栈信息示例1”中，VM线程有：</p>
+<ul>
+<li>Attach Listener</li>
+<li>DestroyJavaVM</li>
+<li>Service Thread</li>
+<li>C1 CompilerThread2</li>
+<li>C2 CompilerThread1</li>
+<li>C2 CompilerThread0</li>
+<li>Signal Dispatcher</li>
+<li>Finalizer</li>
+<li>Reference Handler</li>
+<li>VM Thread</li>
+<li>GC task thread#0 (ParallelGC)</li>
+<li>GC task thread#1 (ParallelGC)</li>
+<li>GC task thread#2 (ParallelGC)</li>
+<li>GC task thread#3 (ParallelGC)</li>
+<li>VM Periodic Task Thread</li>
+</ul>
+<h4 id="1-1-1、线程名"><a href="#1-1-1、线程名" class="headerlink" title="1.1.1、线程名"></a><strong>1.1.1、线程名</strong></h4><p>含义：线程名，就是java.lang.Thread类实例的name属性值。<br>重要性：<font color='red'>重要</font>。<br>示例：比如“threadB”，“threadA”，“Finalizer”。</p>
+<h4 id="1-1-2、Thread实例ID"><a href="#1-1-2、Thread实例ID" class="headerlink" title="1.1.2、Thread实例ID"></a><strong>1.1.2、Thread实例ID</strong></h4><p>含义：就是java.lang.Thread类实例的tid属性值。在创建java.lang.Thread实例时自动创建，在线程存活期内不可变，在线程死亡后其tid可被其他线程复用。<br>重要性：不重要。<br>示例：比如“#12”中的“12”。</p>
+<h4 id="1-1-3、是否为后台线程"><a href="#1-1-3、是否为后台线程" class="headerlink" title="1.1.3、是否为后台线程"></a><strong>1.1.3、是否为后台线程</strong></h4><p>含义：表征该线程是否为后台线程，对应java.lang.Thread类实例的daemon属性值。默认为非后台线程，使用“daemon”表征后台线程。<br>重要性：不重要。<br>示例：比如<code>&quot;Service Thread&quot; #8 daemon prio=9 os_prio=0 tid=0x00007f05bc0d2000 nid=0x50ed runnable [0x0000000000000000]</code>中的“daemon”。</p>
+<h4 id="1-1-4、prio"><a href="#1-1-4、prio" class="headerlink" title="1.1.4、prio"></a><strong>1.1.4、prio</strong></h4><p>含义：Java线程的优先级，对应java.lang.Thread类实例的priority属性值。<br>重要性：不重要。<br>示例：比如“prio&#x3D;9”。</p>
+<h4 id="1-1-5、os-prio"><a href="#1-1-5、os-prio" class="headerlink" title="1.1.5、os_prio"></a><strong>1.1.5、os_prio</strong></h4><p>含义：Java线程所映射到Linux原生线程的优先级。<br>重要性：不重要。<br>示例：比如“os_prio&#x3D;0”。</p>
+<h4 id="1-1-6、tid"><a href="#1-1-6、tid" class="headerlink" title="1.1.6、tid"></a><strong>1.1.6、tid</strong></h4><p>含义：java.lang.Thread类实例背后的C++数据结构实例的内存地址。注意不要跟“1.1.2、Thread实例ID”小节中的tid混淆。<br>重要性：不重要。<br>示例：比如“tid&#x3D;0x00007f05bc0d2000”。</p>
+<h4 id="1-1-7、nid"><a href="#1-1-7、nid" class="headerlink" title="1.1.7、nid"></a><strong>1.1.7、nid</strong></h4><p>含义：所映射到Linux原生线程的ID。排查高CPU占用线程问题时经常用到，参见<a href="/2022/10/19/Linux%E4%B8%8B%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8DJava%E8%BF%9B%E7%A8%8B%E5%86%85CPU%E6%B6%88%E8%80%97%E6%9C%80%E5%A4%9A%E7%9A%84Java%E7%BA%BF%E7%A8%8B/" title="Linux下如何定位Java进程内CPU消耗最多的Java线程">《Linux下如何定位Java进程内CPU消耗最多的Java线程》</a>。<br>重要性：<font color='red'>重要</font>。<br>示例：比如“nid&#x3D;0x50ed”。</p>
+<h4 id="1-1-8、基本描述"><a href="#1-1-8、基本描述" class="headerlink" title="1.1.8、基本描述"></a><strong>1.1.8、基本描述</strong></h4><p>含义：线程打印时状态的基本描述。<br>重要性：不重要。<font color='red'>需要注意的是，可能跟详细描述不一致</font>。<br>示例：比如<code>runnable</code>，<code>waiting for monitor entry</code>，<code>waiting on condition</code>和<code>in Object.wait()</code>。</p>
+<h4 id="1-1-9、最后已知栈指针"><a href="#1-1-9、最后已知栈指针" class="headerlink" title="1.1.9、最后已知栈指针"></a><strong>1.1.9、最后已知栈指针</strong></h4><p>含义：最后已知的栈帧指针，具体含义笔者也不是很清楚。<br>重要性：不重要。<br>示例：比如“[0x00007f05a599e000]”。</p>
+<h4 id="1-1-10、详细描述"><a href="#1-1-10、详细描述" class="headerlink" title="1.1.10、详细描述"></a><strong>1.1.10、详细描述</strong></h4><p>含义：线程打印时状态的详细描述。第一行给出了线程的状态，有<code>RUNNABLE</code>，<code>BLOCKED</code>，<code>WAITING</code>和<code>TIMED_WAITING</code>4种可能（完整的线程状态列表可见<a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">《Java并发编程基础》</a>，使用jstack命令打印线程栈信息时并不会包含<code>NEW</code>和<code>TERMINATED</code>状态的线程）；接下来几行打印了执行路径栈。<br>重要性：<font color='red'>重要</font>。<br>示例：如下都是示例。</p>
+<p><strong>1、RUNNABLE</strong><br>处于<code>IO_WAIT</code>情形的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: RUNNABLE</span><br><span class="line">     at java.io.FileInputStream.readBytes(Native Method)</span><br><span class="line">     at java.io.FileInputStream.read(FileInputStream.java:255)</span><br><span class="line">     at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)</span><br><span class="line">     at java.io.BufferedInputStream.read(BufferedInputStream.java:265)</span><br><span class="line">     - locked &lt;0x000000078661b698&gt; (a java.io.BufferedInputStream)</span><br><span class="line">     at Main.main(Main.java:10)</span><br></pre></td></tr></table></figure>
+
+<p>处于<code>RUNNING</code>或者<code>READY</code>情形的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: RUNNABLE</span><br><span class="line">     at Main.main(Main.java:9)</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、BLOCKED</strong><br>已申请获得一个synchronized锁，再尝试申请另外一个synchronized锁：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">     at Main$1.run(Main.java:18)</span><br><span class="line">     - waiting to lock &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">     - locked &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">     at java.lang.Thread.run(Thread.java:748)</span><br></pre></td></tr></table></figure>
+<p>以上示例中，“&lt;0x000000078665b058&gt;”和“&lt;0x000000078665b048&gt;”是synchronized锁对应的Java对象在某个维度的内存地址，可能是Java对象维度的内存地址，也可能是Java对象背后C++数据结构实例的内存地址。对于其明确含义“不求甚解”，不影响问题排查。<font color='red'>接下来简称该内存地址为<code>synchronized锁锁标记</code></font>。</p>
+<p><strong>3、WAITING</strong><br>调用Object类的<code>wait()</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">     at java.lang.Object.wait(Native Method)</span><br><span class="line">     - waiting on &lt;0x000000078665adc8&gt; (a java.lang.Object)</span><br><span class="line">     at java.lang.Object.wait(Object.java:502)</span><br><span class="line">     at Main.main(Main.java:11)</span><br><span class="line">     - locked &lt;0x000000078665adc8&gt; (a java.lang.Object)</span><br></pre></td></tr></table></figure>
+
+<p>调用LockSupport类的<code>park()</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: WAITING (parking)</span><br><span class="line">     at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">     at java.util.concurrent.locks.LockSupport.park(LockSupport.java:304)</span><br><span class="line">     at Main.main(Main.java:7)</span><br></pre></td></tr></table></figure>
+
+<p>调用LockSupport类的<code>park(Object blocker)</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: WAITING (parking)</span><br><span class="line">     at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">     - parking to wait for  &lt;0x000000078665ad88&gt; (a java.lang.Object)</span><br><span class="line">     at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)</span><br><span class="line">     at Main.main(Main.java:7)</span><br></pre></td></tr></table></figure>
+
+<p><strong>备注</strong>：</p>
+<ul>
+<li>在以上最后一个例子中，“&lt;0x000000078665ad88&gt;”是传入blocker这个Java对象在某个维度的内存地址，可能是Java对象维度的内存地址，也可能是Java对象背后C++数据结构实例的内存地址。对于其明确含义“不求甚解”，不影响问题排查。<font color='red'>接下来简称该内存地址为<code>Park锁锁标记</code></font></li>
+<li>在<a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">《Java并发编程基础》</a>中我们知道，LockSupport类的方法<code>park()</code>和相应的重载方法<code>park(Object blocker)</code>核心语义一致，他们的差别也仅在于：在jstack命令打印结果中，包含后者的执行路径栈与包含前者的执行路径栈相比，额外多了一句形如<code>- parking to wait for  &lt;0x000000078665ad88&gt; (a java.lang.Object)</code>的描述</li>
+<li>需要对调用LockSupport类<code>park(Object blocker)</code>方法时的形如<code>- parking to wait for  &lt;0x000000078665ad88&gt; (a java.lang.Object)</code>描述与申请synchronized锁时的形如<code>- waiting to lock &lt;0x00000007ab3f31b8&gt; (a java.lang.Object)</code>描述作区分：后者中的<code>0x00000007ab3f31b8</code>指代一个synchronized锁对象，线程因申请该synchronized锁对象不得而挂起，因此描述具有具体明确的语法语义；前者中的<code>0x000000078665ad88</code>指代传入的blocker对象，该blocker对象与线程挂起不一定有关系，因此描述不具有具体明确的语法语义，只是起到打印上下文信息的日志作用</li>
+</ul>
+<p><strong>4、TIMED_WAITING</strong><br>调用Thread类<code>sleep(long millis)</code>&#x2F;<code>sleep(long millis, int nanos)</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: TIMED_WAITING (sleeping)</span><br><span class="line">     at java.lang.Thread.sleep(Native Method)</span><br><span class="line">     at Main.main(Main.java:8)</span><br></pre></td></tr></table></figure>
+
+<p>调用Object类<code>wait(long timeout)</code>&#x2F;<code>wait(long timeout, int nanos)</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: TIMED_WAITING (on object monitor)</span><br><span class="line">     at java.lang.Object.wait(Native Method)</span><br><span class="line">     - waiting on &lt;0x000000078665ad70&gt; (a java.lang.Object)</span><br><span class="line">     at Main.main(Main.java:6)</span><br><span class="line">     - locked &lt;0x000000078665ad70&gt; (a java.lang.Object)</span><br></pre></td></tr></table></figure>
+
+<p>调用LockSupport类<code>parkNanos(long nanos)</code>&#x2F;<code>parkUntil(long deadline)</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: TIMED_WAITING (parking)</span><br><span class="line">     at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">     at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:338)</span><br><span class="line">     at Main.main(Main.java:5)</span><br></pre></td></tr></table></figure>
+
+<p>调用LockSupport类<code>parkNanos(Object blocker, long nanos)</code>&#x2F;<code>parkUntil(Object blocker, long deadline)</code>方法的线程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: TIMED_WAITING (parking)</span><br><span class="line">     at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">     - parking to wait for  &lt;0x000000078665ad28&gt; (a java.lang.Object)</span><br><span class="line">     at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)</span><br><span class="line">     at Main.main(Main.java:6)</span><br></pre></td></tr></table></figure>
+
+<p><strong>备注</strong>：</p>
+<ul>
+<li>对以上最后一个例子中形如<code>- parking to wait for  &lt;0x000000078665ad28&gt; (a java.lang.Object)</code>描述的说明参见上一小节的备注</li>
+</ul>
+<h3 id="1-2、线程栈信息其他"><a href="#1-2、线程栈信息其他" class="headerlink" title="1.2、线程栈信息其他"></a><strong>1.2、线程栈信息其他</strong></h3><h4 id="1-2-1、头部"><a href="#1-2-1、头部" class="headerlink" title="1.2.1、头部"></a><strong>1.2.1、头部</strong></h4><p>比如“线程栈信息示例1”中的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2021-01-12 21:50:42</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.211-b12 mixed mode):</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-2、尾部"><a href="#1-2-2、尾部" class="headerlink" title="1.2.2、尾部"></a><strong>1.2.2、尾部</strong></h4><p>比如“线程栈信息示例1”中的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">JNI global references: 5</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line">&quot;threadB&quot;:</span><br><span class="line">  waiting to lock monitor 0x00007f058c002418 (object 0x000000078665b048, a java.lang.Object),</span><br><span class="line">  which is held by &quot;threadA&quot;</span><br><span class="line">&quot;threadA&quot;:</span><br><span class="line">  waiting to lock monitor 0x00007f058c0064b8 (object 0x000000078665b058, a java.lang.Object),</span><br><span class="line">  which is held by &quot;threadB&quot;</span><br><span class="line"></span><br><span class="line">Java stack information for the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line">&quot;threadB&quot;:</span><br><span class="line">	at Main$2.run(Main.java:32)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">&quot;threadA&quot;:</span><br><span class="line">	at Main$1.run(Main.java:18)</span><br><span class="line">	- waiting to lock &lt;0x000000078665b058&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x000000078665b048&gt; (a java.lang.Object)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，上述描述“发现死锁”的部分内容（从<code>Found one Java-level deadlock:</code>开始到<code>Found 1 deadlock.</code>为止）只在探测到存在该种简单死锁情形时才会出现。</p>
+<h2 id="二、排查问题"><a href="#二、排查问题" class="headerlink" title="二、排查问题"></a><strong>二、排查问题</strong></h2><p>排查Java线程相关问题围绕“jstack命令打印的线程栈信息文件”进行，其是一切的源头，相较最为权威。分析上述线程栈信息文件，可使用辅助工具（比如下面会谈及的“XSheepdog”，“TDA开源工具”等）但也须对“辅助工具本身可能存在各种问题，甚至造成困扰，不可过度依赖”保持清醒。</p>
+<h3 id="2-1、排查Java线程运行卡滞问题"><a href="#2-1、排查Java线程运行卡滞问题" class="headerlink" title="2.1、排查Java线程运行卡滞问题"></a><strong>2.1、排查Java线程运行卡滞问题</strong></h3><p>Java线程运行卡滞的含义是：大部分时间处于<code>WAITING</code>、<code>TIMED_WAITING</code>、<code>BLOCKED</code>状态，或者是<code>RUNNABLE</code>状态的<code>IO_WAIT</code>情形。</p>
+<p>卡滞问题其实并不好排查，最好排查的卡滞情形是：一个Java线程T0申请获取到synchronized锁S0，其他大量Java线程Tx尝试申请S0不得而进入BLOCKED状态，T0长时间非正常持有，导致Tx出现卡滞现象。<br>排查上述卡滞情形问题的路径是：聚合分析jstack命令的打印结果，定位被最多线程等待获取的synchronized锁，并找出持有该synchronized锁的线程。尝试了几种方案，对方案的评价如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线上方案，比如“XSheepdog”[3]</td>
+<td>存在数据安全风险</td>
+</tr>
+<tr>
+<td>TDA开源工具[4]</td>
+<td>能够快速方便定位被最多线程等待的synchronized锁（在“Monitors”页面中会标红被怀疑的synchronized锁），紧接着也能快速方便找到持有该synchronized锁的线程。<br/>不过对于该工具，笔者感觉有两个小瑕疵：1）“State”列采用了“基本描述”字段值，而没有采用来自“详细描述”字段中第一行的精确的线程状态值；2）将形如<code>- parking to wait for  &lt;0x000000078665ad88&gt; (a java.lang.Object)</code>描述中的<code>Park锁锁标记</code>与<code>synchronized锁锁标记</code>混淆</td>
+</tr>
+<tr>
+<td>个人脚本</td>
+<td>1、对jstack命令打印结果文件“jstack.out”执行<code>grep -E &quot;waiting to lock&quot; jstack.out | awk -F&quot;&lt;&quot; &#39;&#123;print $(2)&#125;&#39; | awk -F&quot;&gt;&quot; &#39;&#123;print $(1)&#125;&#39; | sort | uniq -c</code>命令找到疑似synchronized锁锁标记<br/>2、然后再在“jstack.out”文件中搜索<code>locked &lt;步骤1中获取到的疑似synchronized锁锁标记&gt;</code>找到持有相应synchronized锁的线程。<font color='red'>特别需要注意的是</font>：以<code>locked &lt;步骤1中获取到的疑似synchronized锁锁标记&gt;</code>方式去搜索持有疑似synchronized锁的线程需要排除调用Object.wait或者Thread.join（本质通过调用Object.wait实现）方法的情形[6]</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://dzone.com/articles/how-to-read-a-thread-dump">https://dzone.com/articles/how-to-read-a-thread-dump</a><br>[2]<a target="_blank" rel="noopener" href="https://gist.github.com/rednaxelafx/843622">https://gist.github.com/rednaxelafx/843622</a><br>[3]<a target="_blank" rel="noopener" href="https://www.perfma.com/docs/thread/thread-guide">https://www.perfma.com/docs/thread/thread-guide</a><br>[4]<a target="_blank" rel="noopener" href="https://github.com/irockel/tda">https://github.com/irockel/tda</a><br>[5]<a target="_blank" rel="noopener" href="https://dzone.com/articles/how-analyze-java-thread-dumps">https://dzone.com/articles/how-analyze-java-thread-dumps</a><br>[6]<a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">《Java并发编程基础》</a>中“6.6、调用Object.wait或者Thread.join方法挂起查看所打印jstack命令结果的一个注意点”小节</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/" title="使用jstack命令排查问题">https://dslztx.github.io/blog/2021/01/13/使用jstack命令排查问题/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/10/12/Ubuntu%E4%B8%8B%E5%AE%89%E8%A3%85%E5%92%8C%E5%8D%B8%E8%BD%BD%E8%BD%AF%E4%BB%B6%E7%9A%843%E7%A7%8D%E6%96%B9%E5%BC%8F/" rel="prev" title="Ubuntu下安装和卸载软件的3种方式">
+      <i class="fa fa-chevron-left"></i> Ubuntu下安装和卸载软件的3种方式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/02/01/%E6%9E%B6%E6%9E%84%E7%BB%AA%E8%AE%BA/" rel="next" title="架构绪论">
+      架构绪论 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2021/01/13/%E4%BD%BF%E7%94%A8jstack%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5%E9%97%AE%E9%A2%98/";
+    this.page.identifier = "2021/01/13/使用jstack命令排查问题/";
+    this.page.title = "使用jstack命令排查问题";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

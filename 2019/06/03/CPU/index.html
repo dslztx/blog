@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、CPU基本概念CPU（Central Processing Unit）：中央处理器，简称“处理器”，是一块超大规模的集成电路，是一台计算机的控制和运算中心。 二、CPU架构基本概念：  CPU：处理器 CPU Core：处理器核心 CU（Control Unit）：控制单元 FPU（Floating Point Unit）：浮点运算单元 ALU（Arithmetic Logic Unit）：算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU">
+<meta property="og:url" content="https://dslztx.github.io/blog/2019/06/03/CPU/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、CPU基本概念CPU（Central Processing Unit）：中央处理器，简称“处理器”，是一块超大规模的集成电路，是一台计算机的控制和运算中心。 二、CPU架构基本概念：  CPU：处理器 CPU Core：处理器核心 CU（Control Unit）：控制单元 FPU（Floating Point Unit）：浮点运算单元 ALU（Arithmetic Logic Unit）：算">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-06-03T02:20:34.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.188Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2019/06/03/CPU/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CPU | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2019/06/03/CPU/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CPU
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-03 10:20:34" itemprop="dateCreated datePublished" datetime="2019-06-03T10:20:34+08:00">2019-06-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">计算机组成原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2019/06/03/CPU/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/03/CPU/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、CPU基本概念"><a href="#一、CPU基本概念" class="headerlink" title="一、CPU基本概念"></a><strong>一、CPU基本概念</strong></h2><p>CPU（Central Processing Unit）：中央处理器，简称“处理器”，是一块超大规模的集成电路，是一台计算机的控制和运算中心。</p>
+<h2 id="二、CPU架构"><a href="#二、CPU架构" class="headerlink" title="二、CPU架构"></a><strong>二、CPU架构</strong></h2><p>基本概念：</p>
+<ul>
+<li>CPU：处理器</li>
+<li>CPU Core：处理器核心</li>
+<li>CU（Control Unit）：控制单元</li>
+<li>FPU（Floating Point Unit）：浮点运算单元</li>
+<li>ALU（Arithmetic Logic Unit）：算术逻辑单元</li>
+<li>Register：寄存器</li>
+<li>CPU Cache：高速缓存，包括L1 Cache，L2 Cache和L3 Cache</li>
+<li>SMT（Simultaneous multithreading）：同步多线程技术</li>
+<li>HT（Hyper-Threading）：超线程技术，Intel的SMT落地方案</li>
+</ul>
+<p>CPU架构跟制作厂商、具体系列、具体型号等因素有关：</p>
+<ul>
+<li>AMD CPU架构跟Intel CPU架构一般不同</li>
+<li>Intel的较老CPU架构是“单CPU，单CPU Core”；较现代CPU架构是“多CPU，多CPU Core”</li>
+<li>较老的CPU不含有FPU，而是通过“ALU+软件”实现浮点运算</li>
+<li>较老CPU架构中是“多CPU Core共享所在CPU的L2 Cache”；较现代CPU架构中是“多CPU Core共享所在CPU的L3 Cache”</li>
+</ul>
+<h3 id="2-1、最经典的CPU架构"><a href="#2-1、最经典的CPU架构" class="headerlink" title="2.1、最经典的CPU架构"></a><strong>2.1、最经典的CPU架构</strong></h3><p>CPU上只有一个CPU Core，该CPU（CPU Core）有：</p>
+<ul>
+<li>一个CU</li>
+<li>一个ALU  </li>
+<li>一个FPU</li>
+<li>一整套Register</li>
+<li>L1、L2、L3 Cache</li>
+</ul>
+<h3 id="2-2、现代CPU架构"><a href="#2-2、现代CPU架构" class="headerlink" title="2.2、现代CPU架构"></a><strong>2.2、现代CPU架构</strong></h3><p>首先介绍并行和并发概念，基于线程（当然也可基于CPU指令，线程所执行程序最终会被编译&#x2F;解释成CPU指令，两者完全等价）进行叙述：</p>
+<ul>
+<li>并行：线程A和B逻辑和物理上都同时执行，一般认为调度在不同CPU或者CPU Core上的两个线程逻辑和物理上同时执行，但是须知，并没有纯粹意义上的物理同时执行，比如“不同CPU共享总线等资源”，“同一CPU上不同CPU Core共享所在CPU的CU、L3 Cache、总线等资源”</li>
+<li>并发：线程A和B逻辑上同时执行，物理上可同时执行，也可轮流执行（常见的是CPU时间分片方案）</li>
+</ul>
+<p>后续如无特别说明，基于并发进行说明。</p>
+<p>为提升CPU架构并发性，现代CPU架构演进方向为“多CPU，单CPU上多CPU Core，CPU Core引入SMT技术”，代价是须引入复杂的硬件设计应对随之而来的调度问题，故需要综合权衡考量。<br>理论上，当其他条件相近时，共享物理资源越少，并发能力越强，故对于以下3种方案，并发能力排序为：<code>多CPU &gt; 多CPU Core &gt; CPU Core引入SMT技术</code>：</p>
+<ul>
+<li>多CPU：共享物理资源最少，有“总线”等</li>
+<li>多CPU Core：共享物理资源次少，有“CU”，“L3 Cache”，“总线”等</li>
+<li>CPU Core引入SMT技术：共享物理资源最多，几乎可以认为是全部，有“CU”，“ALU”，“FPU”，“一整套Register”，“L1、L2、L3 Cache”，“总线”等</li>
+</ul>
+<h4 id="2-2-1、多CPU和多CPU-Core"><a href="#2-2-1、多CPU和多CPU-Core" class="headerlink" title="2.2.1、多CPU和多CPU Core"></a><strong>2.2.1、多CPU和多CPU Core</strong></h4><p>有M（M&gt;1）个CPU，单CPU上有N个（N&gt;1）CPU Core。</p>
+<p>CPU Core有：</p>
+<ul>
+<li>一个ALU  </li>
+<li>一个FPU</li>
+<li>一整套Register</li>
+<li>L1、L2 Cache</li>
+</ul>
+<p>CPU有：</p>
+<ul>
+<li>N个CPU Core</li>
+<li>一个CU（被其上的N个CPU Core共享。<font color='red'>准确来说，此时的CU是一个层次结构，CPU Core中是子CU，CPU中是主CU</font>）</li>
+<li>L3 Cache（被其上的N个CPU Core共享）</li>
+</ul>
+<h4 id="2-2-2、同步多线程技术"><a href="#2-2-2、同步多线程技术" class="headerlink" title="2.2.2、同步多线程技术"></a><strong>2.2.2、同步多线程技术</strong></h4><p>同步多线程技术：英文名为“Simultaneous multithreading”，简称“SMT”，其具体描述如下：</p>
+<blockquote>
+<blockquote>
+<p>一个线程A，分配到CPU Core C0的时间分片，在该时间分片的某个时钟周期，C0正在执行A所执行程序对应指令序列中的指令I0，此时C0内物理资源很大可能未被充分利用（比如“正在使用ALU，未使用FPU”，“正在使用CU，未使用ALU”），为充分榨干C0硬件性能，设计引入特殊硬件机制，使得在该时间分片内可同时加载P个线程所执行程序的指令序列，即相当于虚拟出了P个逻辑CPU Core，称之为P路SMT（Intel的实现方案称为“Hyper-Threading”，简称“HT”，默认都是2路SMT）。</p>
+</blockquote>
+</blockquote>
+<p>以上提及的“特殊硬件机制”，存在多种方案：</p>
+<ul>
+<li>ILP（Instruction-Level Parallelism）技术。如果两条指令既不互相依赖，又支持同时执行，那么可并行执行，在一个CPU时间分片内，同时加载P个线程所执行程序的指令序列，最大程度并行执行可同时执行的指令对，相当于虚拟出了P个逻辑CPU Core</li>
+<li>Intel使用自己的硬件方案（具体的硬件方案描述，笔者不甚清晰），默认是将一个CPU Core虚拟成2个逻辑CPU Core，即2路SMT</li>
+</ul>
+<p><strong>[备注]</strong> 相较于“P个CPU”和“P个CPU Core”，P路SMT中的P最名不符实，因为其共享最多物理资源，因竞争资源而导致其余P-1个线程等待的概率最大。</p>
+<h2 id="三、CPU核心参数"><a href="#三、CPU核心参数" class="headerlink" title="三、CPU核心参数"></a><strong>三、CPU核心参数</strong></h2><p>在“二、CPU架构”中，我们知道，现代CPU架构下存在“物理CPU -&gt; 物理CPU Core -&gt; 逻辑CPU Core”3个CPU相关概念层次，相应的，<code>CPU</code>的含义也得到了泛化，可能指代“处理器这个广义的概念客体”或者“物理CPU”或者“物理CPU Core”或者“逻辑CPU Core”。</p>
+<p>故理清概念如下，后续如无特别说明，基于此进行叙述。</p>
+<ul>
+<li>物理CPU</li>
+<li>物理CPU Core</li>
+<li>逻辑CPU Core</li>
+</ul>
+<p>另外特别值得说明的是，对应于“物理CPU -&gt; 物理CPU Core -&gt; 逻辑CPU Core”层级关系，存在CPU参数层级关系，具体是：</p>
+<ol>
+<li>某层的CPU参数，或者来自于继承，或者只属于本层，比如“逻辑CPU Core的逻辑编号只属于本层”，“逻辑CPU Core的主频继承自所在物理CPU Core”，“逻辑CPU Core的L1和L2 Cache继承自所在物理CPU Core，L3 Cache继承自所在物理CPU”</li>
+<li>有时候难以明确逻辑CPU Core的某个参数是继承自所在物理CPU Core还是所在物理CPU，因为这跟具体的CPU架构有关</li>
+</ol>
+<h3 id="3-1、CPU相关数量"><a href="#3-1、CPU相关数量" class="headerlink" title="3.1、CPU相关数量"></a><strong>3.1、CPU相关数量</strong></h3><p>CPU相关数量有：</p>
+<ul>
+<li>物理CPU数量</li>
+<li>物理CPU Core数量 &#x3D; ∑ 物理CPU<sub>i</sub>上物理CPU Core数量</li>
+<li>逻辑CPU Core数量 &#x3D; ∑ 物理CPU<sub>i</sub>上逻辑CPU Core数量</li>
+<li>CPU数量，一般说CPU数量指的就是逻辑CPU Core数量</li>
+</ul>
+<p><strong>1、一个例子</strong><br>一个示例CPU架构描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>物理CPU编号</th>
+<th>物理CPU上物理CPU Core数量</th>
+<th>是否开启SMT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU<sub>1</sub></td>
+<td>2</td>
+<td>是，开启2-SMT</td>
+</tr>
+<tr>
+<td>CPU<sub>2</sub></td>
+<td>4</td>
+<td>否</td>
+</tr>
+<tr>
+<td>CPU<sub>3</sub></td>
+<td>2</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<p>物理CPU数量 &#x3D; 3<br>物理CPU Core数量 &#x3D; 2 + 4 + 2<br>逻辑CPU Core数量 &#x3D; 2 * 2 + 4 + 2</p>
+<p><strong>[备注]</strong> 一般情况下，在一个“多物理CPU，物理CPU上多物理CPU Core”的CPU架构中，物理CPU上的物理CPU Core数量全局一致，是否开启SMT也是全局一致。</p>
+<h3 id="3-2、主频"><a href="#3-2、主频" class="headerlink" title="3.2、主频"></a><strong>3.2、主频</strong></h3><p>主频是指CPU运算时的工作频率，其倒数指的是时钟周期。通常CPU完成一条指令的执行需要多个操作——“取指、译码、执行”。每个操作可能需要若干个时钟周期。故指令完成执行的时间 &#x3D; <code>时钟周期个数 * 时钟周期</code>，而时钟周期是工作频率的倒数，那么在其他条件相同的情况下有：工作频率越高，指令完成执行的时间越少。</p>
+<p>须注意的是：评价CPU不能仅看主频维度参数，还需关注其他维度的参数，比如“核心数”，“工艺”，“CPU高速缓存”，“指令版本”等。比如“两代CPU（CPU A和CPU B），其他条件都相同，CPU A的主频是CPU B的两倍，但是CPU A的指令平均时钟周期个数是CPU B的3倍，那么总的来说，CPU A的平均指令时间是CPU B的1.5倍”。</p>
+<p>主频可分为两类——额定主频和工作实际主频：</p>
+<ul>
+<li>从额定主频视角，一般情况下，所有CPU的额定主频一致，除非有特殊需求</li>
+<li>从工作实际主频的视角，不同CPU的工作实际主频可以不同</li>
+</ul>
+<h4 id="3-2-1、额定主频"><a href="#3-2-1、额定主频" class="headerlink" title="3.2.1、额定主频"></a><strong>3.2.1、额定主频</strong></h4><h5 id="3-2-1-1、额定主频与外频的关系"><a href="#3-2-1-1、额定主频与外频的关系" class="headerlink" title="3.2.1.1、额定主频与外频的关系"></a><strong>3.2.1.1、额定主频与外频的关系</strong></h5><p>外频是CPU与主板之间同步工作的频率，一般作为整个计算机的基准频率（BCLK基频）。计算机系统中其他部件的频率都是在外频的基础上，乘以一定的倍数（通过倍频器硬件）来实现，这个倍数可以是大于1（升频）的，也可以是小于1（降频）的。比如“PCI设备的额定频率是33MHz，当外频是100MHz时，倍数就是1&#x2F;3”。</p>
+<p>CPU的额定主频与外频的倍数有个专有称呼，即“倍频”，故有<code>额定主频 = 外频 * 倍频</code>。</p>
+<h5 id="3-2-1-2、超频"><a href="#3-2-1-2、超频" class="headerlink" title="3.2.1.2、超频"></a><strong>3.2.1.2、超频</strong></h5><p>超频就是通过BIOS或者控制软件设置提升CPU额定主频，以获得更好的运算性能，代价是更大的散热和一定的不稳定风险。超频是该特殊升频的专有称呼。<br><font color='red'>超频的操作粒度是物理CPU Core。</font></p>
+<p>根据<code>额定主频 = 外频 * 倍频</code>可知，超频的实现途径有两种：</p>
+<ol>
+<li>倍频不变，提升外频。但是外频作为基准频率，一旦改变，整个计算机运转就存在巨大的不稳定风险，故一般不选取这种途径</li>
+<li>外频不变，倍频提升。一般选取这种方案。但有些CPU厂商会锁住倍频选项，此时就不能超频</li>
+</ol>
+<h4 id="3-2-2、工作实际主频"><a href="#3-2-2、工作实际主频" class="headerlink" title="3.2.2、工作实际主频"></a><strong>3.2.2、工作实际主频</strong></h4><p>一般情况下，工作实际主频跟额定主频一致，但现在很多CPU厂商提供动态调节主频的功能，使得工作实际主频跟额定主频不一致。</p>
+<p><strong>1、动态升频</strong><br>以Intel CPU为例进行说明，Intel较为现代的CPU提供睿频加速技术，使得CPU的主频可以在某一范围内根据处理数据需要动态上调处理器电压和内核频率，以达成更高运算性能目的。</p>
+<p><strong>2、动态降频</strong><br>以Intel CPU为例进行说明，Intel较为现代的CPU提供SpeedStep®动态节能技术，它允许系统动态下调处理器电压和内核频率，以达到降低产热和节能目的。</p>
+<h3 id="3-3、高速缓存"><a href="#3-3、高速缓存" class="headerlink" title="3.3、高速缓存"></a><strong>3.3、高速缓存</strong></h3><p>现代CPU中有三级高速缓存：L1 Cache，L2 Cache和L3 Cache。</p>
+<h3 id="3-4、字长"><a href="#3-4、字长" class="headerlink" title="3.4、字长"></a><strong>3.4、字长</strong></h3><p>现在常见的都是64位。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://chinalhr.github.io/post/os-heart-multicpu/">https://chinalhr.github.io/post/os-heart-multicpu/</a><br>[2]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/352676442">https://zhuanlan.zhihu.com/p/352676442</a><br>[3]<a target="_blank" rel="noopener" href="https://www.intel.cn/content/www/cn/zh/gaming/resources/how-to-overclock.html">https://www.intel.cn/content/www/cn/zh/gaming/resources/how-to-overclock.html</a><br>[4]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/52112475">https://zhuanlan.zhihu.com/p/52112475</a><br>[5]<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30582175">https://zhuanlan.zhihu.com/p/30582175</a><br>[6]<a target="_blank" rel="noopener" href="https://superuser.com/questions/1222372/why-do-we-have-cpus-with-all-the-cores-at-the-same-speeds-and-not-combinations-o">https://superuser.com/questions/1222372/why-do-we-have-cpus-with-all-the-cores-at-the-same-speeds-and-not-combinations-o</a><br>[7]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/2619745/mutli-core-processors-does-each-core-run-at-the-full-clock-speed-or-some-frac">https://stackoverflow.com/questions/2619745/mutli-core-processors-does-each-core-run-at-the-full-clock-speed-or-some-frac</a><br>[8]<a target="_blank" rel="noopener" href="https://www.quora.com/Is-it-normal-for-CPU-cores-to-have-different-speeds">https://www.quora.com/Is-it-normal-for-CPU-cores-to-have-different-speeds</a><br>[9]<a target="_blank" rel="noopener" href="https://blog.csdn.net/yhb1206/article/details/120363093">https://blog.csdn.net/yhb1206/article/details/120363093</a><br>[10]<a target="_blank" rel="noopener" href="https://juejin.cn/post/7023987432680849438">https://juejin.cn/post/7023987432680849438</a><br>[11]<a target="_blank" rel="noopener" href="https://www.intel.cn/content/www/cn/zh/gaming/resources/hyper-threading.html">https://www.intel.cn/content/www/cn/zh/gaming/resources/hyper-threading.html</a><br>[12]<a target="_blank" rel="noopener" href="https://www.tomshardware.com/how-to/how-to-overclock-a-cpu">https://www.tomshardware.com/how-to/how-to-overclock-a-cpu</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2019/06/03/CPU/" title="CPU">https://dslztx.github.io/blog/2019/06/03/CPU/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/02/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" rel="prev" title="计算机组成原理">
+      <i class="fa fa-chevron-left"></i> 计算机组成原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/04/%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AE%BE%E5%A4%87/" rel="next" title="输入输出设备">
+      输入输出设备 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2019/06/03/CPU/";
+    this.page.identifier = "2019/06/03/CPU/";
+    this.page.title = "CPU";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、OpenSSH中SFTP协议实现相关程序OpenSSH中SFTP协议实现的相关程序有：sftp和sftp-server[2]。sftp程序实现SFTP协议中的SFTP-Client，sftp-server实现SFTP协议中的SFTP-Server。 备注：  sftp程序路径为：&#x2F;usr&#x2F;bin&#x2F;sftp sftp-server程序路径为：&#x2F;usr&#x2F;lib&#x2F;openssh&#x2F;sftp-serve">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenSSH中SFTP协议实现相关程序">
+<meta property="og:url" content="https://dslztx.github.io/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、OpenSSH中SFTP协议实现相关程序OpenSSH中SFTP协议实现的相关程序有：sftp和sftp-server[2]。sftp程序实现SFTP协议中的SFTP-Client，sftp-server实现SFTP协议中的SFTP-Server。 备注：  sftp程序路径为：&#x2F;usr&#x2F;bin&#x2F;sftp sftp-server程序路径为：&#x2F;usr&#x2F;lib&#x2F;openssh&#x2F;sftp-serve">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20150823-0-1.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20150823-0-2.jpeg">
+<meta property="article:published_time" content="2015-08-23T13:42:25.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.232Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20150823-0-1.png">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OpenSSH中SFTP协议实现相关程序 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenSSH中SFTP协议实现相关程序
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-23 21:42:25" itemprop="dateCreated datePublished" datetime="2015-08-23T21:42:25+08:00">2015-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/08/23/OpenSSH中SFTP协议实现相关程序/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、OpenSSH中SFTP协议实现相关程序"><a href="#一、OpenSSH中SFTP协议实现相关程序" class="headerlink" title="一、OpenSSH中SFTP协议实现相关程序"></a><strong>一、OpenSSH中SFTP协议实现相关程序</strong></h2><p>OpenSSH中SFTP协议实现的相关程序有：sftp和sftp-server[2]。<br>sftp程序实现SFTP协议中的SFTP-Client，sftp-server实现SFTP协议中的SFTP-Server。</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>sftp程序路径为：<code>/usr/bin/sftp</code></li>
+<li>sftp-server程序路径为：<code>/usr/lib/openssh/sftp-server</code></li>
+</ul>
+<h2 id="二、工作原理"><a href="#二、工作原理" class="headerlink" title="二、工作原理"></a><strong>二、工作原理</strong></h2><p><strong>1、sftp-server是被触发运行</strong><br>sftp-server跟常见的Server不太一样，不是“持续运行，监听端口”的，而是被触发运行的（比如MySQL Server“持续运行，监听3306端口”）。具体是由SSH Server（在OpenSSH中是sshd程序）触发的。<br>其实可以在sshd程序使用的sshd_config文件中配置需要触发运行的“SFTP协议中SFTP-Server的具体实现程序”，默认配置的就是sftp-server这个实现程序，可以改成使用internal-sftp。[3]<br>当sshd程序刚开始运行的时候并不需要加载sftp-server这个程序，只有在向sshd程序发送sftp请求的时候才会去加载运行sftp-server程序，这个论述可以通过以下实验证明：<br>0. 直接加载运行sshd程序，不会产生sftp-server进程，然后向sshd发送sftp请求，发现产生了sftp-server进程<br>0. 如果首先将“&#x2F;usr&#x2F;lib&#x2F;openssh&#x2F;sftp-server”移除，然后重新加载运行sshd程序，发现不会产生任何错误，能够正常工作，也没有产生sftp-server进程，然后向sshd发送sftp请求，发现会出现如图1错误</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20150823-0-1.png"></p>
+<p><strong>2、安全数据通道</strong><br>在sftp和sftp-server的程序实现中，安全的数据通道由SSH连接提供。<br><strong>3、整个SFTP连接示意图</strong><br>整个过程的示意图如图2所示。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20150823-0-2.jpeg"></p>
+<h2 id="三、用法介绍"><a href="#三、用法介绍" class="headerlink" title="三、用法介绍"></a><strong>三、用法介绍</strong></h2><h3 id="3-1、sftp-server程序"><a href="#3-1、sftp-server程序" class="headerlink" title="3.1、sftp-server程序"></a><strong>3.1、sftp-server程序</strong></h3><p>由sshd负责调用，一般不需要特殊配置。</p>
+<h3 id="3-2、sftp程序"><a href="#3-2、sftp程序" class="headerlink" title="3.2、sftp程序"></a><strong>3.2、sftp程序</strong></h3><p>我们主要来介绍sftp程序的使用用法。<br>sftp是一个具有交互运行模式的命令，主要工作都可在交互运行模式中进行。</p>
+<h4 id="3-2-1、进入交互运行模式"><a href="#3-2-1、进入交互运行模式" class="headerlink" title="3.2.1、进入交互运行模式"></a><strong>3.2.1、进入交互运行模式</strong></h4><p>进入交互运行模式：<code>sftp -i identify_file -P port user@remoteHost</code>。<br><strong>-i</strong>：选项值被直接传递给底层调用的ssh程序，作为ssh程序中“-i”选项的值<br><strong>-P</strong>：选项值被直接传递给底层调用的ssh程序，作为ssh程序中“-p”选项的值<br><strong>user</strong>：选项值被直接传递给底层调用的ssh程序，作为ssh程序中“-l”选项的值<br><strong>remoteHost</strong>：被直接传递给底层调用的ssh程序，等价于ssh程序中“hostname”</p>
+<p>以上这些选项都可在ssh_config文件中配置，以“~&#x2F;.ssh&#x2F;config”文件为例，其中增加如下配置内容后，命令可简化为：<code>sftp RemoteHostAlias</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Host RemoteHostAlias #指定配置匹配条件    </span><br><span class="line">    HostName remoteHost  </span><br><span class="line">    User user  </span><br><span class="line">    Port port  </span><br><span class="line">    IdentityFile identify_file   </span><br></pre></td></tr></table></figure>
+
+<p>另外还有两个比较有用的选项：</p>
+<ul>
+<li><strong>-D sftp-server-path</strong>：表示不是由sshd进程打开sftp-server，而是直接根据sftp-server-path路径打开sftp-server。这样子得到的sftp-server进程的父进程是执行命令的bash进程；如果是由sshd进程打开sftp-server，那么得到的sftp-server进程的父进程是sshd进程</li>
+<li><strong>-v</strong>：表示打印日志信息，这有助于我们进行调试，解决遇到的问题。“-v”选项越多，表示打印的日志信息越详细</li>
+</ul>
+<h4 id="3-2-2、交互模式中的命令"><a href="#3-2-2、交互模式中的命令" class="headerlink" title="3.2.2、交互模式中的命令"></a><strong>3.2.2、交互模式中的命令</strong></h4><p>进入交互模式中，可以运行一些文件管理命令，这些文件管理命令由sftp进程进行解析运行。sftp交互模式中的这些文件管理命令跟通常的文件管理命令“名称相近，用法相似”。<br>这些文件管理命令可以分为3个类别：<br><strong>1、针对远端主机来说</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cd</span><br><span class="line">chgrp grp path[grp是数字形式]</span><br><span class="line">chmod mode path</span><br><span class="line">chown own path[own是数字形式]</span><br><span class="line">ln</span><br><span class="line">ls</span><br><span class="line">mkdir</span><br><span class="line">pwd</span><br><span class="line">rename</span><br><span class="line">rm</span><br><span class="line">rmdir</span><br></pre></td></tr></table></figure>
+<p><strong>2、针对本地机器来说</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lcd</span><br><span class="line">lls(支持的选项跟通常的ls命令一样)</span><br><span class="line">lmkdir</span><br><span class="line">lpwd</span><br></pre></td></tr></table></figure>
+<p><strong>3、其他</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">get -r：从远端主机复制文件到本地，加了r选项表示允许递归复制目录，不会解析遇到的软符号链接</span><br><span class="line">progress：切换是否显示进度条</span><br><span class="line">put -r：从本地复制文件到远端主机，加了r选项表示允许递归复制目录，不会解析遇到的软符号链接</span><br><span class="line">exit：退出</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]man sftp<br>[2]man 8 sftp-server<br>[3]man 5 sshd_config</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/" title="OpenSSH中SFTP协议实现相关程序">https://dslztx.github.io/blog/2015/08/23/OpenSSH中SFTP协议实现相关程序/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2015/07/05/man%E6%9C%BA%E5%88%B6/" rel="prev" title="man机制">
+      <i class="fa fa-chevron-left"></i> man机制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/" rel="next" title="Linux下，使用云盘同步Google Chrome书签">
+      Linux下，使用云盘同步Google Chrome书签 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2015/08/23/OpenSSH%E4%B8%ADSFTP%E5%8D%8F%E8%AE%AE%E5%AE%9E%E7%8E%B0%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F/";
+    this.page.identifier = "2015/08/23/OpenSSH中SFTP协议实现相关程序/";
+    this.page.title = "OpenSSH中SFTP协议实现相关程序";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

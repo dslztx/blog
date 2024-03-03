@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、常用用法1luit -encoding &#x27;编码方案&#x27; program [args] 二、含义与选项2.1、含义由《终端模拟器中执行命令出现乱码问题解决》可知，在终端模拟器中执行命令，通信过程示意图如图1或者图2所示。 图1  图2  执行命令时，使用终端模拟器配置的编码方案，对原命令字符串进行编码，将得到的字节流传递给“命令执行单元” ；展现命令执行结果时，获取字节流形式的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="luit命令">
+<meta property="og:url" content="https://dslztx.github.io/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、常用用法1luit -encoding &#x27;编码方案&#x27; program [args] 二、含义与选项2.1、含义由《终端模拟器中执行命令出现乱码问题解决》可知，在终端模拟器中执行命令，通信过程示意图如图1或者图2所示。 图1  图2  执行命令时，使用终端模拟器配置的编码方案，对原命令字符串进行编码，将得到的字节流传递给“命令执行单元” ；展现命令执行结果时，获取字节流形式的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-1.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-2.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-3.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-4.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-5.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160611-0-6.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-7.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160611-0-8.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160611-0-9.png">
+<meta property="og:image" content="https://blog.dslztx.top/imgs/20160611-0-10.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160611-0-11.png">
+<meta property="og:image" content="http://107.182.16.103/imgs/20160611-0-12.png">
+<meta property="article:published_time" content="2016-06-10T22:16:13.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.228Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.dslztx.top/imgs/20160611-0-1.png">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>luit命令 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          luit命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-06-11 06:16:13" itemprop="dateCreated datePublished" datetime="2016-06-11T06:16:13+08:00">2016-06-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">计算机操作系统</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/06/11/luit命令/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">luit -encoding &#x27;编码方案&#x27; program [args]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>由<a href="/2016/06/07/%E7%BB%88%E7%AB%AF%E6%A8%A1%E6%8B%9F%E5%99%A8%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E5%87%BA%E7%8E%B0%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" title="终端模拟器中执行命令出现乱码问题解决">《终端模拟器中执行命令出现乱码问题解决》</a>可知，在终端模拟器中执行命令，通信过程示意图如图1或者图2所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20160611-0-1.png"></p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20160611-0-2.png"></p>
+<p>执行命令时，使用终端模拟器配置的编码方案，对原命令字符串进行编码，将得到的字节流传递给“命令执行单元” ；展现命令执行结果时，获取字节流形式的命令执行结果，使用终端模拟器配置的编码方案，对其进行解码，得到字符串形式的命令执行结果。</p>
+<p>通过使用<code>luit -encoding &#39;编码方案&#39; program [args]</code>命令，现在在终端模拟器中执行命令，通信过程示意图如图3或者图4所示。</p>
+<p>图3</p>
+<p><img src="https://blog.dslztx.top/imgs/20160611-0-3.png"></p>
+<p>图4</p>
+<p><img src="https://blog.dslztx.top/imgs/20160611-0-4.png"></p>
+<p>此时执行命令时，使用终端模拟器配置的编码方案，对原命令字符串进行编码，得到字节流，再使用“UTF-8”编码方案进行解码得到字符流，最后使用“luit”命令中指定的编码方案（比如‘luit -encoding GBK program [args]’中的‘GBK’）进行编码，将得到的字节流传递给“命令执行单元” ；展现命令执行结果时，获取字节流形式的命令执行结果，使用“luit”命令中指定的编码方案进行解码得到字符流，再使用“UTF-8”编码方案进行编码得到字节流，最后对得到的字节流使用终端模拟器配置的编码方案进行解码，得到字符串形式的命令执行结果。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-encoding 编码方案”：指定与“UTF-8”编码方案互转的编码方案，即从“UTF-8”编码方案转换到“该编码方案”或者从“该编码方案”转换到“UTF-8”编码方案<br>“program [args]”：执行命令</p>
+<h2 id="三、实验"><a href="#三、实验" class="headerlink" title="三、实验"></a><strong>三、实验</strong></h2><h3 id="3-1、实验1"><a href="#3-1、实验1" class="headerlink" title="3.1、实验1"></a><strong>3.1、实验1</strong></h3><p>现有一个名为“你好吗.txt”的文件，相应于该文件名的存储内容存储的是使用“GBK”编码方案编码得到的字节流。<br>设置locale系列环境变量配置值为“zh_CN.gbk”，终端模拟器编码方案为“UTF-8”，分别执行<code>ls</code>和<code>luit -encoding gbk ls</code>命令，得到如表1所示结果。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>locale系列环境变量配置值</th>
+<th>终端模拟器（实验了Gnome Terminal）编码方案</th>
+<th>ls命令执行结果截图</th>
+<th><code>luit -encoding gbk ls</code>命令执行结果截图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>zh_CN.gbk</td>
+<td>UTF-8</td>
+<td><img src="https://blog.dslztx.top/imgs/20160611-0-5.png" alt="这里写图片描述"></td>
+<td><img src="http://107.182.16.103/imgs/20160611-0-6.png" alt="这里写图片描述"></td>
+</tr>
+</tbody></table>
+<h3 id="3-2、实验2"><a href="#3-2、实验2" class="headerlink" title="3.2、实验2"></a><strong>3.2、实验2</strong></h3><p>现有一个名为“a.txt”的文件，存储有内容“你好吗？”，使用的编码格式为“UTF-8”。<br>设置locale系列环境变量配置值为“zh_CN.gbk”，终端模拟器编码方案为“UTF-8”，分别执行<code>vim a.txt</code>和<code>luit -encoding gbk vim a.txt（在VIM环境中，需要执行&#39;:e ++enc=utf8&#39;）</code>命令，得到如表2所示结果。</p>
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>locale系列环境变量配置值</th>
+<th>终端模拟器（实验了Gnome Terminal）编码方案</th>
+<th>“vim a.txt”命令执行结果截图</th>
+<th>VIM环境中执行“:e ++enc&#x3D;utf8”结果截图</th>
+<th>“luit -encoding gbk vim a.txt”命令&amp;&amp;“:e ++enc&#x3D;utf8”结果截图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>zh_CN.gbk</td>
+<td>UTF-8</td>
+<td><img src="https://blog.dslztx.top/imgs/20160611-0-7.png" alt="这里写图片描述"></td>
+<td><img src="http://107.182.16.103/imgs/20160611-0-8.png" alt="这里写图片描述"></td>
+<td><img src="http://107.182.16.103/imgs/20160611-0-9.png" alt="这里写图片描述"></td>
+</tr>
+</tbody></table>
+<h3 id="3-3、实验3"><a href="#3-3、实验3" class="headerlink" title="3.3、实验3"></a><strong>3.3、实验3</strong></h3><p>现有一个名为“a.txt”的文件，存储有内容“你好吗？”，使用的编码格式为“GBK”。<br>设置locale系列环境变量配置值为“zh_CN.gbk”，终端模拟器编码方案为“UTF-8”，分别执行<code>vim a.txt</code>和<code>luit -encoding gbk vim a.txt</code>命令，得到如表3所示结果。</p>
+<p>表3</p>
+<table>
+<thead>
+<tr>
+<th>locale系列环境变量配置值</th>
+<th>终端模拟器（实验了Gnome Terminal）编码方案</th>
+<th>“vim a.txt”命令执行结果截图</th>
+<th>VIM环境中执行“:e ++enc&#x3D;gbk”结果截图</th>
+<th>“luit -encoding gbk vim a.txt”命令结果截图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>zh_CN.gbk</td>
+<td>UTF-8</td>
+<td><img src="https://blog.dslztx.top/imgs/20160611-0-10.png" alt="这里写图片描述"></td>
+<td><img src="http://107.182.16.103/imgs/20160611-0-11.png" alt="这里写图片描述"></td>
+<td><img src="http://107.182.16.103/imgs/20160611-0-12.png" alt="这里写图片描述"></td>
+</tr>
+</tbody></table>
+<h2 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a><strong>四、其他</strong></h2><h3 id="4-1、常见应用形式"><a href="#4-1、常见应用形式" class="headerlink" title="4.1、常见应用形式"></a><strong>4.1、常见应用形式</strong></h3><p>“luit命令”较常见的一个应用形式是结合“ssh命令”使用，比如<code>luit -encoding gbk ssh myhost</code>。</p>
+<h3 id="4-2、用到的脚本"><a href="#4-2、用到的脚本" class="headerlink" title="4.2、用到的脚本"></a><strong>4.2、用到的脚本</strong></h3><p>脚本1：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash </span><br><span class="line"></span><br><span class="line">cd /home/dsl/tmp/shell</span><br><span class="line"></span><br><span class="line">export LC_ALL=$1</span><br><span class="line">export LANG=$1</span><br><span class="line">export LANGUAGE=$1</span><br><span class="line"></span><br><span class="line">locale</span><br><span class="line"></span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line"></span><br><span class="line">luit -encoding gbk ls</span><br></pre></td></tr></table></figure>
+
+<p>脚本2：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash </span><br><span class="line"></span><br><span class="line">cd /home/dsl/tmp/shell</span><br><span class="line"></span><br><span class="line">export LC_ALL=$1</span><br><span class="line">export LANG=$1</span><br><span class="line">export LANGUAGE=$1</span><br><span class="line"></span><br><span class="line">locale</span><br><span class="line"></span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line">echo &quot;---------&quot;</span><br><span class="line"></span><br><span class="line">luit -encoding gbk vim a.txt</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]man luit</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/" title="luit命令">https://dslztx.github.io/blog/2016/06/11/luit命令/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2016/06/07/%E7%BB%88%E7%AB%AF%E6%A8%A1%E6%8B%9F%E5%99%A8%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E5%87%BA%E7%8E%B0%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" rel="prev" title="终端模拟器中执行命令出现乱码问题解决">
+      <i class="fa fa-chevron-left"></i> 终端模拟器中执行命令出现乱码问题解决
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2016/06/25/%E4%BD%BF%E7%94%A8Github-Pages%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" rel="next" title="使用Github Pages搭建个人博客">
+      使用Github Pages搭建个人博客 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2016/06/11/luit%E5%91%BD%E4%BB%A4/";
+    this.page.identifier = "2016/06/11/luit命令/";
+    this.page.title = "luit命令";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

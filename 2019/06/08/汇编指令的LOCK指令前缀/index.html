@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍汇编指令的LOCK指令前缀，需要注意的是，LOCK指令前缀只是见于常见的汇编指令体系，而并不是存在于所有的汇编指令体系中，即有些汇编指令体系中用等价的设计来获得LOCK指令前缀提供的功能。而且，在具有LOCK指令前缀的汇编指令体系中，并不是所有的汇编指令都能被LOCK指令前缀修饰，不同汇编指令体系下允许被LOCK指令前缀修饰的汇编指令集不尽相同。 LOCK指令前缀功能如下：  被修饰的汇编">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编指令的LOCK指令前缀">
+<meta property="og:url" content="https://dslztx.github.io/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本文介绍汇编指令的LOCK指令前缀，需要注意的是，LOCK指令前缀只是见于常见的汇编指令体系，而并不是存在于所有的汇编指令体系中，即有些汇编指令体系中用等价的设计来获得LOCK指令前缀提供的功能。而且，在具有LOCK指令前缀的汇编指令体系中，并不是所有的汇编指令都能被LOCK指令前缀修饰，不同汇编指令体系下允许被LOCK指令前缀修饰的汇编指令集不尽相同。 LOCK指令前缀功能如下：  被修饰的汇编">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-06-08T12:41:26.000Z">
+<meta property="article:modified_time" content="2024-03-03T13:00:38.152Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>汇编指令的LOCK指令前缀 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          汇编指令的LOCK指令前缀
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-08 20:41:26" itemprop="dateCreated datePublished" datetime="2019-06-08T20:41:26+08:00">2019-06-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-03 21:00:38" itemprop="dateModified" datetime="2024-03-03T21:00:38+08:00">2024-03-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">计算机组成原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/08/汇编指令的LOCK指令前缀/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文介绍汇编指令的<code>LOCK指令前缀</code>，需要注意的是，<code>LOCK指令前缀</code>只是见于常见的汇编指令体系，而并不是存在于所有的汇编指令体系中，即有些汇编指令体系中用等价的设计来获得<code>LOCK指令前缀</code>提供的功能。而且，在具有<code>LOCK指令前缀</code>的汇编指令体系中，并不是所有的汇编指令都能被<code>LOCK指令前缀</code>修饰，不同汇编指令体系下允许被<code>LOCK指令前缀</code>修饰的汇编指令集不尽相同。</p>
+<p><code>LOCK指令前缀</code>功能如下：</p>
+<ul>
+<li>被修饰的汇编指令成为“原子的”</li>
+<li>与被修饰的汇编指令一起提供内存屏障效果</li>
+</ul>
+<br/>
+
+<p><font color='red'>本文接下来以X86指令体系为上下文语境</font>，在X86指令体系中，具有<code>LOCK指令前缀</code>，其内允许使用<code>LOCK指令前缀</code>修饰的汇编指令有：</p>
+<blockquote>
+<p>ADD,ADC,AND,BTC,BTR,BTS,CMPXCHG,CMPXCH8B,DEC,INC,NEG,NOT,OR,SBB,SUB,XOR,XADD以及XCHG等</p>
+</blockquote>
+<p>需要注意的是，“XCHG”和“XADD”汇编指令本身是原子指令，但也允许使用<code>LOCK指令前缀</code>进行修饰。</p>
+<h2 id="一、被修饰的汇编指令成为“原子的”"><a href="#一、被修饰的汇编指令成为“原子的”" class="headerlink" title="一、被修饰的汇编指令成为“原子的”"></a><strong>一、被修饰的汇编指令成为“原子的”</strong></h2><p>原子操作的本质描述是：当且仅当操作物理或者逻辑不可中断（不可中断：操作所涉内存不可被读取和修改）时，该操作才是原子的。</p>
+<br/>
+
+<p>原子汇编指令分为两类：</p>
+<ul>
+<li>本身是原子指令，比如“XCHG”和“XADD”汇编指令</li>
+<li>本身不是原子指令，但是被<code>LOCK指令前缀</code>修饰后成为原子指令，比如<code>LOCK CMPXCHG</code></li>
+</ul>
+<p>汇编指令被<code>LOCK指令前缀</code>修饰后会成为“原子的”，因为<code>LOCK指令前缀</code>会带来如下效果：</p>
+<ol>
+<li>被修饰的汇编指令A在执行期间，会在内存总线上声言一个<code>#LOCK</code>信号，该信号导致内存被锁住，此时内存不能再被其他汇编指令存取，直到A执行完成。经过分析可知，A的执行效果与“暂停执行其他所有汇编指令直到A执行完成”等价，因此此时A是原子的</li>
+<li>上一个方案锁住内存，期间内存不能被存取，代价非常大，因此，现在一般是采用“缓存锁定”的方案，避免降低内存的存取速度，具体是：<code>在汇编指令A（被LOCK指令前缀修饰的汇编指令）执行期间锁住所涉及到的Cache Line，此时其他CPU核不能存取其内缓存中对应的Cache Line</code>。需要注意的是，有些情形不能使用“缓存锁定”，而只能使用“内存总线锁定”，比如“所涉及操作数据跨越多个Cache Line”，“CPU不支持缓存锁定”等</li>
+</ol>
+<h2 id="二、与被修饰的汇编指令一起提供内存屏障效果"><a href="#二、与被修饰的汇编指令一起提供内存屏障效果" class="headerlink" title="二、与被修饰的汇编指令一起提供内存屏障效果"></a><strong>二、与被修饰的汇编指令一起提供内存屏障效果</strong></h2><p>内存屏障的作用（内存屏障可具有下述作用，但不一定需要具备下述所有作用）：</p>
+<ul>
+<li>禁止重排序</li>
+<li>刷新缓存到内存</li>
+<li>使缓存失效</li>
+</ul>
+<br/>
+
+<p>内存屏障分为两类：</p>
+<ul>
+<li>本身是内存屏障，比如“lfence”，“sfence”和“mfence”汇编指令</li>
+<li>本身不是内存屏障，但是被<code>LOCK指令前缀</code>修饰，其组合成为一个内存屏障。在X86指令体系中，其中一类内存屏障常使用“<code>LOCK指令前缀</code>加上一个空操作”方式实现，比如<code>lock addl $0x0,(%esp)</code></li>
+</ul>
+<p>汇编指令被LOCK指令前缀修饰后，一起提供内存屏障效果，因为LOCK指令前缀带来如下效果：</p>
+<ul>
+<li>将所有写缓冲区中的数据刷新到内存，并将所有涉及到的Cache Line状态置为无效，使得下次只能从内存读取</li>
+<li>禁止指令重排序，即“B之前的语句集A禁止被重排序到B之后，B之后的语句集C禁止被重排序到B之前，执行顺序必为<code>A，B，C</code>”，<font color='red'>需要注意的是</font>，上述叙述中的语句集A和C内部是可能存在重排序的</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_30055391/article/details/84892936">https://blog.csdn.net/qq_30055391/article/details/84892936</a><br>[2]<a target="_blank" rel="noopener" href="https://blog.csdn.net/muxiqingyang/article/details/6615199">https://blog.csdn.net/muxiqingyang/article/details/6615199</a><br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_26222859/article/details/52235930">https://blog.csdn.net/qq_26222859/article/details/52235930</a><br>[4]<a target="_blank" rel="noopener" href="https://blog.csdn.net/zacklin/article/details/7445442">https://blog.csdn.net/zacklin/article/details/7445442</a><br>[5]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/29880015/lock-prefix-vs-mesi-protocol">https://stackoverflow.com/questions/29880015/lock-prefix-vs-mesi-protocol</a><br>[6]<a target="_blank" rel="noopener" href="https://www.infoq.cn/article/cache-coherency-primer">https://www.infoq.cn/article/cache-coherency-primer</a><br>[7]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C">https://zh.wikipedia.org/wiki/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C</a><br>[8]<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/8891067/what-does-the-lock-instruction-mean-in-x86-assembly">https://stackoverflow.com/questions/8891067/what-does-the-lock-instruction-mean-in-x86-assembly</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/" title="汇编指令的LOCK指令前缀">https://dslztx.github.io/blog/2019/06/08/汇编指令的LOCK指令前缀/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/07/%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98/" rel="prev" title="高速缓存">
+      <i class="fa fa-chevron-left"></i> 高速缓存
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/09/%E9%AB%98%E7%BA%A7%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" rel="next" title="高速缓存一致性">
+      高速缓存一致性 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2019/06/08/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%9A%84LOCK%E6%8C%87%E4%BB%A4%E5%89%8D%E7%BC%80/";
+    this.page.identifier = "2019/06/08/汇编指令的LOCK指令前缀/";
+    this.page.title = "汇编指令的LOCK指令前缀";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
