@@ -2637,9 +2637,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#x6d;">&#103;&#x69;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#x62;&#46;&#x63;&#111;&#x6d;">&#103;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#x62;&#46;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#x69;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;">&#x67;&#x69;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#x69;&#116;&#64;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#x2e;&#99;&#x6f;&#109;">&#x67;&#x69;&#116;&#64;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#x2e;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#x75;&#x62;&#x2e;&#x63;&#111;&#109;">&#103;&#105;&#116;&#x40;&#103;&#x69;&#x74;&#104;&#x75;&#x62;&#x2e;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#x75;&#98;&#x2e;&#99;&#x6f;&#x6d;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#x75;&#98;&#x2e;&#99;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -2896,35 +2896,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Hexo内支持“internal links”的语法</title>
-    <url>/blog/2016/06/26/Hexo%E5%86%85%E6%94%AF%E6%8C%81%E2%80%9Cinternal-links%E2%80%9D%E7%9A%84%E8%AF%AD%E6%B3%95/</url>
-    <content><![CDATA[<h2 id="一、问题背景"><a href="#一、问题背景" class="headerlink" title="一、问题背景"></a><strong>一、问题背景</strong></h2><p>站点内文章引用相同站点内其他资源时如果采用站点域名地址形式的话，下次迁移站点域名时，会造成很大成本。<br>为了应对以上情形，有两种思路：</p>
-<ol>
-<li>购买一个域名，长期持有，使得不必要迁移域名</li>
-<li>引用相同站点内其他资源时采用站点内地址形式</li>
-</ol>
-<p>接下来讨论第二种思路的实现。</p>
-<h2 id="二、引用相同站点内其他资源时采用站点内地址形式"><a href="#二、引用相同站点内其他资源时采用站点内地址形式" class="headerlink" title="二、引用相同站点内其他资源时采用站点内地址形式"></a><strong>二、引用相同站点内其他资源时采用站点内地址形式</strong></h2><p>使用Markdown语言语法引用站点内其他资源有两种形式：1）站点域名地址；2）站点内地址。<br>不过，经过Hexo转换引擎转换后，最终得到的站点内资源会被置于一定层次结构目录下，该种情形下使用Markdown语言语法的“站点内地址”形式，会比较繁琐。<br>经过Hexo转换引擎转换后，最终站点内资源的存放路径例子如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2016/06/25/使用Github Pages搭建个人博客/index.html</span><br></pre></td></tr></table></figure>
-
-<p>因此，使用Hexo转换引擎原生支持的“Hexo自带语法”才是最完美的解决方案，幸运的是，自3.0版本开始，Hexo提供满足上述要求的语法。具体语法定义如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% post_path hello-world %&#125;</span><br><span class="line">// /2015/01/16/hello-world/</span><br><span class="line">&#123;% post_link hello-world %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/&quot;&gt;Hello World&lt;/a&gt;</span><br><span class="line">&#123;% post_link hello-world Custom Title %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/&quot;&gt;Custom Title&lt;/a&gt;</span><br><span class="line"></span><br><span class="line">&#123;% asset_path example.jpg %&#125;</span><br><span class="line">// /2015/01/16/hello-world/example.jpg</span><br><span class="line">&#123;% asset_link example.jpg %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;example.jpg&lt;/a&gt;</span><br><span class="line">&#123;% asset_link example.jpg Example %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;Example&lt;/a&gt;</span><br><span class="line">&#123;% asset_img example.jpg %&#125;</span><br><span class="line">// &lt;img src=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;</span><br></pre></td></tr></table></figure>
-
-<br/>
-参考文献：
-[1]https://github.com/hexojs/hexo/wiki/Breaking-Changes-in-Hexo-3.0
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
-        <category>搭建个人博客</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>语法</tag>
-        <tag>Internal Links</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>HashMap和ConcurrentHashMap</title>
     <url>/blog/2021/11/30/HashMap%E5%92%8CConcurrentHashMap/</url>
     <content><![CDATA[<p>本文介绍JDK 1.8下的HashMap和ConcurrentHashMap实现。</p>
@@ -3153,6 +3124,483 @@
         <category>语言</category>
         <category>Java</category>
         <category>容器</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Hexo内支持“internal links”的语法</title>
+    <url>/blog/2016/06/26/Hexo%E5%86%85%E6%94%AF%E6%8C%81%E2%80%9Cinternal-links%E2%80%9D%E7%9A%84%E8%AF%AD%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="一、问题背景"><a href="#一、问题背景" class="headerlink" title="一、问题背景"></a><strong>一、问题背景</strong></h2><p>站点内文章引用相同站点内其他资源时如果采用站点域名地址形式的话，下次迁移站点域名时，会造成很大成本。<br>为了应对以上情形，有两种思路：</p>
+<ol>
+<li>购买一个域名，长期持有，使得不必要迁移域名</li>
+<li>引用相同站点内其他资源时采用站点内地址形式</li>
+</ol>
+<p>接下来讨论第二种思路的实现。</p>
+<h2 id="二、引用相同站点内其他资源时采用站点内地址形式"><a href="#二、引用相同站点内其他资源时采用站点内地址形式" class="headerlink" title="二、引用相同站点内其他资源时采用站点内地址形式"></a><strong>二、引用相同站点内其他资源时采用站点内地址形式</strong></h2><p>使用Markdown语言语法引用站点内其他资源有两种形式：1）站点域名地址；2）站点内地址。<br>不过，经过Hexo转换引擎转换后，最终得到的站点内资源会被置于一定层次结构目录下，该种情形下使用Markdown语言语法的“站点内地址”形式，会比较繁琐。<br>经过Hexo转换引擎转换后，最终站点内资源的存放路径例子如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2016/06/25/使用Github Pages搭建个人博客/index.html</span><br></pre></td></tr></table></figure>
+
+<p>因此，使用Hexo转换引擎原生支持的“Hexo自带语法”才是最完美的解决方案，幸运的是，自3.0版本开始，Hexo提供满足上述要求的语法。具体语法定义如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% post_path hello-world %&#125;</span><br><span class="line">// /2015/01/16/hello-world/</span><br><span class="line">&#123;% post_link hello-world %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/&quot;&gt;Hello World&lt;/a&gt;</span><br><span class="line">&#123;% post_link hello-world Custom Title %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/&quot;&gt;Custom Title&lt;/a&gt;</span><br><span class="line"></span><br><span class="line">&#123;% asset_path example.jpg %&#125;</span><br><span class="line">// /2015/01/16/hello-world/example.jpg</span><br><span class="line">&#123;% asset_link example.jpg %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;example.jpg&lt;/a&gt;</span><br><span class="line">&#123;% asset_link example.jpg Example %&#125;</span><br><span class="line">// &lt;a href=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;Example&lt;/a&gt;</span><br><span class="line">&#123;% asset_img example.jpg %&#125;</span><br><span class="line">// &lt;img src=&quot;/2015/01/16/hello-world/example.jpg&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]https://github.com/hexojs/hexo/wiki/Breaking-Changes-in-Hexo-3.0
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
+        <category>搭建个人博客</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>语法</tag>
+        <tag>Internal Links</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IPv4报文</title>
+    <url>/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/</url>
+    <content><![CDATA[<style>
+#cssTable td 
+{
+    text-align: center; 
+    vertical-align: middle;
+}
+</style>
+
+<p>IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：</p>
+<ol>
+<li>首部：由“固定首部”和“可选首部”两部分组成，长度范围为<code>[20字节,60字节]</code><ul>
+<li>固定首部：从<code>版本</code>字段到<code>目的地址</code>字段为止，长度为定长<code>20字节</code></li>
+<li>可选首部：在<code>目的地址</code>字段和<code>数据</code>字段之间，长度范围为<code>[0字节,40字节]</code>，且为4字节倍数</li>
+</ul>
+</li>
+<li>数据：IPv4报文数据，长度范围为<code>[0字节,65535字节-20字节=65515字节]</code></li>
+</ol>
+<br/>
+
+<p>下表是上述3部分的示意。</p>
+<table id="cssTable">
+<tbody>
+<tr><td width=10%>固定首部</td><td width=20% style="background-color:darkgray">可选首部</td><td width=70%>数据</td></tr>
+</tbody>
+</table>
+
+<br/>
+
+<p>下表是固定首部的示意。</p>
+<table id="cssTable">
+<tbody>
+<tr><td colspan=4  width=12.5%>版本（4 bits）</td><td colspan=4 width=12.5%><font color='red'>首部长度（4 bits）</font></td><td  colspan=8 width=25%>区分服务（8 bits）</td><td  colspan=16><font color='red'>总长度（16 bits）</font></td></tr>
+<tr><td colspan=16 width=50%>标识（16 bits）</td><td  colspan=3 width=9.4%>标志（3 bits）</td><td colspan=13 width=40.6%>片偏移（13 bits）</td></tr>
+<tr><td colspan=8 width=25%>生存时间（8 bits）</td><td colspan=8 width=25%><font color='red'>协议（8 bits）</font></td><td colspan=16  width=50% >首部检验和（16 bits）</td></tr>
+<tr><td  colspan=32 width=100%><font color='red'>源地址（32 bits）</font></td></tr>
+<tr><td  colspan=32 width=100%><font color='red'>目的地址（32 bits）</font></td></tr>
+</tbody>
+</table>
+
+<br/>
+
+<h2 id="一、固定首部"><a href="#一、固定首部" class="headerlink" title="一、固定首部"></a><strong>一、固定首部</strong></h2><h3 id="1-1、版本"><a href="#1-1、版本" class="headerlink" title="1.1、版本"></a><strong>1.1、版本</strong></h3><p>英文名：<code>Version</code>。</p>
+<p>长度：4 bits。</p>
+<p>含义：指明IP协议版本号，IPv4版本的话其值为<code>0100</code>。</p>
+<h3 id="1-2、首部长度"><a href="#1-2、首部长度" class="headerlink" title="1.2、首部长度"></a><strong>1.2、首部长度</strong></h3><p>英文名：<code>Header Length</code>。</p>
+<p>长度：4 bits。</p>
+<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部。</p>
+<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services (DS)</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：分为“6 bits的区分服务代码点（Differentiated Services Codepoint，DSCP）”和“2 bits的显式拥塞通知（Explicit Congestion Notification，ECN）”两部分：1）前者可用来标识该IPv4报文数据的服务类型，在支持该字段的网路设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务；2）后者用来扩展拥塞控制机制。</p>
+<p>扩展说明：</p>
+<ul>
+<li>之前该字段被设计作为“服务类型（Type of Service，TOS）”，<font color='red'>已废弃，被DS替代</font></li>
+<li>网络设备是否支持该字段、对该字段的支持程度、对该字段支持的具体落地方案等由生产厂商自决定</li>
+</ul>
+<h4 id="1-3-1、DSCP"><a href="#1-3-1、DSCP" class="headerlink" title="1.3.1、DSCP"></a><strong>1.3.1、DSCP</strong></h4><p>用于区分不同服务。</p>
+<p><strong>备注：</strong>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰。[3]</p>
+<h5 id="1-3-1-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1.1、支持DSCP字段的路由器的应对行为分类</strong></h5><p>支持DSCP字段的路由器的应对行为分为4类：</p>
+<ol>
+<li>Expedited Forwarding PHB (EF PHB)：迅速转发PHB</li>
+<li>Assured Forwarding PHB (AF PHB)：确保转发PHB</li>
+<li>Default Forwarding PHB (DF PHB)：默认转发PHB</li>
+<li>Class Selector PHBs：该分类主要是为了兼容TOS</li>
+</ol>
+<h5 id="1-3-1-2、Service-Class"><a href="#1-3-1-2、Service-Class" class="headerlink" title="1.3.1.2、Service Class"></a><strong>1.3.1.2、Service Class</strong></h5><p>见<code>RFC 4594</code>。</p>
+<h5 id="1-3-1-3、DSCP说明"><a href="#1-3-1-3、DSCP说明" class="headerlink" title="1.3.1.3、DSCP说明"></a><strong>1.3.1.3、DSCP说明</strong></h5><table>
+<thead>
+<tr>
+<th>DSCP二进制</th>
+<th>DSCP十进制</th>
+<th>PHB</th>
+<th>细分</th>
+<th>Service Class</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>001,010</td>
+<td>10</td>
+<td>AF</td>
+<td>AF1 + 低丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>001,100</td>
+<td>12</td>
+<td>AF</td>
+<td>AF1 + 中丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>001,110</td>
+<td>14</td>
+<td>AF</td>
+<td>AF1 + 高丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>010,010</td>
+<td>18</td>
+<td>AF</td>
+<td>AF2 + 低丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>010,100</td>
+<td>20</td>
+<td>AF</td>
+<td>AF2 + 中丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>010,110</td>
+<td>22</td>
+<td>AF</td>
+<td>AF2 + 高丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>011,010</td>
+<td>26</td>
+<td>AF</td>
+<td>AF3 + 低丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>011,100</td>
+<td>28</td>
+<td>AF</td>
+<td>AF3 + 中丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>011,110</td>
+<td>30</td>
+<td>AF</td>
+<td>AF3 + 高丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>100,010</td>
+<td>34</td>
+<td>AF</td>
+<td>AF4 + 低丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>100,100</td>
+<td>36</td>
+<td>AF</td>
+<td>AF4 + 中丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>100,110</td>
+<td>38</td>
+<td>AF</td>
+<td>AF4 + 高丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>101,110</td>
+<td>46</td>
+<td>EF</td>
+<td>&#x2F;</td>
+<td>Telephony</td>
+</tr>
+<tr>
+<td>001,000</td>
+<td>8</td>
+<td>Class Selector</td>
+<td>CS1</td>
+<td>Low-Priority Data</td>
+</tr>
+<tr>
+<td>010,000</td>
+<td>16</td>
+<td>Class Selector</td>
+<td>CS2</td>
+<td>OAM</td>
+</tr>
+<tr>
+<td>011,000</td>
+<td>24</td>
+<td>Class Selector</td>
+<td>CS3</td>
+<td>Broadcast Video</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>32</td>
+<td>Class Selector</td>
+<td>CS4</td>
+<td>Real-Time Interactive</td>
+</tr>
+<tr>
+<td>101,000</td>
+<td>40</td>
+<td>Class Selector</td>
+<td>CS5</td>
+<td>Signaling</td>
+</tr>
+<tr>
+<td>110,000</td>
+<td>48</td>
+<td>Class Selector</td>
+<td>CS6</td>
+<td>Network Control</td>
+</tr>
+<tr>
+<td>111,000</td>
+<td>56</td>
+<td>Class Selector</td>
+<td>CS7</td>
+<td><font color='red'>Reserved for future use</font></td>
+</tr>
+<tr>
+<td>000,000</td>
+<td>0</td>
+<td>DF</td>
+<td>&#x2F;</td>
+<td>Standard</td>
+</tr>
+</tbody></table>
+<p>扩展说明：其他DSCP值默认对应<code>DB PHB</code>和<code>Standard Service Class</code>。</p>
+<h4 id="1-3-2、ECN"><a href="#1-3-2、ECN" class="headerlink" title="1.3.2、ECN"></a><strong>1.3.2、ECN</strong></h4><p>ECN：设计用来完善整个拥塞控制机制。</p>
+<p>之前的拥塞控制机制：传输层通过丢包感知到拥塞，进行拥塞控制。</p>
+<p>ECN——网络层提供的显式拥塞控制标记：</p>
+<ol>
+<li>之前的拥塞控制是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网路层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
+<li>引入ECN后，传输层除了通过丢包感知拥塞之外，也可根据ECN感知拥塞</li>
+</ol>
+<p>ECN值含义如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>ECN值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00</td>
+<td>不支持ECN的传输，非ECT (Non ECN-Capable Transport)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>支持ECN的传输，ECT (0)</td>
+</tr>
+<tr>
+<td>01</td>
+<td>支持ECN的传输，ECT (1)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>发生拥塞，CE (Congestion Experienced)</td>
+</tr>
+</tbody></table>
+<h3 id="1-4、总长度"><a href="#1-4、总长度" class="headerlink" title="1.4、总长度"></a><strong>1.4、总长度</strong></h3><p>英文名：<code>Total Length</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“数据”。</p>
+<h3 id="1-5、标识、标志和片偏移"><a href="#1-5、标识、标志和片偏移" class="headerlink" title="1.5、标识、标志和片偏移"></a><strong>1.5、标识、标志和片偏移</strong></h3><p>首先介绍IPv4报文分片概念：</p>
+<ol>
+<li>数据链路层协议都规定了一个该层协议报文能接收的上层协议递交数据的最大长度，该最大长度被称为最大传送单元MTU（Maximum Transfer Unit），比如以太网协议的MTU值为<code>1500个字节</code>。当IPv4报文总长度超过所使用数据链路层协议的MTU后，需要将该IPv4报文分割成几个，使得每个分割后IPv4报文总长度不超过MTU，该过程即为分片，在IPv4报文接收端会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文</li>
+<li>具体分片过程：<ul>
+<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
+<li>数据。分片数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片数据长度为8字节的倍数</li>
+</ul>
+</li>
+</ol>
+<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始报文</td>
+<td>3820</td>
+<td>0-0</td>
+<td>0</td>
+<td>原始报文首部检验和</td>
+</tr>
+<tr>
+<td>分片1报文</td>
+<td>1420</td>
+<td>0-1</td>
+<td>0</td>
+<td>分片1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2报文</td>
+<td>1420</td>
+<td>0-1</td>
+<td>175(1400&#x2F;8&#x3D;175)</td>
+<td>分片2首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片3报文</td>
+<td>1020</td>
+<td>0-0</td>
+<td>350(2800&#x2F;8&#x3D;350)</td>
+<td>分片3首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分片2-1报文</td>
+<td>820</td>
+<td>0-1</td>
+<td>175(1400&#x2F;8&#x3D;175)</td>
+<td>分片2-1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2-2报文</td>
+<td>620</td>
+<td>0-1</td>
+<td>275(2200&#x2F;8&#x3D;275)</td>
+<td>分片2-2首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始报文</td>
+<td>1508</td>
+<td>0-0</td>
+<td>0</td>
+<td>原始报文首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片1报文</td>
+<td>820</td>
+<td>0-1</td>
+<td>0</td>
+<td>分片1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2报文</td>
+<td>708</td>
+<td>0-0</td>
+<td>100(800&#x2F;8&#x3D;100)</td>
+<td>分片2首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。</p>
+<p>当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
+<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>共3位，现在只有后面两位有意义：</p>
+<ol>
+<li>最低位记为MF（More Fragment）：<ul>
+<li><code>MF=1</code>：表示后面还有分片</li>
+<li><code>MF=0</code>：1）在分片情形中，表示已是若干分片中最后一个；2）在未分片情形中，表示即原报文本身</li>
+</ul>
+</li>
+<li>次低位记为DF（Don’t Fragment）：<ul>
+<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[4]</li>
+<li><code>DF=0</code>：表示允许分片</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
+<h3 id="1-6、生存时间"><a href="#1-6、生存时间" class="headerlink" title="1.6、生存时间"></a><strong>1.6、生存时间</strong></h3><p>英文名：<code>Time to Live</code>。</p>
+<p>长度：：8 bits。</p>
+<p>含义：生存时间，用于限制数据包在网络上的生存时间，防止数据包在网络中无限循环堵塞网络。在最初设计和实现中，其以秒为单位，报文在经过一个路由器时，该报文的TTL值会被减去在该路由器所耗费的时间，当TTL值减为0时，该报文就会被该路由器丢弃。后来随着技术发展，路由器处理报文的时间远小于1秒，但至少每次减1，因此演变成“跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃”。</p>
+<h3 id="1-7、协议"><a href="#1-7、协议" class="headerlink" title="1.7、协议"></a><strong>1.7、协议</strong></h3><p>英文名：<code>Protocol</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：报文数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
+<table>
+<thead>
+<tr>
+<th>协议名</th>
+<th>ICMP</th>
+<th>IGMP</th>
+<th>IP</th>
+<th>TCP</th>
+<th>EGP</th>
+<th>IGP</th>
+<th>UDP</th>
+<th>IPv6</th>
+<th>ESP</th>
+<th>AH</th>
+<th>ICMP-IPv6</th>
+<th>OSPF</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字段值</td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>6</td>
+<td>8</td>
+<td>9</td>
+<td>17</td>
+<td>41</td>
+<td>50</td>
+<td>51</td>
+<td>58</td>
+<td>89</td>
+</tr>
+</tbody></table>
+<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header Checksum</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：用来标识报文首部是否被篡改，须注意——通过首部检验和的检验是首部未被篡改的必要不充分条件。其具体工作机制是：在报文发送端，首先将首部检验和字段置为全0，然后将报文首部以16 bits为一组分成多组（由于首部长度是4字节的倍数，故正好能划分成整数组），执行<code>反码算术运算求和 + 取反码</code>运算，将结果置入首部检验和字段，后续每个路由器都执行上述运算过程，根据上述运算过程的特点，合法结果值应该是0，如果非0，表示必被篡改，直接丢弃。</p>
+<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source IP Address</code>。</p>
+<p>长度：32 bits。</p>
+<p>含义：源IP地址。</p>
+<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination IP Address</code>。</p>
+<p>长度：32 bits。</p>
+<p>含义：目的IP地址。</p>
+<h2 id="二、可选首部"><a href="#二、可选首部" class="headerlink" title="二、可选首部"></a><strong>二、可选首部</strong></h2><p>英文名：<code>Options</code>。</p>
+<p>长度：可变。结合“1.2、首部长度”小节和“固定首部定长20字节”可知：可选首部长度范围为<code>[0字节,40字节]</code>，且须是4字节倍数，否则需要进行0字节填充。</p>
+<p>含义：可选首部，用于扩展IPv4头部，实际不常用。</p>
+<h2 id="三、数据"><a href="#三、数据" class="headerlink" title="三、数据"></a><strong>三、数据</strong></h2><p>结合“1.4、总长度”小节和“1.2、首部长度”小节可知：数据长度范围为<code>[0字节,65535字节-20字节=65515字节]</code>。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[2]<a href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[3]<a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[4]<a href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[5]<a href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
+]]></content>
+      <categories>
+        <category>网络原理</category>
       </categories>
   </entry>
   <entry>
@@ -5010,66 +5458,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Java容器</title>
-    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
-<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
-<p>故Java容器划分示意图如图1。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
-<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
-<ul>
-<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
-<li><code>E next()</code>：下一个待遍历元素</li>
-<li><code>void remove()</code>：删除最近一个已遍历元素</li>
-</ul>
-<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
-<p>具体描述如下表。</p>
-<table>
-<thead>
-<tr>
-<th>迭代器类型</th>
-<th>描述</th>
-<th>在A上修改后B的表现</th>
-<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>快速失败</td>
-<td>fail-fast</td>
-<td>抛出<code>ConcurrentModificationException</code>异常</td>
-<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
-</tr>
-<tr>
-<td>快照式</td>
-<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
-<td>不抛出异常，通过B不能感知A上修改</td>
-<td>通过A不能感知B上修改</td>
-</tr>
-<tr>
-<td>弱一致性</td>
-<td>weakly consistent</td>
-<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
-<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
-</tr>
-<tr>
-<td>其他</td>
-<td>undefined</td>
-<td>未定义</td>
-<td>未定义</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>容器</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java堆</title>
     <url>/blog/2022/01/16/Java%E5%A0%86/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -5202,6 +5590,66 @@
         <category>语言</category>
         <category>Java</category>
         <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java容器</title>
+    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
+<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
+<p>故Java容器划分示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
+<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
+<ul>
+<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
+<li><code>E next()</code>：下一个待遍历元素</li>
+<li><code>void remove()</code>：删除最近一个已遍历元素</li>
+</ul>
+<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
+<p>具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>迭代器类型</th>
+<th>描述</th>
+<th>在A上修改后B的表现</th>
+<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>快速失败</td>
+<td>fail-fast</td>
+<td>抛出<code>ConcurrentModificationException</code>异常</td>
+<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
+</tr>
+<tr>
+<td>快照式</td>
+<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
+<td>不抛出异常，通过B不能感知A上修改</td>
+<td>通过A不能感知B上修改</td>
+</tr>
+<tr>
+<td>弱一致性</td>
+<td>weakly consistent</td>
+<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
+<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>undefined</td>
+<td>未定义</td>
+<td>未定义</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>容器</category>
       </categories>
   </entry>
   <entry>
@@ -5420,45 +5868,6 @@
         <category>Java</category>
         <category>Java并发</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Java并发编程的艺术</title>
-    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
-    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java序列化机制释疑</title>
-    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
-    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
-<ul>
-<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
-<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
-</ul>
-<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
-<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java一般语法</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
-      </tags>
   </entry>
   <entry>
     <title>Java并发编程基础</title>
@@ -5937,6 +6346,45 @@
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Java并发编程的艺术</title>
+    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
+    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java序列化机制释疑</title>
+    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
+    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
+<ul>
+<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
+<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
+</ul>
+<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
+<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java一般语法</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
   </entry>
   <entry>
     <title>Java打印日志最佳实践</title>
@@ -6925,39 +7373,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Linux文件系统之3种区块与4类文件</title>
-    <url>/blog/2016/12/21/Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B9%8B3%E7%A7%8D%E5%8C%BA%E5%9D%97%E4%B8%8E4%E7%B1%BB%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<h2 id="一、3种区块"><a href="#一、3种区块" class="headerlink" title="一、3种区块"></a><strong>一、3种区块</strong></h2><p>Linux的文件系统中有3种区块：superblock，inode，block。<br><strong>superblock</strong><br>记录文件系统的整体信息，包括inode和block的总量，使用量，剩余量，文件系统的格式与相关信息等。<br><strong>inode</strong><br>记录文件的属性信息，包括权限，拥有者，所属组，修改时间等，并且保存真正存放数据的block序号。<br><strong>block</strong><br>存放具体数据，目录文件的block存放的是下面文件的&lt;文件名，inode序号&gt;。</p>
-<h2 id="二、4类文件"><a href="#二、4类文件" class="headerlink" title="二、4类文件"></a><strong>二、4类文件</strong></h2><p>Linux的文件可分为4类：一般文件，目录文件，软符号链接文件与硬符号链接文件。</p>
-<h2 id="三、3种区块与4类文件的联系"><a href="#三、3种区块与4类文件的联系" class="headerlink" title="三、3种区块与4类文件的联系"></a><strong>三、3种区块与4类文件的联系</strong></h2><p>接下来将以上3种区块与对这4类文件的操作联系起来。</p>
-<h3 id="3-1、增加"><a href="#3-1、增加" class="headerlink" title="3.1、增加"></a><strong>3.1、增加</strong></h3><h4 id="3-1-1、对一般文件"><a href="#3-1-1、对一般文件" class="headerlink" title="3.1.1、对一般文件"></a><strong>3.1.1、对一般文件</strong></h4><p>分配一个inode区块，根据文件大小分配一定数量的block区块，inode区块保存这些block区块的序号。<br>在所在目录中对应的block区块中增加一行记录，有该文件的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-1-2、对目录文件"><a href="#3-1-2、对目录文件" class="headerlink" title="3.1.2、对目录文件"></a><strong>3.1.2、对目录文件</strong></h4><p>分配一个inode区块，一般分配一个block区块[如果目录下面文件过多，可以分配多个block区块]，inode区块保存这个block区块的序号。<br>在所在目录中对应的block区块中增加一行记录，有该目录文件的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-1-3、对软符号链接文件"><a href="#3-1-3、对软符号链接文件" class="headerlink" title="3.1.3、对软符号链接文件"></a><strong>3.1.3、对软符号链接文件</strong></h4><p>分配一个inode区块，没有block区块，inode区块有个软符号链接文件的特殊标识，并且保存有“链接到文件”的路径，这个路径必须得是绝对路径，否则可能出错，相当于Windows操作系统下的快捷方式。<br>在所在目录中对应的block区块中增加一行记录，有该文件的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-1-4、对硬符号链接文件"><a href="#3-1-4、对硬符号链接文件" class="headerlink" title="3.1.4、对硬符号链接文件"></a><strong>3.1.4、对硬符号链接文件</strong></h4><p>不分配inode区块，也不分配block区块，直接在所在目录中对应的block区块中增加一行记录，有“链接到文件”的&lt;文件名，inode序号&gt;。</p>
-<h3 id="3-2、删除"><a href="#3-2、删除" class="headerlink" title="3.2、删除"></a><strong>3.2、删除</strong></h3><h4 id="3-2-1、对一般文件"><a href="#3-2-1、对一般文件" class="headerlink" title="3.2.1、对一般文件"></a><strong>3.2.1、对一般文件</strong></h4><p>回收inode和所有的block区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-2-2、对目录文件"><a href="#3-2-2、对目录文件" class="headerlink" title="3.2.2、对目录文件"></a><strong>3.2.2、对目录文件</strong></h4><p>回收inode和所有的block区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-2-3、对软符号链接文件"><a href="#3-2-3、对软符号链接文件" class="headerlink" title="3.2.3、对软符号链接文件"></a><strong>3.2.3、对软符号链接文件</strong></h4><p>回收inode区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
-<h4 id="3-2-4、对硬符号链接文件"><a href="#3-2-4、对硬符号链接文件" class="headerlink" title="3.2.4、对硬符号链接文件"></a><strong>3.2.4、对硬符号链接文件</strong></h4><p>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
-<h3 id="3-3、修改"><a href="#3-3、修改" class="headerlink" title="3.3、修改"></a><strong>3.3、修改</strong></h3><h4 id="3-3-1、对一般文件"><a href="#3-3-1、对一般文件" class="headerlink" title="3.3.1、对一般文件"></a><strong>3.3.1、对一般文件</strong></h4><p>修改的是block里面的内容。</p>
-<h4 id="3-3-2、对目录文件"><a href="#3-3-2、对目录文件" class="headerlink" title="3.3.2、对目录文件"></a><strong>3.3.2、对目录文件</strong></h4><p>修改的是block里面的内容。</p>
-<h4 id="3-3-3、对软符号链接文件"><a href="#3-3-3、对软符号链接文件" class="headerlink" title="3.3.3、对软符号链接文件"></a><strong>3.3.3、对软符号链接文件</strong></h4><p>修改的是“链接到文件”的block里面的内容。</p>
-<h4 id="3-3-4、对硬符号链接文件"><a href="#3-3-4、对硬符号链接文件" class="headerlink" title="3.3.4、对硬符号链接文件"></a><strong>3.3.4、对硬符号链接文件</strong></h4><p>修改的是“链接到文件”的block里面的内容。</p>
-<h3 id="3-4、查看"><a href="#3-4、查看" class="headerlink" title="3.4、查看"></a><strong>3.4、查看</strong></h3><h4 id="3-4-1、对一般文件"><a href="#3-4-1、对一般文件" class="headerlink" title="3.4.1、对一般文件"></a><strong>3.4.1、对一般文件</strong></h4><p>查看的是block里面的内容。</p>
-<h4 id="3-4-2、对目录文件"><a href="#3-4-2、对目录文件" class="headerlink" title="3.4.2、对目录文件"></a><strong>3.4.2、对目录文件</strong></h4><p>查看的是block里面的内容。</p>
-<h4 id="3-4-3、对软符号链接文件"><a href="#3-4-3、对软符号链接文件" class="headerlink" title="3.4.3、对软符号链接文件"></a><strong>3.4.3、对软符号链接文件</strong></h4><p>查看的是“链接到文件”的block里面的内容。</p>
-<h4 id="3-4-4、对硬符号链接文件"><a href="#3-4-4、对硬符号链接文件" class="headerlink" title="3.4.4、对硬符号链接文件"></a><strong>3.4.4、对硬符号链接文件</strong></h4><p>查看的是“链接到文件”的block里面的内容。</p>
-<br/>
-参考文献：
-[1]《鸟哥的Linux私房菜：基础学习篇》
-[2]http://roclinux.cn/?p=754
-[3]https://www.nixtutor.com/freebsd/understanding-symbolic-links/
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Linux文件权限</title>
     <url>/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/</url>
     <content><![CDATA[<h2 id="一、文件"><a href="#一、文件" class="headerlink" title="一、文件"></a><strong>一、文件</strong></h2><p>Linux文件分为：一般文件（通常简称为文件）和目录。<br>文件由“Inode节点和Block节点集”构成。</p>
@@ -7338,6 +7753,39 @@
 [7]http://en.wikipedia.org/wiki/Setuid#setuid_and_setgid_on_directories
 [8]http://en.wikipedia.org/wiki/Sticky_bit
 [9]http://www.linuxquestions.org/questions/linux-software-2/rename-and-ctime-913753
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux文件系统之3种区块与4类文件</title>
+    <url>/blog/2016/12/21/Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B9%8B3%E7%A7%8D%E5%8C%BA%E5%9D%97%E4%B8%8E4%E7%B1%BB%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h2 id="一、3种区块"><a href="#一、3种区块" class="headerlink" title="一、3种区块"></a><strong>一、3种区块</strong></h2><p>Linux的文件系统中有3种区块：superblock，inode，block。<br><strong>superblock</strong><br>记录文件系统的整体信息，包括inode和block的总量，使用量，剩余量，文件系统的格式与相关信息等。<br><strong>inode</strong><br>记录文件的属性信息，包括权限，拥有者，所属组，修改时间等，并且保存真正存放数据的block序号。<br><strong>block</strong><br>存放具体数据，目录文件的block存放的是下面文件的&lt;文件名，inode序号&gt;。</p>
+<h2 id="二、4类文件"><a href="#二、4类文件" class="headerlink" title="二、4类文件"></a><strong>二、4类文件</strong></h2><p>Linux的文件可分为4类：一般文件，目录文件，软符号链接文件与硬符号链接文件。</p>
+<h2 id="三、3种区块与4类文件的联系"><a href="#三、3种区块与4类文件的联系" class="headerlink" title="三、3种区块与4类文件的联系"></a><strong>三、3种区块与4类文件的联系</strong></h2><p>接下来将以上3种区块与对这4类文件的操作联系起来。</p>
+<h3 id="3-1、增加"><a href="#3-1、增加" class="headerlink" title="3.1、增加"></a><strong>3.1、增加</strong></h3><h4 id="3-1-1、对一般文件"><a href="#3-1-1、对一般文件" class="headerlink" title="3.1.1、对一般文件"></a><strong>3.1.1、对一般文件</strong></h4><p>分配一个inode区块，根据文件大小分配一定数量的block区块，inode区块保存这些block区块的序号。<br>在所在目录中对应的block区块中增加一行记录，有该文件的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-1-2、对目录文件"><a href="#3-1-2、对目录文件" class="headerlink" title="3.1.2、对目录文件"></a><strong>3.1.2、对目录文件</strong></h4><p>分配一个inode区块，一般分配一个block区块[如果目录下面文件过多，可以分配多个block区块]，inode区块保存这个block区块的序号。<br>在所在目录中对应的block区块中增加一行记录，有该目录文件的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-1-3、对软符号链接文件"><a href="#3-1-3、对软符号链接文件" class="headerlink" title="3.1.3、对软符号链接文件"></a><strong>3.1.3、对软符号链接文件</strong></h4><p>分配一个inode区块，没有block区块，inode区块有个软符号链接文件的特殊标识，并且保存有“链接到文件”的路径，这个路径必须得是绝对路径，否则可能出错，相当于Windows操作系统下的快捷方式。<br>在所在目录中对应的block区块中增加一行记录，有该文件的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-1-4、对硬符号链接文件"><a href="#3-1-4、对硬符号链接文件" class="headerlink" title="3.1.4、对硬符号链接文件"></a><strong>3.1.4、对硬符号链接文件</strong></h4><p>不分配inode区块，也不分配block区块，直接在所在目录中对应的block区块中增加一行记录，有“链接到文件”的&lt;文件名，inode序号&gt;。</p>
+<h3 id="3-2、删除"><a href="#3-2、删除" class="headerlink" title="3.2、删除"></a><strong>3.2、删除</strong></h3><h4 id="3-2-1、对一般文件"><a href="#3-2-1、对一般文件" class="headerlink" title="3.2.1、对一般文件"></a><strong>3.2.1、对一般文件</strong></h4><p>回收inode和所有的block区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-2-2、对目录文件"><a href="#3-2-2、对目录文件" class="headerlink" title="3.2.2、对目录文件"></a><strong>3.2.2、对目录文件</strong></h4><p>回收inode和所有的block区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-2-3、对软符号链接文件"><a href="#3-2-3、对软符号链接文件" class="headerlink" title="3.2.3、对软符号链接文件"></a><strong>3.2.3、对软符号链接文件</strong></h4><p>回收inode区块。<br>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
+<h4 id="3-2-4、对硬符号链接文件"><a href="#3-2-4、对硬符号链接文件" class="headerlink" title="3.2.4、对硬符号链接文件"></a><strong>3.2.4、对硬符号链接文件</strong></h4><p>在所在目录对应的block区块中删除相应的&lt;文件名，inode序号&gt;。</p>
+<h3 id="3-3、修改"><a href="#3-3、修改" class="headerlink" title="3.3、修改"></a><strong>3.3、修改</strong></h3><h4 id="3-3-1、对一般文件"><a href="#3-3-1、对一般文件" class="headerlink" title="3.3.1、对一般文件"></a><strong>3.3.1、对一般文件</strong></h4><p>修改的是block里面的内容。</p>
+<h4 id="3-3-2、对目录文件"><a href="#3-3-2、对目录文件" class="headerlink" title="3.3.2、对目录文件"></a><strong>3.3.2、对目录文件</strong></h4><p>修改的是block里面的内容。</p>
+<h4 id="3-3-3、对软符号链接文件"><a href="#3-3-3、对软符号链接文件" class="headerlink" title="3.3.3、对软符号链接文件"></a><strong>3.3.3、对软符号链接文件</strong></h4><p>修改的是“链接到文件”的block里面的内容。</p>
+<h4 id="3-3-4、对硬符号链接文件"><a href="#3-3-4、对硬符号链接文件" class="headerlink" title="3.3.4、对硬符号链接文件"></a><strong>3.3.4、对硬符号链接文件</strong></h4><p>修改的是“链接到文件”的block里面的内容。</p>
+<h3 id="3-4、查看"><a href="#3-4、查看" class="headerlink" title="3.4、查看"></a><strong>3.4、查看</strong></h3><h4 id="3-4-1、对一般文件"><a href="#3-4-1、对一般文件" class="headerlink" title="3.4.1、对一般文件"></a><strong>3.4.1、对一般文件</strong></h4><p>查看的是block里面的内容。</p>
+<h4 id="3-4-2、对目录文件"><a href="#3-4-2、对目录文件" class="headerlink" title="3.4.2、对目录文件"></a><strong>3.4.2、对目录文件</strong></h4><p>查看的是block里面的内容。</p>
+<h4 id="3-4-3、对软符号链接文件"><a href="#3-4-3、对软符号链接文件" class="headerlink" title="3.4.3、对软符号链接文件"></a><strong>3.4.3、对软符号链接文件</strong></h4><p>查看的是“链接到文件”的block里面的内容。</p>
+<h4 id="3-4-4、对硬符号链接文件"><a href="#3-4-4、对硬符号链接文件" class="headerlink" title="3.4.4、对硬符号链接文件"></a><strong>3.4.4、对硬符号链接文件</strong></h4><p>查看的是“链接到文件”的block里面的内容。</p>
+<br/>
+参考文献：
+[1]《鸟哥的Linux私房菜：基础学习篇》
+[2]http://roclinux.cn/?p=754
+[3]https://www.nixtutor.com/freebsd/understanding-symbolic-links/
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -8214,7 +8662,7 @@
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#x64;&#115;&#108;&#122;&#x74;&#120;&#64;&#x64;&#x6f;&#109;&#97;&#105;&#110;&#46;&#x63;&#x6e;">&#x64;&#115;&#108;&#122;&#x74;&#120;&#64;&#x64;&#x6f;&#109;&#97;&#105;&#110;&#46;&#x63;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#122;&#116;&#120;&#64;&#x64;&#111;&#109;&#x61;&#x69;&#x6e;&#46;&#99;&#x6e;">&#100;&#115;&#108;&#122;&#116;&#120;&#64;&#x64;&#111;&#109;&#x61;&#x69;&#x6e;&#46;&#99;&#x6e;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -8238,7 +8686,7 @@
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#101;&#x6f;&#114;&#x67;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;">&#71;&#101;&#x6f;&#114;&#x67;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#x65;&#111;&#x72;&#103;&#101;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#46;&#99;&#111;&#x6d;">&#x47;&#x65;&#111;&#x72;&#103;&#101;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#46;&#99;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -8436,46 +8884,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Socks协议</title>
-    <url>/blog/2024/02/06/Socks%E5%8D%8F%E8%AE%AE/</url>
-    <content><![CDATA[<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>利用Socks协议，可以使得两个节点之间的连接通过一个中转节点中转，从而可以加密数据，穿越防火墙的限制。<br>Socks协议中有两种身份：Socks Client和Socks Server。<br>Socks协议工作在OSI七层体系的第5层——会话层。</p>
-<h2 id="二、基本原理"><a href="#二、基本原理" class="headerlink" title="二、基本原理"></a><strong>二、基本原理</strong></h2><p>现在有A和B两个节点，A节点上运行Socks Client实现程序，B节点上运行Socks Server实现程序。<br>现在A想要请求网络服务，可以将该请求传递给A上的Socks Client，然后Socks Client与Socks Server建立数据连接，该连接可以使用选定的加密算法进行加密，接着Socks Client可以将A的网络服务请求传递给Socks Server，最后由Socks Server代为进行网络服务请求，并将得到的请求结果数据原路返回给A。</p>
-<p>注意：在以上过程中，只有Socks Client和Socks Server之间的连接可以采用选定的加密算法进行加密。</p>
-<h2 id="三、用途"><a href="#三、用途" class="headerlink" title="三、用途"></a><strong>三、用途</strong></h2><p>正如基本概念中所述，使用Socks协议可以达到“加密数据，穿越防火墙”的目标。比如以下两种情形。</p>
-<h3 id="3-1、情形1"><a href="#3-1、情形1" class="headerlink" title="3.1、情形1"></a><strong>3.1、情形1</strong></h3><p>现在有A，B两个节点，另有防火墙C，A处于C内，B处于C外，C能够监听与A进行的连接，如果连接中出现特定的关键词，C能够将该连接断开。<br>现在A想要突破防火墙C的限制，使得可以与B进行连接，传输任意数据，但是A与B的连接不能加密。</p>
-<p>采用Socks协议的具体方案如下：</p>
-<ol>
-<li>另外搭设一个节点D，D必须在C外</li>
-<li>D上运行Socks Server实现程序，A上运行Socks Client实现程序。现在A与B的连接通过D进行，具体是A对B的连接请求被传递给A上的Socks Client，然后Socks Client与D上的Socks Server连接，Socks Server再代为请求与B进行连接，由于A上的Socks Client与D上的Socks Server之间的连接可被Socks协议加密算法加密，因而防火墙C就不能够检查关键词是否存在，也就不能够断开A与D的连接，自然也就不能断开A与B通过D而得到的连接</li>
-</ol>
-<h3 id="3-2、情形2"><a href="#3-2、情形2" class="headerlink" title="3.2、情形2"></a><strong>3.2、情形2</strong></h3><p>现在有A，B两个节点，另有防火墙C，A处于C内，B处于C外，C中把B加入了黑名单，使得在C内的A不能够访问B。<br>现在A想要突破防火墙C的限制，使得可以与B进行连接。</p>
-<p>采用Socks协议的具体方案如下：</p>
-<ol>
-<li>另外搭设一个节点D，D必须在C外，且要求满足D节点不在C的黑名单内</li>
-<li>D上运行Socks Server实现程序，A上运行Socks Client实现程序。现在A与B的连接通过D进行，具体是A对B的连接请求被传递给A上的Socks Client，然后Socks Client与D上的Socks Server连接，Socks Server再代为请求与B进行连接，由于D不在C的黑名单内，A与D可进行连接，从而A就可通过D与B连接</li>
-</ol>
-<h2 id="四、协议实现"><a href="#四、协议实现" class="headerlink" title="四、协议实现"></a><strong>四、协议实现</strong></h2><h3 id="4-1、Socks-Server的实现程序"><a href="#4-1、Socks-Server的实现程序" class="headerlink" title="4.1、Socks Server的实现程序"></a><strong>4.1、Socks Server的实现程序</strong></h3><ul>
-<li>Antinat</li>
-<li>Dante</li>
-<li>Srelay</li>
-<li>SS5</li>
-<li>Sun Java System Web Proxy Server</li>
-<li>WinGate</li>
-<li>OpenSSH中的sshd实现程序</li>
-<li>ShadowSocks中的server实现程序</li>
-</ul>
-<h3 id="4-2、Socks-Client的实现程序"><a href="#4-2、Socks-Client的实现程序" class="headerlink" title="4.2、Socks Client的实现程序"></a><strong>4.2、Socks Client的实现程序</strong></h3><ul>
-<li>OpenSSH中的ssh实现程序</li>
-<li>Putty</li>
-<li>ShadowSocks中的client实现程序</li>
-</ul>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://en.wikipedia.org/wiki/SOCKS">https://en.wikipedia.org/wiki/SOCKS</a></p>
-]]></content>
-      <categories>
-        <category>网络原理</category>
-      </categories>
-  </entry>
-  <entry>
     <title>ScheduledThreadPoolExecutor</title>
     <url>/blog/2021/05/14/ScheduledThreadPoolExecutor/</url>
     <content><![CDATA[<p>ScheduledThreadPoolExecutor类是ThreadPoolExecutor类的子类，是一个“使用线程池调度执行所提交‘一次性时延’或者‘周期性’任务”的执行器，可简称“STPE”。</p>
@@ -8629,6 +9037,46 @@
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Socks协议</title>
+    <url>/blog/2024/02/06/Socks%E5%8D%8F%E8%AE%AE/</url>
+    <content><![CDATA[<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>利用Socks协议，可以使得两个节点之间的连接通过一个中转节点中转，从而可以加密数据，穿越防火墙的限制。<br>Socks协议中有两种身份：Socks Client和Socks Server。<br>Socks协议工作在OSI七层体系的第5层——会话层。</p>
+<h2 id="二、基本原理"><a href="#二、基本原理" class="headerlink" title="二、基本原理"></a><strong>二、基本原理</strong></h2><p>现在有A和B两个节点，A节点上运行Socks Client实现程序，B节点上运行Socks Server实现程序。<br>现在A想要请求网络服务，可以将该请求传递给A上的Socks Client，然后Socks Client与Socks Server建立数据连接，该连接可以使用选定的加密算法进行加密，接着Socks Client可以将A的网络服务请求传递给Socks Server，最后由Socks Server代为进行网络服务请求，并将得到的请求结果数据原路返回给A。</p>
+<p>注意：在以上过程中，只有Socks Client和Socks Server之间的连接可以采用选定的加密算法进行加密。</p>
+<h2 id="三、用途"><a href="#三、用途" class="headerlink" title="三、用途"></a><strong>三、用途</strong></h2><p>正如基本概念中所述，使用Socks协议可以达到“加密数据，穿越防火墙”的目标。比如以下两种情形。</p>
+<h3 id="3-1、情形1"><a href="#3-1、情形1" class="headerlink" title="3.1、情形1"></a><strong>3.1、情形1</strong></h3><p>现在有A，B两个节点，另有防火墙C，A处于C内，B处于C外，C能够监听与A进行的连接，如果连接中出现特定的关键词，C能够将该连接断开。<br>现在A想要突破防火墙C的限制，使得可以与B进行连接，传输任意数据，但是A与B的连接不能加密。</p>
+<p>采用Socks协议的具体方案如下：</p>
+<ol>
+<li>另外搭设一个节点D，D必须在C外</li>
+<li>D上运行Socks Server实现程序，A上运行Socks Client实现程序。现在A与B的连接通过D进行，具体是A对B的连接请求被传递给A上的Socks Client，然后Socks Client与D上的Socks Server连接，Socks Server再代为请求与B进行连接，由于A上的Socks Client与D上的Socks Server之间的连接可被Socks协议加密算法加密，因而防火墙C就不能够检查关键词是否存在，也就不能够断开A与D的连接，自然也就不能断开A与B通过D而得到的连接</li>
+</ol>
+<h3 id="3-2、情形2"><a href="#3-2、情形2" class="headerlink" title="3.2、情形2"></a><strong>3.2、情形2</strong></h3><p>现在有A，B两个节点，另有防火墙C，A处于C内，B处于C外，C中把B加入了黑名单，使得在C内的A不能够访问B。<br>现在A想要突破防火墙C的限制，使得可以与B进行连接。</p>
+<p>采用Socks协议的具体方案如下：</p>
+<ol>
+<li>另外搭设一个节点D，D必须在C外，且要求满足D节点不在C的黑名单内</li>
+<li>D上运行Socks Server实现程序，A上运行Socks Client实现程序。现在A与B的连接通过D进行，具体是A对B的连接请求被传递给A上的Socks Client，然后Socks Client与D上的Socks Server连接，Socks Server再代为请求与B进行连接，由于D不在C的黑名单内，A与D可进行连接，从而A就可通过D与B连接</li>
+</ol>
+<h2 id="四、协议实现"><a href="#四、协议实现" class="headerlink" title="四、协议实现"></a><strong>四、协议实现</strong></h2><h3 id="4-1、Socks-Server的实现程序"><a href="#4-1、Socks-Server的实现程序" class="headerlink" title="4.1、Socks Server的实现程序"></a><strong>4.1、Socks Server的实现程序</strong></h3><ul>
+<li>Antinat</li>
+<li>Dante</li>
+<li>Srelay</li>
+<li>SS5</li>
+<li>Sun Java System Web Proxy Server</li>
+<li>WinGate</li>
+<li>OpenSSH中的sshd实现程序</li>
+<li>ShadowSocks中的server实现程序</li>
+</ul>
+<h3 id="4-2、Socks-Client的实现程序"><a href="#4-2、Socks-Client的实现程序" class="headerlink" title="4.2、Socks Client的实现程序"></a><strong>4.2、Socks Client的实现程序</strong></h3><ul>
+<li>OpenSSH中的ssh实现程序</li>
+<li>Putty</li>
+<li>ShadowSocks中的client实现程序</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://en.wikipedia.org/wiki/SOCKS">https://en.wikipedia.org/wiki/SOCKS</a></p>
+]]></content>
+      <categories>
+        <category>网络原理</category>
       </categories>
   </entry>
   <entry>
@@ -10129,29 +10577,6 @@
       </categories>
   </entry>
   <entry>
-    <title>YGC次数多时间长</title>
-    <url>/blog/2018/11/07/YGC%E6%AC%A1%E6%95%B0%E5%A4%9A%E6%97%B6%E9%97%B4%E9%95%BF/</url>
-    <content><![CDATA[<h2 id="一、现象"><a href="#一、现象" class="headerlink" title="一、现象"></a><strong>一、现象</strong></h2><p>以完全相同的启动脚本（除了堆内存JVM参数之外，其他JVM参数未指定）运行完全相同的应用程序分别在A和B服务器上，A上JDK环境是OpenJDK 1.7，B上JDK环境是Oracle JDK 1.6，两应用程序的请求量也几乎相同，系统资源也可确保不是瓶颈所在。<br>通过JVM进程监控系统发现：A上的应用程序YGC次数多时间长。</p>
-<h2 id="二、诊断与解决"><a href="#二、诊断与解决" class="headerlink" title="二、诊断与解决"></a><strong>二、诊断与解决</strong></h2><p>YGC跟年轻代相关，通过<code>jstat -gccapacity JVM进程ID</code>命令分别查看A和B上应用程序的相关容量值。<br>结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A上应用程序：</span><br><span class="line"></span><br><span class="line">NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC      PGCMN    PGCMX     PGC       PC     YGC    FGC</span><br><span class="line">1107520.0 1107520.0 1107520.0 110720.0 110720.0 886080.0  7281088.0  7281088.0  7281088.0  7281088.0  21248.0 169984.0  21248.0  21248.0   3805     0</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">B上应用程序：</span><br><span class="line"></span><br><span class="line">NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC      PGCMN    PGCMX     PGC       PC     YGC    FGC</span><br><span class="line">1398080.0 2796160.0 1398080.0 67008.0 65152.0 1265920.0  2796224.0  5592448.0  2796224.0  2796224.0  21248.0  86016.0  21248.0  21248.0    516     0</span><br></pre></td></tr></table></figure>
-
-<p>可发现：A上年轻代容量（<code>1107520</code>）小于B上年轻代容量（<code>1398080</code>），最主要的是A上“Eden&#x2F;Survivor”比值（<code>886080/110720</code>约等于8）大大小于B上该比值（<code>1265920/65152</code>约等于19）。<br>A上“Eden&#x2F;Survivor”比值接近于“SurvivorRatio”这个JVM参数的默认值，应该是由该JVM参数控制；B上“Eden&#x2F;Survivor”比值应该不是由该JVM参数控制，而应该是经过动态调整得到的，故而可以定位到“UseAdaptiveSizePolicy”JVM参数。</p>
-<p>通过<code>jinfo -flag UseAdaptiveSizePolicy JVM进程ID</code>命令，可发现A上如预期果然未开启“UseAdaptiveSizePolicy”JVM参数，B上如预期默认开启了“UseAdaptiveSizePolicy”JVM参数，<font color='red'>这个差异很明显是不同JDK环境造成的</font>。</p>
-<p>因此，具体解决方案有两个：</p>
-<ul>
-<li>统一JDK环境，将A上的OpenJDK 1.7改为Oracle JDK 1.6</li>
-<li>A上应用程序手动开启“UseAdaptiveSizePolicy”JVM参数</li>
-</ul>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Vim快捷键</title>
     <url>/blog/2018/06/01/Vim%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
     <content><![CDATA[<p>Vim教程博大精深，本文更多属于自我理解性质，请悉知。<br>Vim的学习曲线非常陡峭，作者认为“面向操作学习Vim”是科学合适的学习途径，能够降低学习Vim的难度。具体来说，“Vim操作”被设计有详细用法，详细用法中涉及到了“适用模式，是否支持重复执行N次操作，限定范围形式，是否支持文本对象”等内容，<font color='red'>“Vim操作”是核心，它串联了这些内容，跟学习使用Linux中“Linux命令”是核心一样</font>。<br>可通过<code>:help topic</code>查看关于某个“topic”的帮助内容。</p>
@@ -10989,6 +11414,29 @@
       <tags>
         <tag>Vim</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>YGC次数多时间长</title>
+    <url>/blog/2018/11/07/YGC%E6%AC%A1%E6%95%B0%E5%A4%9A%E6%97%B6%E9%97%B4%E9%95%BF/</url>
+    <content><![CDATA[<h2 id="一、现象"><a href="#一、现象" class="headerlink" title="一、现象"></a><strong>一、现象</strong></h2><p>以完全相同的启动脚本（除了堆内存JVM参数之外，其他JVM参数未指定）运行完全相同的应用程序分别在A和B服务器上，A上JDK环境是OpenJDK 1.7，B上JDK环境是Oracle JDK 1.6，两应用程序的请求量也几乎相同，系统资源也可确保不是瓶颈所在。<br>通过JVM进程监控系统发现：A上的应用程序YGC次数多时间长。</p>
+<h2 id="二、诊断与解决"><a href="#二、诊断与解决" class="headerlink" title="二、诊断与解决"></a><strong>二、诊断与解决</strong></h2><p>YGC跟年轻代相关，通过<code>jstat -gccapacity JVM进程ID</code>命令分别查看A和B上应用程序的相关容量值。<br>结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A上应用程序：</span><br><span class="line"></span><br><span class="line">NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC      PGCMN    PGCMX     PGC       PC     YGC    FGC</span><br><span class="line">1107520.0 1107520.0 1107520.0 110720.0 110720.0 886080.0  7281088.0  7281088.0  7281088.0  7281088.0  21248.0 169984.0  21248.0  21248.0   3805     0</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">B上应用程序：</span><br><span class="line"></span><br><span class="line">NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC      PGCMN    PGCMX     PGC       PC     YGC    FGC</span><br><span class="line">1398080.0 2796160.0 1398080.0 67008.0 65152.0 1265920.0  2796224.0  5592448.0  2796224.0  2796224.0  21248.0  86016.0  21248.0  21248.0    516     0</span><br></pre></td></tr></table></figure>
+
+<p>可发现：A上年轻代容量（<code>1107520</code>）小于B上年轻代容量（<code>1398080</code>），最主要的是A上“Eden&#x2F;Survivor”比值（<code>886080/110720</code>约等于8）大大小于B上该比值（<code>1265920/65152</code>约等于19）。<br>A上“Eden&#x2F;Survivor”比值接近于“SurvivorRatio”这个JVM参数的默认值，应该是由该JVM参数控制；B上“Eden&#x2F;Survivor”比值应该不是由该JVM参数控制，而应该是经过动态调整得到的，故而可以定位到“UseAdaptiveSizePolicy”JVM参数。</p>
+<p>通过<code>jinfo -flag UseAdaptiveSizePolicy JVM进程ID</code>命令，可发现A上如预期果然未开启“UseAdaptiveSizePolicy”JVM参数，B上如预期默认开启了“UseAdaptiveSizePolicy”JVM参数，<font color='red'>这个差异很明显是不同JDK环境造成的</font>。</p>
+<p>因此，具体解决方案有两个：</p>
+<ul>
+<li>统一JDK环境，将A上的OpenJDK 1.7改为Oracle JDK 1.6</li>
+<li>A上应用程序手动开启“UseAdaptiveSizePolicy”JVM参数</li>
+</ul>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>JVM</category>
+      </categories>
   </entry>
   <entry>
     <title>ZooKeeper官方文档</title>
@@ -14701,24 +15149,6 @@
       </categories>
   </entry>
   <entry>
-    <title>tail命令</title>
-    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
-<br/>
-参考文献：
-[1]man tail
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>synchronized锁内部实现</title>
     <url>/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</url>
     <content><![CDATA[<h2 id="一、基本语义"><a href="#一、基本语义" class="headerlink" title="一、基本语义"></a><strong>一、基本语义</strong></h2><h3 id="1-1、两种形式、一种锁"><a href="#1-1、两种形式、一种锁" class="headerlink" title="1.1、两种形式、一种锁"></a><strong>1.1、两种形式、一种锁</strong></h3><p>synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）<code>synchronized方法</code>；2）<code>synchronized(Java对象obj)语句块</code>。</p>
@@ -15010,6 +15440,24 @@
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>tail命令</title>
+    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
+<br/>
+参考文献：
+[1]man tail
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
   </entry>
   <entry>
     <title>tar命令</title>
@@ -15489,6 +15937,22 @@
       </categories>
   </entry>
   <entry>
+    <title>一个JVM进程卡住问题</title>
+    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
+<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
+<br/>
+图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
+
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
+<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
+]]></content>
+      <categories>
+        <category>性能调优</category>
+      </categories>
+  </entry>
+  <entry>
     <title>《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略</title>
     <url>/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
     <content><![CDATA[<p>本文讨论垃圾收集和内存分配技术。我们知道：</p>
@@ -15640,22 +16104,6 @@
 ]]></content>
       <categories>
         <category>TODEL</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>一个JVM进程卡住问题</title>
-    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
-<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
-<br/>
-图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
-
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
-<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
-]]></content>
-      <categories>
-        <category>性能调优</category>
       </categories>
   </entry>
   <entry>
@@ -15914,92 +16362,6 @@
       </categories>
   </entry>
   <entry>
-    <title>伪共享</title>
-    <url>/blog/2020/07/22/%E4%BC%AA%E5%85%B1%E4%BA%AB/</url>
-    <content><![CDATA[<h2 id="一、伪共享含义"><a href="#一、伪共享含义" class="headerlink" title="一、伪共享含义"></a><strong>一、伪共享含义</strong></h2><p>根据<a href="/2019/06/07/%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98/" title="高速缓存">《高速缓存》</a>可知，高速缓存中的Cache Line缓存一定数量的字节，而不是只有1个字节。一般情况下，一个Cache Line有32或者64个字节。如果属于不同资源（比如“变量”）的字节被加载到同一个Cache Line，就导致出现了伪共享。</p>
-<h2 id="二、伪共享带来的问题"><a href="#二、伪共享带来的问题" class="headerlink" title="二、伪共享带来的问题"></a><strong>二、伪共享带来的问题</strong></h2><p>根据以上叙述，伪共享带来问题的本质叙述是：由于Cache Line缓存一定数量的字节，使得一部分原本不处于竞争关系的资源具有了竞争关系，而这最终导致了并发性能下降。<br><font color='red'>伪共享问题是底层硬件机制问题，故存在于所有程序语言中。</font></p>
-<p>比如：</p>
-<ul>
-<li>假定变量a和b被加载到同一个Cache Line，在缓存锁定场景中，对a&#x2F;b变量进行原子操作时，相应的Cache Line被缓存锁定，此时不能再并发修改和读取另外一个变量</li>
-<li>假定变量a和b被加载到同一个Cache Line，在MESI协议中，对a&#x2F;b变量修改时，MESI协议要求锁住相应的Cache Line（需要注意的是，“锁住”与“缓存锁定”不同），此时不能再并发修改另外一个变量</li>
-</ul>
-<h2 id="三、伪共享带来的问题解决"><a href="#三、伪共享带来的问题解决" class="headerlink" title="三、伪共享带来的问题解决"></a><strong>三、伪共享带来的问题解决</strong></h2><p>对于伪共享带来的问题，常见的解决方案有：</p>
-<ul>
-<li>缓存行填充。缓存行填充的本质原理是，对于需要确保不分配在同一个Cache Line的两个资源，只需在它们中间填充字节，使得最后两者之间的字节距离大于一个Cache Line长度，此时可简单证明必然不会被分配到同一个Cache Line</li>
-<li>资源对齐。自动调整使得资源在Cache Line边界开始</li>
-<li>…</li>
-</ul>
-<p>伪共享问题的存在不可杜绝，解决伪共享问题需要一定成本，比如“Cache Line空间浪费”，“使用额外机制的复杂性引入”等，因此，是否解决伪共享问题需要具体情况具体分析，一般只有当收益远远大于成本时，才需要考虑解决伪共享问题，比如“一个队列数据结构，head和tail指针有大的并发修改概率”。</p>
-<h2 id="四、Java中伪共享问题解决"><a href="#四、Java中伪共享问题解决" class="headerlink" title="四、Java中伪共享问题解决"></a><strong>四、Java中伪共享问题解决</strong></h2><p>接下来的叙述以64位系统为环境，在64位系统中，一个Cache Line的长度为64字节。</p>
-<h3 id="4-1、解决方案"><a href="#4-1、解决方案" class="headerlink" title="4.1、解决方案"></a><strong>4.1、解决方案</strong></h3><p>Java中对于伪共享问题的解决方案是“缓存行填充”，常见的具体手段有：“填充冗余变量”和“Java 8中引入的&#64;sun.misc.Contended注解”。</p>
-<p>在继续介绍之前，首先须明晰下Java内存结构与Cache Line的关系：</p>
-<ul>
-<li>Java内存结构（包括“栈”、“Java堆”、“方法区”等）跟Cache Line没有关系，Cache Line只跟主存数据块有关</li>
-<li>Java中两个变量是否会被加载到同一个Cache Line只由他们是否被分配到同一个主存数据块决定。围绕Java堆中Java对象（Java对象内存布局参见“备注”）内的变量进行说明：<ul>
-<li>一个Java类A，其内只有一个long变量value，那么类A的实例对象在不考虑“对齐填充字节”的前提下占据24个字节（对象头16个字节，value变量8个字节）。围绕value变量，一个Cache Line最多可以加载3个value变量（1个不完整的类A实例对象，但加载了value部分，8到16个字节；2个完整的类A实例对象共48个字节），也可以是2个value变量，1个value变量，0个value变量</li>
-<li>一个Java类A，其内只有一个long变量value，一个<code>m = new A[3]</code>数组对象m，那么类A的实例对象在不考虑“对齐填充字节”的前提下占据24个字节（对象头16个字节，value变量8个字节），m在不考虑“对齐填充字节”的前提下占据32个字节（对象头20个字节，实例数据是3个引用变量12个字节）。围绕value变量和数组元素引用变量refer，一个Cache Line最多可以加载2个value变量和3个refer变量（1个不完整的类A实例对象，但加载了value部分，8个字节；1个完整的类A实例对象24个字节；1个完整的m数组对象32个字节）</li>
-</ul>
-</li>
-</ul>
-<br/>
-
-<p><strong>备注</strong>：<br>Java对象的内存布局由3部分组成：</p>
-<ul>
-<li>对象头。包含3部分：Mark Word（在64位系统中占据8字节），指向类元数据的指针（Klass Pointer，在64位系统中占据8字节），数组长度（在64位系统中占据4字节，只有数组对象才有该部分）</li>
-<li>实例数据</li>
-<li>对齐填充字节，Java对象大小要求是8字节的倍数，因此可能需要进行字节填充对齐</li>
-</ul>
-<h4 id="4-1-1、填充冗余变量"><a href="#4-1-1、填充冗余变量" class="headerlink" title="4.1.1、填充冗余变量"></a><strong>4.1.1、填充冗余变量</strong></h4><p>假定需要隔离的两个变量为a和b，那么可在a和b之间填充冗余变量。</p>
-<p>上述方案的缺点是：</p>
-<ul>
-<li>耦合系统位数。在32和64位系统中，冗余变量填充所需的个数不一样。在32位系统中，Cache Line的长度为32字节，Java对象头所占据字节数分别为“Mark Word（4字节）”，“指向类的指针（4字节）”，“数组长度（4字节，只有数组对象才有该部分）”；在64位系统中，Cache Line的长度为64字节，Java对象头所占据字节数分别为“Mark Word（8字节）”，“指向类的指针（8字节）”，“数组长度（4字节，只有数组对象才有该部分）”</li>
-<li>一些JDK会智能去掉冗余变量，此时，该方案失效。故跟使用的JDK耦合</li>
-</ul>
-<h4 id="4-1-2、Java-8中引入的-64-sun-misc-Contended注解"><a href="#4-1-2、Java-8中引入的-64-sun-misc-Contended注解" class="headerlink" title="4.1.2、Java 8中引入的&#64;sun.misc.Contended注解"></a><strong>4.1.2、Java 8中引入的&#64;sun.misc.Contended注解</strong></h4><p>通过使用该注解解决伪共享问题的原理是：运行时会分别在前后填充128字节。<br>注解的修饰目标有两个，分别是“类”和“类内成员变量”：</p>
-<ul>
-<li>类。在类内首个成员变量前填充128字节，在类内最后一个成员变量后填充128字节</li>
-<li>类内成员变量。在成员变量前填充128字节，在成员变量后填充128字节</li>
-</ul>
-<p><strong>备注：</strong></p>
-<ul>
-<li>以上填充策略描述只是大体轮廓，还有很多具体细节未涉及</li>
-</ul>
-<h3 id="4-2、几个案例"><a href="#4-2、几个案例" class="headerlink" title="4.2、几个案例"></a><strong>4.2、几个案例</strong></h3><p><strong>1、案例1</strong><br>著名的Java并发编程大师Doug lea在JDK 7的并发包里新增了一个队列类LinkedTransferQueue，它的部分代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** 队列中的头部节点 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">final</span> PaddedAtomicReference&lt;QNode&gt; head;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 队列中的尾部节点 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">final</span> PaddedAtomicReference&lt;QNode&gt; tail;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">PaddedAtomicReference</span> &lt;T&gt; <span class="keyword">extends</span> <span class="title class_">AtomicReference</span> &lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// 使用很多4个字节的引用追加到64个字节</span></span><br><span class="line">    Object p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, pa, pb, pc, pd, pe;</span><br><span class="line">    PaddedAtomicReference(T r) &#123;</span><br><span class="line">        <span class="built_in">super</span>(r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AtomicReference</span> &lt;V&gt; <span class="keyword">implements</span> <span class="title class_">java</span>.io.Serializable &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> V value;</span><br><span class="line">    <span class="comment">// 省略其他代码</span></span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
-<p>在上述代码中，head和tail分别指向头部节点和尾部节点，不过需要注意的是，实际指向节点的引用变量是其中的value变量。当head和tail指向的对象相邻近时，head的value和tail的value很容易被加载到同一个Cache Line，在并发修改头节点和尾节点十分频繁的场景中，并发性能会大大降低，因此，通过填充冗余变量p0-pe（从理论上来说，其实无需填充15个冗余变量这么多，因为PaddedAtomicReference类的实例对象的对象头占据16个字节）的方式，使得两个value的字节距离必大于64个字节，从而确保两者不会被加载到同一个Cache Line。</p>
-<p><strong>2、案例2</strong><br>高性能队列Disruptor中的RingBuffer类使用填充冗余变量的方式解决伪共享问题。<br>截取部分代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">RingBuffer</span>&lt;E&gt; <span class="keyword">extends</span> <span class="title class_">RingBufferFields</span>&lt;E&gt; <span class="keyword">implements</span> <span class="title class_">Cursored</span>, EventSequencer&lt;E&gt;, EventSink&lt;E&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">INITIAL_CURSOR_VALUE</span> <span class="operator">=</span> -<span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p1;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p2;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p3;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p4;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p5;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p6;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p7;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略其他代码</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>3、案例3</strong><br>接下来进行一个实验，笔者机器的CPU配置是：1CPU，4核心，3.2GHz主频。<br>实验代码参考自网络：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">FalseSharing</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">ITERATIONS</span> <span class="operator">=</span> <span class="number">500L</span> * <span class="number">1000L</span> * <span class="number">1000L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="variable">NUM_THREADS</span> <span class="operator">=</span> <span class="number">4</span>; <span class="comment">// change</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> VolatileLong[] longs;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> arrayIndex;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FalseSharing</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> arrayIndex)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.arrayIndex = arrayIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        Thread.sleep(<span class="number">10000</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;starting....&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (args.length == <span class="number">1</span>) &#123;</span><br><span class="line">            NUM_THREADS = Integer.parseInt(args[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        longs = <span class="keyword">new</span> <span class="title class_">VolatileLong</span>[NUM_THREADS];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; longs.length; i++) &#123;</span><br><span class="line">            longs[i] = <span class="keyword">new</span> <span class="title class_">VolatileLong</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">        runTest();</span><br><span class="line">        System.out.println(<span class="string">&quot;duration = &quot;</span> + (System.nanoTime() - start));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">runTest</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        Thread[] threads = <span class="keyword">new</span> <span class="title class_">Thread</span>[NUM_THREADS];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; threads.length; i++) &#123;</span><br><span class="line">            threads[i] = <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">FalseSharing</span>(i));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Thread t : threads) &#123;</span><br><span class="line">            t.start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Thread t : threads) &#123;</span><br><span class="line">            t.join();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">i</span> <span class="operator">=</span> ITERATIONS + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">0</span> != --i) &#123;</span><br><span class="line">            longs[arrayIndex].value = i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行<code>java FalseSharing</code>，结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 25836786319</span><br></pre></td></tr></table></figure>
-<p>即25秒左右，通过填充5个冗余变量的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> p1, p2, p3, p4, p5; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在两个实例对象内的value变量字节距离至少为64个字节（对象头16个字节，value变量8个字节，5个冗余变量40个字节），执行<code>java -XX:-UseCompressedOops FalseSharing</code>（这里需要加上“-XX:-UseCompressedOops”VM参数，否则上述64个字节距离的计算是错误的），结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 15333024669</span><br></pre></td></tr></table></figure>
-<p>即15秒左右，通过填充6个冗余变量的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> p1, p2, p3, p4, p5, p6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行<code>java FalseSharing</code>，结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 4591050110</span><br></pre></td></tr></table></figure>
-<p>即4秒左右，这里有个奇怪的现象就是：理论上来说，填充5个冗余变量的方式跟填充6个冗余变量的方式都解决了伪共享问题，但是后者却比前者大大提升了性能。<font color='red'>笔者百思不得其解，请知道的读者不吝赐教。</font></p>
-<p>接下来使用Contended注解的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="meta">@Contended</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行<code>java -XX:-RestrictContended FalseSharing</code>（要想使用“@Contended”注解，须加上“-XX:-RestrictContended”VM参数），结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 5072695821</span><br></pre></td></tr></table></figure>
-
-
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://blog.csdn.net/qq_27680317/article/details/78486220">https://blog.csdn.net/qq_27680317/article/details/78486220</a><br>[2]<a href="http://ifeve.com/from-javaeye-false-sharing/">http://ifeve.com/from-javaeye-false-sharing/</a><br>[3]<a href="http://mail.openjdk.java.net/pipermail/hotspot-dev/2012-November/007309.html">http://mail.openjdk.java.net/pipermail/hotspot-dev/2012-November/007309.html</a><br>[4]<a href="https://blog.csdn.net/lkforce/article/details/81128115">https://blog.csdn.net/lkforce/article/details/81128115</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
     <title>使用/proc/cpuinfo文件查看CPU信息</title>
     <url>/blog/2023/02/16/%E4%BD%BF%E7%94%A8-proc-cpuinfo%E6%96%87%E4%BB%B6%E6%9F%A5%E7%9C%8BCPU%E4%BF%A1%E6%81%AF/</url>
     <content><![CDATA[<p>关于CPU的基本概念、架构和核心参数可参见[1]。</p>
@@ -16192,6 +16554,92 @@
       <categories>
         <category>操作系统</category>
         <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>伪共享</title>
+    <url>/blog/2020/07/22/%E4%BC%AA%E5%85%B1%E4%BA%AB/</url>
+    <content><![CDATA[<h2 id="一、伪共享含义"><a href="#一、伪共享含义" class="headerlink" title="一、伪共享含义"></a><strong>一、伪共享含义</strong></h2><p>根据<a href="/2019/06/07/%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98/" title="高速缓存">《高速缓存》</a>可知，高速缓存中的Cache Line缓存一定数量的字节，而不是只有1个字节。一般情况下，一个Cache Line有32或者64个字节。如果属于不同资源（比如“变量”）的字节被加载到同一个Cache Line，就导致出现了伪共享。</p>
+<h2 id="二、伪共享带来的问题"><a href="#二、伪共享带来的问题" class="headerlink" title="二、伪共享带来的问题"></a><strong>二、伪共享带来的问题</strong></h2><p>根据以上叙述，伪共享带来问题的本质叙述是：由于Cache Line缓存一定数量的字节，使得一部分原本不处于竞争关系的资源具有了竞争关系，而这最终导致了并发性能下降。<br><font color='red'>伪共享问题是底层硬件机制问题，故存在于所有程序语言中。</font></p>
+<p>比如：</p>
+<ul>
+<li>假定变量a和b被加载到同一个Cache Line，在缓存锁定场景中，对a&#x2F;b变量进行原子操作时，相应的Cache Line被缓存锁定，此时不能再并发修改和读取另外一个变量</li>
+<li>假定变量a和b被加载到同一个Cache Line，在MESI协议中，对a&#x2F;b变量修改时，MESI协议要求锁住相应的Cache Line（需要注意的是，“锁住”与“缓存锁定”不同），此时不能再并发修改另外一个变量</li>
+</ul>
+<h2 id="三、伪共享带来的问题解决"><a href="#三、伪共享带来的问题解决" class="headerlink" title="三、伪共享带来的问题解决"></a><strong>三、伪共享带来的问题解决</strong></h2><p>对于伪共享带来的问题，常见的解决方案有：</p>
+<ul>
+<li>缓存行填充。缓存行填充的本质原理是，对于需要确保不分配在同一个Cache Line的两个资源，只需在它们中间填充字节，使得最后两者之间的字节距离大于一个Cache Line长度，此时可简单证明必然不会被分配到同一个Cache Line</li>
+<li>资源对齐。自动调整使得资源在Cache Line边界开始</li>
+<li>…</li>
+</ul>
+<p>伪共享问题的存在不可杜绝，解决伪共享问题需要一定成本，比如“Cache Line空间浪费”，“使用额外机制的复杂性引入”等，因此，是否解决伪共享问题需要具体情况具体分析，一般只有当收益远远大于成本时，才需要考虑解决伪共享问题，比如“一个队列数据结构，head和tail指针有大的并发修改概率”。</p>
+<h2 id="四、Java中伪共享问题解决"><a href="#四、Java中伪共享问题解决" class="headerlink" title="四、Java中伪共享问题解决"></a><strong>四、Java中伪共享问题解决</strong></h2><p>接下来的叙述以64位系统为环境，在64位系统中，一个Cache Line的长度为64字节。</p>
+<h3 id="4-1、解决方案"><a href="#4-1、解决方案" class="headerlink" title="4.1、解决方案"></a><strong>4.1、解决方案</strong></h3><p>Java中对于伪共享问题的解决方案是“缓存行填充”，常见的具体手段有：“填充冗余变量”和“Java 8中引入的&#64;sun.misc.Contended注解”。</p>
+<p>在继续介绍之前，首先须明晰下Java内存结构与Cache Line的关系：</p>
+<ul>
+<li>Java内存结构（包括“栈”、“Java堆”、“方法区”等）跟Cache Line没有关系，Cache Line只跟主存数据块有关</li>
+<li>Java中两个变量是否会被加载到同一个Cache Line只由他们是否被分配到同一个主存数据块决定。围绕Java堆中Java对象（Java对象内存布局参见“备注”）内的变量进行说明：<ul>
+<li>一个Java类A，其内只有一个long变量value，那么类A的实例对象在不考虑“对齐填充字节”的前提下占据24个字节（对象头16个字节，value变量8个字节）。围绕value变量，一个Cache Line最多可以加载3个value变量（1个不完整的类A实例对象，但加载了value部分，8到16个字节；2个完整的类A实例对象共48个字节），也可以是2个value变量，1个value变量，0个value变量</li>
+<li>一个Java类A，其内只有一个long变量value，一个<code>m = new A[3]</code>数组对象m，那么类A的实例对象在不考虑“对齐填充字节”的前提下占据24个字节（对象头16个字节，value变量8个字节），m在不考虑“对齐填充字节”的前提下占据32个字节（对象头20个字节，实例数据是3个引用变量12个字节）。围绕value变量和数组元素引用变量refer，一个Cache Line最多可以加载2个value变量和3个refer变量（1个不完整的类A实例对象，但加载了value部分，8个字节；1个完整的类A实例对象24个字节；1个完整的m数组对象32个字节）</li>
+</ul>
+</li>
+</ul>
+<br/>
+
+<p><strong>备注</strong>：<br>Java对象的内存布局由3部分组成：</p>
+<ul>
+<li>对象头。包含3部分：Mark Word（在64位系统中占据8字节），指向类元数据的指针（Klass Pointer，在64位系统中占据8字节），数组长度（在64位系统中占据4字节，只有数组对象才有该部分）</li>
+<li>实例数据</li>
+<li>对齐填充字节，Java对象大小要求是8字节的倍数，因此可能需要进行字节填充对齐</li>
+</ul>
+<h4 id="4-1-1、填充冗余变量"><a href="#4-1-1、填充冗余变量" class="headerlink" title="4.1.1、填充冗余变量"></a><strong>4.1.1、填充冗余变量</strong></h4><p>假定需要隔离的两个变量为a和b，那么可在a和b之间填充冗余变量。</p>
+<p>上述方案的缺点是：</p>
+<ul>
+<li>耦合系统位数。在32和64位系统中，冗余变量填充所需的个数不一样。在32位系统中，Cache Line的长度为32字节，Java对象头所占据字节数分别为“Mark Word（4字节）”，“指向类的指针（4字节）”，“数组长度（4字节，只有数组对象才有该部分）”；在64位系统中，Cache Line的长度为64字节，Java对象头所占据字节数分别为“Mark Word（8字节）”，“指向类的指针（8字节）”，“数组长度（4字节，只有数组对象才有该部分）”</li>
+<li>一些JDK会智能去掉冗余变量，此时，该方案失效。故跟使用的JDK耦合</li>
+</ul>
+<h4 id="4-1-2、Java-8中引入的-64-sun-misc-Contended注解"><a href="#4-1-2、Java-8中引入的-64-sun-misc-Contended注解" class="headerlink" title="4.1.2、Java 8中引入的&#64;sun.misc.Contended注解"></a><strong>4.1.2、Java 8中引入的&#64;sun.misc.Contended注解</strong></h4><p>通过使用该注解解决伪共享问题的原理是：运行时会分别在前后填充128字节。<br>注解的修饰目标有两个，分别是“类”和“类内成员变量”：</p>
+<ul>
+<li>类。在类内首个成员变量前填充128字节，在类内最后一个成员变量后填充128字节</li>
+<li>类内成员变量。在成员变量前填充128字节，在成员变量后填充128字节</li>
+</ul>
+<p><strong>备注：</strong></p>
+<ul>
+<li>以上填充策略描述只是大体轮廓，还有很多具体细节未涉及</li>
+</ul>
+<h3 id="4-2、几个案例"><a href="#4-2、几个案例" class="headerlink" title="4.2、几个案例"></a><strong>4.2、几个案例</strong></h3><p><strong>1、案例1</strong><br>著名的Java并发编程大师Doug lea在JDK 7的并发包里新增了一个队列类LinkedTransferQueue，它的部分代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** 队列中的头部节点 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">final</span> PaddedAtomicReference&lt;QNode&gt; head;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 队列中的尾部节点 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">final</span> PaddedAtomicReference&lt;QNode&gt; tail;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">PaddedAtomicReference</span> &lt;T&gt; <span class="keyword">extends</span> <span class="title class_">AtomicReference</span> &lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// 使用很多4个字节的引用追加到64个字节</span></span><br><span class="line">    Object p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, pa, pb, pc, pd, pe;</span><br><span class="line">    PaddedAtomicReference(T r) &#123;</span><br><span class="line">        <span class="built_in">super</span>(r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AtomicReference</span> &lt;V&gt; <span class="keyword">implements</span> <span class="title class_">java</span>.io.Serializable &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> V value;</span><br><span class="line">    <span class="comment">// 省略其他代码</span></span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
+<p>在上述代码中，head和tail分别指向头部节点和尾部节点，不过需要注意的是，实际指向节点的引用变量是其中的value变量。当head和tail指向的对象相邻近时，head的value和tail的value很容易被加载到同一个Cache Line，在并发修改头节点和尾节点十分频繁的场景中，并发性能会大大降低，因此，通过填充冗余变量p0-pe（从理论上来说，其实无需填充15个冗余变量这么多，因为PaddedAtomicReference类的实例对象的对象头占据16个字节）的方式，使得两个value的字节距离必大于64个字节，从而确保两者不会被加载到同一个Cache Line。</p>
+<p><strong>2、案例2</strong><br>高性能队列Disruptor中的RingBuffer类使用填充冗余变量的方式解决伪共享问题。<br>截取部分代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">RingBuffer</span>&lt;E&gt; <span class="keyword">extends</span> <span class="title class_">RingBufferFields</span>&lt;E&gt; <span class="keyword">implements</span> <span class="title class_">Cursored</span>, EventSequencer&lt;E&gt;, EventSink&lt;E&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">INITIAL_CURSOR_VALUE</span> <span class="operator">=</span> -<span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p1;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p2;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p3;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p4;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p5;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p6;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">long</span> p7;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略其他代码</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3、案例3</strong><br>接下来进行一个实验，笔者机器的CPU配置是：1CPU，4核心，3.2GHz主频。<br>实验代码参考自网络：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">FalseSharing</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">ITERATIONS</span> <span class="operator">=</span> <span class="number">500L</span> * <span class="number">1000L</span> * <span class="number">1000L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="variable">NUM_THREADS</span> <span class="operator">=</span> <span class="number">4</span>; <span class="comment">// change</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> VolatileLong[] longs;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> arrayIndex;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FalseSharing</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> arrayIndex)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.arrayIndex = arrayIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        Thread.sleep(<span class="number">10000</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;starting....&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (args.length == <span class="number">1</span>) &#123;</span><br><span class="line">            NUM_THREADS = Integer.parseInt(args[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        longs = <span class="keyword">new</span> <span class="title class_">VolatileLong</span>[NUM_THREADS];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; longs.length; i++) &#123;</span><br><span class="line">            longs[i] = <span class="keyword">new</span> <span class="title class_">VolatileLong</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">        runTest();</span><br><span class="line">        System.out.println(<span class="string">&quot;duration = &quot;</span> + (System.nanoTime() - start));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">runTest</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        Thread[] threads = <span class="keyword">new</span> <span class="title class_">Thread</span>[NUM_THREADS];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; threads.length; i++) &#123;</span><br><span class="line">            threads[i] = <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">FalseSharing</span>(i));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Thread t : threads) &#123;</span><br><span class="line">            t.start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Thread t : threads) &#123;</span><br><span class="line">            t.join();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">i</span> <span class="operator">=</span> ITERATIONS + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">0</span> != --i) &#123;</span><br><span class="line">            longs[arrayIndex].value = i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>java FalseSharing</code>，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 25836786319</span><br></pre></td></tr></table></figure>
+<p>即25秒左右，通过填充5个冗余变量的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> p1, p2, p3, p4, p5; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在两个实例对象内的value变量字节距离至少为64个字节（对象头16个字节，value变量8个字节，5个冗余变量40个字节），执行<code>java -XX:-UseCompressedOops FalseSharing</code>（这里需要加上“-XX:-UseCompressedOops”VM参数，否则上述64个字节距离的计算是错误的），结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 15333024669</span><br></pre></td></tr></table></figure>
+<p>即15秒左右，通过填充6个冗余变量的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> p1, p2, p3, p4, p5, p6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>java FalseSharing</code>，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 4591050110</span><br></pre></td></tr></table></figure>
+<p>即4秒左右，这里有个奇怪的现象就是：理论上来说，填充5个冗余变量的方式跟填充6个冗余变量的方式都解决了伪共享问题，但是后者却比前者大大提升了性能。<font color='red'>笔者百思不得其解，请知道的读者不吝赐教。</font></p>
+<p>接下来使用Contended注解的方式解决伪共享问题，<code>VolatileLong</code>类修改后的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">VolatileLong</span> &#123;</span><br><span class="line">    <span class="meta">@Contended</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="type">long</span> <span class="variable">value</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>java -XX:-RestrictContended FalseSharing</code>（要想使用“@Contended”注解，须加上“-XX:-RestrictContended”VM参数），结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">starting....</span><br><span class="line">duration = 5072695821</span><br></pre></td></tr></table></figure>
+
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://blog.csdn.net/qq_27680317/article/details/78486220">https://blog.csdn.net/qq_27680317/article/details/78486220</a><br>[2]<a href="http://ifeve.com/from-javaeye-false-sharing/">http://ifeve.com/from-javaeye-false-sharing/</a><br>[3]<a href="http://mail.openjdk.java.net/pipermail/hotspot-dev/2012-November/007309.html">http://mail.openjdk.java.net/pipermail/hotspot-dev/2012-November/007309.html</a><br>[4]<a href="https://blog.csdn.net/lkforce/article/details/81128115">https://blog.csdn.net/lkforce/article/details/81128115</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
       </categories>
   </entry>
   <entry>
@@ -18941,6 +19389,64 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>并发Set</title>
+    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
+    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
+<ul>
+<li>其在Java容器中的划分位置见[1]</li>
+<li>根接口为Set，其内元素允许为<code>NULL</code></li>
+<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
+<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
+<li>接下来介绍其常见的两个子类：<ul>
+<li>CopyOnWriteArraySet</li>
+<li>SynchronizedSet</li>
+</ul>
+</li>
+</ul>
+<br/>
+
+<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
+<ul>
+<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
+<li>底层数据结构基于“数组”，还是“链表”</li>
+<li>实现操作的线程安全策略</li>
+<li>生成的迭代器性质[1]</li>
+</ul>
+<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于<code>CopyOnWriteArrayList</code></li>
+<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
+<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
+<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
+<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
+</ul>
+<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
+<p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于所传入的Set实例，有界性也依赖于它</li>
+<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
+<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
+<li><code>Object mutex</code>：传入的锁对象</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
     <title>并发Queue</title>
     <url>/blog/2021/08/11/%E5%B9%B6%E5%8F%91Queue/</url>
     <content><![CDATA[<p>本文介绍并发Queue，有几点说明：</p>
@@ -19543,61 +20049,42 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>并发Set</title>
-    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
-    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
+    <title>开车</title>
+    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
+    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
+<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
+<li>踩住刹车</li>
+<li>插入钥匙，点火</li>
+<li>挂好档位（从停车档到行驶档）</li>
+<li>松掉刹车</li>
+</ol>
+<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
+<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
+<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
 <ul>
-<li>其在Java容器中的划分位置见[1]</li>
-<li>根接口为Set，其内元素允许为<code>NULL</code></li>
-<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
-<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
-<li>接下来介绍其常见的两个子类：<ul>
-<li>CopyOnWriteArraySet</li>
-<li>SynchronizedSet</li>
+<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
+<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
 </ul>
-</li>
-</ul>
+<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
+<ol>
+<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
+<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
+</ol>
+<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
+<ol>
+<li>不要“松掉刹车”，就是“踩住刹车”</li>
+<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
+<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
+<li>不要“踩住刹车”，就是“松掉刹车”</li>
+</ol>
 <br/>
 
-<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
-<ul>
-<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
-<li>底层数据结构基于“数组”，还是“链表”</li>
-<li>实现操作的线程安全策略</li>
-<li>生成的迭代器性质[1]</li>
-</ul>
-<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于<code>CopyOnWriteArrayList</code></li>
-<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
-<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
-<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
-<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
-</ul>
-<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
-<p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于所传入的Set实例，有界性也依赖于它</li>
-<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
-<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
-<li><code>Object mutex</code>：传入的锁对象</li>
-</ul>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
 ]]></content>
       <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
+        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
@@ -19768,45 +20255,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>开车</title>
-    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
-    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
-<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
-<li>踩住刹车</li>
-<li>插入钥匙，点火</li>
-<li>挂好档位（从停车档到行驶档）</li>
-<li>松掉刹车</li>
-</ol>
-<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
-<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
-<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
-<ul>
-<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
-<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
-</ul>
-<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
-<ol>
-<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
-<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
-</ol>
-<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
-<ol>
-<li>不要“松掉刹车”，就是“踩住刹车”</li>
-<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
-<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
-<li>不要“踩住刹车”，就是“松掉刹车”</li>
-</ol>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>

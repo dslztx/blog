@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="#cssTable td  {     text-align: center;      vertical-align: middle; }   IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：  首部：由“固定首部”和“可选首部”两部分组成，长度范围为[20字节,60字节] 固定首部：从版本字段到目的地址字段为止，长度为定长20字节 可选首部：在目的地址字段和数据字段之间，长度范">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IPv4报文">
+<meta property="og:url" content="https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="#cssTable td  {     text-align: center;      vertical-align: middle; }   IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：  首部：由“固定首部”和“可选首部”两部分组成，长度范围为[20字节,60字节] 固定首部：从版本字段到目的地址字段为止，长度为定长20字节 可选首部：在目的地址字段和数据字段之间，长度范">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-13T07:39:47.000Z">
+<meta property="article:modified_time" content="2024-03-13T17:31:56.797Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>IPv4报文 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IPv4报文
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-13 15:39:47" itemprop="dateCreated datePublished" datetime="2024-03-13T15:39:47+08:00">2024-03-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-14 01:31:56" itemprop="dateModified" datetime="2024-03-14T01:31:56+08:00">2024-03-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/03/13/IPv4报文/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <style>
+#cssTable td 
+{
+    text-align: center; 
+    vertical-align: middle;
+}
+</style>
+
+<p>IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：</p>
+<ol>
+<li>首部：由“固定首部”和“可选首部”两部分组成，长度范围为<code>[20字节,60字节]</code><ul>
+<li>固定首部：从<code>版本</code>字段到<code>目的地址</code>字段为止，长度为定长<code>20字节</code></li>
+<li>可选首部：在<code>目的地址</code>字段和<code>数据</code>字段之间，长度范围为<code>[0字节,40字节]</code>，且为4字节倍数</li>
+</ul>
+</li>
+<li>数据：IPv4报文数据，长度范围为<code>[0字节,65535字节-20字节=65515字节]</code></li>
+</ol>
+<br/>
+
+<p>下表是上述3部分的示意。</p>
+<table id="cssTable">
+<tbody>
+<tr><td width=10%>固定首部</td><td width=20% style="background-color:darkgray">可选首部</td><td width=70%>数据</td></tr>
+</tbody>
+</table>
+
+<br/>
+
+<p>下表是固定首部的示意。</p>
+<table id="cssTable">
+<tbody>
+<tr><td colspan=4  width=12.5%>版本（4 bits）</td><td colspan=4 width=12.5%><font color='red'>首部长度（4 bits）</font></td><td  colspan=8 width=25%>区分服务（8 bits）</td><td  colspan=16><font color='red'>总长度（16 bits）</font></td></tr>
+<tr><td colspan=16 width=50%>标识（16 bits）</td><td  colspan=3 width=9.4%>标志（3 bits）</td><td colspan=13 width=40.6%>片偏移（13 bits）</td></tr>
+<tr><td colspan=8 width=25%>生存时间（8 bits）</td><td colspan=8 width=25%><font color='red'>协议（8 bits）</font></td><td colspan=16  width=50% >首部检验和（16 bits）</td></tr>
+<tr><td  colspan=32 width=100%><font color='red'>源地址（32 bits）</font></td></tr>
+<tr><td  colspan=32 width=100%><font color='red'>目的地址（32 bits）</font></td></tr>
+</tbody>
+</table>
+
+<br/>
+
+<h2 id="一、固定首部"><a href="#一、固定首部" class="headerlink" title="一、固定首部"></a><strong>一、固定首部</strong></h2><h3 id="1-1、版本"><a href="#1-1、版本" class="headerlink" title="1.1、版本"></a><strong>1.1、版本</strong></h3><p>英文名：<code>Version</code>。</p>
+<p>长度：4 bits。</p>
+<p>含义：指明IP协议版本号，IPv4版本的话其值为<code>0100</code>。</p>
+<h3 id="1-2、首部长度"><a href="#1-2、首部长度" class="headerlink" title="1.2、首部长度"></a><strong>1.2、首部长度</strong></h3><p>英文名：<code>Header Length</code>。</p>
+<p>长度：4 bits。</p>
+<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部。</p>
+<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services (DS)</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：分为“6 bits的区分服务代码点（Differentiated Services Codepoint，DSCP）”和“2 bits的显式拥塞通知（Explicit Congestion Notification，ECN）”两部分：1）前者可用来标识该IPv4报文数据的服务类型，在支持该字段的网路设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务；2）后者用来扩展拥塞控制机制。</p>
+<p>扩展说明：</p>
+<ul>
+<li>之前该字段被设计作为“服务类型（Type of Service，TOS）”，<font color='red'>已废弃，被DS替代</font></li>
+<li>网络设备是否支持该字段、对该字段的支持程度、对该字段支持的具体落地方案等由生产厂商自决定</li>
+</ul>
+<h4 id="1-3-1、DSCP"><a href="#1-3-1、DSCP" class="headerlink" title="1.3.1、DSCP"></a><strong>1.3.1、DSCP</strong></h4><p>用于区分不同服务。</p>
+<p><strong>备注：</strong>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰。[3]</p>
+<h5 id="1-3-1-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1.1、支持DSCP字段的路由器的应对行为分类</strong></h5><p>支持DSCP字段的路由器的应对行为分为4类：</p>
+<ol>
+<li>Expedited Forwarding PHB (EF PHB)：迅速转发PHB</li>
+<li>Assured Forwarding PHB (AF PHB)：确保转发PHB</li>
+<li>Default Forwarding PHB (DF PHB)：默认转发PHB</li>
+<li>Class Selector PHBs：该分类主要是为了兼容TOS</li>
+</ol>
+<h5 id="1-3-1-2、Service-Class"><a href="#1-3-1-2、Service-Class" class="headerlink" title="1.3.1.2、Service Class"></a><strong>1.3.1.2、Service Class</strong></h5><p>见<code>RFC 4594</code>。</p>
+<h5 id="1-3-1-3、DSCP说明"><a href="#1-3-1-3、DSCP说明" class="headerlink" title="1.3.1.3、DSCP说明"></a><strong>1.3.1.3、DSCP说明</strong></h5><table>
+<thead>
+<tr>
+<th>DSCP二进制</th>
+<th>DSCP十进制</th>
+<th>PHB</th>
+<th>细分</th>
+<th>Service Class</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>001,010</td>
+<td>10</td>
+<td>AF</td>
+<td>AF1 + 低丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>001,100</td>
+<td>12</td>
+<td>AF</td>
+<td>AF1 + 中丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>001,110</td>
+<td>14</td>
+<td>AF</td>
+<td>AF1 + 高丢弃优先级</td>
+<td>High-Throughput Data</td>
+</tr>
+<tr>
+<td>010,010</td>
+<td>18</td>
+<td>AF</td>
+<td>AF2 + 低丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>010,100</td>
+<td>20</td>
+<td>AF</td>
+<td>AF2 + 中丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>010,110</td>
+<td>22</td>
+<td>AF</td>
+<td>AF2 + 高丢弃优先级</td>
+<td>Low-Latency Data</td>
+</tr>
+<tr>
+<td>011,010</td>
+<td>26</td>
+<td>AF</td>
+<td>AF3 + 低丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>011,100</td>
+<td>28</td>
+<td>AF</td>
+<td>AF3 + 中丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>011,110</td>
+<td>30</td>
+<td>AF</td>
+<td>AF3 + 高丢弃优先级</td>
+<td>Multimedia Streaming</td>
+</tr>
+<tr>
+<td>100,010</td>
+<td>34</td>
+<td>AF</td>
+<td>AF4 + 低丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>100,100</td>
+<td>36</td>
+<td>AF</td>
+<td>AF4 + 中丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>100,110</td>
+<td>38</td>
+<td>AF</td>
+<td>AF4 + 高丢弃优先级</td>
+<td>Multimedia Conferencing</td>
+</tr>
+<tr>
+<td>101,110</td>
+<td>46</td>
+<td>EF</td>
+<td>&#x2F;</td>
+<td>Telephony</td>
+</tr>
+<tr>
+<td>001,000</td>
+<td>8</td>
+<td>Class Selector</td>
+<td>CS1</td>
+<td>Low-Priority Data</td>
+</tr>
+<tr>
+<td>010,000</td>
+<td>16</td>
+<td>Class Selector</td>
+<td>CS2</td>
+<td>OAM</td>
+</tr>
+<tr>
+<td>011,000</td>
+<td>24</td>
+<td>Class Selector</td>
+<td>CS3</td>
+<td>Broadcast Video</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>32</td>
+<td>Class Selector</td>
+<td>CS4</td>
+<td>Real-Time Interactive</td>
+</tr>
+<tr>
+<td>101,000</td>
+<td>40</td>
+<td>Class Selector</td>
+<td>CS5</td>
+<td>Signaling</td>
+</tr>
+<tr>
+<td>110,000</td>
+<td>48</td>
+<td>Class Selector</td>
+<td>CS6</td>
+<td>Network Control</td>
+</tr>
+<tr>
+<td>111,000</td>
+<td>56</td>
+<td>Class Selector</td>
+<td>CS7</td>
+<td><font color='red'>Reserved for future use</font></td>
+</tr>
+<tr>
+<td>000,000</td>
+<td>0</td>
+<td>DF</td>
+<td>&#x2F;</td>
+<td>Standard</td>
+</tr>
+</tbody></table>
+<p>扩展说明：其他DSCP值默认对应<code>DB PHB</code>和<code>Standard Service Class</code>。</p>
+<h4 id="1-3-2、ECN"><a href="#1-3-2、ECN" class="headerlink" title="1.3.2、ECN"></a><strong>1.3.2、ECN</strong></h4><p>ECN：设计用来完善整个拥塞控制机制。</p>
+<p>之前的拥塞控制机制：传输层通过丢包感知到拥塞，进行拥塞控制。</p>
+<p>ECN——网络层提供的显式拥塞控制标记：</p>
+<ol>
+<li>之前的拥塞控制是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网路层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
+<li>引入ECN后，传输层除了通过丢包感知拥塞之外，也可根据ECN感知拥塞</li>
+</ol>
+<p>ECN值含义如表1。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>ECN值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00</td>
+<td>不支持ECN的传输，非ECT (Non ECN-Capable Transport)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>支持ECN的传输，ECT (0)</td>
+</tr>
+<tr>
+<td>01</td>
+<td>支持ECN的传输，ECT (1)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>发生拥塞，CE (Congestion Experienced)</td>
+</tr>
+</tbody></table>
+<h3 id="1-4、总长度"><a href="#1-4、总长度" class="headerlink" title="1.4、总长度"></a><strong>1.4、总长度</strong></h3><p>英文名：<code>Total Length</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“数据”。</p>
+<h3 id="1-5、标识、标志和片偏移"><a href="#1-5、标识、标志和片偏移" class="headerlink" title="1.5、标识、标志和片偏移"></a><strong>1.5、标识、标志和片偏移</strong></h3><p>首先介绍IPv4报文分片概念：</p>
+<ol>
+<li>数据链路层协议都规定了一个该层协议报文能接收的上层协议递交数据的最大长度，该最大长度被称为最大传送单元MTU（Maximum Transfer Unit），比如以太网协议的MTU值为<code>1500个字节</code>。当IPv4报文总长度超过所使用数据链路层协议的MTU后，需要将该IPv4报文分割成几个，使得每个分割后IPv4报文总长度不超过MTU，该过程即为分片，在IPv4报文接收端会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文</li>
+<li>具体分片过程：<ul>
+<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
+<li>数据。分片数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片数据长度为8字节的倍数</li>
+</ul>
+</li>
+</ol>
+<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始报文</td>
+<td>3820</td>
+<td>0-0</td>
+<td>0</td>
+<td>原始报文首部检验和</td>
+</tr>
+<tr>
+<td>分片1报文</td>
+<td>1420</td>
+<td>0-1</td>
+<td>0</td>
+<td>分片1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2报文</td>
+<td>1420</td>
+<td>0-1</td>
+<td>175(1400&#x2F;8&#x3D;175)</td>
+<td>分片2首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片3报文</td>
+<td>1020</td>
+<td>0-0</td>
+<td>350(2800&#x2F;8&#x3D;350)</td>
+<td>分片3首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分片2-1报文</td>
+<td>820</td>
+<td>0-1</td>
+<td>175(1400&#x2F;8&#x3D;175)</td>
+<td>分片2-1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2-2报文</td>
+<td>620</td>
+<td>0-1</td>
+<td>275(2200&#x2F;8&#x3D;275)</td>
+<td>分片2-2首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<table>
+<thead>
+<tr>
+<th>&#x2F;</th>
+<th>总长度</th>
+<th>标志（DF-MF）</th>
+<th>片偏移</th>
+<th>首部检验和</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始报文</td>
+<td>1508</td>
+<td>0-0</td>
+<td>0</td>
+<td>原始报文首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片1报文</td>
+<td>820</td>
+<td>0-1</td>
+<td>0</td>
+<td>分片1首部检验和，独立计算</td>
+</tr>
+<tr>
+<td>分片2报文</td>
+<td>708</td>
+<td>0-0</td>
+<td>100(800&#x2F;8&#x3D;100)</td>
+<td>分片2首部检验和，独立计算</td>
+</tr>
+</tbody></table>
+<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。</p>
+<p>当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
+<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>共3位，现在只有后面两位有意义：</p>
+<ol>
+<li>最低位记为MF（More Fragment）：<ul>
+<li><code>MF=1</code>：表示后面还有分片</li>
+<li><code>MF=0</code>：1）在分片情形中，表示已是若干分片中最后一个；2）在未分片情形中，表示即原报文本身</li>
+</ul>
+</li>
+<li>次低位记为DF（Don’t Fragment）：<ul>
+<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[4]</li>
+<li><code>DF=0</code>：表示允许分片</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
+<h3 id="1-6、生存时间"><a href="#1-6、生存时间" class="headerlink" title="1.6、生存时间"></a><strong>1.6、生存时间</strong></h3><p>英文名：<code>Time to Live</code>。</p>
+<p>长度：：8 bits。</p>
+<p>含义：生存时间，用于限制数据包在网络上的生存时间，防止数据包在网络中无限循环堵塞网络。在最初设计和实现中，其以秒为单位，报文在经过一个路由器时，该报文的TTL值会被减去在该路由器所耗费的时间，当TTL值减为0时，该报文就会被该路由器丢弃。后来随着技术发展，路由器处理报文的时间远小于1秒，但至少每次减1，因此演变成“跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃”。</p>
+<h3 id="1-7、协议"><a href="#1-7、协议" class="headerlink" title="1.7、协议"></a><strong>1.7、协议</strong></h3><p>英文名：<code>Protocol</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：报文数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
+<table>
+<thead>
+<tr>
+<th>协议名</th>
+<th>ICMP</th>
+<th>IGMP</th>
+<th>IP</th>
+<th>TCP</th>
+<th>EGP</th>
+<th>IGP</th>
+<th>UDP</th>
+<th>IPv6</th>
+<th>ESP</th>
+<th>AH</th>
+<th>ICMP-IPv6</th>
+<th>OSPF</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字段值</td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>6</td>
+<td>8</td>
+<td>9</td>
+<td>17</td>
+<td>41</td>
+<td>50</td>
+<td>51</td>
+<td>58</td>
+<td>89</td>
+</tr>
+</tbody></table>
+<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header Checksum</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：用来标识报文首部是否被篡改，须注意——通过首部检验和的检验是首部未被篡改的必要不充分条件。其具体工作机制是：在报文发送端，首先将首部检验和字段置为全0，然后将报文首部以16 bits为一组分成多组（由于首部长度是4字节的倍数，故正好能划分成整数组），执行<code>反码算术运算求和 + 取反码</code>运算，将结果置入首部检验和字段，后续每个路由器都执行上述运算过程，根据上述运算过程的特点，合法结果值应该是0，如果非0，表示必被篡改，直接丢弃。</p>
+<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source IP Address</code>。</p>
+<p>长度：32 bits。</p>
+<p>含义：源IP地址。</p>
+<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination IP Address</code>。</p>
+<p>长度：32 bits。</p>
+<p>含义：目的IP地址。</p>
+<h2 id="二、可选首部"><a href="#二、可选首部" class="headerlink" title="二、可选首部"></a><strong>二、可选首部</strong></h2><p>英文名：<code>Options</code>。</p>
+<p>长度：可变。结合“1.2、首部长度”小节和“固定首部定长20字节”可知：可选首部长度范围为<code>[0字节,40字节]</code>，且须是4字节倍数，否则需要进行0字节填充。</p>
+<p>含义：可选首部，用于扩展IPv4头部，实际不常用。</p>
+<h2 id="三、数据"><a href="#三、数据" class="headerlink" title="三、数据"></a><strong>三、数据</strong></h2><p>结合“1.4、总长度”小节和“1.2、首部长度”小节可知：数据长度范围为<code>[0字节,65535字节-20字节=65515字节]</code>。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[2]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[3]<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[4]<a target="_blank" rel="noopener" href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[5]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/" title="IPv4报文">https://dslztx.github.io/blog/2024/03/13/IPv4报文/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/02/06/%E4%BD%BF%E7%94%A8Socks%E5%8D%8F%E8%AE%AE%E7%A9%BF%E8%B6%8A%E9%98%B2%E7%81%AB%E5%A2%99/" rel="prev" title="使用Socks协议穿越防火墙">
+      <i class="fa fa-chevron-left"></i> 使用Socks协议穿越防火墙
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">320</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/";
+    this.page.identifier = "2024/03/13/IPv4报文/";
+    this.page.title = "IPv4报文";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
