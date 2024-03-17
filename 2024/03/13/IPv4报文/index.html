@@ -28,7 +28,7 @@
 <meta property="og:description" content="#cssTable td  {     text-align: center;      vertical-align: middle; }   IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：  首部：由“固定首部”和“可选首部”两部分组成，长度范围为[20字节,60字节] 固定首部：从版本字段到目的地址字段为止，长度为定长20字节 可选首部：在目的地址字段和数据字段之间，长度范">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-03-13T07:39:47.000Z">
-<meta property="article:modified_time" content="2024-03-13T17:31:56.797Z">
+<meta property="article:modified_time" content="2024-03-17T15:49:36.936Z">
 <meta property="article:author" content="dslztx">
 <meta name="twitter:card" content="summary">
 
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-03-14 01:31:56" itemprop="dateModified" datetime="2024-03-14T01:31:56+08:00">2024-03-14</time>
+                <time title="修改时间：2024-03-17 23:49:36" itemprop="dateModified" datetime="2024-03-17T23:49:36+08:00">2024-03-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -306,7 +306,7 @@
 <h3 id="1-2、首部长度"><a href="#1-2、首部长度" class="headerlink" title="1.2、首部长度"></a><strong>1.2、首部长度</strong></h3><p>英文名：<code>Header Length</code>。</p>
 <p>长度：4 bits。</p>
 <p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部。</p>
-<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services (DS)</code>。</p>
+<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services Field (DS)</code>。</p>
 <p>长度：8 bits。</p>
 <p>含义：分为“6 bits的区分服务代码点（Differentiated Services Codepoint，DSCP）”和“2 bits的显式拥塞通知（Explicit Congestion Notification，ECN）”两部分：1）前者可用来标识该IPv4报文数据的服务类型，在支持该字段的网路设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务；2）后者用来扩展拥塞控制机制。</p>
 <p>扩展说明：</p>
@@ -627,9 +627,12 @@
 <td>分片2首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。</p>
-<p>当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
-<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>共3位，现在只有后面两位有意义：</p>
+<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>英文名：<code>Identification</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
+<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>英文名：<code>Flags</code>。</p>
+<p>长度：3 bits。</p>
+<p>含义：共3位，现在只有后面两位有意义：</p>
 <ol>
 <li>最低位记为MF（More Fragment）：<ul>
 <li><code>MF=1</code>：表示后面还有分片</li>
@@ -642,7 +645,9 @@
 </ul>
 </li>
 </ol>
-<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
+<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>英文名：<code>Fragment offset</code>。</p>
+<p>长度：13 bits。</p>
+<p>含义：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
 <h3 id="1-6、生存时间"><a href="#1-6、生存时间" class="headerlink" title="1.6、生存时间"></a><strong>1.6、生存时间</strong></h3><p>英文名：<code>Time to Live</code>。</p>
 <p>长度：：8 bits。</p>
 <p>含义：生存时间，用于限制数据包在网络上的生存时间，防止数据包在网络中无限循环堵塞网络。在最初设计和实现中，其以秒为单位，报文在经过一个路由器时，该报文的TTL值会被减去在该路由器所耗费的时间，当TTL值减为0时，该报文就会被该路由器丢弃。后来随着技术发展，路由器处理报文的时间远小于1秒，但至少每次减1，因此演变成“跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃”。</p>
@@ -683,13 +688,13 @@
 <td>89</td>
 </tr>
 </tbody></table>
-<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header Checksum</code>。</p>
+<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header checksum</code>。</p>
 <p>长度：16 bits。</p>
 <p>含义：用来标识报文首部是否被篡改，须注意——通过首部检验和的检验是首部未被篡改的必要不充分条件。其具体工作机制是：在报文发送端，首先将首部检验和字段置为全0，然后将报文首部以16 bits为一组分成多组（由于首部长度是4字节的倍数，故正好能划分成整数组），执行<code>反码算术运算求和 + 取反码</code>运算，将结果置入首部检验和字段，后续每个路由器都执行上述运算过程，根据上述运算过程的特点，合法结果值应该是0，如果非0，表示必被篡改，直接丢弃。</p>
-<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source IP Address</code>。</p>
+<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：源IP地址。</p>
-<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination IP Address</code>。</p>
+<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：目的IP地址。</p>
 <h2 id="二、可选首部"><a href="#二、可选首部" class="headerlink" title="二、可选首部"></a><strong>二、可选首部</strong></h2><p>英文名：<code>Options</code>。</p>
@@ -746,8 +751,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/blog/2024/02/06/%E4%BD%BF%E7%94%A8Socks%E5%8D%8F%E8%AE%AE%E7%A9%BF%E8%B6%8A%E9%98%B2%E7%81%AB%E5%A2%99/" rel="prev" title="使用Socks协议穿越防火墙">
-      <i class="fa fa-chevron-left"></i> 使用Socks协议穿越防火墙
+    <a href="/blog/2024/03/01/%E5%88%86%E7%95%8C%E7%BA%BF/" rel="prev" title="分界线">
+      <i class="fa fa-chevron-left"></i> 分界线
     </a></div>
       <div class="post-nav-item"></div>
     </div>
