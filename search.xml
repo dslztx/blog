@@ -905,43 +905,6 @@
       </categories>
   </entry>
   <entry>
-    <title>CAS</title>
-    <url>/blog/2020/01/14/CAS/</url>
-    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
-<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
-<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
-<ul>
-<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
-<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
-</ul>
-<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
-<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
-<br/>
-
-<p><strong>备注：</strong></p>
-<ul>
-<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
-</ul>
-<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
-<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
-<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Bash Shell快捷键</title>
     <url>/blog/2018/05/31/Bash-Shell%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
     <content><![CDATA[<h2 id="一、移动"><a href="#一、移动" class="headerlink" title="一、移动"></a><strong>一、移动</strong></h2><table>
@@ -1053,6 +1016,43 @@
       <tags>
         <tag>Shell</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>CAS</title>
+    <url>/blog/2020/01/14/CAS/</url>
+    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
+<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
+<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
+<ul>
+<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
+<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
+</ul>
+<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
+<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
+<br/>
+
+<p><strong>备注：</strong></p>
+<ul>
+<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
+</ul>
+<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
+<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
+<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
   </entry>
   <entry>
     <title>CPU</title>
@@ -1401,19 +1401,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Debian开启邮件MTA</title>
-    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
-    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
-
-<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Confluence Wiki标记语言</title>
     <url>/blog/2017/02/07/Confluence-Wiki%E6%A0%87%E8%AE%B0%E8%AF%AD%E8%A8%80/</url>
     <content><![CDATA[<h2 id="一、标题"><a href="#一、标题" class="headerlink" title="一、标题"></a><strong>一、标题</strong></h2><h3 id="1-1、语法"><a href="#1-1、语法" class="headerlink" title="1.1、语法"></a><strong>1.1、语法</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">h1.一级标题</span><br><span class="line">h2.二级标题</span><br><span class="line">h3.三级标题</span><br><span class="line">h4.四级标题</span><br><span class="line">h5.五级标题</span><br><span class="line">h6.六级标题</span><br></pre></td></tr></table></figure>
@@ -1444,13 +1431,12 @@
       </tags>
   </entry>
   <entry>
-    <title>Ext文件系统中，文件的“占用大小”和“使用大小”</title>
-    <url>/blog/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/</url>
-    <content><![CDATA[<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a><strong>一、前言</strong></h2><p>Ext文件系统中，采用“inode&#x2F;block”结构来存储目录文件和一般文件。即目录文件有1个inode节点和1到多个block节点，block节点中存储“&lt;子文件文件名，子文件inode节点序号&gt;”记录；一般文件有1个inode节点和0到多个block节点，block节点中存储一般文件的具体内容。</p>
-<h2 id="二、占用大小和使用大小"><a href="#二、占用大小和使用大小" class="headerlink" title="二、占用大小和使用大小"></a><strong>二、占用大小和使用大小</strong></h2><p>由于采用block节点机制，关于文件的“大小”，就有两个概念：占用大小和使用大小。根据以下两者的定义，可知一般情况下，“文件的使用大小”&lt;&#x3D;“文件的占用大小”。</p>
-<h3 id="2-1、占用大小"><a href="#2-1、占用大小" class="headerlink" title="2.1、占用大小"></a><strong>2.1、占用大小</strong></h3><p>占用大小&#x3D;文件对应的block节点个数*单个block节点大小。</p>
-<h3 id="2-2、使用大小"><a href="#2-2、使用大小" class="headerlink" title="2.2、使用大小"></a><strong>2.2、使用大小</strong></h3><p>使用大小&#x3D;block节点1使用大小（有些空间被空置）+block节点2使用大小（有些空间被空置）+…+block节点N使用大小（有些空间被空置）[假定文件对应N个block节点]。</p>
-<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>显示文件大小的命令（比如“stat命令”，“ls命令”，“du命令”等）显示“占用大小”，还是“使用大小”，由命令具体实现决定。</p>
+    <title>Debian开启邮件MTA</title>
+    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
+    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
+
+<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -1484,6 +1470,20 @@
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Ext文件系统中，文件的“占用大小”和“使用大小”</title>
+    <url>/blog/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/</url>
+    <content><![CDATA[<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a><strong>一、前言</strong></h2><p>Ext文件系统中，采用“inode&#x2F;block”结构来存储目录文件和一般文件。即目录文件有1个inode节点和1到多个block节点，block节点中存储“&lt;子文件文件名，子文件inode节点序号&gt;”记录；一般文件有1个inode节点和0到多个block节点，block节点中存储一般文件的具体内容。</p>
+<h2 id="二、占用大小和使用大小"><a href="#二、占用大小和使用大小" class="headerlink" title="二、占用大小和使用大小"></a><strong>二、占用大小和使用大小</strong></h2><p>由于采用block节点机制，关于文件的“大小”，就有两个概念：占用大小和使用大小。根据以下两者的定义，可知一般情况下，“文件的使用大小”&lt;&#x3D;“文件的占用大小”。</p>
+<h3 id="2-1、占用大小"><a href="#2-1、占用大小" class="headerlink" title="2.1、占用大小"></a><strong>2.1、占用大小</strong></h3><p>占用大小&#x3D;文件对应的block节点个数*单个block节点大小。</p>
+<h3 id="2-2、使用大小"><a href="#2-2、使用大小" class="headerlink" title="2.2、使用大小"></a><strong>2.2、使用大小</strong></h3><p>使用大小&#x3D;block节点1使用大小（有些空间被空置）+block节点2使用大小（有些空间被空置）+…+block节点N使用大小（有些空间被空置）[假定文件对应N个block节点]。</p>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>显示文件大小的命令（比如“stat命令”，“ls命令”，“du命令”等）显示“占用大小”，还是“使用大小”，由命令具体实现决定。</p>
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
       </categories>
   </entry>
   <entry>
@@ -2637,9 +2637,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#64;&#103;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#x6f;&#x6d;">&#103;&#x69;&#116;&#64;&#103;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#x74;&#64;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#x6d;">&#103;&#x69;&#x74;&#64;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#103;&#x69;&#x74;&#x40;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#x6d;">&#103;&#x69;&#x74;&#x40;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#105;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#111;&#x6d;">&#103;&#105;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#x67;&#105;&#116;&#x40;&#103;&#105;&#116;&#x68;&#117;&#98;&#x2e;&#99;&#111;&#x6d;">&#x67;&#105;&#116;&#x40;&#103;&#105;&#116;&#x68;&#117;&#98;&#x2e;&#99;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#x69;&#x74;&#x40;&#103;&#105;&#116;&#104;&#117;&#x62;&#46;&#99;&#x6f;&#x6d;">&#x67;&#x69;&#x74;&#x40;&#103;&#105;&#116;&#104;&#117;&#x62;&#46;&#99;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -3175,6 +3175,7 @@
 </li>
 <li>数据：IPv4报文数据，长度范围为<code>[0字节,65535字节-20字节=65515字节]</code></li>
 </ol>
+<p>整个IPv4报文长度范围为<code>[20字节,65535字节]</code>。</p>
 <br/>
 
 <p>下表是上述3部分的示意。</p>
@@ -5126,6 +5127,27 @@
       </categories>
   </entry>
   <entry>
+    <title>JVM进程概述</title>
+    <url>/blog/2018/09/22/JVM%E8%BF%9B%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h2 id="一、JVM进程创建"><a href="#一、JVM进程创建" class="headerlink" title="一、JVM进程创建"></a><strong>一、JVM进程创建</strong></h2><p>编译JVM语言（比如“Java”，“Groovy”，“Scala”，“Kotlin”，“Clojure”，“Jython”，“JRuby”等）源代码 ——&gt; 字节码 ——&gt; 运行创建JVM进程。</p>
+<h2 id="二、JVM进程内部机制"><a href="#二、JVM进程内部机制" class="headerlink" title="二、JVM进程内部机制"></a><strong>二、JVM进程内部机制</strong></h2><p>关于JVM进程内部机制，有以下几点描述：</p>
+<ul>
+<li>为充分利用JVM进程内存，设计了JVM进程内存模型（即包括有“堆”，“虚拟机栈”，“方法区”等内存区域）。<font color='red'>因此，“Scala”等非“Java”的JVM语言源代码编译运行创建生成的JVM进程跟“Java”语言源代码编译运行创建生成的JVM进程具有完全一致的内存模型</font></li>
+<li>运行内存管理子模块</li>
+<li>运行类加载子模块</li>
+<li>运行JIT编译器</li>
+<li>…</li>
+</ul>
+<h2 id="三、与JVM进程交互的命令工具"><a href="#三、与JVM进程交互的命令工具" class="headerlink" title="三、与JVM进程交互的命令工具"></a><strong>三、与JVM进程交互的命令工具</strong></h2><p>与JVM进程交互的命令工具有：jps，jmap，jstack等。</p>
+<h2 id="四、JVM进程运行监控与问题定位"><a href="#四、JVM进程运行监控与问题定位" class="headerlink" title="四、JVM进程运行监控与问题定位"></a><strong>四、JVM进程运行监控与问题定位</strong></h2><p>须注意，在Linux下，“JVM进程”本质上是“Linux进程”，因此，对于“JVM进程运行监控与问题定位”，本质上包括“JVM进程特定运行监控与问题定位”和“Linux进程运行监控与问题定位”。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
     <title>JVM进程内存分类</title>
     <url>/blog/2021/12/19/JVM%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -5279,27 +5301,6 @@
 <br/>
 
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.ibm.com/developerworks/library/j-nativememory-linux/">http://www.ibm.com/developerworks/library/j-nativememory-linux/</a><br>[2]<a href="https://geosmart.github.io/2016/03/07/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B8/">https://geosmart.github.io/2016/03/07/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B8/</a><br>[3]<a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html">http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html</a><br>[4]<a href="https://openjdk.java.net/jeps/122">https://openjdk.java.net/jeps/122</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>JVM进程概述</title>
-    <url>/blog/2018/09/22/JVM%E8%BF%9B%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<h2 id="一、JVM进程创建"><a href="#一、JVM进程创建" class="headerlink" title="一、JVM进程创建"></a><strong>一、JVM进程创建</strong></h2><p>编译JVM语言（比如“Java”，“Groovy”，“Scala”，“Kotlin”，“Clojure”，“Jython”，“JRuby”等）源代码 ——&gt; 字节码 ——&gt; 运行创建JVM进程。</p>
-<h2 id="二、JVM进程内部机制"><a href="#二、JVM进程内部机制" class="headerlink" title="二、JVM进程内部机制"></a><strong>二、JVM进程内部机制</strong></h2><p>关于JVM进程内部机制，有以下几点描述：</p>
-<ul>
-<li>为充分利用JVM进程内存，设计了JVM进程内存模型（即包括有“堆”，“虚拟机栈”，“方法区”等内存区域）。<font color='red'>因此，“Scala”等非“Java”的JVM语言源代码编译运行创建生成的JVM进程跟“Java”语言源代码编译运行创建生成的JVM进程具有完全一致的内存模型</font></li>
-<li>运行内存管理子模块</li>
-<li>运行类加载子模块</li>
-<li>运行JIT编译器</li>
-<li>…</li>
-</ul>
-<h2 id="三、与JVM进程交互的命令工具"><a href="#三、与JVM进程交互的命令工具" class="headerlink" title="三、与JVM进程交互的命令工具"></a><strong>三、与JVM进程交互的命令工具</strong></h2><p>与JVM进程交互的命令工具有：jps，jmap，jstack等。</p>
-<h2 id="四、JVM进程运行监控与问题定位"><a href="#四、JVM进程运行监控与问题定位" class="headerlink" title="四、JVM进程运行监控与问题定位"></a><strong>四、JVM进程运行监控与问题定位</strong></h2><p>须注意，在Linux下，“JVM进程”本质上是“Linux进程”，因此，对于“JVM进程运行监控与问题定位”，本质上包括“JVM进程特定运行监控与问题定位”和“Linux进程运行监控与问题定位”。</p>
 ]]></content>
       <categories>
         <category>语言</category>
@@ -5875,6 +5876,45 @@
       </categories>
   </entry>
   <entry>
+    <title>Java并发编程的艺术</title>
+    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
+    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java序列化机制释疑</title>
+    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
+    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
+<ul>
+<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
+<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
+</ul>
+<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
+<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java一般语法</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java并发编程基础</title>
     <url>/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h2 id="一、线程基本含义"><a href="#一、线程基本含义" class="headerlink" title="一、线程基本含义"></a><strong>一、线程基本含义</strong></h2><h3 id="1-1、Java线程与操作系统线程"><a href="#1-1、Java线程与操作系统线程" class="headerlink" title="1.1、Java线程与操作系统线程"></a><strong>1.1、Java线程与操作系统线程</strong></h3><p>Java线程由Java语言模型提供并确保在不同操作系统环境上的语义一致性，JDK负责具体实现和屏蔽操作系统环境差异，比如在现代Linux操作系统中，Java线程会被映射到Linux原生线程。</p>
@@ -6353,62 +6393,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Java并发编程的艺术</title>
-    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
-    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java序列化机制释疑</title>
-    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
-    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
-<ul>
-<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
-<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
-</ul>
-<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
-<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java一般语法</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java技术栈中的伪流行</title>
-    <url>/blog/2018/04/14/Java%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%B5%81%E8%A1%8C/</url>
-    <content><![CDATA[<p>很多“流行”都是“伪流行”，不结合具体应用强行使用只会带来负面效果。</p>
-<h2 id="一、Mybatis"><a href="#一、Mybatis" class="headerlink" title="一、Mybatis"></a><strong>一、Mybatis</strong></h2><p>额外依赖耦合Mybatis框架，增加学习成本，提升使用难度。<br>SQL本就是语言，直接使用，高效简洁，功能强大，无额外依赖耦合。可统一在DAO层完成Java对象与数据库表的转换操作（可借助<code>Apache Commons DbUtils</code>或者<code>Spring JDBCTemplate</code>等第三方库）。</p>
-<h2 id="二、Hibernate"><a href="#二、Hibernate" class="headerlink" title="二、Hibernate"></a><strong>二、Hibernate</strong></h2><p>额外依赖耦合Hibernate框架，增加学习成本，提升使用难度。<br>SQL本就是语言，直接使用，高效简洁，功能强大，无额外依赖耦合。可统一在DAO层完成Java对象与数据库表的转换操作（可借助<code>Apache Commons DbUtils</code>或者<code>Spring JDBCTemplate</code>等第三方库）。</p>
-<h2 id="三、SpringBoot"><a href="#三、SpringBoot" class="headerlink" title="三、SpringBoot"></a><strong>三、SpringBoot</strong></h2><p>使用不灵活，不易管理控制，易引入冗余依赖。</p>
-<h2 id="四、Spring-Framework"><a href="#四、Spring-Framework" class="headerlink" title="四、Spring Framework"></a><strong>四、Spring Framework</strong></h2><p>只是优秀的IoC和AOP框架，不是<code>必须使用</code>，结合实际应用场景再决定是否使用。</p>
-<h2 id="五、Gradle"><a href="#五、Gradle" class="headerlink" title="五、Gradle"></a><strong>五、Gradle</strong></h2><p>基于Apache Ant和Apache Maven概念的项目自动化构建工具，功能强大，但是构建脚本可读性差，易导致出现“构建工程师”。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Java打印日志最佳实践</title>
     <url>/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
     <content><![CDATA[<h2 id="一、只记录DEBUG，INFO和ERROR级别日志"><a href="#一、只记录DEBUG，INFO和ERROR级别日志" class="headerlink" title="一、只记录DEBUG，INFO和ERROR级别日志"></a><strong>一、只记录DEBUG，INFO和ERROR级别日志</strong></h2><p>只记录DEBUG，INFO和ERROR级别的日志信息，DEBUG级别日志记录“调试信息”，INFO级别日志记录“一般信息”，ERROR级别日志记录“异常信息”，这3个级别的日志记录已经能够充分包含关键有价值的信息；如果再记录其他级别的日志信息，一方面，这些日志信息的价值度不是很高（DEBUG，INFO和ERROR这3个级别的日志信息已经能够充分包含关键有价值的信息），另外一方面，过多的日志信息会降低可读性。<br>需要特别强调的是，DEBUG级别的日志记录非常重要，它与INFO级别的日志记录和ERROR级别的日志记录一起，能够充分包含关键有价值的信息，三者缺一不可。<br>举例子说明DEBUG级别日志记录的重要性，我们常常使用第三方库（比如Spring，Mybatis等），在使用这些第三方库的过程中，如果遇到问题，我们往往可以通过设置“将DEBUG级别的日志记录显式打印出来”，从而获得排查问题的线索。因此，如果某些第三方库没有记录DEBUG级别的日志信息，那么它们的易用性就会受到很大的损害。</p>
@@ -6431,6 +6415,23 @@
       </categories>
       <tags>
         <tag>日志</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java技术栈中的伪流行</title>
+    <url>/blog/2018/04/14/Java%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%B5%81%E8%A1%8C/</url>
+    <content><![CDATA[<p>很多“流行”都是“伪流行”，不结合具体应用强行使用只会带来负面效果。</p>
+<h2 id="一、Mybatis"><a href="#一、Mybatis" class="headerlink" title="一、Mybatis"></a><strong>一、Mybatis</strong></h2><p>额外依赖耦合Mybatis框架，增加学习成本，提升使用难度。<br>SQL本就是语言，直接使用，高效简洁，功能强大，无额外依赖耦合。可统一在DAO层完成Java对象与数据库表的转换操作（可借助<code>Apache Commons DbUtils</code>或者<code>Spring JDBCTemplate</code>等第三方库）。</p>
+<h2 id="二、Hibernate"><a href="#二、Hibernate" class="headerlink" title="二、Hibernate"></a><strong>二、Hibernate</strong></h2><p>额外依赖耦合Hibernate框架，增加学习成本，提升使用难度。<br>SQL本就是语言，直接使用，高效简洁，功能强大，无额外依赖耦合。可统一在DAO层完成Java对象与数据库表的转换操作（可借助<code>Apache Commons DbUtils</code>或者<code>Spring JDBCTemplate</code>等第三方库）。</p>
+<h2 id="三、SpringBoot"><a href="#三、SpringBoot" class="headerlink" title="三、SpringBoot"></a><strong>三、SpringBoot</strong></h2><p>使用不灵活，不易管理控制，易引入冗余依赖。</p>
+<h2 id="四、Spring-Framework"><a href="#四、Spring-Framework" class="headerlink" title="四、Spring Framework"></a><strong>四、Spring Framework</strong></h2><p>只是优秀的IoC和AOP框架，不是<code>必须使用</code>，结合实际应用场景再决定是否使用。</p>
+<h2 id="五、Gradle"><a href="#五、Gradle" class="headerlink" title="五、Gradle"></a><strong>五、Gradle</strong></h2><p>基于Apache Ant和Apache Maven概念的项目自动化构建工具，功能强大，但是构建脚本可读性差，易导致出现“构建工程师”。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
       </tags>
   </entry>
   <entry>
@@ -6760,6 +6761,31 @@
       </categories>
   </entry>
   <entry>
+    <title>Java编程思想#控制执行流程</title>
+    <url>/blog/2017/11/12/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3-%E6%8E%A7%E5%88%B6%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<p>Java中具有3种语句结构：顺序结构，条件结构和循环结构。“顺序结构”是常见的语句结构，接下来主要介绍“条件结构”和“循环结构”。</p>
+<h2 id="一、条件结构"><a href="#一、条件结构" class="headerlink" title="一、条件结构"></a><strong>一、条件结构</strong></h2><h3 id="1-1、if-elseif-else结构"><a href="#1-1、if-elseif-else结构" class="headerlink" title="1.1、if-elseif-else结构"></a><strong>1.1、if-elseif-else结构</strong></h3><p>形式如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement</span><br><span class="line">[<span class="keyword">else</span> <span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement]</span><br><span class="line">...</span><br><span class="line">[<span class="keyword">else</span> <span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement]</span><br><span class="line">[<span class="keyword">else</span></span><br><span class="line">  statement]</span><br></pre></td></tr></table></figure>
+<h3 id="1-2、switch结构"><a href="#1-2、switch结构" class="headerlink" title="1.2、switch结构"></a><strong>1.2、switch结构</strong></h3><p>形式如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">switch</span> ( integral-selector ) &#123;</span><br><span class="line">  <span class="keyword">case</span> integral-value1 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value2 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value3 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value4 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value5 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  ...</span><br><span class="line">  [<span class="keyword">default</span> : [statement;] [<span class="keyword">break</span>;]]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要求<code>integral-selector</code>表达式的值类型为“byte，short，char，int”4种类型之一，或者为以上4种类型对应包装器类型之一，或者为枚举类型，<code>integral-value</code>为相应于<code>integral-selector</code>表达式值类型的常量值，即至多int型范围内的整型常量值，或者char型范围内的字符，或者枚举常量值。</p>
+<h2 id="二、循环结构"><a href="#二、循环结构" class="headerlink" title="二、循环结构"></a><strong>二、循环结构</strong></h2><h3 id="2-1、while结构"><a href="#2-1、while结构" class="headerlink" title="2.1、while结构"></a><strong>2.1、while结构</strong></h3><p>形式如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span> ( Boolean-expression )</span><br><span class="line">  statement</span><br></pre></td></tr></table></figure>
+<h3 id="2-2、do-while结构"><a href="#2-2、do-while结构" class="headerlink" title="2.2、do-while结构"></a><strong>2.2、do-while结构</strong></h3><p>形式如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">do</span></span><br><span class="line">  statement</span><br><span class="line"><span class="title function_">while</span> <span class="params">( Boolean-expression )</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3、for结构"><a href="#2-3、for结构" class="headerlink" title="2.3、for结构"></a><strong>2.3、for结构</strong></h3><p>形式如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> ( [initialization] ; [Boolean-expression] ; [step] )</span><br><span class="line">  statement</span><br></pre></td></tr></table></figure>
+<p><code>initialization</code>：初始化表达式，可空，可用逗号隔开一系列语句，从而可以定义任意数量的同一类型的变量。<br><code>Boolean-expression</code>：布尔表达式，可空。<br><code>step</code>：步进运算表达式，可空，可用逗号隔开一系列语句，从而可执行多个步进运算表达式。<br>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, j = <span class="number">2</span>; i &lt; <span class="number">5</span>; i++, j = i * <span class="number">2</span>) &#123;</span><br><span class="line">      主体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外，Java SE5引入了一种新的更加简洁的用于数组和容器的for语法，即foreach语法，foreach语法使得更容易获得访问项，而无需再通过计数。<br>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ForEachFloat</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">Random</span> <span class="variable">rand</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>(<span class="number">47</span>);</span><br><span class="line">    <span class="type">float</span>[] f = <span class="keyword">new</span> <span class="title class_">float</span>[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">      f[i] = rand.nextFloat();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">float</span> x : f) &#123;</span><br><span class="line">      System.out.println(x);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Java编程思想#操作符</title>
     <url>/blog/2017/10/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3-%E6%93%8D%E4%BD%9C%E7%AC%A6/</url>
     <content><![CDATA[<h2 id="一、操作符"><a href="#一、操作符" class="headerlink" title="一、操作符"></a><strong>一、操作符</strong></h2><p>Java中几乎所有的操作符只能操作基本类型，例外的操作符有<code>=</code>，<code>==</code>和<code>!=</code>，这些操作符能够操作所有的对象，除此之外，<code>+</code>和<code>+=</code>操作符被String类支持。<br>具体操作符类别适用的类型范围无需特别关注，比如“逻辑操作符仅适用于boolean基本类型，移位操作符不适用于boolean基本类型”等，因为上述范围是显而易见的。<br>当一个表达式中存在多个操作符时，操作符的优先级就决定了各部分的计算顺序。最简单的规则是先乘除后加减，最好用括号明确规定计算顺序。<br>操作符描述见表1。</p>
@@ -6857,31 +6883,6 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">byte</span> b;</span><br><span class="line">    <span class="type">short</span> s;</span><br><span class="line">    <span class="type">char</span> c;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="type">long</span> l;</span><br><span class="line">    <span class="type">float</span> f;</span><br><span class="line">    <span class="type">double</span> d;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> itmp;</span><br><span class="line">    <span class="type">long</span> ltmp;</span><br><span class="line">    <span class="type">float</span> ftmp;</span><br><span class="line">    <span class="type">double</span> dtmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 无需显式转换，验证的确无需显式转换</span></span><br><span class="line">    f = <span class="number">10</span>;</span><br><span class="line">    f = <span class="number">10L</span>;</span><br><span class="line">    d = <span class="number">10</span>;</span><br><span class="line">    d = <span class="number">10L</span>;</span><br><span class="line">    f = <span class="number">10.0F</span>;</span><br><span class="line">    d = <span class="number">10.0</span>;</span><br><span class="line">    d = <span class="number">10.0D</span>;</span><br><span class="line">    d = <span class="number">10.0F</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    itmp = <span class="number">10</span>;</span><br><span class="line">    ltmp = <span class="number">10L</span>;</span><br><span class="line">    ftmp = <span class="number">10.0F</span>;</span><br><span class="line">    dtmp = <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    f = itmp;</span><br><span class="line">    f = ltmp;</span><br><span class="line">    d = itmp;</span><br><span class="line">    d = ltmp;</span><br><span class="line">    f = ftmp;</span><br><span class="line">    d = dtmp;</span><br><span class="line">    d = ftmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 需要显式转换，验证的确需要显式转换</span></span><br><span class="line">    f = (<span class="type">float</span>) <span class="number">10.0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    dtmp = <span class="number">10.0</span>;</span><br><span class="line">    f = (<span class="type">float</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 无需显式转换，验证的确无需显式转换</span></span><br><span class="line">    i = <span class="number">10</span>;</span><br><span class="line">    l = <span class="number">10L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    itmp = <span class="number">10</span>;</span><br><span class="line">    ltmp = <span class="number">10L</span>;</span><br><span class="line"></span><br><span class="line">    i = itmp;</span><br><span class="line">    l = ltmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 需要显式转换，验证的确需要显式转换</span></span><br><span class="line">    b = (<span class="type">byte</span>) <span class="number">10.0F</span>;</span><br><span class="line">    b = (<span class="type">byte</span>) <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    s = (<span class="type">short</span>) <span class="number">10.0F</span>;</span><br><span class="line">    s = (<span class="type">short</span>) <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    c = (<span class="type">char</span>) <span class="number">10.0F</span>;</span><br><span class="line">    c = (<span class="type">char</span>) <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    i = (<span class="type">int</span>) <span class="number">10.0F</span>;</span><br><span class="line">    i = (<span class="type">int</span>) <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    l = (<span class="type">long</span>) <span class="number">10.0F</span>;</span><br><span class="line">    l = (<span class="type">long</span>) <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    ftmp = <span class="number">10.0F</span>;</span><br><span class="line">    dtmp = <span class="number">10.0D</span>;</span><br><span class="line"></span><br><span class="line">    b = (<span class="type">byte</span>) ftmp;</span><br><span class="line">    b = (<span class="type">byte</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    s = (<span class="type">short</span>) ftmp;</span><br><span class="line">    s = (<span class="type">short</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    c = (<span class="type">char</span>) ftmp;</span><br><span class="line">    c = (<span class="type">char</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    i = (<span class="type">int</span>) ftmp;</span><br><span class="line">    i = (<span class="type">int</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    l = (<span class="type">long</span>) ftmp;</span><br><span class="line">    l = (<span class="type">long</span>) dtmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 需要显式转换，验证的确需要显式转换</span></span><br><span class="line">    b = (<span class="type">byte</span>) <span class="number">2100000000</span>;</span><br><span class="line">    b = (<span class="type">byte</span>) <span class="number">2100000000L</span>;</span><br><span class="line"></span><br><span class="line">    s = (<span class="type">short</span>) <span class="number">2100000000</span>;</span><br><span class="line">    s = (<span class="type">short</span>) <span class="number">2100000000L</span>;</span><br><span class="line"></span><br><span class="line">    c = (<span class="type">char</span>) <span class="number">2100000000</span>;</span><br><span class="line">    c = (<span class="type">char</span>) <span class="number">2100000000L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    itmp = <span class="number">2100000000</span>;</span><br><span class="line">    ltmp = <span class="number">2100000000L</span>;</span><br><span class="line"></span><br><span class="line">    b = (<span class="type">byte</span>) itmp;</span><br><span class="line">    b = (<span class="type">byte</span>) ltmp;</span><br><span class="line"></span><br><span class="line">    s = (<span class="type">short</span>) itmp;</span><br><span class="line">    s = (<span class="type">short</span>) ltmp;</span><br><span class="line"></span><br><span class="line">    c = (<span class="type">char</span>) itmp;</span><br><span class="line">    c = (<span class="type">char</span>) ltmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 需要显式转换，验证的确需要显式转换</span></span><br><span class="line">    b = (<span class="type">byte</span>) <span class="number">10L</span>;</span><br><span class="line">    s = (<span class="type">short</span>) <span class="number">10L</span>;</span><br><span class="line">    c = (<span class="type">char</span>) <span class="number">10L</span>;</span><br><span class="line"></span><br><span class="line">    ltmp = <span class="number">10L</span>;</span><br><span class="line"></span><br><span class="line">    b = (<span class="type">byte</span>) ltmp;</span><br><span class="line">    s = (<span class="type">short</span>) ltmp;</span><br><span class="line">    c = (<span class="type">char</span>) ltmp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分隔符------------------------</span></span><br><span class="line">    <span class="comment">// 本应显式转换，却由编译器进行处理，验证的确是由编译器处理本应的显式转换</span></span><br><span class="line">    b = <span class="number">10</span>;</span><br><span class="line">    s = <span class="number">10</span>;</span><br><span class="line">    c = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证</span></span><br><span class="line">    itmp = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    b = (<span class="type">byte</span>) itmp;</span><br><span class="line">    s = (<span class="type">short</span>) itmp;</span><br><span class="line">    c = (<span class="type">char</span>) itmp;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>参考文献：<br>[1]<a href="http://stackoverflow.com/questions/10075058/converting-from-double-to-float-in-java">http://stackoverflow.com/questions/10075058/converting-from-double-to-float-in-java</a><br>[2]<a href="http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html">http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java编程思想#控制执行流程</title>
-    <url>/blog/2017/11/12/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3-%E6%8E%A7%E5%88%B6%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<p>Java中具有3种语句结构：顺序结构，条件结构和循环结构。“顺序结构”是常见的语句结构，接下来主要介绍“条件结构”和“循环结构”。</p>
-<h2 id="一、条件结构"><a href="#一、条件结构" class="headerlink" title="一、条件结构"></a><strong>一、条件结构</strong></h2><h3 id="1-1、if-elseif-else结构"><a href="#1-1、if-elseif-else结构" class="headerlink" title="1.1、if-elseif-else结构"></a><strong>1.1、if-elseif-else结构</strong></h3><p>形式如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement</span><br><span class="line">[<span class="keyword">else</span> <span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement]</span><br><span class="line">...</span><br><span class="line">[<span class="keyword">else</span> <span class="keyword">if</span> ( Boolean-expression )</span><br><span class="line">  statement]</span><br><span class="line">[<span class="keyword">else</span></span><br><span class="line">  statement]</span><br></pre></td></tr></table></figure>
-<h3 id="1-2、switch结构"><a href="#1-2、switch结构" class="headerlink" title="1.2、switch结构"></a><strong>1.2、switch结构</strong></h3><p>形式如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">switch</span> ( integral-selector ) &#123;</span><br><span class="line">  <span class="keyword">case</span> integral-value1 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value2 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value3 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value4 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  <span class="keyword">case</span> integral-value5 : [statement;] [<span class="keyword">break</span>;]</span><br><span class="line">  ...</span><br><span class="line">  [<span class="keyword">default</span> : [statement;] [<span class="keyword">break</span>;]]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>要求<code>integral-selector</code>表达式的值类型为“byte，short，char，int”4种类型之一，或者为以上4种类型对应包装器类型之一，或者为枚举类型，<code>integral-value</code>为相应于<code>integral-selector</code>表达式值类型的常量值，即至多int型范围内的整型常量值，或者char型范围内的字符，或者枚举常量值。</p>
-<h2 id="二、循环结构"><a href="#二、循环结构" class="headerlink" title="二、循环结构"></a><strong>二、循环结构</strong></h2><h3 id="2-1、while结构"><a href="#2-1、while结构" class="headerlink" title="2.1、while结构"></a><strong>2.1、while结构</strong></h3><p>形式如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span> ( Boolean-expression )</span><br><span class="line">  statement</span><br></pre></td></tr></table></figure>
-<h3 id="2-2、do-while结构"><a href="#2-2、do-while结构" class="headerlink" title="2.2、do-while结构"></a><strong>2.2、do-while结构</strong></h3><p>形式如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">do</span></span><br><span class="line">  statement</span><br><span class="line"><span class="title function_">while</span> <span class="params">( Boolean-expression )</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-3、for结构"><a href="#2-3、for结构" class="headerlink" title="2.3、for结构"></a><strong>2.3、for结构</strong></h3><p>形式如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> ( [initialization] ; [Boolean-expression] ; [step] )</span><br><span class="line">  statement</span><br></pre></td></tr></table></figure>
-<p><code>initialization</code>：初始化表达式，可空，可用逗号隔开一系列语句，从而可以定义任意数量的同一类型的变量。<br><code>Boolean-expression</code>：布尔表达式，可空。<br><code>step</code>：步进运算表达式，可空，可用逗号隔开一系列语句，从而可执行多个步进运算表达式。<br>示例代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, j = <span class="number">2</span>; i &lt; <span class="number">5</span>; i++, j = i * <span class="number">2</span>) &#123;</span><br><span class="line">      主体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>另外，Java SE5引入了一种新的更加简洁的用于数组和容器的for语法，即foreach语法，foreach语法使得更容易获得访问项，而无需再通过计数。<br>示例代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ForEachFloat</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">Random</span> <span class="variable">rand</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>(<span class="number">47</span>);</span><br><span class="line">    <span class="type">float</span>[] f = <span class="keyword">new</span> <span class="title class_">float</span>[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">      f[i] = rand.nextFloat();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">float</span> x : f) &#123;</span><br><span class="line">      System.out.println(x);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>语言</category>
@@ -7023,6 +7024,27 @@
       </tags>
   </entry>
   <entry>
+    <title>Kafka官方文档</title>
+    <url>/blog/2017/08/30/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3/</url>
+    <content><![CDATA[<ol start="0">
+<li><a href="/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" title="Kafka官方文档之入门指南">GETTING STARTED</a></li>
+<li>APIS</li>
+<li>CONFIGURATION</li>
+<li>DESIGN</li>
+<li>IMPLEMENTATION</li>
+<li>OPERATIONS</li>
+<li>SECURITY</li>
+<li>KAFKA CONNECT</li>
+<li>KAFKA STREAMS</li>
+</ol>
+<br/>
+文档地址：https://kafka.apache.org/0110/documentation.html
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Java运行时汇编指令查看</title>
     <url>/blog/2018/12/13/Java%E8%BF%90%E8%A1%8C%E6%97%B6%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E6%9F%A5%E7%9C%8B/</url>
     <content><![CDATA[<p>假设Java主类名为“Main.class”，如需查看运行时汇编指令，则执行：</p>
@@ -7048,27 +7070,6 @@
       <categories>
         <category>语言</category>
         <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Kafka官方文档</title>
-    <url>/blog/2017/08/30/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3/</url>
-    <content><![CDATA[<ol start="0">
-<li><a href="/2017/09/09/Kafka%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B9%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" title="Kafka官方文档之入门指南">GETTING STARTED</a></li>
-<li>APIS</li>
-<li>CONFIGURATION</li>
-<li>DESIGN</li>
-<li>IMPLEMENTATION</li>
-<li>OPERATIONS</li>
-<li>SECURITY</li>
-<li>KAFKA CONNECT</li>
-<li>KAFKA STREAMS</li>
-</ol>
-<br/>
-文档地址：https://kafka.apache.org/0110/documentation.html
-]]></content>
-      <categories>
-        <category>书籍文档</category>
       </categories>
   </entry>
   <entry>
@@ -7346,6 +7347,31 @@
 [2]http://g33kinfo.com/info/archives/5630
 [3]https://www.quora.com/What-does-rsync-do-that-makes-it-so-efficient-at-deleting-many-small-files
 [4]https://www.slashroot.in/which-is-the-fastest-method-to-delete-files-in-linux
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux下，使用云盘同步Google Chrome书签</title>
+    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
+    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
+<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
+<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
+<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
+<ol>
+<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
+<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
+<li>将临时文件重命名为Bookmarks</li>
+<li>删除原有的书签数据文件</li>
+</ol>
+<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
+<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
+<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
+<br/>
+参考文献：
+[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -7733,31 +7759,6 @@
 [7]http://en.wikipedia.org/wiki/Setuid#setuid_and_setgid_on_directories
 [8]http://en.wikipedia.org/wiki/Sticky_bit
 [9]http://www.linuxquestions.org/questions/linux-software-2/rename-and-ctime-913753
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Linux下，使用云盘同步Google Chrome书签</title>
-    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
-    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
-<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
-<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
-<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
-<ol>
-<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
-<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
-<li>将临时文件重命名为Bookmarks</li>
-<li>删除原有的书签数据文件</li>
-</ol>
-<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
-<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
-<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
-<br/>
-参考文献：
-[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -8667,7 +8668,7 @@
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#122;&#x74;&#x78;&#64;&#100;&#111;&#109;&#97;&#105;&#x6e;&#x2e;&#x63;&#x6e;">&#100;&#115;&#108;&#122;&#x74;&#x78;&#64;&#100;&#111;&#109;&#97;&#105;&#x6e;&#x2e;&#x63;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#x6c;&#122;&#x74;&#x78;&#x40;&#x64;&#x6f;&#109;&#97;&#105;&#110;&#x2e;&#x63;&#x6e;">&#100;&#x73;&#x6c;&#122;&#x74;&#x78;&#x40;&#x64;&#x6f;&#109;&#97;&#105;&#110;&#x2e;&#x63;&#x6e;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -8691,7 +8692,7 @@
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#x65;&#111;&#114;&#x67;&#101;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;">&#71;&#x65;&#111;&#114;&#x67;&#101;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#101;&#x6f;&#x72;&#103;&#101;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#46;&#x63;&#x6f;&#109;">&#71;&#101;&#x6f;&#x72;&#103;&#101;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#46;&#x63;&#x6f;&#109;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -8733,6 +8734,26 @@
         <category>协议规范</category>
         <category>邮件解析</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Redis使用最佳实践</title>
+    <url>/blog/2016/07/28/Redis%E4%BD%BF%E7%94%A8%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Redis-Cluster内尽量避免使用大Hash对象"><a href="#一、Redis-Cluster内尽量避免使用大Hash对象" class="headerlink" title="一、Redis Cluster内尽量避免使用大Hash对象"></a><strong>一、Redis Cluster内尽量避免使用大Hash对象</strong></h2><p>一个Hash对象对应一个key，在Redis Cluster内，该Hash对象会整体存储于某个节点上。因此，在Redis Cluster内，如果使用大Hash对象（即使用内存量巨大的Hash对象），会导致这部分内存不能均匀地分布于整个Redis Cluster。</p>
+<h2 id="二、禁止一次性请求大量数据"><a href="#二、禁止一次性请求大量数据" class="headerlink" title="二、禁止一次性请求大量数据"></a><strong>二、禁止一次性请求大量数据</strong></h2><p>禁止一次性请求大量数据，否则会出现“Read timed out”。<br>出现“Read timed out”的原因是：在访问Redis请求时，本地会开启一个计时器，当超过设定的“超时时间”，还未收到请求返回结果，就会出现“Read timed out”。<br>一次性请求大量数据，从请求发出到收到返回结果会耗费很长时间，最终会导致出现“Read timed out”。<br>比如使用HMGET（时间复杂度为O(N)），HKEYS（时间复杂度为O(N)），HGETALL（时间复杂度为O(N)）等命令时，很容易出现一次性请求大量数据的情形，导致“Read timed out”。为了避免这种情况，可采用“分批请求数据（‘Pipelining HGET命令’或者‘分批传FIELDS给HMGET’）”，“使用替换命令（比如使用HSCAN代替HKEYS）”等方式来解决。</p>
+<p>备注：<br>“Redis服务器存在性能问题，Redis服务器与本地之间存在网络问题”等也会导致出现“Read timed out”。</p>
+<br/>
+参考文献：
+[1]http://redis.io/commands/scan
+[2]https://www.javacodegeeks.com/2015/09/redis-clustering.html
+]]></content>
+      <categories>
+        <category>系统架构</category>
+        <category>中间件</category>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
   </entry>
   <entry>
     <title>RMI</title>
@@ -8838,26 +8859,6 @@
       <categories>
         <category>语言</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Redis使用最佳实践</title>
-    <url>/blog/2016/07/28/Redis%E4%BD%BF%E7%94%A8%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Redis-Cluster内尽量避免使用大Hash对象"><a href="#一、Redis-Cluster内尽量避免使用大Hash对象" class="headerlink" title="一、Redis Cluster内尽量避免使用大Hash对象"></a><strong>一、Redis Cluster内尽量避免使用大Hash对象</strong></h2><p>一个Hash对象对应一个key，在Redis Cluster内，该Hash对象会整体存储于某个节点上。因此，在Redis Cluster内，如果使用大Hash对象（即使用内存量巨大的Hash对象），会导致这部分内存不能均匀地分布于整个Redis Cluster。</p>
-<h2 id="二、禁止一次性请求大量数据"><a href="#二、禁止一次性请求大量数据" class="headerlink" title="二、禁止一次性请求大量数据"></a><strong>二、禁止一次性请求大量数据</strong></h2><p>禁止一次性请求大量数据，否则会出现“Read timed out”。<br>出现“Read timed out”的原因是：在访问Redis请求时，本地会开启一个计时器，当超过设定的“超时时间”，还未收到请求返回结果，就会出现“Read timed out”。<br>一次性请求大量数据，从请求发出到收到返回结果会耗费很长时间，最终会导致出现“Read timed out”。<br>比如使用HMGET（时间复杂度为O(N)），HKEYS（时间复杂度为O(N)），HGETALL（时间复杂度为O(N)）等命令时，很容易出现一次性请求大量数据的情形，导致“Read timed out”。为了避免这种情况，可采用“分批请求数据（‘Pipelining HGET命令’或者‘分批传FIELDS给HMGET’）”，“使用替换命令（比如使用HSCAN代替HKEYS）”等方式来解决。</p>
-<p>备注：<br>“Redis服务器存在性能问题，Redis服务器与本地之间存在网络问题”等也会导致出现“Read timed out”。</p>
-<br/>
-参考文献：
-[1]http://redis.io/commands/scan
-[2]https://www.javacodegeeks.com/2015/09/redis-clustering.html
-]]></content>
-      <categories>
-        <category>系统架构</category>
-        <category>中间件</category>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
   </entry>
   <entry>
     <title>SFTP协议</title>
@@ -11725,15 +11726,14 @@
       </categories>
   </entry>
   <entry>
-    <title>cp命令</title>
-    <url>/blog/2016/10/18/cp%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cp -r --backup=numbered --strip-trailing-slashes SOURCE DEST</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><h4 id="2-1-1、含义1"><a href="#2-1-1、含义1" class="headerlink" title="2.1.1、含义1"></a><strong>2.1.1、含义1</strong></h4><p>复制SOURCE所表示的源文件到目的目录DEST：即DEST的最后一个符号是“&#x2F;”，该目录将作为复制后文件的父目录。这种情况下，需要指定复制后文件的位置，不需要指定复制后文件的文件名。</p>
-<h4 id="2-1-2、含义2"><a href="#2-1-2、含义2" class="headerlink" title="2.1.2、含义2"></a><strong>2.1.2、含义2</strong></h4><p>复制SOURCE所表示的源文件，使复制后文件的最终路径是DEST：即DEST的最后一个符号不是“&#x2F;”，该DEST将作为复制后文件最后的表示路径。这种情况下，既需要指定复制后文件的位置，也需要指定复制后文件的文件名。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-r”：表示递归复制目录下文件。<br>“–backup&#x3D;numbered”：表示启用备份机制，在复制源文件的时候，如果在目的路径上已经存在同名的文件，不会删除同名文件，而是改变其名字。注意，配置该参数，只会对一般文件启用备份机制，不会对目录启用备份机制。<br>“–strip-trailing-slashes”：如果SOURCE的最后一个符号是“&#x2F;”，那么去除掉它。需要注意的是，在SOURCE中最后的“&#x2F;”符号，本就是没有意义的。</p>
+    <title>convmv命令</title>
+    <url>/blog/2016/10/20/convmv%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">convmv -f SrcEncoding -t DestEncoding -r --notest File/Dir </span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>改变文件“File”或者目录“Dir”下所有文件的文件名的编码方案，从“SrcEncoding”编码方案转到“DestEncoding”编码方案 。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-f”：源编码方案。<br>“-t”：目标编码方案。<br>“-r”：对目录下子目录递归处理。<br>“–notest”：真正执行转变操作，默认只是打印转变前后信息，而不真正执行转变操作。</p>
 <br/>
 参考文献：
-[1]man cp
+[1]man convmv
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -11744,14 +11744,15 @@
       </tags>
   </entry>
   <entry>
-    <title>convmv命令</title>
-    <url>/blog/2016/10/20/convmv%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">convmv -f SrcEncoding -t DestEncoding -r --notest File/Dir </span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>改变文件“File”或者目录“Dir”下所有文件的文件名的编码方案，从“SrcEncoding”编码方案转到“DestEncoding”编码方案 。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-f”：源编码方案。<br>“-t”：目标编码方案。<br>“-r”：对目录下子目录递归处理。<br>“–notest”：真正执行转变操作，默认只是打印转变前后信息，而不真正执行转变操作。</p>
+    <title>cp命令</title>
+    <url>/blog/2016/10/18/cp%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cp -r --backup=numbered --strip-trailing-slashes SOURCE DEST</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><h4 id="2-1-1、含义1"><a href="#2-1-1、含义1" class="headerlink" title="2.1.1、含义1"></a><strong>2.1.1、含义1</strong></h4><p>复制SOURCE所表示的源文件到目的目录DEST：即DEST的最后一个符号是“&#x2F;”，该目录将作为复制后文件的父目录。这种情况下，需要指定复制后文件的位置，不需要指定复制后文件的文件名。</p>
+<h4 id="2-1-2、含义2"><a href="#2-1-2、含义2" class="headerlink" title="2.1.2、含义2"></a><strong>2.1.2、含义2</strong></h4><p>复制SOURCE所表示的源文件，使复制后文件的最终路径是DEST：即DEST的最后一个符号不是“&#x2F;”，该DEST将作为复制后文件最后的表示路径。这种情况下，既需要指定复制后文件的位置，也需要指定复制后文件的文件名。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-r”：表示递归复制目录下文件。<br>“–backup&#x3D;numbered”：表示启用备份机制，在复制源文件的时候，如果在目的路径上已经存在同名的文件，不会删除同名文件，而是改变其名字。注意，配置该参数，只会对一般文件启用备份机制，不会对目录启用备份机制。<br>“–strip-trailing-slashes”：如果SOURCE的最后一个符号是“&#x2F;”，那么去除掉它。需要注意的是，在SOURCE中最后的“&#x2F;”符号，本就是没有意义的。</p>
 <br/>
 参考文献：
-[1]man convmv
+[1]man cp
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -11935,24 +11936,6 @@
       </tags>
   </entry>
   <entry>
-    <title>file命令</title>
-    <url>/blog/2016/12/30/file%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">file -i FILE</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>打印“FILE”文件的类型和编码格式。需要注意的是，没有命令能够确切知道文件的编码格式，而只能是推测，因此通过本命令得到的文件编码格式不一定是正确的。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-i”：表示以“Mime-Type”形式打印文件的类型和编码格式。</p>
-<br/>
-参考文献：
-[1]man file
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>du命令</title>
     <url>/blog/2016/12/22/du%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">du --apparent-size -sh 文件路径（文件可以是目录，也可以是一般文件）</span><br></pre></td></tr></table></figure>
@@ -11976,6 +11959,24 @@
 <br/>
 参考文献：
 [1]man du
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>file命令</title>
+    <url>/blog/2016/12/30/file%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">file -i FILE</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>打印“FILE”文件的类型和编码格式。需要注意的是，没有命令能够确切知道文件的编码格式，而只能是推测，因此通过本命令得到的文件编码格式不一定是正确的。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-i”：表示以“Mime-Type”形式打印文件的类型和编码格式。</p>
+<br/>
+参考文献：
+[1]man file
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -14198,6 +14199,27 @@
       </tags>
   </entry>
   <entry>
+    <title>mysqladmin命令</title>
+    <url>/blog/2018/11/27/mysqladmin%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<p>mysqladmin命令用于管理MySQL服务端。</p>
+<h2 id="一、flush-hosts"><a href="#一、flush-hosts" class="headerlink" title="一、flush-hosts"></a><strong>一、flush-hosts</strong></h2><p>问题描述：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java.sql.SQLException: null,  message from server: &quot;Host &#x27;A&#x27; is blocked because of many connection errors; unblock with &#x27;mysqladmin flush-hosts&#x27;&quot;</span><br></pre></td></tr></table></figure>
+<p>应用程序出现如上错误，服务器A由于建立过多MySQL连接而被相应MySQL服务端屏蔽。</p>
+<p>在对应MySQL服务端上执行如下命令解决上述问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqladmin -h MySQL服务端地址 -P MySQL服务端地址端口 -u 用户名 -p密码 flush-hosts</span><br></pre></td></tr></table></figure>
+
+<p>备注：</p>
+<ul>
+<li>执行mysqladmin命令的MySQL用户须具有<code>RELOAD</code>权限</li>
+</ul>
+]]></content>
+      <categories>
+        <category>系统架构</category>
+        <category>中间件</category>
+        <category>MySQL</category>
+      </categories>
+  </entry>
+  <entry>
     <title>netstat命令</title>
     <url>/blog/2016/05/16/netstat%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">netstat -anp</span><br></pre></td></tr></table></figure>
@@ -14298,25 +14320,23 @@
       </categories>
   </entry>
   <entry>
-    <title>mysqladmin命令</title>
-    <url>/blog/2018/11/27/mysqladmin%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<p>mysqladmin命令用于管理MySQL服务端。</p>
-<h2 id="一、flush-hosts"><a href="#一、flush-hosts" class="headerlink" title="一、flush-hosts"></a><strong>一、flush-hosts</strong></h2><p>问题描述：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java.sql.SQLException: null,  message from server: &quot;Host &#x27;A&#x27; is blocked because of many connection errors; unblock with &#x27;mysqladmin flush-hosts&#x27;&quot;</span><br></pre></td></tr></table></figure>
-<p>应用程序出现如上错误，服务器A由于建立过多MySQL连接而被相应MySQL服务端屏蔽。</p>
-<p>在对应MySQL服务端上执行如下命令解决上述问题：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqladmin -h MySQL服务端地址 -P MySQL服务端地址端口 -u 用户名 -p密码 flush-hosts</span><br></pre></td></tr></table></figure>
-
-<p>备注：</p>
-<ul>
-<li>执行mysqladmin命令的MySQL用户须具有<code>RELOAD</code>权限</li>
-</ul>
+    <title>od命令</title>
+    <url>/blog/2016/10/20/od%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">od -A d -t x1cz -v -w10 FILE</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>以二进制（八进制，十六进制）形式查看文件内容。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-A d”：表示以10进制的形式展示每行的首字节位移。<br>“-t x1cz”：其中“x1”表示以1个字节为1组，每组以16进制展示。其中“c”表示以ASCII字符的形式展示每个字节，当遇到ASCII中的控制字符，以“\t，\r，\n”等形式展示；不能以ASCII字符的形式展示的字节以3位八进制数展示。“z”表示在每行后面打印该行字节对应的可打印字符。<br>“-v”：表示即便有多行数据完全相同，也不以“*”来代替重复行的数据，而是将每行数据都打印出来。<br>“-w10”：表示每行展示10个字节。</p>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p><code>hexdump(hd)</code>命令也可以实现类似的功能，但是<code>od</code>命令符合POSIX规范，更加标准通用化。</p>
+<br/>
+参考文献：
+[1]man od
 ]]></content>
       <categories>
-        <category>系统架构</category>
-        <category>中间件</category>
-        <category>MySQL</category>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
       </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
   </entry>
   <entry>
     <title>ps命令</title>
@@ -14382,25 +14402,6 @@
         <category>计算机操作系统</category>
         <category>Linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>od命令</title>
-    <url>/blog/2016/10/20/od%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">od -A d -t x1cz -v -w10 FILE</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>以二进制（八进制，十六进制）形式查看文件内容。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-A d”：表示以10进制的形式展示每行的首字节位移。<br>“-t x1cz”：其中“x1”表示以1个字节为1组，每组以16进制展示。其中“c”表示以ASCII字符的形式展示每个字节，当遇到ASCII中的控制字符，以“\t，\r，\n”等形式展示；不能以ASCII字符的形式展示的字节以3位八进制数展示。“z”表示在每行后面打印该行字节对应的可打印字符。<br>“-v”：表示即便有多行数据完全相同，也不以“*”来代替重复行的数据，而是将每行数据都打印出来。<br>“-w10”：表示每行展示10个字节。</p>
-<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p><code>hexdump(hd)</code>命令也可以实现类似的功能，但是<code>od</code>命令符合POSIX规范，更加标准通用化。</p>
-<br/>
-参考文献：
-[1]man od
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
   </entry>
   <entry>
     <title>pwd命令</title>
@@ -14993,6 +14994,29 @@
       </categories>
   </entry>
   <entry>
+    <title>stat命令</title>
+    <url>/blog/2016/12/22/stat%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">stat 文件路径</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>打印文件的详细信息。<br>比如现在有一个“readme.md”文件，执行<code>stat readme.md</code>命令，可得如图1所示结果。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20161222-0-1.png"></p>
+<p>有一个“Desktop”目录，执行<code>stat Desktop</code>命令，可得如图2所示结果。</p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20161222-0-2.png"></p>
+<h2 id="三、打印信息属性介绍"><a href="#三、打印信息属性介绍" class="headerlink" title="三、打印信息属性介绍"></a><strong>三、打印信息属性介绍</strong></h2><p>“文件”：文件名称。<br>“大小”：表示文件的大小。对于“一般文件”，显示的是“使用大小”；对于“目录文件”，并没有累加统计该目录文件下的子文件的大小，而是显示该目录文件自身的“占用大小”（关于文件的“使用大小”和“占用大小”可见<a href="/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" title="Ext文件系统中，文件的“占用大小”和“使用大小”">《Ext文件系统中，文件的“占用大小”和“使用大小”》</a>）（<font color='red'>显示文件大小的方式跟<code>ls</code>命令一致。</font>）<br>“块”：这个“块”不是指“inode&#x2F;block”体系中的“block”数量，而是指某种容量单元的数量。可通过公式<code>块*单个该种容量单元所含字节数/一个block所含字节数</code>换算得到需要的“block”数量，其中单个该种容量单元所含字节数，可通过<code>stat --format=%B readme</code>命令获得。假如单个该种容量单元含有字节数为“512B”，一个“block”含有字节数为“4096B”，现在“块&#x3D;8”，那么“block数量&#x3D;1”。注意，这个属性极易被混淆。<br>“IO 块”：optimal I&#x2F;O transfer size hint（作者不知道该属性的含义）。<br>“普通文件&#x2F;目录”：表示“文件类型”为“普通文件&#x2F;目录”。<br>“设备”：设备号。<br>“Inode”：Inode节点号。<br>“硬链接”：文件的硬链接计数值。<br>“权限”：文件“读取执行权限”信息。<br>“Uid”：文件所属用户信息。<br>“Gid”：文件所属组信息。<br>“最近访问”：即“atime”值。<br>“最近更改”：即“mtime”值。<br>“最近改动”：即“ctime”值。<br>“创建时间”：即文件创建时间，一般情况下该值为空。</p>
+<br/>
+参考文献：
+[1]man stat
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>synchronized-volatile-final关键词</title>
     <url>/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/</url>
     <content><![CDATA[<h2 id="一、Java语法语义"><a href="#一、Java语法语义" class="headerlink" title="一、Java语法语义"></a><strong>一、Java语法语义</strong></h2><h3 id="1-1、synchronized关键词"><a href="#1-1、synchronized关键词" class="headerlink" title="1.1、synchronized关键词"></a><strong>1.1、synchronized关键词</strong></h3><ol start="0">
@@ -15131,29 +15155,6 @@
       </categories>
   </entry>
   <entry>
-    <title>stat命令</title>
-    <url>/blog/2016/12/22/stat%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">stat 文件路径</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>打印文件的详细信息。<br>比如现在有一个“readme.md”文件，执行<code>stat readme.md</code>命令，可得如图1所示结果。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20161222-0-1.png"></p>
-<p>有一个“Desktop”目录，执行<code>stat Desktop</code>命令，可得如图2所示结果。</p>
-<p>图2</p>
-<p><img src="https://blog.dslztx.top/imgs/20161222-0-2.png"></p>
-<h2 id="三、打印信息属性介绍"><a href="#三、打印信息属性介绍" class="headerlink" title="三、打印信息属性介绍"></a><strong>三、打印信息属性介绍</strong></h2><p>“文件”：文件名称。<br>“大小”：表示文件的大小。对于“一般文件”，显示的是“使用大小”；对于“目录文件”，并没有累加统计该目录文件下的子文件的大小，而是显示该目录文件自身的“占用大小”（关于文件的“使用大小”和“占用大小”可见<a href="/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" title="Ext文件系统中，文件的“占用大小”和“使用大小”">《Ext文件系统中，文件的“占用大小”和“使用大小”》</a>）（<font color='red'>显示文件大小的方式跟<code>ls</code>命令一致。</font>）<br>“块”：这个“块”不是指“inode&#x2F;block”体系中的“block”数量，而是指某种容量单元的数量。可通过公式<code>块*单个该种容量单元所含字节数/一个block所含字节数</code>换算得到需要的“block”数量，其中单个该种容量单元所含字节数，可通过<code>stat --format=%B readme</code>命令获得。假如单个该种容量单元含有字节数为“512B”，一个“block”含有字节数为“4096B”，现在“块&#x3D;8”，那么“block数量&#x3D;1”。注意，这个属性极易被混淆。<br>“IO 块”：optimal I&#x2F;O transfer size hint（作者不知道该属性的含义）。<br>“普通文件&#x2F;目录”：表示“文件类型”为“普通文件&#x2F;目录”。<br>“设备”：设备号。<br>“Inode”：Inode节点号。<br>“硬链接”：文件的硬链接计数值。<br>“权限”：文件“读取执行权限”信息。<br>“Uid”：文件所属用户信息。<br>“Gid”：文件所属组信息。<br>“最近访问”：即“atime”值。<br>“最近更改”：即“mtime”值。<br>“最近改动”：即“ctime”值。<br>“创建时间”：即文件创建时间，一般情况下该值为空。</p>
-<br/>
-参考文献：
-[1]man stat
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>tail命令</title>
     <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
@@ -15170,23 +15171,6 @@
       <tags>
         <tag>Linux命令</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>tcpdump命令</title>
-    <url>/blog/2016/02/17/tcpdump%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>tcpdump命令抓取的是OSI七层模型中“数据链路层”的帧。</p>
-<h2 id="二、常用用法"><a href="#二、常用用法" class="headerlink" title="二、常用用法"></a><strong>二、常用用法</strong></h2><p>一般用于两种情形，分别是：粗略分析网络流量和详细分析网络流量。</p>
-<h3 id="2-1、粗略分析网络流量"><a href="#2-1、粗略分析网络流量" class="headerlink" title="2.1、粗略分析网络流量"></a><strong>2.1、粗略分析网络流量</strong></h3><p>tcpdump命令在抓取“数据链路层”的帧后，会进行解析，得到可读性较好的展示形式。但是由于不是原始的“帧”数据，因而只能进行粗略的分析。<br>具体使用形式为：<br><code>tcpdump -i 网卡名 expression</code>(关于expression见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>，对于expression，推荐采用单引号包围起来的方式)</p>
-<h3 id="2-2、详细分析网络流量"><a href="#2-2、详细分析网络流量" class="headerlink" title="2.2、详细分析网络流量"></a><strong>2.2、详细分析网络流量</strong></h3><p>可以将“tcpdump”命令仅作为捕获“数据链路层”的帧的工具，将原始的帧数据保存到文件中，然后传给Wireshark进行分析，从而达到详细分析网络流量的目的。tcpdump命令保存原始帧数据到文件时，使用libpcap库，保存得到的文件符合PCAP文件规范，而Wireshark工具依赖libpcap库进行输入文件的解析，因此Wireshark工具可以准确识别tcpdump保存的文件。<br>具体使用形式为：<br><code>tcpdump -i 网卡名 -w 保存文件路径 expression</code>(关于expression见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>，对于expression，推荐采用单引号包围起来的方式)<br><br/><br>另外：<br>-c选项：表示当捕获c个数据帧后自动停止捕获</p>
-<h2 id="三、一些例子"><a href="#三、一些例子" class="headerlink" title="三、一些例子"></a><strong>三、一些例子</strong></h2><p>一些例子见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.kroosec.com/2012/10/a-look-at-pcap-file-format.html">http://www.kroosec.com/2012/10/a-look-at-pcap-file-format.html</a><br>[2]<a href="https://en.wikipedia.org/wiki/Tcpdump">https://en.wikipedia.org/wiki/Tcpdump</a><br>[3]<a href="https://wiki.wireshark.org/libpcap">https://wiki.wireshark.org/libpcap</a><br>[4]<a href="https://en.wikipedia.org/wiki/Wireshark">https://en.wikipedia.org/wiki/Wireshark</a><br>[5]man tcpdump</p>
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
   </entry>
   <entry>
     <title>synchronized锁内部实现</title>
@@ -15571,6 +15555,42 @@
       </tags>
   </entry>
   <entry>
+    <title>tcpdump命令</title>
+    <url>/blog/2016/02/17/tcpdump%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a><strong>一、基本概念</strong></h2><p>tcpdump命令抓取的是OSI七层模型中“数据链路层”的帧。</p>
+<h2 id="二、常用用法"><a href="#二、常用用法" class="headerlink" title="二、常用用法"></a><strong>二、常用用法</strong></h2><p>一般用于两种情形，分别是：粗略分析网络流量和详细分析网络流量。</p>
+<h3 id="2-1、粗略分析网络流量"><a href="#2-1、粗略分析网络流量" class="headerlink" title="2.1、粗略分析网络流量"></a><strong>2.1、粗略分析网络流量</strong></h3><p>tcpdump命令在抓取“数据链路层”的帧后，会进行解析，得到可读性较好的展示形式。但是由于不是原始的“帧”数据，因而只能进行粗略的分析。<br>具体使用形式为：<br><code>tcpdump -i 网卡名 expression</code>(关于expression见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>，对于expression，推荐采用单引号包围起来的方式)</p>
+<h3 id="2-2、详细分析网络流量"><a href="#2-2、详细分析网络流量" class="headerlink" title="2.2、详细分析网络流量"></a><strong>2.2、详细分析网络流量</strong></h3><p>可以将“tcpdump”命令仅作为捕获“数据链路层”的帧的工具，将原始的帧数据保存到文件中，然后传给Wireshark进行分析，从而达到详细分析网络流量的目的。tcpdump命令保存原始帧数据到文件时，使用libpcap库，保存得到的文件符合PCAP文件规范，而Wireshark工具依赖libpcap库进行输入文件的解析，因此Wireshark工具可以准确识别tcpdump保存的文件。<br>具体使用形式为：<br><code>tcpdump -i 网卡名 -w 保存文件路径 expression</code>(关于expression见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>，对于expression，推荐采用单引号包围起来的方式)<br><br/><br>另外：<br>-c选项：表示当捕获c个数据帧后自动停止捕获</p>
+<h2 id="三、一些例子"><a href="#三、一些例子" class="headerlink" title="三、一些例子"></a><strong>三、一些例子</strong></h2><p>一些例子见<a href="/2016/02/17/%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="网络抓包过滤表达式">链接</a>。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.kroosec.com/2012/10/a-look-at-pcap-file-format.html">http://www.kroosec.com/2012/10/a-look-at-pcap-file-format.html</a><br>[2]<a href="https://en.wikipedia.org/wiki/Tcpdump">https://en.wikipedia.org/wiki/Tcpdump</a><br>[3]<a href="https://wiki.wireshark.org/libpcap">https://wiki.wireshark.org/libpcap</a><br>[4]<a href="https://en.wikipedia.org/wiki/Wireshark">https://en.wikipedia.org/wiki/Wireshark</a><br>[5]man tcpdump</p>
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>touch命令</title>
+    <url>/blog/2016/10/20/touch%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">touch [-a | -m] [--date=STRING] FILE</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>修改“FILE”所指代文件的“atime”和“mtime”的属性值，如果文件不存在，则首先创建一个空白文件。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“不加任何选项”：修改“FILE”所指代文件的“atime”和“mtime”的属性值为当前时间。<br>“–date&#x3D;STRING”：修改“FILE”所指代文件的“atime”和“mtime”的属性值为指定时间。比如指定<code>--date=&#39;2004-02-29  16:21:42&#39;</code>，那么会修改“FILE”所指代文件的“atime”和“mtime”的属性值为“2004-02-29  16:21:42”。<br>“-a”：只修改“FILE”所指代文件的“atime”的属性值。<br>“-m”：只修改“FILE”所指代文件的“mtime”的属性值。</p>
+<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>文件还有另外一个“ctime”属性，指的是最后修改inode节点中元数据的时间，修改“atime”和“mtime”属性值（其他包括硬链接计数，文件所有者，文件所属组，权限等等属性值）都是修改inode节点中的元数据，因而只要执行“touch”命令，文件的“ctime”的值都会更新为当前时间。</p>
+<br/>
+参考文献：
+[1]man touch
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>tr命令</title>
     <url>/blog/2016/05/10/tr%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><p>有3种常用的模式，因而有3种常用用法，分别介绍如下。</p>
@@ -15616,25 +15636,6 @@
         <category>计算机操作系统</category>
         <category>Linux</category>
       </categories>
-  </entry>
-  <entry>
-    <title>touch命令</title>
-    <url>/blog/2016/10/20/touch%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">touch [-a | -m] [--date=STRING] FILE</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>修改“FILE”所指代文件的“atime”和“mtime”的属性值，如果文件不存在，则首先创建一个空白文件。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“不加任何选项”：修改“FILE”所指代文件的“atime”和“mtime”的属性值为当前时间。<br>“–date&#x3D;STRING”：修改“FILE”所指代文件的“atime”和“mtime”的属性值为指定时间。比如指定<code>--date=&#39;2004-02-29  16:21:42&#39;</code>，那么会修改“FILE”所指代文件的“atime”和“mtime”的属性值为“2004-02-29  16:21:42”。<br>“-a”：只修改“FILE”所指代文件的“atime”的属性值。<br>“-m”：只修改“FILE”所指代文件的“mtime”的属性值。</p>
-<h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>文件还有另外一个“ctime”属性，指的是最后修改inode节点中元数据的时间，修改“atime”和“mtime”属性值（其他包括硬链接计数，文件所有者，文件所属组，权限等等属性值）都是修改inode节点中的元数据，因而只要执行“touch”命令，文件的“ctime”的值都会更新为当前时间。</p>
-<br/>
-参考文献：
-[1]man touch
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
   </entry>
   <entry>
     <title>uniq命令</title>
@@ -15741,6 +15742,33 @@
       </tags>
   </entry>
   <entry>
+    <title>wget命令</title>
+    <url>/blog/2015/06/24/wget%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<p>wget命令有两个作用：</p>
+<ol>
+<li>下载文件</li>
+<li>作为一个网络爬虫，将网站内容抓取下来</li>
+</ol>
+<p>wget命令支持HTTP，FTP和HTTPS协议。</p>
+<h2 id="一、下载文件"><a href="#一、下载文件" class="headerlink" title="一、下载文件"></a><strong>一、下载文件</strong></h2><p>常用用法：<code>wget URL</code><br>含义：下载URL指向的文件</p>
+<h2 id="二、网络爬虫"><a href="#二、网络爬虫" class="headerlink" title="二、网络爬虫"></a><strong>二、网络爬虫</strong></h2><p>常用用法：<code>wget -e robots=off -r -l 2 -k -p -E -H https://mybatis.github.io/mybatis-3/zh/</code><br>含义：爬“<a href="https://mybatis.github.io”网站的内容,以“https//mybatis.github.io/mybatis-3/zh/%E2%80%9D%E4%B8%BA%E8%B5%B7%E5%A7%8BURL">https://mybatis.github.io”网站的内容，以“https://mybatis.github.io/mybatis-3/zh/”为起始URL</a></p>
+<p>选项解释：<br><code>-e robots=off</code>：表示不遵循robots.txt文档<br><code>-r</code>：递归下载，默认深度为5<br><code>-l 2</code>：自定义递归下载的深度为2<br><code>-k</code>：转换下载得到文档中的链接，使得可正常使用<br><code>-p</code>：下载正常显示单个文档所必需的所有文件<br><code>-E</code>：自动给一些文档增加“.html”后缀<br><code>-H</code>：在递归下载时，允许跨域名</p>
+<p><strong>备注</strong>：</p>
+<ul>
+<li>当URL使用HTTPS协议时，经常出现如下错误：“无法建立SSL连接”，具体如图1所示。这是因为wget在使用HTTPS协议时，默认会去验证网站的证书，而这个证书验证经常会失败。加上“–no-check-certificate”选项，就能排除掉这个错误。另外一种可能有效的解决方案是用HTTP协议替换HTTPS协议（有些网站同时支持这两种协议访问相同资源，有些网站只支持HTTPS协议或者HTTP协议）</li>
+</ul>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20150624-0-1.png"></p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]man wget<br>[2]<a href="https://www.gnu.org/software/wget/manual/html_node/Robot-Exclusion.html">https://www.gnu.org/software/wget/manual/html_node/Robot-Exclusion.html</a></p>
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>xargs命令</title>
     <url>/blog/2022/10/08/xargs%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">其他命令的输出 | xargs [command] [initial-arguments]</span><br></pre></td></tr></table></figure>
@@ -15780,30 +15808,28 @@
       </categories>
   </entry>
   <entry>
-    <title>wget命令</title>
-    <url>/blog/2015/06/24/wget%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<p>wget命令有两个作用：</p>
-<ol>
-<li>下载文件</li>
-<li>作为一个网络爬虫，将网站内容抓取下来</li>
-</ol>
-<p>wget命令支持HTTP，FTP和HTTPS协议。</p>
-<h2 id="一、下载文件"><a href="#一、下载文件" class="headerlink" title="一、下载文件"></a><strong>一、下载文件</strong></h2><p>常用用法：<code>wget URL</code><br>含义：下载URL指向的文件</p>
-<h2 id="二、网络爬虫"><a href="#二、网络爬虫" class="headerlink" title="二、网络爬虫"></a><strong>二、网络爬虫</strong></h2><p>常用用法：<code>wget -e robots=off -r -l 2 -k -p -E -H https://mybatis.github.io/mybatis-3/zh/</code><br>含义：爬“<a href="https://mybatis.github.io”网站的内容,以“https//mybatis.github.io/mybatis-3/zh/%E2%80%9D%E4%B8%BA%E8%B5%B7%E5%A7%8BURL">https://mybatis.github.io”网站的内容，以“https://mybatis.github.io/mybatis-3/zh/”为起始URL</a></p>
-<p>选项解释：<br><code>-e robots=off</code>：表示不遵循robots.txt文档<br><code>-r</code>：递归下载，默认深度为5<br><code>-l 2</code>：自定义递归下载的深度为2<br><code>-k</code>：转换下载得到文档中的链接，使得可正常使用<br><code>-p</code>：下载正常显示单个文档所必需的所有文件<br><code>-E</code>：自动给一些文档增加“.html”后缀<br><code>-H</code>：在递归下载时，允许跨域名</p>
-<p><strong>备注</strong>：</p>
+    <title>“取反加一”等价于“减一取反”的证明</title>
+    <url>/blog/2016/06/26/%E2%80%9C%E5%8F%96%E5%8F%8D%E5%8A%A0%E4%B8%80%E2%80%9D%E7%AD%89%E4%BB%B7%E4%BA%8E%E2%80%9C%E5%87%8F%E4%B8%80%E5%8F%96%E5%8F%8D%E2%80%9D%E7%9A%84%E8%AF%81%E6%98%8E/</url>
+    <content><![CDATA[<p>在补码运算中，经常需要进行“取反加一”操作。本文尝试证明“减一取反”操作与“取反加一”操作等价。</p>
+<h2 id="一、设定"><a href="#一、设定" class="headerlink" title="一、设定"></a><strong>一、设定</strong></h2><p>假如一个补码数有“1+x”位，第1位为符号位，后面x位为有效数据位。“取反加一”或者“减一取反”操作在有效数据位上进行。</p>
+<h2 id="二、证明"><a href="#二、证明" class="headerlink" title="二、证明"></a><strong>二、证明</strong></h2><p>证明可分为两种情况。</p>
+<h3 id="2-1、从右往左数，遇到的第一个“1”所在位为第k位，且k"><a href="#2-1、从右往左数，遇到的第一个“1”所在位为第k位，且k" class="headerlink" title="2.1、从右往左数，遇到的第一个“1”所在位为第k位，且k&lt;&#x3D;x"></a><strong>2.1、从右往左数，遇到的第一个“1”所在位为第k位，且k&lt;&#x3D;x</strong></h3><p>可以将有效数据位分为两部分：[x…k+1]和[k…1]，前半部分A可以表示成“xxxx…xxx”的形式，后半部分B可以表示成“1000…000”的形式。<br>对有效数据位分别进行“取反加一”操作和“减一取反”操作。</p>
 <ul>
-<li>当URL使用HTTPS协议时，经常出现如下错误：“无法建立SSL连接”，具体如图1所示。这是因为wget在使用HTTPS协议时，默认会去验证网站的证书，而这个证书验证经常会失败。加上“–no-check-certificate”选项，就能排除掉这个错误。另外一种可能有效的解决方案是用HTTP协议替换HTTPS协议（有些网站同时支持这两种协议访问相同资源，有些网站只支持HTTPS协议或者HTTP协议）</li>
+<li>“取反加一”操作结果为：<br>前半部分A转换成“~A”<br>后半部分B转换成“B”（“取反”得到“0111…111”，“加一”得到“1000…000”）</li>
+<li>“减一取反”操作结果为：<br>前半部分A转换成“~A”<br>后半部分B转换成“B”（“减一”得到“0111…111”，“取反”得到“1000…000”）</li>
 </ul>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20150624-0-1.png"></p>
+<p>以上证明两种操作等价。</p>
+<h3 id="2-2、从右往左数，从第1位到第x位都为“0”，不存在“1”位"><a href="#2-2、从右往左数，从第1位到第x位都为“0”，不存在“1”位" class="headerlink" title="2.2、从右往左数，从第1位到第x位都为“0”，不存在“1”位"></a><strong>2.2、从右往左数，从第1位到第x位都为“0”，不存在“1”位</strong></h3><p>可以将有效数据位表示成“0000…000”的形式。<br>对有效数据位分别进行“取反加一”操作和“减一取反”操作。</p>
+<ul>
+<li>“取反加一”操作结果为：<br>“0000…000”（“取反”得到“1111…111”，“加一”得到“0000…000”）</li>
+<li>“减一取反”操作结果为：<br>“0000…000”（“减一”得到“1111…111”，“取反”得到“0000…000”）</li>
+</ul>
+<p>以上证明两种操作等价。</p>
 <br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]man wget<br>[2]<a href="https://www.gnu.org/software/wget/manual/html_node/Robot-Exclusion.html">https://www.gnu.org/software/wget/manual/html_node/Robot-Exclusion.html</a></p>
+<font color='red'>综合2.1和2.2，可以证明“取反加一”操作和“减一取反”操作等价。</font>
 ]]></content>
       <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
+        <category>数学</category>
       </categories>
   </entry>
   <entry>
@@ -15871,31 +15897,6 @@
       <categories>
         <category>生产力工具</category>
         <category>Git</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>“取反加一”等价于“减一取反”的证明</title>
-    <url>/blog/2016/06/26/%E2%80%9C%E5%8F%96%E5%8F%8D%E5%8A%A0%E4%B8%80%E2%80%9D%E7%AD%89%E4%BB%B7%E4%BA%8E%E2%80%9C%E5%87%8F%E4%B8%80%E5%8F%96%E5%8F%8D%E2%80%9D%E7%9A%84%E8%AF%81%E6%98%8E/</url>
-    <content><![CDATA[<p>在补码运算中，经常需要进行“取反加一”操作。本文尝试证明“减一取反”操作与“取反加一”操作等价。</p>
-<h2 id="一、设定"><a href="#一、设定" class="headerlink" title="一、设定"></a><strong>一、设定</strong></h2><p>假如一个补码数有“1+x”位，第1位为符号位，后面x位为有效数据位。“取反加一”或者“减一取反”操作在有效数据位上进行。</p>
-<h2 id="二、证明"><a href="#二、证明" class="headerlink" title="二、证明"></a><strong>二、证明</strong></h2><p>证明可分为两种情况。</p>
-<h3 id="2-1、从右往左数，遇到的第一个“1”所在位为第k位，且k"><a href="#2-1、从右往左数，遇到的第一个“1”所在位为第k位，且k" class="headerlink" title="2.1、从右往左数，遇到的第一个“1”所在位为第k位，且k&lt;&#x3D;x"></a><strong>2.1、从右往左数，遇到的第一个“1”所在位为第k位，且k&lt;&#x3D;x</strong></h3><p>可以将有效数据位分为两部分：[x…k+1]和[k…1]，前半部分A可以表示成“xxxx…xxx”的形式，后半部分B可以表示成“1000…000”的形式。<br>对有效数据位分别进行“取反加一”操作和“减一取反”操作。</p>
-<ul>
-<li>“取反加一”操作结果为：<br>前半部分A转换成“~A”<br>后半部分B转换成“B”（“取反”得到“0111…111”，“加一”得到“1000…000”）</li>
-<li>“减一取反”操作结果为：<br>前半部分A转换成“~A”<br>后半部分B转换成“B”（“减一”得到“0111…111”，“取反”得到“1000…000”）</li>
-</ul>
-<p>以上证明两种操作等价。</p>
-<h3 id="2-2、从右往左数，从第1位到第x位都为“0”，不存在“1”位"><a href="#2-2、从右往左数，从第1位到第x位都为“0”，不存在“1”位" class="headerlink" title="2.2、从右往左数，从第1位到第x位都为“0”，不存在“1”位"></a><strong>2.2、从右往左数，从第1位到第x位都为“0”，不存在“1”位</strong></h3><p>可以将有效数据位表示成“0000…000”的形式。<br>对有效数据位分别进行“取反加一”操作和“减一取反”操作。</p>
-<ul>
-<li>“取反加一”操作结果为：<br>“0000…000”（“取反”得到“1111…111”，“加一”得到“0000…000”）</li>
-<li>“减一取反”操作结果为：<br>“0000…000”（“减一”得到“1111…111”，“取反”得到“0000…000”）</li>
-</ul>
-<p>以上证明两种操作等价。</p>
-<br/>
-<font color='red'>综合2.1和2.2，可以证明“取反加一”操作和“减一取反”操作等价。</font>
-]]></content>
-      <categories>
-        <category>数学</category>
       </categories>
   </entry>
   <entry>
@@ -16336,6 +16337,21 @@
       </categories>
   </entry>
   <entry>
+    <title>个人数据存储方案</title>
+    <url>/blog/2017/08/24/%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<p>为保障数据安全，特制订如下个人数据存储方案：</p>
+<ol>
+<li>一份数据至少有一个备份，即同一份数据至少有两处存储</li>
+<li>数据按照年份存储，分为“历史年份”和“今年年份”</li>
+<li>“历史年份”数据一份存储在百度云，另外一份存储在移动硬盘</li>
+<li>“今年年份”数据分为“小容量数据”和“大容量数据”。“小容量数据”一份存储在Git远程仓库，另外一份存储在本地；“大容量数据”一份存储在百度云，另外一份存储在本地</li>
+</ol>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
+      </categories>
+  </entry>
+  <entry>
     <title>代理转发</title>
     <url>/blog/2024/02/06/%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91/</url>
     <content><![CDATA[<p>想使用代理服务器的代理服务（Socks代理服务器的Socks代理服务，HTTP代理服务器的HTTP代理服务等），我们必须配置一个代理转发器，它可以将正常的网络请求转发给代理服务器，从而使用相应的代理服务。</p>
@@ -16349,21 +16365,6 @@
 ]]></content>
       <categories>
         <category>网络原理</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>个人数据存储方案</title>
-    <url>/blog/2017/08/24/%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E6%96%B9%E6%A1%88/</url>
-    <content><![CDATA[<p>为保障数据安全，特制订如下个人数据存储方案：</p>
-<ol>
-<li>一份数据至少有一个备份，即同一份数据至少有两处存储</li>
-<li>数据按照年份存储，分为“历史年份”和“今年年份”</li>
-<li>“历史年份”数据一份存储在百度云，另外一份存储在移动硬盘</li>
-<li>“今年年份”数据分为“小容量数据”和“大容量数据”。“小容量数据”一份存储在Git远程仓库，另外一份存储在本地；“大容量数据”一份存储在百度云，另外一份存储在本地</li>
-</ol>
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
@@ -17836,6 +17837,22 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
   </entry>
   <entry>
+    <title>创建JVM进程虚拟机参数配置最佳实践</title>
+    <url>/blog/2018/09/29/%E5%88%9B%E5%BB%BAJVM%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、打印GC日志"><a href="#一、打印GC日志" class="headerlink" title="一、打印GC日志"></a><strong>一、打印GC日志</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+PrintGCID -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime -Xloggc:file</span><br></pre></td></tr></table></figure>
+<h2 id="二、OutOfMemoryError发生时生成堆转存快照"><a href="#二、OutOfMemoryError发生时生成堆转存快照" class="headerlink" title="二、OutOfMemoryError发生时生成堆转存快照"></a><strong>二、OutOfMemoryError发生时生成堆转存快照</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br></pre></td></tr></table></figure>
+
+<br/>
+参考文献：
+[1]<a href="/2017/04/12/java%E5%91%BD%E4%BB%A4/" title="java命令">java命令</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
     <title>判定胜负</title>
     <url>/blog/2023/10/16/%E5%88%A4%E5%AE%9A%E8%83%9C%E8%B4%9F/</url>
     <content><![CDATA[<p>围棋胜负的判定方式为：终局后，占地盘多的一方获胜。</p>
@@ -17872,22 +17889,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>围棋</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>创建JVM进程虚拟机参数配置最佳实践</title>
-    <url>/blog/2018/09/29/%E5%88%9B%E5%BB%BAJVM%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、打印GC日志"><a href="#一、打印GC日志" class="headerlink" title="一、打印GC日志"></a><strong>一、打印GC日志</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+PrintGCID -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime -Xloggc:file</span><br></pre></td></tr></table></figure>
-<h2 id="二、OutOfMemoryError发生时生成堆转存快照"><a href="#二、OutOfMemoryError发生时生成堆转存快照" class="headerlink" title="二、OutOfMemoryError发生时生成堆转存快照"></a><strong>二、OutOfMemoryError发生时生成堆转存快照</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br></pre></td></tr></table></figure>
-
-<br/>
-参考文献：
-[1]<a href="/2017/04/12/java%E5%91%BD%E4%BB%A4/" title="java命令">java命令</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>JVM</category>
       </categories>
   </entry>
   <entry>
@@ -18622,65 +18623,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>围棋基础</title>
-    <url>/blog/2023/10/09/%E5%9B%B4%E6%A3%8B%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[<h2 id="一、围棋定义"><a href="#一、围棋定义" class="headerlink" title="一、围棋定义"></a><strong>一、围棋定义</strong></h2><p>围棋是黑白双方的对弈。</p>
-<h2 id="二、围棋棋盘"><a href="#二、围棋棋盘" class="headerlink" title="二、围棋棋盘"></a><strong>二、围棋棋盘</strong></h2><p>围棋棋盘：</p>
-<ul>
-<li>标准正式的大小是<code>19*19</code></li>
-<li>棋盘有两套坐标系（参见图1）：<ol>
-<li>X路线坐标系（<font color='red'>常用</font>）：棋盘边缘的第一条线叫做一路线，由此往中央的方向数，分别是二路线，三路线…</li>
-<li>X-Y坐标系（<font color='red'>不常用</font>）：(10,D)，(19,A)…</li>
-</ol>
-</li>
-<li>一路线是死亡线，二路线是失败线：尽量不要把棋下在一路线和二路线</li>
-<li>棋盘可分为3块区域（参见图2）：角、边和肚皮（中腹）。对于不同区域的价值描述有<code>金角银边草肚皮</code></li>
-<li>有9个星位，中间的星位又叫天元，在X路线坐标系下的坐标分别为：<ul>
-<li>4个角星位：4个(4,4)</li>
-<li>4个边星位：(10,4)和(4,10)各2个</li>
-<li>1个天元：1个(10,10)</li>
-</ul>
-</li>
-<li>有8个小目、4个三三、8个目外、8个高目（参见图3和图4），在X路线坐标系下的坐标分别为：<ul>
-<li>8个小目：(3,4)和(4,3)各4个</li>
-<li>4个三三：4个(3,3)</li>
-<li>8个目外：(3,5)和(5,3)各4个</li>
-<li>8个高目：(4,5)和(5,4)各4个</li>
-</ul>
-</li>
-</ul>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20231009-0-1.jpg"></p>
-<p>图2</p>
-<p><img src="https://blog.dslztx.top/imgs/20231009-0-2.jpg"></p>
-<p>图3</p>
-<p><img src="https://blog.dslztx.top/imgs/20231009-0-3.jpg"></p>
-<p>图4</p>
-<p><img src="https://blog.dslztx.top/imgs/20231009-0-4.jpg"></p>
-<h2 id="三、围棋基本规则"><a href="#三、围棋基本规则" class="headerlink" title="三、围棋基本规则"></a><strong>三、围棋基本规则</strong></h2><p>围棋基本规则：</p>
-<ul>
-<li>棋子要下在交叉点上 </li>
-<li>黑先下，白后下，轮流下子，每次只能下一个子</li>
-<li>棋子下在棋盘上后不能再移动，即落子无悔</li>
-<li>没有气的棋子一定要从棋盘上拿下去</li>
-<li>禁入点不能放子</li>
-<li>打劫时，不能马上提子，要在其他地方下一手后方可提子</li>
-<li>终局后，占地盘多的一方获胜</li>
-</ul>
-<h3 id="2-1、禁入点"><a href="#2-1、禁入点" class="headerlink" title="2.1、禁入点"></a><strong>2.1、禁入点</strong></h3><p>落子后，导致该棋子（或者和该棋子相连己方的整块棋）气数为0，则禁止落子。这个点，就叫做禁着点&#x2F;禁入点。<br>但是，如果导致双方气数都为0，则按提吃处理，不属于禁着点。</p>
-<h3 id="2-2、打劫"><a href="#2-2、打劫" class="headerlink" title="2.2、打劫"></a><strong>2.2、打劫</strong></h3><h4 id="2-2-1、打劫含义"><a href="#2-2-1、打劫含义" class="headerlink" title="2.2.1、打劫含义"></a><strong>2.2.1、打劫含义</strong></h4><p>打劫：A方下在点a吃掉B方点b棋子，B方接着下在点b反吃掉A方点a棋子，A方再下在点a吃掉B方点b棋子，…。为避免这种死循环，人为规定——碰到以上情形，一方提子后，另外一方不能在打劫位置立即反提子，须在其他地方先下一手。</p>
-<p>打一还一才是合法的打劫情形，其他的打M还N（M和N不同时为1）都不会陷入死循环，故不是合法的打劫情形。</p>
-<h4 id="2-2-2、找劫材和应劫"><a href="#2-2-2、找劫材和应劫" class="headerlink" title="2.2.2、找劫材和应劫"></a><strong>2.2.2、找劫材和应劫</strong></h4><p>劫材：在打劫上下文语境中，一方的弱点（比如“打吃”，“破眼”、“分断”等）是另一方的劫材，比如“黑子的弱点是白子的劫材”。<font color='red'>须注意，弱点存在即存在，不在打劫上下文语境，只不过不叫劫材而已。</font></p>
-<p>A打劫，B想要反提子，但是又限于打劫规则不能立即反提子，此时可以找B的劫材（A的弱点），然后在劫材处落子，使得A必须应对（应劫），然后就可以实现最初的目标，B反提子。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]《白小夕围棋》</p>
-]]></content>
-      <categories>
-        <category>围棋</category>
-      </categories>
-  </entry>
-  <entry>
     <title>围棋定式</title>
     <url>/blog/2023/12/28/%E5%9B%B4%E6%A3%8B%E5%AE%9A%E5%BC%8F/</url>
     <content><![CDATA[<h2 id="一、定式基本概念"><a href="#一、定式基本概念" class="headerlink" title="一、定式基本概念"></a><strong>一、定式基本概念</strong></h2><p>定式是根据经验总结出来的一种约定俗成的行棋方式：</p>
@@ -18868,6 +18810,65 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 
 <h4 id="2-2-3、宇宙流"><a href="#2-2-3、宇宙流" class="headerlink" title="2.2.3、宇宙流"></a><strong>2.2.3、宇宙流</strong></h4><p>图10（宇宙流是高中国流（三连星）的拓展延伸）</p>
 <img src=https://blog.dslztx.top/imgs/20240202-0-10.svg width=30% height=30% />
+]]></content>
+      <categories>
+        <category>围棋</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>围棋基础</title>
+    <url>/blog/2023/10/09/%E5%9B%B4%E6%A3%8B%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h2 id="一、围棋定义"><a href="#一、围棋定义" class="headerlink" title="一、围棋定义"></a><strong>一、围棋定义</strong></h2><p>围棋是黑白双方的对弈。</p>
+<h2 id="二、围棋棋盘"><a href="#二、围棋棋盘" class="headerlink" title="二、围棋棋盘"></a><strong>二、围棋棋盘</strong></h2><p>围棋棋盘：</p>
+<ul>
+<li>标准正式的大小是<code>19*19</code></li>
+<li>棋盘有两套坐标系（参见图1）：<ol>
+<li>X路线坐标系（<font color='red'>常用</font>）：棋盘边缘的第一条线叫做一路线，由此往中央的方向数，分别是二路线，三路线…</li>
+<li>X-Y坐标系（<font color='red'>不常用</font>）：(10,D)，(19,A)…</li>
+</ol>
+</li>
+<li>一路线是死亡线，二路线是失败线：尽量不要把棋下在一路线和二路线</li>
+<li>棋盘可分为3块区域（参见图2）：角、边和肚皮（中腹）。对于不同区域的价值描述有<code>金角银边草肚皮</code></li>
+<li>有9个星位，中间的星位又叫天元，在X路线坐标系下的坐标分别为：<ul>
+<li>4个角星位：4个(4,4)</li>
+<li>4个边星位：(10,4)和(4,10)各2个</li>
+<li>1个天元：1个(10,10)</li>
+</ul>
+</li>
+<li>有8个小目、4个三三、8个目外、8个高目（参见图3和图4），在X路线坐标系下的坐标分别为：<ul>
+<li>8个小目：(3,4)和(4,3)各4个</li>
+<li>4个三三：4个(3,3)</li>
+<li>8个目外：(3,5)和(5,3)各4个</li>
+<li>8个高目：(4,5)和(5,4)各4个</li>
+</ul>
+</li>
+</ul>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20231009-0-1.jpg"></p>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20231009-0-2.jpg"></p>
+<p>图3</p>
+<p><img src="https://blog.dslztx.top/imgs/20231009-0-3.jpg"></p>
+<p>图4</p>
+<p><img src="https://blog.dslztx.top/imgs/20231009-0-4.jpg"></p>
+<h2 id="三、围棋基本规则"><a href="#三、围棋基本规则" class="headerlink" title="三、围棋基本规则"></a><strong>三、围棋基本规则</strong></h2><p>围棋基本规则：</p>
+<ul>
+<li>棋子要下在交叉点上 </li>
+<li>黑先下，白后下，轮流下子，每次只能下一个子</li>
+<li>棋子下在棋盘上后不能再移动，即落子无悔</li>
+<li>没有气的棋子一定要从棋盘上拿下去</li>
+<li>禁入点不能放子</li>
+<li>打劫时，不能马上提子，要在其他地方下一手后方可提子</li>
+<li>终局后，占地盘多的一方获胜</li>
+</ul>
+<h3 id="2-1、禁入点"><a href="#2-1、禁入点" class="headerlink" title="2.1、禁入点"></a><strong>2.1、禁入点</strong></h3><p>落子后，导致该棋子（或者和该棋子相连己方的整块棋）气数为0，则禁止落子。这个点，就叫做禁着点&#x2F;禁入点。<br>但是，如果导致双方气数都为0，则按提吃处理，不属于禁着点。</p>
+<h3 id="2-2、打劫"><a href="#2-2、打劫" class="headerlink" title="2.2、打劫"></a><strong>2.2、打劫</strong></h3><h4 id="2-2-1、打劫含义"><a href="#2-2-1、打劫含义" class="headerlink" title="2.2.1、打劫含义"></a><strong>2.2.1、打劫含义</strong></h4><p>打劫：A方下在点a吃掉B方点b棋子，B方接着下在点b反吃掉A方点a棋子，A方再下在点a吃掉B方点b棋子，…。为避免这种死循环，人为规定——碰到以上情形，一方提子后，另外一方不能在打劫位置立即反提子，须在其他地方先下一手。</p>
+<p>打一还一才是合法的打劫情形，其他的打M还N（M和N不同时为1）都不会陷入死循环，故不是合法的打劫情形。</p>
+<h4 id="2-2-2、找劫材和应劫"><a href="#2-2-2、找劫材和应劫" class="headerlink" title="2.2.2、找劫材和应劫"></a><strong>2.2.2、找劫材和应劫</strong></h4><p>劫材：在打劫上下文语境中，一方的弱点（比如“打吃”，“破眼”、“分断”等）是另一方的劫材，比如“黑子的弱点是白子的劫材”。<font color='red'>须注意，弱点存在即存在，不在打劫上下文语境，只不过不叫劫材而已。</font></p>
+<p>A打劫，B想要反提子，但是又限于打劫规则不能立即反提子，此时可以找B的劫材（A的弱点），然后在劫材处落子，使得A必须应对（应劫），然后就可以实现最初的目标，B反提子。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]《白小夕围棋》</p>
 ]]></content>
       <categories>
         <category>围棋</category>
@@ -20462,26 +20463,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>排序算法总结</title>
-    <url>/blog/2018/08/19/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<h2 id="一、排序算法总结"><a href="#一、排序算法总结" class="headerlink" title="一、排序算法总结"></a><strong>一、排序算法总结</strong></h2><table><thead><tr><th rowspan=2>排序算法</th><th colspan=3>时间复杂度</th><th rowspan=2>空间复杂度</th><th rowspan=2>稳定性</th><th rowspan=2>基本原理</th></tr><tr><th>最坏性能</th><th>最好性能</th><th>平均性能</th></tr></thead><tbody><tr><td>插入排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n&#42;n)</td><td>O(1)</td><td>稳定</td><td>A[1...j]已经排好序，现在将A[j+1]插入到合适位置</td></tr><tr><td>堆排序</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(1)</td><td>不稳定</td><td>维护一个最大堆，每次把堆首元素放入最终正确位置</td></tr><tr><td>归并排序</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>稳定</td><td>递归对左子序列和右子序列进行排序，然后合并</td></tr><tr><td>快速排序</td><td>O(n&#42;n)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(1)</td><td>不稳定</td><td>根据某个划分值划分得到左右两个子序列，递归排序</td></tr><tr><td>计数排序</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>稳定</td><td>在每个元素的值介于0-k的前提下，统计小于等于每个元素的总个数，这个总个数也是该元素的最终正确位置</td></tr><tr><td>基数排序</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>稳定</td><td>一个d位元素，然后从低位到高位进行计数排序</td></tr><tr><td>桶排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n)</td><td>O(n+k)</td><td>稳定</td><td>先对数据进行乘等某种处理，将之分到有序桶中，第一层排序；然后对每个桶中的元素进行插入排序，第二层排序</td></tr><tr><td>冒泡排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n&#42;n)</td><td>O(1)</td><td>稳定</td><td>左右交换，接力棒似地传导，把最大的元素放在最后正确的位置</td></tr></tbody></table>
-
-<h2 id="二、几点说明"><a href="#二、几点说明" class="headerlink" title="二、几点说明"></a><strong>二、几点说明</strong></h2><h3 id="2-1、空间复杂度"><a href="#2-1、空间复杂度" class="headerlink" title="2.1、空间复杂度"></a><strong>2.1、空间复杂度</strong></h3><p>空间复杂度是指额外还需要多少空间，本来保存元素的数组不算在内。</p>
-<h3 id="2-2、归并排序"><a href="#2-2、归并排序" class="headerlink" title="2.2、归并排序"></a><strong>2.2、归并排序</strong></h3><p>归并排序的空间复杂度是O(n&#42;lgn)：空间复杂度的递归式为T(n)&#x3D;2T(n&#x2F;2)+n，因此根据主定理可得到最终的空间复杂度即为O(n&#42;lgn)。<br>优化以上空间复杂度有两个方案：</p>
-<ul>
-<li>优化方案一，建立三个长度为n的数组，一个保存最终结果[S]，一个保存左递归结果[L]，另外一个保存右递归结果[R]，那么在每次递归中，先左递归调用，然后把S中的内容复制到L，再右递归调用，把S的内容复制到R，最后将结果合并到S，进行返回，这样就优化成O(n)，但是代价是计算复杂性提升了，因为需要有复制操作</li>
-<li>优化方案二，也可以优化成O(1)，但是随之而来的是更大的计算复杂性的提升</li>
-</ul>
-<h3 id="2-3、快速排序"><a href="#2-3、快速排序" class="headerlink" title="2.3、快速排序"></a><strong>2.3、快速排序</strong></h3><p>快速排序如果按照《算法导论》进行实现，那么可以是稳定的；如果按照从左右两个方向相向而行的方法实现，那么是不稳定的（快速排序有两个方向，左边的i下标一直往右走，当a[i]&lt;&#x3D;a[center_index]，其中center_index是中枢元素的数组下标，而右边的j下标一直往左走，当a[j]&gt;a[center_index]。如果i和j都走不动了，i&lt;&#x3D;j， 交换a[i]和a[j]，重复上面的过程，直到i&gt;j）。</p>
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>排序</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>打造称手的工具链</title>
     <url>/blog/2017/08/08/%E6%89%93%E9%80%A0%E7%A7%B0%E6%89%8B%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE/</url>
     <content><![CDATA[<h2 id="一、电脑"><a href="#一、电脑" class="headerlink" title="一、电脑"></a><strong>一、电脑</strong></h2><ol>
@@ -20536,6 +20517,26 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       <categories>
         <category>生产力工具</category>
       </categories>
+  </entry>
+  <entry>
+    <title>排序算法总结</title>
+    <url>/blog/2018/08/19/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<h2 id="一、排序算法总结"><a href="#一、排序算法总结" class="headerlink" title="一、排序算法总结"></a><strong>一、排序算法总结</strong></h2><table><thead><tr><th rowspan=2>排序算法</th><th colspan=3>时间复杂度</th><th rowspan=2>空间复杂度</th><th rowspan=2>稳定性</th><th rowspan=2>基本原理</th></tr><tr><th>最坏性能</th><th>最好性能</th><th>平均性能</th></tr></thead><tbody><tr><td>插入排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n&#42;n)</td><td>O(1)</td><td>稳定</td><td>A[1...j]已经排好序，现在将A[j+1]插入到合适位置</td></tr><tr><td>堆排序</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(1)</td><td>不稳定</td><td>维护一个最大堆，每次把堆首元素放入最终正确位置</td></tr><tr><td>归并排序</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>稳定</td><td>递归对左子序列和右子序列进行排序，然后合并</td></tr><tr><td>快速排序</td><td>O(n&#42;n)</td><td>O(n&#42;lgn)</td><td>O(n&#42;lgn)</td><td>O(1)</td><td>不稳定</td><td>根据某个划分值划分得到左右两个子序列，递归排序</td></tr><tr><td>计数排序</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>稳定</td><td>在每个元素的值介于0-k的前提下，统计小于等于每个元素的总个数，这个总个数也是该元素的最终正确位置</td></tr><tr><td>基数排序</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>O(d(k+n))</td><td>稳定</td><td>一个d位元素，然后从低位到高位进行计数排序</td></tr><tr><td>桶排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n)</td><td>O(n+k)</td><td>稳定</td><td>先对数据进行乘等某种处理，将之分到有序桶中，第一层排序；然后对每个桶中的元素进行插入排序，第二层排序</td></tr><tr><td>冒泡排序</td><td>O(n&#42;n)</td><td>O(n)</td><td>O(n&#42;n)</td><td>O(1)</td><td>稳定</td><td>左右交换，接力棒似地传导，把最大的元素放在最后正确的位置</td></tr></tbody></table>
+
+<h2 id="二、几点说明"><a href="#二、几点说明" class="headerlink" title="二、几点说明"></a><strong>二、几点说明</strong></h2><h3 id="2-1、空间复杂度"><a href="#2-1、空间复杂度" class="headerlink" title="2.1、空间复杂度"></a><strong>2.1、空间复杂度</strong></h3><p>空间复杂度是指额外还需要多少空间，本来保存元素的数组不算在内。</p>
+<h3 id="2-2、归并排序"><a href="#2-2、归并排序" class="headerlink" title="2.2、归并排序"></a><strong>2.2、归并排序</strong></h3><p>归并排序的空间复杂度是O(n&#42;lgn)：空间复杂度的递归式为T(n)&#x3D;2T(n&#x2F;2)+n，因此根据主定理可得到最终的空间复杂度即为O(n&#42;lgn)。<br>优化以上空间复杂度有两个方案：</p>
+<ul>
+<li>优化方案一，建立三个长度为n的数组，一个保存最终结果[S]，一个保存左递归结果[L]，另外一个保存右递归结果[R]，那么在每次递归中，先左递归调用，然后把S中的内容复制到L，再右递归调用，把S的内容复制到R，最后将结果合并到S，进行返回，这样就优化成O(n)，但是代价是计算复杂性提升了，因为需要有复制操作</li>
+<li>优化方案二，也可以优化成O(1)，但是随之而来的是更大的计算复杂性的提升</li>
+</ul>
+<h3 id="2-3、快速排序"><a href="#2-3、快速排序" class="headerlink" title="2.3、快速排序"></a><strong>2.3、快速排序</strong></h3><p>快速排序如果按照《算法导论》进行实现，那么可以是稳定的；如果按照从左右两个方向相向而行的方法实现，那么是不稳定的（快速排序有两个方向，左边的i下标一直往右走，当a[i]&lt;&#x3D;a[center_index]，其中center_index是中枢元素的数组下标，而右边的j下标一直往左走，当a[j]&gt;a[center_index]。如果i和j都走不动了，i&lt;&#x3D;j， 交换a[i]和a[j]，重复上面的过程，直到i&gt;j）。</p>
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>排序</tag>
+      </tags>
   </entry>
   <entry>
     <title>接口</title>
@@ -20742,6 +20743,18 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>方法参数合法性定义</title>
+    <url>/blog/2018/09/23/%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0%E5%90%88%E6%B3%95%E6%80%A7%E5%AE%9A%E4%B9%89/</url>
+    <content><![CDATA[<p>为简化论述，以“A”指代“方法定义者”，“B”指代“方法调用者”。</p>
+<p>“方法参数合法性定义”由A完成，定义须被完整准确传达给B，B在调用方法时，如果未遵循已被告知的“方法参数合法性定义”而导致了调用后果，那么责任由B承担；相对的，如果遵循已被告知的“方法参数合法性定义”而导致了调用后果，那么责任由A承担。</p>
+<p>即类似于如下情形：商家提供了一个产品，并附带了一个产品使用说明书，用户在使用产品时，如果用户未遵照说明书使用而导致了使用后果，那么责任由用户承担；相对的，如果用户遵照说明书使用而导致了使用后果，那么责任由商家承担</p>
+<p><font color='red'>基于上述论述，在方法具体实现中，理论上可以不再对实际传入参数是否合法进行验证，但是进行验证可以增加程序的健壮性。</font></p>
+]]></content>
+      <categories>
+        <category>工程师进阶</category>
+      </categories>
+  </entry>
+  <entry>
     <title>日志记录最佳实践</title>
     <url>/blog/2018/10/11/%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
     <content><![CDATA[<h2 id="一、使用SLF4J日志框架"><a href="#一、使用SLF4J日志框架" class="headerlink" title="一、使用SLF4J日志框架"></a><strong>一、使用SLF4J日志框架</strong></h2><p>使用SLF4J门面日志框架，而不直接使用具体日志框架，比如“Log4j”，“Logback”等。<br>一般最终选取“SLF4J+Log4j”日志框架组合方案。</p>
@@ -20793,18 +20806,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       <categories>
         <category>语言</category>
         <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>方法参数合法性定义</title>
-    <url>/blog/2018/09/23/%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0%E5%90%88%E6%B3%95%E6%80%A7%E5%AE%9A%E4%B9%89/</url>
-    <content><![CDATA[<p>为简化论述，以“A”指代“方法定义者”，“B”指代“方法调用者”。</p>
-<p>“方法参数合法性定义”由A完成，定义须被完整准确传达给B，B在调用方法时，如果未遵循已被告知的“方法参数合法性定义”而导致了调用后果，那么责任由B承担；相对的，如果遵循已被告知的“方法参数合法性定义”而导致了调用后果，那么责任由A承担。</p>
-<p>即类似于如下情形：商家提供了一个产品，并附带了一个产品使用说明书，用户在使用产品时，如果用户未遵照说明书使用而导致了使用后果，那么责任由用户承担；相对的，如果用户遵照说明书使用而导致了使用后果，那么责任由商家承担</p>
-<p><font color='red'>基于上述论述，在方法具体实现中，理论上可以不再对实际传入参数是否合法进行验证，但是进行验证可以增加程序的健壮性。</font></p>
-]]></content>
-      <categories>
-        <category>工程师进阶</category>
       </categories>
   </entry>
   <entry>
@@ -21659,6 +21660,17 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>深入理解Java虚拟机</title>
+    <url>/blog/2021/12/10/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/</url>
+    <content><![CDATA[<p>第3版。</p>
+<h2 id="一、走近Java"><a href="#一、走近Java" class="headerlink" title="一、走近Java"></a><strong>一、走近Java</strong></h2><p><del>第1章 走近Java</del></p>
+<h2 id="二、自动内存管理"><a href="#二、自动内存管理" class="headerlink" title="二、自动内存管理"></a><strong>二、自动内存管理</strong></h2><p><del>第2章 Java内存区域与内存溢出异常</del></p>
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
     <title>灯具选择</title>
     <url>/blog/2023/02/01/%E7%81%AF%E5%85%B7%E9%80%89%E6%8B%A9/</url>
     <content><![CDATA[<h2 id="一、光源"><a href="#一、光源" class="headerlink" title="一、光源"></a><strong>一、光源</strong></h2><p>光源是灯具的核心，故首先介绍光源。根据发光原理，可分为3类：1）白炽现象发光；2）荧光发光；3）LED发光。</p>
@@ -21728,17 +21740,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>生活</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>深入理解Java虚拟机</title>
-    <url>/blog/2021/12/10/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA/</url>
-    <content><![CDATA[<p>第3版。</p>
-<h2 id="一、走近Java"><a href="#一、走近Java" class="headerlink" title="一、走近Java"></a><strong>一、走近Java</strong></h2><p><del>第1章 走近Java</del></p>
-<h2 id="二、自动内存管理"><a href="#二、自动内存管理" class="headerlink" title="二、自动内存管理"></a><strong>二、自动内存管理</strong></h2><p><del>第2章 Java内存区域与内存溢出异常</del></p>
-]]></content>
-      <categories>
-        <category>书籍文档</category>
       </categories>
   </entry>
   <entry>
@@ -23107,25 +23108,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>金融风险和防范</title>
-    <url>/blog/2016/04/03/%E9%87%91%E8%9E%8D%E9%A3%8E%E9%99%A9%E5%92%8C%E9%98%B2%E8%8C%83/</url>
-    <content><![CDATA[<h2 id="一、金融风险"><a href="#一、金融风险" class="headerlink" title="一、金融风险"></a><strong>一、金融风险</strong></h2><h3 id="1-1、银行卡被复制"><a href="#1-1、银行卡被复制" class="headerlink" title="1.1、银行卡被复制"></a><strong>1.1、银行卡被复制</strong></h3><p>在一些特制的POS机上刷卡，使得你的银行卡能够被完全复制。一旦不法分子再通过某种途径获取得到你的银行卡密码，就能够通过ATM等途径转移你银行卡内的钱。</p>
-<h3 id="1-2、手机号作为支付宝帐号的手机被他人获取"><a href="#1-2、手机号作为支付宝帐号的手机被他人获取" class="headerlink" title="1.2、手机号作为支付宝帐号的手机被他人获取"></a><strong>1.2、手机号作为支付宝帐号的手机被他人获取</strong></h3><p>手机号作为支付宝帐号的手机被他人获取，而且未设置手机开机密码，那么获取该手机的人就能够取得对该手机的完全控制权，使得可以通过短信修改支付宝登录和支付密码。</p>
-<p>此时，不法分子有两种途径可以盗取你的钱财：</p>
-<ol>
-<li>使用花呗，借呗等服务，进行信用支付，最后这笔钱还是得由你来负责归还</li>
-<li>获取得到你的银行卡信息，获取途径包括：1）原先支付宝绑定的银行卡；2）如果银行卡一同丢失，直接可以获得银行卡信息；3）如果身份证一同丢失，那么可以去银行查询你名下的银行卡信息；4）通过社会工程获知你的银行卡信息。然后根据获取得到的银行卡信息，使用支付宝快捷支付，转移钱财</li>
-</ol>
-<h3 id="1-3、丢失身份证"><a href="#1-3、丢失身份证" class="headerlink" title="1.3、丢失身份证"></a><strong>1.3、丢失身份证</strong></h3><p>不法分子可以使用你的丢失身份证创建你名下的另外一个支付宝账户，通过这个支付宝账户可以使用花呗，借呗等服务进行信用支付。</p>
-<h2 id="二、如何防范"><a href="#二、如何防范" class="headerlink" title="二、如何防范"></a><strong>二、如何防范</strong></h2><h3 id="2-1、及时挂失"><a href="#2-1、及时挂失" class="headerlink" title="2.1、及时挂失"></a><strong>2.1、及时挂失</strong></h3><p>手机丢失，立即向通信运营商挂失SIM卡，立即向支付宝客服（95188）申请锁住相关联的支付宝帐号。</p>
-<h3 id="2-2、关闭花呗，借呗等信用支付服务"><a href="#2-2、关闭花呗，借呗等信用支付服务" class="headerlink" title="2.2、关闭花呗，借呗等信用支付服务"></a><strong>2.2、关闭花呗，借呗等信用支付服务</strong></h3><p>可以向支付宝申请永久关闭借呗服务，花呗服务现在还不可被永久关闭。</p>
-<h3 id="2-3、申请一张专门用来“储蓄”的银行卡"><a href="#2-3、申请一张专门用来“储蓄”的银行卡" class="headerlink" title="2.3、申请一张专门用来“储蓄”的银行卡"></a><strong>2.3、申请一张专门用来“储蓄”的银行卡</strong></h3><p>申请一张专门用来“储蓄”的银行卡，该张银行卡的使用特点如下：<br>1）不刷任何POS机<br>2）支付宝不绑定该张银行卡<br>3）不随身携带该张银行卡，以防一同丢失<br>4）资金流入：使用ATM机，从另外一张银行卡转账到该张银行卡；资金流出：使用ATM机，从该张银行卡转账到另外一张银行卡，然后把主要的财富存放到该张“储蓄”银行卡上，该张银行卡内的钱相对来说比较安全，那么此时即便其他银行卡账户和支付宝花呗借呗账户的钱都被盗取，损失也不会很大！</p>
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
-      </categories>
-  </entry>
-  <entry>
     <title>配置基于SSH的本地Git Server</title>
     <url>/blog/2022/02/10/%E9%85%8D%E7%BD%AE%E5%9F%BA%E4%BA%8ESSH%E7%9A%84%E6%9C%AC%E5%9C%B0Git-Server/</url>
     <content><![CDATA[<h2 id="一、配置SSH登录本机"><a href="#一、配置SSH登录本机" class="headerlink" title="一、配置SSH登录本机"></a><strong>一、配置SSH登录本机</strong></h2><p><strong>1、服务端</strong></p>
@@ -23147,6 +23129,25 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>Git</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>金融风险和防范</title>
+    <url>/blog/2016/04/03/%E9%87%91%E8%9E%8D%E9%A3%8E%E9%99%A9%E5%92%8C%E9%98%B2%E8%8C%83/</url>
+    <content><![CDATA[<h2 id="一、金融风险"><a href="#一、金融风险" class="headerlink" title="一、金融风险"></a><strong>一、金融风险</strong></h2><h3 id="1-1、银行卡被复制"><a href="#1-1、银行卡被复制" class="headerlink" title="1.1、银行卡被复制"></a><strong>1.1、银行卡被复制</strong></h3><p>在一些特制的POS机上刷卡，使得你的银行卡能够被完全复制。一旦不法分子再通过某种途径获取得到你的银行卡密码，就能够通过ATM等途径转移你银行卡内的钱。</p>
+<h3 id="1-2、手机号作为支付宝帐号的手机被他人获取"><a href="#1-2、手机号作为支付宝帐号的手机被他人获取" class="headerlink" title="1.2、手机号作为支付宝帐号的手机被他人获取"></a><strong>1.2、手机号作为支付宝帐号的手机被他人获取</strong></h3><p>手机号作为支付宝帐号的手机被他人获取，而且未设置手机开机密码，那么获取该手机的人就能够取得对该手机的完全控制权，使得可以通过短信修改支付宝登录和支付密码。</p>
+<p>此时，不法分子有两种途径可以盗取你的钱财：</p>
+<ol>
+<li>使用花呗，借呗等服务，进行信用支付，最后这笔钱还是得由你来负责归还</li>
+<li>获取得到你的银行卡信息，获取途径包括：1）原先支付宝绑定的银行卡；2）如果银行卡一同丢失，直接可以获得银行卡信息；3）如果身份证一同丢失，那么可以去银行查询你名下的银行卡信息；4）通过社会工程获知你的银行卡信息。然后根据获取得到的银行卡信息，使用支付宝快捷支付，转移钱财</li>
+</ol>
+<h3 id="1-3、丢失身份证"><a href="#1-3、丢失身份证" class="headerlink" title="1.3、丢失身份证"></a><strong>1.3、丢失身份证</strong></h3><p>不法分子可以使用你的丢失身份证创建你名下的另外一个支付宝账户，通过这个支付宝账户可以使用花呗，借呗等服务进行信用支付。</p>
+<h2 id="二、如何防范"><a href="#二、如何防范" class="headerlink" title="二、如何防范"></a><strong>二、如何防范</strong></h2><h3 id="2-1、及时挂失"><a href="#2-1、及时挂失" class="headerlink" title="2.1、及时挂失"></a><strong>2.1、及时挂失</strong></h3><p>手机丢失，立即向通信运营商挂失SIM卡，立即向支付宝客服（95188）申请锁住相关联的支付宝帐号。</p>
+<h3 id="2-2、关闭花呗，借呗等信用支付服务"><a href="#2-2、关闭花呗，借呗等信用支付服务" class="headerlink" title="2.2、关闭花呗，借呗等信用支付服务"></a><strong>2.2、关闭花呗，借呗等信用支付服务</strong></h3><p>可以向支付宝申请永久关闭借呗服务，花呗服务现在还不可被永久关闭。</p>
+<h3 id="2-3、申请一张专门用来“储蓄”的银行卡"><a href="#2-3、申请一张专门用来“储蓄”的银行卡" class="headerlink" title="2.3、申请一张专门用来“储蓄”的银行卡"></a><strong>2.3、申请一张专门用来“储蓄”的银行卡</strong></h3><p>申请一张专门用来“储蓄”的银行卡，该张银行卡的使用特点如下：<br>1）不刷任何POS机<br>2）支付宝不绑定该张银行卡<br>3）不随身携带该张银行卡，以防一同丢失<br>4）资金流入：使用ATM机，从另外一张银行卡转账到该张银行卡；资金流出：使用ATM机，从该张银行卡转账到另外一张银行卡，然后把主要的财富存放到该张“储蓄”银行卡上，该张银行卡内的钱相对来说比较安全，那么此时即便其他银行卡账户和支付宝花呗借呗账户的钱都被盗取，损失也不会很大！</p>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
