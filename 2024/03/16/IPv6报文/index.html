@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="td  { text-align: center }   IPv6报文是一种可变长报文，由“固定首部”和“载荷数据”两部分组成：  固定首部：从Version字段到Destination Address字段为止”，长度40字节。 载荷数据：IPv6报文数据，长度范围为[0字节,65535字节]，数据的最前面部分是0-N个扩展首部。  整个IPv6报文长度范围为[40字节,65535字节+40字节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IPv6报文">
+<meta property="og:url" content="https://dslztx.github.io/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="td  { text-align: center }   IPv6报文是一种可变长报文，由“固定首部”和“载荷数据”两部分组成：  固定首部：从Version字段到Destination Address字段为止”，长度40字节。 载荷数据：IPv6报文数据，长度范围为[0字节,65535字节]，数据的最前面部分是0-N个扩展首部。  整个IPv6报文长度范围为[40字节,65535字节+40字节">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-15T22:39:47.000Z">
+<meta property="article:modified_time" content="2024-04-15T15:40:44.155Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>IPv6报文 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IPv6报文
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-16 06:39:47" itemprop="dateCreated datePublished" datetime="2024-03-16T06:39:47+08:00">2024-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-04-15 23:40:44" itemprop="dateModified" datetime="2024-04-15T23:40:44+08:00">2024-04-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/03/16/IPv6报文/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <style>
+td 
+{
+text-align: center
+}
+</style>
+
+<p>IPv6报文是一种可变长报文，由“固定首部”和“载荷数据”两部分组成：</p>
+<ol>
+<li>固定首部：从<code>Version</code>字段到<code>Destination Address</code>字段为止”，长度40字节。</li>
+<li>载荷数据：IPv6报文数据，长度范围为<code>[0字节,65535字节]</code>，数据的最前面部分是0-N个扩展首部。</li>
+</ol>
+<p>整个IPv6报文长度范围为<code>[40字节,65535字节+40字节=65575字节]</code>。</p>
+<br/>
+
+<p>表1（IPv6报文固定首部的示意）</p>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>IPv6 Packet Fixed Header Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="4"><i>Version (4 bits)</i></td>
+         <td colspan="8"><i>Traffic Class (8 bits)</i></td>
+         <td colspan="20"><i>Flow Label (20 bits)</i></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="16"><i>Payload Length (16 bits)</i></td>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Hop Limit (8 bits)</i></td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+         <td colspan="32" rowspan="4"><i>Source Address (128 bits)</i></td>
+      </tr>
+      <tr>
+         <th>12</th>
+         <th>96</th>
+      </tr>
+      <tr>
+         <th>16</th>
+         <th>128</th>
+      </tr>
+      <tr>
+         <th>20</th>
+         <th>160</th>
+      </tr>
+      <tr>
+         <th>24</th>
+         <th>192</th>
+         <td colspan="32" rowspan="4"><i>Destination Address (128 bits)</i></td>
+      </tr>
+      <tr>
+         <th>28</th>
+         <th>224</th>
+      </tr>
+      <tr>
+         <th>32</th>
+         <th>256</th>
+      </tr>
+      <tr>
+         <th>36</th>
+         <th>288</th>
+      </tr>
+   </tbody>
+</table>
+
+<br/>
+
+<p>表2（IPv6报文的整体示意）</p>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>IPv6 Packet Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="4">Version (4 bits)</td>
+         <td colspan="8"><i>Traffic Class (8 bits)</i></td>
+         <td colspan="20"><i>Flow Label (20 bits)</i></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="16"><i>Payload Length (16 bits)</i></td>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Hop Limit (8 bits)</i></td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+         <td colspan="32" rowspan="4"><i>Source Address (128 bits)</i></td>
+      </tr>
+      <tr>
+         <th>12</th>
+         <th>96</th>
+      </tr>
+      <tr>
+         <th>16</th>
+         <th>128</th>
+      </tr>
+      <tr>
+         <th>20</th>
+         <th>160</th>
+      </tr>
+      <tr>
+         <th>24</th>
+         <th>192</th>
+         <td colspan="32" rowspan="4"><i>Destination Address (128 bits)</i></td>
+      </tr>
+      <tr>
+         <th>28</th>
+         <th>224</th>
+      </tr>
+      <tr>
+         <th>32</th>
+         <th>256</th>
+      </tr>
+      <tr>
+         <th>36</th>
+         <th>288</th>
+      </tr>
+      <tr>
+         <th>40</th>
+         <th>320</th>
+         <td colspan="32" rowspan="6"><i>Payload Data (variable bits)</i></td>
+      </tr>
+      <tr>
+         <th>44</th>
+         <th>352</th>
+      </tr>
+      <tr>
+         <th>48</th>
+         <th>384</th>
+      </tr>
+      <tr>
+         <th>52</th>
+         <th>416</th>
+      </tr>
+      <tr>
+         <th>56</th>
+         <th>448</th>
+      </tr>
+     <tr>
+         <th>...</th>
+         <th>...</th>
+      </tr>
+   </tbody>
+</table>
+
+
+<h2 id="一、固定首部"><a href="#一、固定首部" class="headerlink" title="一、固定首部"></a><strong>一、固定首部</strong></h2><h3 id="1-1、Version"><a href="#1-1、Version" class="headerlink" title="1.1、Version"></a><strong>1.1、Version</strong></h3><p>中文名：<code>版本</code>。</p>
+<p>长度：4 bits。</p>
+<p>含义：指明IP协议版本号，IPv6版本的话其值为<code>0110</code>。</p>
+<h3 id="1-2、Traffic-Class"><a href="#1-2、Traffic-Class" class="headerlink" title="1.2、Traffic Class"></a><strong>1.2、Traffic Class</strong></h3><p>中文名：<code>通信量类</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：为了区分不同的IPv6报文的类别或优先级，和IPv4的区分服务（DS）字段作用相似。</p>
+<h3 id="1-3、Flow-Label"><a href="#1-3、Flow-Label" class="headerlink" title="1.3、Flow Label"></a><strong>1.3、Flow Label</strong></h3><p>中文名：<code>流标号</code>。</p>
+<p>长度：20 bits。</p>
+<p>含义：IPv6新支持资源预分配机制，具体是可以给流设定一个服务质量目标，然后所有属于该流的IPv6报文在所经过的实现该新机制的路由器上都会被保证提供所需的服务质量。流标号就用来标识本IPv6报文属于哪一个流，全置为0表示不属于任何一个流。实时数据（比如“音频”，“视频”等）应用流机制能够大大改善服务质量，非实时数据（比如“网页”，“电子邮件”等）没有太大必要应用流机制。</p>
+<p>备注：“通信量类对应的区分服务机制”和“流标号对应的资源预分配机制”是可自定义IP网络服务质量的两种机制。</p>
+<h3 id="1-4、Payload-Length"><a href="#1-4、Payload-Length" class="headerlink" title="1.4、Payload Length"></a><strong>1.4、Payload Length</strong></h3><p>中文名：<code>载荷数据长度</code>。</p>
+<p>长度：16 bits。</p>
+<p>含义：IPv6报文除固定首部之外的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>），包括“可能存在的扩展首部”。</p>
+<h3 id="1-5、Next-Header"><a href="#1-5、Next-Header" class="headerlink" title="1.5、Next Header"></a><strong>1.5、Next Header</strong></h3><p>中文名：<code>下一个首部的类型值</code>。</p>
+<p>长度：8 bits。</p>
+<p>含义：详见“二、扩展首部”小节内容。</p>
+<h3 id="1-6、Hop-Limit"><a href="#1-6、Hop-Limit" class="headerlink" title="1.6、Hop Limit"></a><strong>1.6、Hop Limit</strong></h3><p>中文名：<code>跳数限制</code>。</p>
+<p>长度：：8 bits。</p>
+<p>含义：生存时间，用于限制IPv6报文在网络上的生存时间，防止IPv6报文在网络中无限循环堵塞网络。跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃。即IPv4报文中的“生存时间”字段，只不过这里命名更加准确。</p>
+<h3 id="1-7、Source-Address"><a href="#1-7、Source-Address" class="headerlink" title="1.7、Source Address"></a><strong>1.7、Source Address</strong></h3><p>中文名：<code>源IPv6地址</code>。</p>
+<p>长度：128 bits。</p>
+<p>含义：源IPv6地址。</p>
+<h3 id="1-8、Destination-Address"><a href="#1-8、Destination-Address" class="headerlink" title="1.8、Destination Address"></a><strong>1.8、Destination Address</strong></h3><p>中文名：<code>目的IPv6地址</code>。</p>
+<p>长度：128 bits。</p>
+<p>含义：目的IPv6地址。</p>
+<h2 id="二、扩展首部"><a href="#二、扩展首部" class="headerlink" title="二、扩展首部"></a><strong>二、扩展首部</strong></h2><p>首先介绍扩展首部：</p>
+<ol>
+<li>扩展首部置于IPv6报文的载荷数据中</li>
+<li>现在定义了多种扩展首部，常见的如下：<ul>
+<li>Hop-by-Hop Options Header</li>
+<li>Routing Header</li>
+<li>Fragment Header</li>
+<li>Destination Options Header</li>
+<li>Authentication Header（<font color='red'>本文只作提及，详细介绍见IPsec博文</font>）</li>
+<li>Encapsulating Security Payload Header（<font color='red'>本文只作提及，详细介绍见IPsec博文</font>）</li>
+<li>…</li>
+</ul>
+</li>
+<li>所有的扩展首部大小都为8字节的倍数</li>
+<li>每种扩展首部有个类型值，IP报文（包括IPv4报文和IPv6报文）的每种上层协议也有个类型值，由于“上层协议报文具有首部”，以上两者类型值本质一致[3]。固定首部和扩展首部中的<code>Next Header</code>字段值指向“下一个首部（扩展首部&#x2F;上层协议首部）的类型值”，据此构成一条<code>[固定首部] -&gt; [扩展首部集合] -&gt; [上层协议]</code>链路</li>
+<li>对于扩展首部的出现具有一定限制：<ul>
+<li>每种扩展首部只能出现一次，除了“Destination Options Header”。“Destination Options Header”最多允许出现2次：1）在“Routing Header”存在前提下，一次出现在“Routing Header”之前；2）一次出现在上层协议数据之前（本质是上层协议首部之前）</li>
+<li>多个扩展首部的出现须遵从如下合法顺序</li>
+</ul>
+</li>
+</ol>
+<p>扩展首部合法出现顺序：</p>
+<ol>
+<li>Hop-by-Hop Options Header</li>
+<li>Destination Options Header</li>
+<li>Routing Header</li>
+<li>Fragment Header</li>
+<li>Destination Options Header</li>
+<li>Upper Layer Data</li>
+</ol>
+<h3 id="2-1、Hop-by-Hop-Options-Header"><a href="#2-1、Hop-by-Hop-Options-Header" class="headerlink" title="2.1、Hop-by-Hop Options Header"></a><strong>2.1、Hop-by-Hop Options Header</strong></h3><p>中文名：<code>逐跳选项首部</code>。</p>
+<p>首部类型：扩展首部。</p>
+<p>首部类型值：<code>0</code>。</p>
+<p>含义：承载传送路径上每个节点都必须处理的选项信息。</p>
+<p>首部格式见下表，说明如下：</p>
+<ul>
+<li>Next Header：下一个首部的类型值</li>
+<li>Header Extension Length：扩展首部长度，以8字节为单位（即当值为<code>11=3</code>时，表示3*8&#x3D;24个字节），另外有：1）这个长度不包括前面8个字节，即整个扩展首部长度为<code>(1 + Header Extension Length) * 8</code>字节；2）根据1有整个扩展首部长度字节数为8的倍数，且大于等于8字节</li>
+<li>Options：扩展首部数据，由多个<code>TLV (Type-Length-Value) Encoded Option + Padding</code>构成</li>
+</ul>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>Hop-by-Hop Options Header Format</caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Header Extension Length (8 bits)</i></td>
+         <td colspan="16" style="border-bottom:hidden"></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="32" rowspan="3"><i>Options (variable bits)</i></td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+      </tr>
+      <tr>
+         <th>...</th>
+         <th>...</th>
+      </tr>
+   </tbody>
+</table>
+
+<h3 id="2-2、Destination-Options-Header"><a href="#2-2、Destination-Options-Header" class="headerlink" title="2.2、Destination Options Header"></a><strong>2.2、Destination Options Header</strong></h3><p>中文名：<code>目的选项首部</code>。</p>
+<p>首部类型：扩展首部。</p>
+<p>首部类型值：<code>60</code>。</p>
+<p>含义：</p>
+<ul>
+<li>承载只需目的节点处理的选项信息</li>
+<li>如前所述可能出现在两个位置：1）路由扩展首部之前，此时该扩展首部被目的节点和路由头中指定的节点处理；2）上层协议数据之前，此时该扩展首部只能被目的节点处理</li>
+</ul>
+<p>首部格式见下表（跟“2.1、Hop-by-Hop Options Header”一致），说明如下：</p>
+<ul>
+<li>Next Header：下一个首部的类型值</li>
+<li>Header Extension Length：扩展首部长度，以8字节为单位（即当值为<code>11=3</code>时，表示3*8&#x3D;24个字节），另外有：1）这个长度不包括前面8个字节，即整个扩展首部长度为<code>(1 + Header Extension Length) * 8</code>字节；2）根据1有整个扩展首部长度字节数为8的倍数，且大于等于8字节</li>
+<li>Options：扩展首部数据，由多个<code>TLV (Type-Length-Value) Encoded Option + Padding</code>构成</li>
+</ul>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>Destination Options Header Format</caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Header Extension Length (8 bits)</i></td>
+         <td colspan="16" style="border-bottom:hidden"></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="32" rowspan="3"><i>Options (variable bits)</i></td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+      </tr>
+      <tr>
+         <th>...</th>
+         <th>...</th>
+      </tr>
+   </tbody>
+</table>
+
+
+<h3 id="2-3、Routing-Header"><a href="#2-3、Routing-Header" class="headerlink" title="2.3、Routing Header"></a><strong>2.3、Routing Header</strong></h3><p>中文名：<code>路由首部</code>。</p>
+<p>首部类型：扩展首部。</p>
+<p>首部类型值：<code>43</code>。</p>
+<p>含义：通过列出IPv6报文到达目的地所要经过的节点列表来提供路由选择功能。</p>
+<p>首部格式见下表，说明如下：</p>
+<ul>
+<li>Next Header：下一个首部的类型值</li>
+<li>Header Extension Length：扩展首部长度，以8字节为单位（即当值为<code>11=3</code>时，表示3*8&#x3D;24个字节），另外有：1）这个长度不包括前面8个字节，即整个扩展首部长度为<code>(1 + Header Extension Length) * 8</code>字节；2）根据1有整个扩展首部长度字节数为8的倍数，且大于等于8字节</li>
+<li>Routing Type：路由类型</li>
+<li>Segments Left：到达目的地还需要访问的节点数量</li>
+<li>Type-Specific Data：跟具体路由类型有关的具体扩展首部数据</li>
+</ul>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>Routing Header Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Header Extension Length (8 bits)</i></td>
+         <td colspan="8"><i>Routing Type (8 bits)</i></td>
+         <td colspan="8"><i>Segments Left (8 bits)</i></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="32" rowspan="4"><i>Type-Specific Data (variable bits)</i></td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+      </tr>
+      <tr>
+         <th>12</th>
+         <th>96</th>
+      </tr>
+      <tr>
+         <th>...</th>
+         <th>...</th>
+      </tr>
+   </tbody>
+</table>
+
+<h3 id="2-4、Fragment-Header"><a href="#2-4、Fragment-Header" class="headerlink" title="2.4、Fragment Header"></a><strong>2.4、Fragment Header</strong></h3><p>中文名：<code>分片首部</code>。</p>
+<p>首部类型：扩展首部。</p>
+<p>首部类型值：<code>44</code>。</p>
+<p>含义：对IPv6报文进行分片时，用于保存分片信息。</p>
+<p>IPv6与IPv4的分片机制不同：</p>
+<ul>
+<li>在IPv4中，分片可以在发送源节点和中间路由节点进行，故发送源节点和中间路由节点只需基于“<font color='red'>紧邻路径链路层MTU</font>”来做是否分片决策</li>
+<li>在IPv6中，分片只能在发送源节点做，这导致发送源节点必须基于“<font color='red'>所经过全路径最小链路层MTU</font>”才能做是否分片决策。针对于此，IPv6中有两种解决方案：<ol>
+<li>使用“路径MTU发现（Path MTU Discovery，PMD，具体参见RFC 1191）”机制来获得“<font color='red'>所经过全路径最小链路层MTU</font>”</li>
+<li>使发送报文大小不大于1280字节，因为IPv6协议规定运行IPv6的所有链路都必须能够支持最小1280字节大小的报文</li>
+</ol>
+</li>
+</ul>
+<p>首部格式见下表，说明如下（可参比<a href="/2024/03/13/IPv4%E6%8A%A5%E6%96%87/" title="IPv4报文">《IPv4报文》</a>中的“1.5、标识、标志和片偏移”小节）：</p>
+<ul>
+<li>Next Header：下一个首部的类型值</li>
+<li>Reserved：保留值，当前为全0</li>
+<li>Fragment Offset：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为偏移字节数&#x2F;8</li>
+<li>Res：保留值，当前为全0</li>
+<li>M Flag：<ul>
+<li><code>MF=1</code>：表示后面还有分片</li>
+<li><code>MF=0</code>：1）在分片情形中，表示已是若干分片中最后一个；2）在未分片情形中，表示即原报文本身</li>
+</ul>
+</li>
+<li>Identification：分片标识</li>
+</ul>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>Fragment Header Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%;">0</th>
+         <th style="width:2.6%;">1</th>
+         <th style="width:2.6%;">2</th>
+         <th style="width:2.6%;">3</th>
+         <th style="width:2.6%;">4</th>
+         <th style="width:2.6%;">5</th>
+         <th style="width:2.6%;">6</th>
+         <th style="width:2.6%;">7</th>
+         <th style="width:2.6%;">8</th>
+         <th style="width:2.6%;">9</th>
+         <th style="width:2.6%;">10</th>
+         <th style="width:2.6%;">11</th>
+         <th style="width:2.6%;">12</th>
+         <th style="width:2.6%;">13</th>
+         <th style="width:2.6%;">14</th>
+         <th style="width:2.6%;">15</th>
+         <th style="width:2.6%;">16</th>
+         <th style="width:2.6%;">17</th>
+         <th style="width:2.6%;">18</th>
+         <th style="width:2.6%;">19</th>
+         <th style="width:2.6%;">20</th>
+         <th style="width:2.6%;">21</th>
+         <th style="width:2.6%;">22</th>
+         <th style="width:2.6%;">23</th>
+         <th style="width:2.6%;">24</th>
+         <th style="width:2.6%;">25</th>
+         <th style="width:2.6%;">26</th>
+         <th style="width:2.6%;">27</th>
+         <th style="width:2.6%;">28</th>
+         <th style="width:2.6%;">29</th>
+         <th style="width:2.6%;">30</th>
+         <th style="width:2.6%;">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="8"><i>Next Header (8 bits)</i></td>
+         <td colspan="8"><i>Reserved (8 bits)</i></td>
+         <td colspan="13"><i>Fragment Offset (13 bits)</i></td>
+         <td colspan="2"><i>Res (2 bits)</i></td>
+         <td colspan="1"><i>M (1 bit)</i></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="32"><i>Identification (32 bits)</i></td>
+      </tr>
+   </tbody>
+</table>
+
+
+<h2 id="三、最终格式"><a href="#三、最终格式" class="headerlink" title="三、最终格式"></a><strong>三、最终格式</strong></h2><h3 id="3-1、没有扩展首部"><a href="#3-1、没有扩展首部" class="headerlink" title="3.1、没有扩展首部"></a><strong>3.1、没有扩展首部</strong></h3><pre>
++------------------+-----------------------------------+
+|                  |                                   |
+|    Fixed Header  |           Upper Layer Data        |
+|                  |                                   |
++------------------+-----------------------------------+
+                   |                                   |
+                   <------------Payload Data-----------> 
+</pre>
+
+<h3 id="3-2、有扩展首部"><a href="#3-2、有扩展首部" class="headerlink" title="3.2、有扩展首部"></a><strong>3.2、有扩展首部</strong></h3><pre>
+
++------------------+-----------------------------------+--------------------------------+
+|                  |                                   |                                |
+|                  |     Hop-by-Hop Options Header     |                                |
+|   Fixed Header   |     Destination Options Header    |       Upper Layer Data         |  
+|                  |     Routing Header                |                                |
+|                  |     Fragment Header               |                                |
+|                  |                                   |                                +
++------------------+-----------------------------------+------------------------------+-+-
+                   |                                                                    |
+                   <------------------------------Payload Data--------------------------> 
+</pre>
+
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/IPv6_packet">https://en.wikipedia.org/wiki/IPv6_packet</a><br>[2]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc8200">https://datatracker.ietf.org/doc/html/rfc8200</a><br>[3]<a target="_blank" rel="noopener" href="https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml">https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml</a><br>[4]<a target="_blank" rel="noopener" href="https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml">https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/" title="IPv6报文">https://dslztx.github.io/blog/2024/03/16/IPv6报文/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/" rel="prev" title="IPv4报文">
+      <i class="fa fa-chevron-left"></i> IPv4报文
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9B%BA%E5%AE%9A%E9%A6%96%E9%83%A8"><span class="nav-text">一、固定首部</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81Version"><span class="nav-text">1.1、Version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81Traffic-Class"><span class="nav-text">1.2、Traffic Class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81Flow-Label"><span class="nav-text">1.3、Flow Label</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%E3%80%81Payload-Length"><span class="nav-text">1.4、Payload Length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5%E3%80%81Next-Header"><span class="nav-text">1.5、Next Header</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6%E3%80%81Hop-Limit"><span class="nav-text">1.6、Hop Limit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7%E3%80%81Source-Address"><span class="nav-text">1.7、Source Address</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-8%E3%80%81Destination-Address"><span class="nav-text">1.8、Destination Address</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%89%A9%E5%B1%95%E9%A6%96%E9%83%A8"><span class="nav-text">二、扩展首部</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81Hop-by-Hop-Options-Header"><span class="nav-text">2.1、Hop-by-Hop Options Header</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81Destination-Options-Header"><span class="nav-text">2.2、Destination Options Header</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%E3%80%81Routing-Header"><span class="nav-text">2.3、Routing Header</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%E3%80%81Fragment-Header"><span class="nav-text">2.4、Fragment Header</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%9C%80%E7%BB%88%E6%A0%BC%E5%BC%8F"><span class="nav-text">三、最终格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E3%80%81%E6%B2%A1%E6%9C%89%E6%89%A9%E5%B1%95%E9%A6%96%E9%83%A8"><span class="nav-text">3.1、没有扩展首部</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E3%80%81%E6%9C%89%E6%89%A9%E5%B1%95%E9%A6%96%E9%83%A8"><span class="nav-text">3.2、有扩展首部</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">321</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2024/03/16/IPv6%E6%8A%A5%E6%96%87/";
+    this.page.identifier = "2024/03/16/IPv6报文/";
+    this.page.title = "IPv6报文";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
