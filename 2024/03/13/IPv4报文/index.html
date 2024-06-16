@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="#cssTable td  {     text-align: center;      vertical-align: middle; }   IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：  首部：由“固定首部”和“可选首部”两部分组成，长度范围为[20字节,60字节] 固定首部：从版本字段到目的地址字段为止，长度为定长20字节 可选首部：在目的地址字段和数据字段之间，长度范">
+  <meta name="description" content="td  { text-align: center }   IPv4报文是一种可变长报文，由“首部”和“载荷数据”两部分组成：  首部：从Version字段到Padding字段为止，长度范围为[20字节,60字节]，且要求长度须为4字节倍数 载荷数据：IPv4报文载荷数据，长度范围为[0字节,65535字节-首部至少20字节&#x3D;65515字节]  整个IPv4报文长度范围为[20字节,65535字节">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IPv4报文">
 <meta property="og:url" content="https://dslztx.github.io/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/index.html">
 <meta property="og:site_name" content="dslztx">
-<meta property="og:description" content="#cssTable td  {     text-align: center;      vertical-align: middle; }   IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：  首部：由“固定首部”和“可选首部”两部分组成，长度范围为[20字节,60字节] 固定首部：从版本字段到目的地址字段为止，长度为定长20字节 可选首部：在目的地址字段和数据字段之间，长度范">
+<meta property="og:description" content="td  { text-align: center }   IPv4报文是一种可变长报文，由“首部”和“载荷数据”两部分组成：  首部：从Version字段到Padding字段为止，长度范围为[20字节,60字节]，且要求长度须为4字节倍数 载荷数据：IPv4报文载荷数据，长度范围为[0字节,65535字节-首部至少20字节&#x3D;65515字节]  整个IPv4报文长度范围为[20字节,65535字节">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-03-13T07:39:47.000Z">
-<meta property="article:modified_time" content="2024-06-15T14:00:12.284Z">
+<meta property="article:modified_time" content="2024-06-16T14:09:46.134Z">
 <meta property="article:author" content="dslztx">
 <meta name="twitter:card" content="summary">
 
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-06-15 22:00:12" itemprop="dateModified" datetime="2024-06-15T22:00:12+08:00">2024-06-15</time>
+                <time title="修改时间：2024-06-16 22:09:46" itemprop="dateModified" datetime="2024-06-16T22:09:46+08:00">2024-06-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,72 +260,152 @@
 
       
         <style>
-#cssTable td 
+td 
 {
-    text-align: center; 
-    vertical-align: middle;
+text-align: center
 }
 </style>
 
-<p>IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：</p>
+<p>IPv4报文是一种可变长报文，由“首部”和“载荷数据”两部分组成：</p>
 <ol>
-<li>首部：由“固定首部”和“可选首部”两部分组成，长度范围为<code>[20字节,60字节]</code><ul>
-<li>固定首部：从<code>版本</code>字段到<code>目的地址</code>字段为止，长度为定长<code>20字节</code></li>
-<li>可选首部：在<code>目的地址</code>字段和<code>数据</code>字段之间，长度范围为<code>[0字节,40字节]</code>，且为4字节倍数</li>
-</ul>
-</li>
-<li>数据：IPv4报文数据，长度范围为<code>[0字节,65535字节-20字节=65515字节]</code></li>
+<li>首部：从<code>Version</code>字段到<code>Padding</code>字段为止，长度范围为<code>[20字节,60字节]</code>，且要求长度须为4字节倍数</li>
+<li>载荷数据：IPv4报文载荷数据，长度范围为<code>[0字节,65535字节-首部至少20字节=65515字节]</code></li>
 </ol>
 <p>整个IPv4报文长度范围为<code>[20字节,65535字节]</code>。</p>
-<br/>
+<p>IPv4报文示意如下。</p>
+<pre>
++--------------+--------------------+
+|              |                    |
+|    Header    |    Payload Data    |
+|              |                    |
++--------------+--------------------+
+</pre>
 
-<p>下表是上述3部分的示意。</p>
-<table id="cssTable">
-<tbody>
-<tr><td width=10%>固定首部</td><td width=20% style="background-color:darkgray">可选首部</td><td width=70%>数据</td></tr>
-</tbody>
+<h2 id="一、首部"><a href="#一、首部" class="headerlink" title="一、首部"></a><strong>一、首部</strong></h2><p>首部逻辑上可分为两部分：</p>
+<ul>
+<li>固定首部：从<code>Version</code>字段到<code>Destination Address</code>字段为止，长度为定长<code>20字节</code></li>
+<li>可选首部 + 填充数据：在<code>Destination Address</code>字段和<code>Payload Data</code>之间，长度范围为<code>[0字节,40字节]</code>，且要求长度须为4字节倍数（只有如此，“首部长度须为4字节倍数”的要求才能得到满足）</li>
+</ul>
+<p>IPv4报文首部示意图如下。</p>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>IPv4 Packet Header Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%">0</th>
+         <th style="width:2.6%">1</th>
+         <th style="width:2.6%">2</th>
+         <th style="width:2.6%">3</th>
+         <th style="width:2.6%">4</th>
+         <th style="width:2.6%">5</th>
+         <th style="width:2.6%">6</th>
+         <th style="width:2.6%">7</th>
+         <th style="width:2.6%">8</th>
+         <th style="width:2.6%">9</th>
+         <th style="width:2.6%">10</th>
+         <th style="width:2.6%">11</th>
+         <th style="width:2.6%">12</th>
+         <th style="width:2.6%">13</th>
+         <th style="width:2.6%">14</th>
+         <th style="width:2.6%">15</th>
+         <th style="width:2.6%">16</th>
+         <th style="width:2.6%">17</th>
+         <th style="width:2.6%">18</th>
+         <th style="width:2.6%">19</th>
+         <th style="width:2.6%">20</th>
+         <th style="width:2.6%">21</th>
+         <th style="width:2.6%">22</th>
+         <th style="width:2.6%">23</th>
+         <th style="width:2.6%">24</th>
+         <th style="width:2.6%">25</th>
+         <th style="width:2.6%">26</th>
+         <th style="width:2.6%">27</th>
+         <th style="width:2.6%">28</th>
+         <th style="width:2.6%">29</th>
+         <th style="width:2.6%">30</th>
+         <th style="width:2.6%">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="4">Version (4 bits)</td>
+         <td colspan="4"><font color='red'>Internet Header Length (IHL, 4 bits)</font></td>
+         <td colspan="6">Differentiated Services Codepoint (DSCP, 6 bits)</td>
+         <td colspan="2">Explicit Congestion Notification (ECN, 2 bits)</td>
+         <td colspan="16"><font color='red'>Total Length (16 bits)</font></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="16">Identification (16 bits)</td>
+         <td colspan="3">Flags (3 bits)</td>
+         <td colspan="13">Fragment Offset (13 bits)</td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+         <td colspan="8">Time to Live (8 bits)</td>
+         <td colspan="8"><font color='red'>Protocol (8 bits)</font></td>
+         <td colspan="16">Header Checksum (16 bits)</td>
+      </tr>
+      <tr>
+         <th>12</th>
+         <th>96</th>
+         <td colspan="32"><font color='red'>Source Address (32 bits)</font></td>
+      </tr>
+      <tr>
+         <th>16</th>
+         <th>128</th>
+         <td colspan="32"><font color='red'>Destination Address (32 bits)</font></td>
+      </tr>
+      <tr>
+         <th>20</th>
+         <th>160</th>
+         <td colspan="32" rowspan="3">Options + Padding (variable bits) (if IHL &gt; 5)</td>
+      </tr>
+      <tr>
+         <th>⋮ </th>
+         <th>⋮ </th>
+      </tr>
+      <tr>
+         <th>56</th>
+         <th>448</th>
+      </tr>
+   </tbody>
 </table>
 
-<br/>
-
-<p>下表是固定首部的示意。</p>
-<table id="cssTable">
-<tbody>
-<tr><td colspan=4  width=12.5%>版本（4 bits）</td><td colspan=4 width=12.5%><font color='red'>首部长度（4 bits）</font></td><td  colspan=8 width=25%>区分服务（8 bits）</td><td  colspan=16><font color='red'>总长度（16 bits）</font></td></tr>
-<tr><td colspan=16 width=50%>标识（16 bits）</td><td  colspan=3 width=9.4%>标志（3 bits）</td><td colspan=13 width=40.6%>片偏移（13 bits）</td></tr>
-<tr><td colspan=8 width=25%>生存时间（8 bits）</td><td colspan=8 width=25%><font color='red'>协议（8 bits）</font></td><td colspan=16  width=50% >首部检验和（16 bits）</td></tr>
-<tr><td  colspan=32 width=100%><font color='red'>源地址（32 bits）</font></td></tr>
-<tr><td  colspan=32 width=100%><font color='red'>目的地址（32 bits）</font></td></tr>
-</tbody>
-</table>
-
-<br/>
-
-<h2 id="一、固定首部"><a href="#一、固定首部" class="headerlink" title="一、固定首部"></a><strong>一、固定首部</strong></h2><h3 id="1-1、版本"><a href="#1-1、版本" class="headerlink" title="1.1、版本"></a><strong>1.1、版本</strong></h3><p>英文名：<code>Version</code>。</p>
+<h3 id="1-1、Version"><a href="#1-1、Version" class="headerlink" title="1.1、Version"></a><strong>1.1、Version</strong></h3><p>中文名：<code>版本</code>。</p>
 <p>长度：4 bits。</p>
 <p>含义：指明IP协议版本号，IPv4版本的话其值为<code>0100</code>。</p>
-<h3 id="1-2、首部长度"><a href="#1-2、首部长度" class="headerlink" title="1.2、首部长度"></a><strong>1.2、首部长度</strong></h3><p>英文名：<code>Header Length</code>。</p>
+<h3 id="1-2、Internet-Header-Length-IHL"><a href="#1-2、Internet-Header-Length-IHL" class="headerlink" title="1.2、Internet Header Length (IHL)"></a><strong>1.2、Internet Header Length (IHL)</strong></h3><p>中文名：<code>首部长度</code>。</p>
 <p>长度：4 bits。</p>
-<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部。</p>
-<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services Field (DS)</code>。</p>
-<p>长度：8 bits。</p>
-<p>含义：分为“6 bits的区分服务代码点（Differentiated Services Codepoint，DSCP）”和“2 bits的显式拥塞通知（Explicit Congestion Notification，ECN）”两部分：1）前者可用来标识该IPv4报文数据的服务类型，在支持该字段的网路设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务；2）后者用来扩展拥塞控制机制。</p>
-<p>扩展说明：</p>
-<ul>
-<li>之前该字段被设计作为“服务类型（Type of Service，TOS）”，<font color='red'>已废弃，被DS替代</font></li>
+<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部和填充数据。</p>
+<h3 id="1-3、Differentiated-Services-Codepoint-DSCP-3"><a href="#1-3、Differentiated-Services-Codepoint-DSCP-3" class="headerlink" title="1.3、Differentiated Services Codepoint (DSCP)[3]"></a><strong>1.3、Differentiated Services Codepoint (DSCP)[3]</strong></h3><p>中文名：<code>区分服务代码点</code>。</p>
+<p>长度：6 bits。</p>
+<p>含义：</p>
+<ol>
+<li>用来标识该IPv4报文的服务类型，在支持该字段的网络设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务</li>
 <li>网络设备是否支持该字段、对该字段的支持程度、对该字段支持的具体落地方案等由生产厂商自决定</li>
-</ul>
-<h4 id="1-3-1、DSCP"><a href="#1-3-1、DSCP" class="headerlink" title="1.3.1、DSCP"></a><strong>1.3.1、DSCP</strong></h4><p>用于区分不同服务。</p>
-<p><strong>备注：</strong>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰。[3]</p>
-<h5 id="1-3-1-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1.1、支持DSCP字段的路由器的应对行为分类</strong></h5><p>支持DSCP字段的路由器的应对行为分为4类：</p>
+<li>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰[7]</li>
+</ol>
+<h4 id="1-3-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1、支持DSCP字段的路由器的应对行为分类</strong></h4><p>支持DSCP字段的路由器的应对行为分为4类：</p>
 <ol>
 <li>Expedited Forwarding PHB (EF PHB)：迅速转发PHB</li>
 <li>Assured Forwarding PHB (AF PHB)：确保转发PHB</li>
 <li>Default Forwarding PHB (DF PHB)：默认转发PHB</li>
 <li>Class Selector PHBs：该分类主要是为了兼容TOS</li>
 </ol>
-<h5 id="1-3-1-2、Service-Class"><a href="#1-3-1-2、Service-Class" class="headerlink" title="1.3.1.2、Service Class"></a><strong>1.3.1.2、Service Class</strong></h5><p>见<code>RFC 4594</code>。</p>
-<h5 id="1-3-1-3、DSCP说明"><a href="#1-3-1-3、DSCP说明" class="headerlink" title="1.3.1.3、DSCP说明"></a><strong>1.3.1.3、DSCP说明</strong></h5><table>
+<h4 id="1-3-2、Service-Class"><a href="#1-3-2、Service-Class" class="headerlink" title="1.3.2、Service Class"></a><strong>1.3.2、Service Class</strong></h4><p>见<code>RFC 4594</code>。</p>
+<h4 id="1-3-3、DSCP说明"><a href="#1-3-3、DSCP说明" class="headerlink" title="1.3.3、DSCP说明"></a><strong>1.3.3、DSCP说明</strong></h4><table>
 <thead>
 <tr>
 <th>DSCP二进制</th>
@@ -484,11 +564,11 @@
 </tr>
 </tbody></table>
 <p>扩展说明：其他DSCP值默认对应<code>DB PHB</code>和<code>Standard Service Class</code>。</p>
-<h4 id="1-3-2、ECN"><a href="#1-3-2、ECN" class="headerlink" title="1.3.2、ECN"></a><strong>1.3.2、ECN</strong></h4><p>ECN：设计用来完善整个拥塞控制机制。</p>
-<p>之前的拥塞控制机制：传输层通过丢包感知到拥塞，进行拥塞控制。</p>
-<p>ECN——网络层提供的显式拥塞控制标记：</p>
+<h3 id="1-4、Explicit-Congestion-Notification-ECN-4"><a href="#1-4、Explicit-Congestion-Notification-ECN-4" class="headerlink" title="1.4、Explicit Congestion Notification (ECN)[4]"></a><strong>1.4、Explicit Congestion Notification (ECN)[4]</strong></h3><p>中文名：<code>显式拥塞通知</code>。</p>
+<p>长度：2 bits。</p>
+<p>含义：网络层提供的显式拥塞控制标记，设计用来完善整个拥塞控制机制：</p>
 <ol>
-<li>之前的拥塞控制是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网路层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
+<li>之前的拥塞控制机制——“传输层通过丢包感知到拥塞，进行拥塞控制”，其是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网络层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
 <li>引入ECN后，传输层除了通过丢包感知拥塞之外，也可根据ECN感知拥塞</li>
 </ol>
 <p>ECN值含义如表1。</p>
@@ -517,19 +597,19 @@
 <td>发生拥塞，CE (Congestion Experienced)</td>
 </tr>
 </tbody></table>
-<h3 id="1-4、总长度"><a href="#1-4、总长度" class="headerlink" title="1.4、总长度"></a><strong>1.4、总长度</strong></h3><p>英文名：<code>Total Length</code>。</p>
+<h3 id="1-5、Total-Length"><a href="#1-5、Total-Length" class="headerlink" title="1.5、Total Length"></a><strong>1.5、Total Length</strong></h3><p>中文名：<code>总长度</code>。</p>
 <p>长度：16 bits。</p>
-<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“数据”。</p>
-<h3 id="1-5、标识、标志和片偏移"><a href="#1-5、标识、标志和片偏移" class="headerlink" title="1.5、标识、标志和片偏移"></a><strong>1.5、标识、标志和片偏移</strong></h3><p>首先介绍IPv4报文分片概念：</p>
+<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“载荷数据”。</p>
+<h3 id="1-6、Identification、Flags和Fragment-Offset"><a href="#1-6、Identification、Flags和Fragment-Offset" class="headerlink" title="1.6、Identification、Flags和Fragment Offset"></a><strong>1.6、Identification、Flags和Fragment Offset</strong></h3><p>首先介绍IPv4报文分片概念：</p>
 <ol>
 <li>数据链路层协议都规定了一个该层协议报文能接收的上层协议递交数据的最大长度，该最大长度被称为最大传送单元MTU（Maximum Transfer Unit），比如以太网协议的MTU值为<code>1500个字节</code>。当IPv4报文总长度超过所使用数据链路层协议的MTU后，需要将该IPv4报文分割成几个，使得每个分割后IPv4报文总长度不超过MTU，该过程即为分片，在IPv4报文接收端会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文</li>
 <li>具体分片过程：<ul>
-<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
-<li>数据。分片数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片数据长度为8字节的倍数</li>
+<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务代码点，显式拥塞通知，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部，填充数据</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
+<li>载荷数据。分片载荷数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片载荷数据长度为8字节的倍数</li>
 </ul>
 </li>
 </ol>
-<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（载荷数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片载荷数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -569,7 +649,7 @@
 <td>分片3首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片载荷数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -595,7 +675,7 @@
 <td>分片2-2首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（载荷数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片载荷数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -628,10 +708,10 @@
 <td>分片2首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>英文名：<code>Identification</code>。</p>
+<h4 id="1-6-1、Identification"><a href="#1-6-1、Identification" class="headerlink" title="1.6.1、Identification"></a><strong>1.6.1、Identification</strong></h4><p>中文名：<code>标识</code>。</p>
 <p>长度：16 bits。</p>
 <p>含义：IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
-<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>英文名：<code>Flags</code>。</p>
+<h4 id="1-6-2、Flags"><a href="#1-6-2、Flags" class="headerlink" title="1.6.2、Flags"></a><strong>1.6.2、Flags</strong></h4><p>中文名：<code>标志</code>。</p>
 <p>长度：3 bits。</p>
 <p>含义：共3位，现在只有后面两位有意义：</p>
 <ol>
@@ -641,20 +721,20 @@
 </ul>
 </li>
 <li>次低位记为DF（Don’t Fragment）：<ul>
-<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[4]</li>
+<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[8]</li>
 <li><code>DF=0</code>：表示允许分片</li>
 </ul>
 </li>
 </ol>
-<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>英文名：<code>Fragment offset</code>。</p>
+<h4 id="1-6-3、Fragment-Offset"><a href="#1-6-3、Fragment-Offset" class="headerlink" title="1.6.3、Fragment Offset"></a><strong>1.6.3、Fragment Offset</strong></h4><p>中文名：<code>片偏移</code>。</p>
 <p>长度：13 bits。</p>
-<p>含义：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
-<h3 id="1-6、生存时间"><a href="#1-6、生存时间" class="headerlink" title="1.6、生存时间"></a><strong>1.6、生存时间</strong></h3><p>英文名：<code>Time to Live</code>。</p>
+<p>含义：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内载荷数据相对于原报文内载荷数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片载荷数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
+<h3 id="1-7、Time-to-Live"><a href="#1-7、Time-to-Live" class="headerlink" title="1.7、Time to Live"></a><strong>1.7、Time to Live</strong></h3><p>中文名：<code>生存时间</code>。</p>
 <p>长度：：8 bits。</p>
 <p>含义：生存时间，用于限制数据包在网络上的生存时间，防止数据包在网络中无限循环堵塞网络。在最初设计和实现中，其以秒为单位，报文在经过一个路由器时，该报文的TTL值会被减去在该路由器所耗费的时间，当TTL值减为0时，该报文就会被该路由器丢弃。后来随着技术发展，路由器处理报文的时间远小于1秒，但至少每次减1，因此演变成“跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃”。</p>
-<h3 id="1-7、协议"><a href="#1-7、协议" class="headerlink" title="1.7、协议"></a><strong>1.7、协议</strong></h3><p>英文名：<code>Protocol</code>。</p>
+<h3 id="1-8、Protocol"><a href="#1-8、Protocol" class="headerlink" title="1.8、Protocol"></a><strong>1.8、Protocol</strong></h3><p>中文名：<code>协议</code>。</p>
 <p>长度：8 bits。</p>
-<p>含义：报文数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
+<p>含义：报文载荷数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
 <table>
 <thead>
 <tr>
@@ -689,22 +769,26 @@
 <td>89</td>
 </tr>
 </tbody></table>
-<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header checksum</code>。</p>
+<h3 id="1-9、Header-Checksum"><a href="#1-9、Header-Checksum" class="headerlink" title="1.9、Header Checksum"></a><strong>1.9、Header Checksum</strong></h3><p>中文名：<code>首部检验和</code>。</p>
 <p>长度：16 bits。</p>
 <p>含义：用来标识报文首部是否被篡改，须注意——通过首部检验和的检验是首部未被篡改的必要不充分条件。其具体工作机制是：在报文发送端，首先将首部检验和字段置为全0，然后将报文首部以16 bits为一组分成多组（由于首部长度是4字节的倍数，故正好能划分成整数组），执行<code>反码算术运算求和 + 取反码</code>运算，将结果置入首部检验和字段，后续每个路由器都执行上述运算过程，根据上述运算过程的特点，合法结果值应该是0，如果非0，表示必被篡改，直接丢弃。</p>
-<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source</code>。</p>
+<h3 id="1-10、Source-Address"><a href="#1-10、Source-Address" class="headerlink" title="1.10、Source Address"></a><strong>1.10、Source Address</strong></h3><p>中文名：<code>源地址</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：源IP地址。</p>
-<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination</code>。</p>
+<h3 id="1-10、Destination-Address"><a href="#1-10、Destination-Address" class="headerlink" title="1.10、Destination Address"></a><strong>1.10、Destination Address</strong></h3><p>中文名：<code>目的地址</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：目的IP地址。</p>
-<h2 id="二、可选首部"><a href="#二、可选首部" class="headerlink" title="二、可选首部"></a><strong>二、可选首部</strong></h2><p>英文名：<code>Options</code>。</p>
-<p>长度：可变。结合“1.2、首部长度”小节和“固定首部定长20字节”可知：可选首部长度范围为<code>[0字节,40字节]</code>，且须是4字节倍数，否则需要进行0字节填充。</p>
-<p>含义：可选首部，用于扩展IPv4头部，实际不常用。</p>
-<h2 id="三、数据"><a href="#三、数据" class="headerlink" title="三、数据"></a><strong>三、数据</strong></h2><p>结合“1.4、总长度”小节和“1.2、首部长度”小节可知：数据长度范围为<code>[0字节,65535字节-20字节=65515字节]</code>。</p>
+<h3 id="1-11、Options和Padding"><a href="#1-11、Options和Padding" class="headerlink" title="1.11、Options和Padding"></a><strong>1.11、Options和Padding</strong></h3><p><code>Internet Header Length（IHL）</code>字段指出首部长度范围是<code>[20字节,60字节]</code>，而固定首部为定长<code>20字节</code>，那么“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>。<br>又要求首部长度须为4字节倍数，固定首部为<code>20字节</code>，所以“Options”和“Padding”字段合起来的长度也须为4字节倍数。</p>
+<h4 id="1-11-1、Options"><a href="#1-11-1、Options" class="headerlink" title="1.11.1、Options"></a><strong>1.11.1、Options</strong></h4><p>中文名：<code>可选首部</code>。</p>
+<p>长度：可变。“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>，且须为4字节倍数。</p>
+<p>含义：可选首部，用于扩展IPv4头部，<font color='red'>实际不常用</font>。</p>
+<h4 id="1-11-2、Padding"><a href="#1-11-2、Padding" class="headerlink" title="1.11.2、Padding"></a><strong>1.11.2、Padding</strong></h4><p>中文名：<code>填充数据</code>。</p>
+<p>长度：可变。“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>，且须为4字节倍数。</p>
+<p>含义：零字节填充数据，确保“Options”和“Padding”字段合起来的长度为4字节倍数。</p>
+<h2 id="二、载荷数据"><a href="#二、载荷数据" class="headerlink" title="二、载荷数据"></a><strong>二、载荷数据</strong></h2><p>结合“1.5、Total Length”小节和“1.2、Internet Header Length (IHL)”小节可知：载荷数据长度范围为<code>[0字节,65535字节-首部至少20字节=65515字节]</code>。</p>
 <br/>
 
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[2]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[3]<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[4]<a target="_blank" rel="noopener" href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[5]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/IPv4#Packet_structure">https://en.wikipedia.org/wiki/IPv4#Packet_structure</a><br>[2]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc791">https://datatracker.ietf.org/doc/html/rfc791</a><br>[3]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc2474">https://datatracker.ietf.org/doc/html/rfc2474</a><br>[4]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc3168">https://datatracker.ietf.org/doc/html/rfc3168</a><br>[5]<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[6]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[7]<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[8]<a target="_blank" rel="noopener" href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[9]<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
 
     </div>
 
@@ -824,7 +908,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9B%BA%E5%AE%9A%E9%A6%96%E9%83%A8"><span class="nav-text">一、固定首部</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81%E7%89%88%E6%9C%AC"><span class="nav-text">1.1、版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81%E9%A6%96%E9%83%A8%E9%95%BF%E5%BA%A6"><span class="nav-text">1.2、首部长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81%E5%8C%BA%E5%88%86%E6%9C%8D%E5%8A%A1"><span class="nav-text">1.3、区分服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-1%E3%80%81DSCP"><span class="nav-text">1.3.1、DSCP</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-1%E3%80%81%E6%94%AF%E6%8C%81DSCP%E5%AD%97%E6%AE%B5%E7%9A%84%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%BA%94%E5%AF%B9%E8%A1%8C%E4%B8%BA%E5%88%86%E7%B1%BB"><span class="nav-text">1.3.1.1、支持DSCP字段的路由器的应对行为分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-2%E3%80%81Service-Class"><span class="nav-text">1.3.1.2、Service Class</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-1-3%E3%80%81DSCP%E8%AF%B4%E6%98%8E"><span class="nav-text">1.3.1.3、DSCP说明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-2%E3%80%81ECN"><span class="nav-text">1.3.2、ECN</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%E3%80%81%E6%80%BB%E9%95%BF%E5%BA%A6"><span class="nav-text">1.4、总长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5%E3%80%81%E6%A0%87%E8%AF%86%E3%80%81%E6%A0%87%E5%BF%97%E5%92%8C%E7%89%87%E5%81%8F%E7%A7%BB"><span class="nav-text">1.5、标识、标志和片偏移</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-1%E3%80%81%E6%A0%87%E8%AF%86"><span class="nav-text">1.5.1、标识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-2%E3%80%81%E6%A0%87%E5%BF%97"><span class="nav-text">1.5.2、标志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-3%E3%80%81%E7%89%87%E5%81%8F%E7%A7%BB"><span class="nav-text">1.5.3、片偏移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6%E3%80%81%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4"><span class="nav-text">1.6、生存时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7%E3%80%81%E5%8D%8F%E8%AE%AE"><span class="nav-text">1.7、协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-8%E3%80%81%E9%A6%96%E9%83%A8%E6%A3%80%E9%AA%8C%E5%92%8C"><span class="nav-text">1.8、首部检验和</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-9%E3%80%81%E6%BA%90%E5%9C%B0%E5%9D%80"><span class="nav-text">1.9、源地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-10%E3%80%81%E7%9B%AE%E7%9A%84%E5%9C%B0%E5%9D%80"><span class="nav-text">1.10、目的地址</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8F%AF%E9%80%89%E9%A6%96%E9%83%A8"><span class="nav-text">二、可选首部</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%95%B0%E6%8D%AE"><span class="nav-text">三、数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%A6%96%E9%83%A8"><span class="nav-text">一、首部</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81Version"><span class="nav-text">1.1、Version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81Internet-Header-Length-IHL"><span class="nav-text">1.2、Internet Header Length (IHL)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81Differentiated-Services-Codepoint-DSCP-3"><span class="nav-text">1.3、Differentiated Services Codepoint (DSCP)[3]</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-1%E3%80%81%E6%94%AF%E6%8C%81DSCP%E5%AD%97%E6%AE%B5%E7%9A%84%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%BA%94%E5%AF%B9%E8%A1%8C%E4%B8%BA%E5%88%86%E7%B1%BB"><span class="nav-text">1.3.1、支持DSCP字段的路由器的应对行为分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-2%E3%80%81Service-Class"><span class="nav-text">1.3.2、Service Class</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-3%E3%80%81DSCP%E8%AF%B4%E6%98%8E"><span class="nav-text">1.3.3、DSCP说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%E3%80%81Explicit-Congestion-Notification-ECN-4"><span class="nav-text">1.4、Explicit Congestion Notification (ECN)[4]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5%E3%80%81Total-Length"><span class="nav-text">1.5、Total Length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6%E3%80%81Identification%E3%80%81Flags%E5%92%8CFragment-Offset"><span class="nav-text">1.6、Identification、Flags和Fragment Offset</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-1%E3%80%81Identification"><span class="nav-text">1.6.1、Identification</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-2%E3%80%81Flags"><span class="nav-text">1.6.2、Flags</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-6-3%E3%80%81Fragment-Offset"><span class="nav-text">1.6.3、Fragment Offset</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7%E3%80%81Time-to-Live"><span class="nav-text">1.7、Time to Live</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-8%E3%80%81Protocol"><span class="nav-text">1.8、Protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-9%E3%80%81Header-Checksum"><span class="nav-text">1.9、Header Checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-10%E3%80%81Source-Address"><span class="nav-text">1.10、Source Address</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-10%E3%80%81Destination-Address"><span class="nav-text">1.10、Destination Address</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-11%E3%80%81Options%E5%92%8CPadding"><span class="nav-text">1.11、Options和Padding</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-11-1%E3%80%81Options"><span class="nav-text">1.11.1、Options</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-11-2%E3%80%81Padding"><span class="nav-text">1.11.2、Padding</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%BD%BD%E8%8D%B7%E6%95%B0%E6%8D%AE"><span class="nav-text">二、载荷数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

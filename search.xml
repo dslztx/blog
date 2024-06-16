@@ -1487,6 +1487,25 @@
       </categories>
   </entry>
   <entry>
+    <title>GFW原理</title>
+    <url>/blog/2024/02/06/GFW%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h2 id="一、防火墙原理"><a href="#一、防火墙原理" class="headerlink" title="一、防火墙原理"></a><strong>一、防火墙原理</strong></h2><p>防火墙屏蔽主要有以下这3种形式：</p>
+<ol>
+<li>DNS污染，进行域名解析的时候，它返回给你错误的IP</li>
+<li>封杀IP地址</li>
+<li>关键词过滤</li>
+</ol>
+<h2 id="二、穿越防火墙原理"><a href="#二、穿越防火墙原理" class="headerlink" title="二、穿越防火墙原理"></a><strong>二、穿越防火墙原理</strong></h2><p>针对以上屏蔽方式，解决方案分别如下：</p>
+<ol>
+<li>针对1，我们可以通过Hosts文件，在本地进行域名解析</li>
+<li>针对2和3，只能通过加密代理等方式进行，比如使用GoAgent（Google服务器作为代理服务器），VPN，ShadowSocks，Skype等程序和机制</li>
+</ol>
+]]></content>
+      <categories>
+        <category>网络原理</category>
+      </categories>
+  </entry>
+  <entry>
     <title>FutureTask和ScheduledFutureTask</title>
     <url>/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/</url>
     <content><![CDATA[<p>在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：</p>
@@ -1692,25 +1711,6 @@
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>GFW原理</title>
-    <url>/blog/2024/02/06/GFW%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h2 id="一、防火墙原理"><a href="#一、防火墙原理" class="headerlink" title="一、防火墙原理"></a><strong>一、防火墙原理</strong></h2><p>防火墙屏蔽主要有以下这3种形式：</p>
-<ol>
-<li>DNS污染，进行域名解析的时候，它返回给你错误的IP</li>
-<li>封杀IP地址</li>
-<li>关键词过滤</li>
-</ol>
-<h2 id="二、穿越防火墙原理"><a href="#二、穿越防火墙原理" class="headerlink" title="二、穿越防火墙原理"></a><strong>二、穿越防火墙原理</strong></h2><p>针对以上屏蔽方式，解决方案分别如下：</p>
-<ol>
-<li>针对1，我们可以通过Hosts文件，在本地进行域名解析</li>
-<li>针对2和3，只能通过加密代理等方式进行，比如使用GoAgent（Google服务器作为代理服务器），VPN，ShadowSocks，Skype等程序和机制</li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络原理</category>
       </categories>
   </entry>
   <entry>
@@ -2637,9 +2637,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#105;&#x74;&#64;&#x67;&#x69;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#109;">&#x67;&#105;&#x74;&#64;&#x67;&#x69;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;">&#103;&#x69;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#64;&#103;&#105;&#116;&#104;&#117;&#x62;&#x2e;&#x63;&#x6f;&#109;">&#x67;&#105;&#x74;&#64;&#103;&#105;&#116;&#104;&#117;&#x62;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#x75;&#x62;&#x2e;&#x63;&#111;&#x6d;">&#103;&#x69;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#x75;&#x62;&#x2e;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#46;&#99;&#x6f;&#109;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#103;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;">&#103;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -3562,72 +3562,152 @@ text-align: center
     <title>IPv4报文</title>
     <url>/blog/2024/03/13/IPv4%E6%8A%A5%E6%96%87/</url>
     <content><![CDATA[<style>
-#cssTable td 
+td 
 {
-    text-align: center; 
-    vertical-align: middle;
+text-align: center
 }
 </style>
 
-<p>IPv4报文是一种可变长报文，由“首部”和“数据”两部分组成：</p>
+<p>IPv4报文是一种可变长报文，由“首部”和“载荷数据”两部分组成：</p>
 <ol>
-<li>首部：由“固定首部”和“可选首部”两部分组成，长度范围为<code>[20字节,60字节]</code><ul>
-<li>固定首部：从<code>版本</code>字段到<code>目的地址</code>字段为止，长度为定长<code>20字节</code></li>
-<li>可选首部：在<code>目的地址</code>字段和<code>数据</code>字段之间，长度范围为<code>[0字节,40字节]</code>，且为4字节倍数</li>
-</ul>
-</li>
-<li>数据：IPv4报文数据，长度范围为<code>[0字节,65535字节-20字节=65515字节]</code></li>
+<li>首部：从<code>Version</code>字段到<code>Padding</code>字段为止，长度范围为<code>[20字节,60字节]</code>，且要求长度须为4字节倍数</li>
+<li>载荷数据：IPv4报文载荷数据，长度范围为<code>[0字节,65535字节-首部至少20字节=65515字节]</code></li>
 </ol>
 <p>整个IPv4报文长度范围为<code>[20字节,65535字节]</code>。</p>
-<br/>
+<p>IPv4报文示意如下。</p>
+<pre>
++--------------+--------------------+
+|              |                    |
+|    Header    |    Payload Data    |
+|              |                    |
++--------------+--------------------+
+</pre>
 
-<p>下表是上述3部分的示意。</p>
-<table id="cssTable">
-<tbody>
-<tr><td width=10%>固定首部</td><td width=20% style="background-color:darkgray">可选首部</td><td width=70%>数据</td></tr>
-</tbody>
+<h2 id="一、首部"><a href="#一、首部" class="headerlink" title="一、首部"></a><strong>一、首部</strong></h2><p>首部逻辑上可分为两部分：</p>
+<ul>
+<li>固定首部：从<code>Version</code>字段到<code>Destination Address</code>字段为止，长度为定长<code>20字节</code></li>
+<li>可选首部 + 填充数据：在<code>Destination Address</code>字段和<code>Payload Data</code>之间，长度范围为<code>[0字节,40字节]</code>，且要求长度须为4字节倍数（只有如此，“首部长度须为4字节倍数”的要求才能得到满足）</li>
+</ul>
+<p>IPv4报文首部示意图如下。</p>
+<table style="text-align: center">
+   <caption  style="background:#781549; color:white;"><i>IPv4 Packet Header Format</i></caption>
+   <tbody>
+      <tr>
+         <th><i>Offsets</i></th>
+         <th>Octet</th>
+         <th colspan="8">0</th>
+         <th colspan="8">1</th>
+         <th colspan="8">2</th>
+         <th colspan="8">3</th>
+      </tr>
+      <tr>
+         <th>Octet</th>
+         <th>Bit</th>
+         <th style="width:2.6%">0</th>
+         <th style="width:2.6%">1</th>
+         <th style="width:2.6%">2</th>
+         <th style="width:2.6%">3</th>
+         <th style="width:2.6%">4</th>
+         <th style="width:2.6%">5</th>
+         <th style="width:2.6%">6</th>
+         <th style="width:2.6%">7</th>
+         <th style="width:2.6%">8</th>
+         <th style="width:2.6%">9</th>
+         <th style="width:2.6%">10</th>
+         <th style="width:2.6%">11</th>
+         <th style="width:2.6%">12</th>
+         <th style="width:2.6%">13</th>
+         <th style="width:2.6%">14</th>
+         <th style="width:2.6%">15</th>
+         <th style="width:2.6%">16</th>
+         <th style="width:2.6%">17</th>
+         <th style="width:2.6%">18</th>
+         <th style="width:2.6%">19</th>
+         <th style="width:2.6%">20</th>
+         <th style="width:2.6%">21</th>
+         <th style="width:2.6%">22</th>
+         <th style="width:2.6%">23</th>
+         <th style="width:2.6%">24</th>
+         <th style="width:2.6%">25</th>
+         <th style="width:2.6%">26</th>
+         <th style="width:2.6%">27</th>
+         <th style="width:2.6%">28</th>
+         <th style="width:2.6%">29</th>
+         <th style="width:2.6%">30</th>
+         <th style="width:2.6%">31</th>
+      </tr>
+      <tr>
+         <th>0</th>
+         <th>0</th>
+         <td colspan="4">Version (4 bits)</td>
+         <td colspan="4"><font color='red'>Internet Header Length (IHL, 4 bits)</font></td>
+         <td colspan="6">Differentiated Services Codepoint (DSCP, 6 bits)</td>
+         <td colspan="2">Explicit Congestion Notification (ECN, 2 bits)</td>
+         <td colspan="16"><font color='red'>Total Length (16 bits)</font></td>
+      </tr>
+      <tr>
+         <th>4</th>
+         <th>32</th>
+         <td colspan="16">Identification (16 bits)</td>
+         <td colspan="3">Flags (3 bits)</td>
+         <td colspan="13">Fragment Offset (13 bits)</td>
+      </tr>
+      <tr>
+         <th>8</th>
+         <th>64</th>
+         <td colspan="8">Time to Live (8 bits)</td>
+         <td colspan="8"><font color='red'>Protocol (8 bits)</font></td>
+         <td colspan="16">Header Checksum (16 bits)</td>
+      </tr>
+      <tr>
+         <th>12</th>
+         <th>96</th>
+         <td colspan="32"><font color='red'>Source Address (32 bits)</font></td>
+      </tr>
+      <tr>
+         <th>16</th>
+         <th>128</th>
+         <td colspan="32"><font color='red'>Destination Address (32 bits)</font></td>
+      </tr>
+      <tr>
+         <th>20</th>
+         <th>160</th>
+         <td colspan="32" rowspan="3">Options + Padding (variable bits) (if IHL &gt; 5)</td>
+      </tr>
+      <tr>
+         <th>⋮ </th>
+         <th>⋮ </th>
+      </tr>
+      <tr>
+         <th>56</th>
+         <th>448</th>
+      </tr>
+   </tbody>
 </table>
 
-<br/>
-
-<p>下表是固定首部的示意。</p>
-<table id="cssTable">
-<tbody>
-<tr><td colspan=4  width=12.5%>版本（4 bits）</td><td colspan=4 width=12.5%><font color='red'>首部长度（4 bits）</font></td><td  colspan=8 width=25%>区分服务（8 bits）</td><td  colspan=16><font color='red'>总长度（16 bits）</font></td></tr>
-<tr><td colspan=16 width=50%>标识（16 bits）</td><td  colspan=3 width=9.4%>标志（3 bits）</td><td colspan=13 width=40.6%>片偏移（13 bits）</td></tr>
-<tr><td colspan=8 width=25%>生存时间（8 bits）</td><td colspan=8 width=25%><font color='red'>协议（8 bits）</font></td><td colspan=16  width=50% >首部检验和（16 bits）</td></tr>
-<tr><td  colspan=32 width=100%><font color='red'>源地址（32 bits）</font></td></tr>
-<tr><td  colspan=32 width=100%><font color='red'>目的地址（32 bits）</font></td></tr>
-</tbody>
-</table>
-
-<br/>
-
-<h2 id="一、固定首部"><a href="#一、固定首部" class="headerlink" title="一、固定首部"></a><strong>一、固定首部</strong></h2><h3 id="1-1、版本"><a href="#1-1、版本" class="headerlink" title="1.1、版本"></a><strong>1.1、版本</strong></h3><p>英文名：<code>Version</code>。</p>
+<h3 id="1-1、Version"><a href="#1-1、Version" class="headerlink" title="1.1、Version"></a><strong>1.1、Version</strong></h3><p>中文名：<code>版本</code>。</p>
 <p>长度：4 bits。</p>
 <p>含义：指明IP协议版本号，IPv4版本的话其值为<code>0100</code>。</p>
-<h3 id="1-2、首部长度"><a href="#1-2、首部长度" class="headerlink" title="1.2、首部长度"></a><strong>1.2、首部长度</strong></h3><p>英文名：<code>Header Length</code>。</p>
+<h3 id="1-2、Internet-Header-Length-IHL"><a href="#1-2、Internet-Header-Length-IHL" class="headerlink" title="1.2、Internet Header Length (IHL)"></a><strong>1.2、Internet Header Length (IHL)</strong></h3><p>中文名：<code>首部长度</code>。</p>
 <p>长度：4 bits。</p>
-<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部。</p>
-<h3 id="1-3、区分服务"><a href="#1-3、区分服务" class="headerlink" title="1.3、区分服务"></a><strong>1.3、区分服务</strong></h3><p>英文名：<code>Differentiated Services Field (DS)</code>。</p>
-<p>长度：8 bits。</p>
-<p>含义：分为“6 bits的区分服务代码点（Differentiated Services Codepoint，DSCP）”和“2 bits的显式拥塞通知（Explicit Congestion Notification，ECN）”两部分：1）前者可用来标识该IPv4报文数据的服务类型，在支持该字段的网路设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务；2）后者用来扩展拥塞控制机制。</p>
-<p>扩展说明：</p>
-<ul>
-<li>之前该字段被设计作为“服务类型（Type of Service，TOS）”，<font color='red'>已废弃，被DS替代</font></li>
+<p>含义：指明本IPv4报文首部长度，以4字节为单位，故首部长度必为4字节倍数，其值范围为<code>[0101,1111]</code>，对应的首部长度范围为<code>[20字节,60字节]</code>。最常用的就是20字节，即：只有固定首部，没有可选首部和填充数据。</p>
+<h3 id="1-3、Differentiated-Services-Codepoint-DSCP-3"><a href="#1-3、Differentiated-Services-Codepoint-DSCP-3" class="headerlink" title="1.3、Differentiated Services Codepoint (DSCP)[3]"></a><strong>1.3、Differentiated Services Codepoint (DSCP)[3]</strong></h3><p>中文名：<code>区分服务代码点</code>。</p>
+<p>长度：6 bits。</p>
+<p>含义：</p>
+<ol>
+<li>用来标识该IPv4报文的服务类型，在支持该字段的网络设备（一般是“路由器”）的配合下，可提供不同服务质量等级（Quality of Service，QoS）的IP服务</li>
 <li>网络设备是否支持该字段、对该字段的支持程度、对该字段支持的具体落地方案等由生产厂商自决定</li>
-</ul>
-<h4 id="1-3-1、DSCP"><a href="#1-3-1、DSCP" class="headerlink" title="1.3.1、DSCP"></a><strong>1.3.1、DSCP</strong></h4><p>用于区分不同服务。</p>
-<p><strong>备注：</strong>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰。[3]</p>
-<h5 id="1-3-1-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1.1、支持DSCP字段的路由器的应对行为分类</strong></h5><p>支持DSCP字段的路由器的应对行为分为4类：</p>
+<li>对于<code>恶意攻击流量恶意设置DSCP值，以期达成“攻击流量在网络中的优先级高于正常流量”目标</code>，是否可行以及可行情形如何应对，笔者不甚清晰[7]</li>
+</ol>
+<h4 id="1-3-1、支持DSCP字段的路由器的应对行为分类"><a href="#1-3-1、支持DSCP字段的路由器的应对行为分类" class="headerlink" title="1.3.1、支持DSCP字段的路由器的应对行为分类"></a><strong>1.3.1、支持DSCP字段的路由器的应对行为分类</strong></h4><p>支持DSCP字段的路由器的应对行为分为4类：</p>
 <ol>
 <li>Expedited Forwarding PHB (EF PHB)：迅速转发PHB</li>
 <li>Assured Forwarding PHB (AF PHB)：确保转发PHB</li>
 <li>Default Forwarding PHB (DF PHB)：默认转发PHB</li>
 <li>Class Selector PHBs：该分类主要是为了兼容TOS</li>
 </ol>
-<h5 id="1-3-1-2、Service-Class"><a href="#1-3-1-2、Service-Class" class="headerlink" title="1.3.1.2、Service Class"></a><strong>1.3.1.2、Service Class</strong></h5><p>见<code>RFC 4594</code>。</p>
-<h5 id="1-3-1-3、DSCP说明"><a href="#1-3-1-3、DSCP说明" class="headerlink" title="1.3.1.3、DSCP说明"></a><strong>1.3.1.3、DSCP说明</strong></h5><table>
+<h4 id="1-3-2、Service-Class"><a href="#1-3-2、Service-Class" class="headerlink" title="1.3.2、Service Class"></a><strong>1.3.2、Service Class</strong></h4><p>见<code>RFC 4594</code>。</p>
+<h4 id="1-3-3、DSCP说明"><a href="#1-3-3、DSCP说明" class="headerlink" title="1.3.3、DSCP说明"></a><strong>1.3.3、DSCP说明</strong></h4><table>
 <thead>
 <tr>
 <th>DSCP二进制</th>
@@ -3786,11 +3866,11 @@ text-align: center
 </tr>
 </tbody></table>
 <p>扩展说明：其他DSCP值默认对应<code>DB PHB</code>和<code>Standard Service Class</code>。</p>
-<h4 id="1-3-2、ECN"><a href="#1-3-2、ECN" class="headerlink" title="1.3.2、ECN"></a><strong>1.3.2、ECN</strong></h4><p>ECN：设计用来完善整个拥塞控制机制。</p>
-<p>之前的拥塞控制机制：传输层通过丢包感知到拥塞，进行拥塞控制。</p>
-<p>ECN——网络层提供的显式拥塞控制标记：</p>
+<h3 id="1-4、Explicit-Congestion-Notification-ECN-4"><a href="#1-4、Explicit-Congestion-Notification-ECN-4" class="headerlink" title="1.4、Explicit Congestion Notification (ECN)[4]"></a><strong>1.4、Explicit Congestion Notification (ECN)[4]</strong></h3><p>中文名：<code>显式拥塞通知</code>。</p>
+<p>长度：2 bits。</p>
+<p>含义：网络层提供的显式拥塞控制标记，设计用来完善整个拥塞控制机制：</p>
 <ol>
-<li>之前的拥塞控制是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网路层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
+<li>之前的拥塞控制机制——“传输层通过丢包感知到拥塞，进行拥塞控制”，其是隐式的，被动的，实际可根据路由器内排队情况提前预测是否拥塞，进行拥塞显式标记，以期提前介入，避免丢包，更快缓解拥塞，一般路由器只工作在网络层，故上述拥塞显式标记只能在网络层协议报文实现，此即ECN产生的背景</li>
 <li>引入ECN后，传输层除了通过丢包感知拥塞之外，也可根据ECN感知拥塞</li>
 </ol>
 <p>ECN值含义如表1。</p>
@@ -3819,19 +3899,19 @@ text-align: center
 <td>发生拥塞，CE (Congestion Experienced)</td>
 </tr>
 </tbody></table>
-<h3 id="1-4、总长度"><a href="#1-4、总长度" class="headerlink" title="1.4、总长度"></a><strong>1.4、总长度</strong></h3><p>英文名：<code>Total Length</code>。</p>
+<h3 id="1-5、Total-Length"><a href="#1-5、Total-Length" class="headerlink" title="1.5、Total Length"></a><strong>1.5、Total Length</strong></h3><p>中文名：<code>总长度</code>。</p>
 <p>长度：16 bits。</p>
-<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“数据”。</p>
-<h3 id="1-5、标识、标志和片偏移"><a href="#1-5、标识、标志和片偏移" class="headerlink" title="1.5、标识、标志和片偏移"></a><strong>1.5、标识、标志和片偏移</strong></h3><p>首先介绍IPv4报文分片概念：</p>
+<p>含义：整个IPv4报文的长度（单位是“字节”，最大值为<code>2^16-1=65535</code>，即整个IPv4报文最大为65535个字节），包括“首部”和“载荷数据”。</p>
+<h3 id="1-6、Identification、Flags和Fragment-Offset"><a href="#1-6、Identification、Flags和Fragment-Offset" class="headerlink" title="1.6、Identification、Flags和Fragment Offset"></a><strong>1.6、Identification、Flags和Fragment Offset</strong></h3><p>首先介绍IPv4报文分片概念：</p>
 <ol>
 <li>数据链路层协议都规定了一个该层协议报文能接收的上层协议递交数据的最大长度，该最大长度被称为最大传送单元MTU（Maximum Transfer Unit），比如以太网协议的MTU值为<code>1500个字节</code>。当IPv4报文总长度超过所使用数据链路层协议的MTU后，需要将该IPv4报文分割成几个，使得每个分割后IPv4报文总长度不超过MTU，该过程即为分片，在IPv4报文接收端会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文</li>
 <li>具体分片过程：<ul>
-<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
-<li>数据。分片数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片数据长度为8字节的倍数</li>
+<li>首部。复制原报文的首部，在复制过程中，部分字段保持不变，部分字段有所变化：1）保持不变字段——版本，首部长度，区分服务代码点，显式拥塞通知，标识，生存时间，协议，源地址，目的地址，<font color='red'>可选首部，填充数据</font>；2）有所变化：总长度，标志，片偏移，首部检验和</li>
+<li>载荷数据。分片载荷数据的长度具体协议实现软件具体决定，只须满足两个限制条件：1）分片后分片总长度不超过MTU；2）假如分成N个分片，则前N-1个分片载荷数据长度为8字节的倍数</li>
 </ul>
 </li>
 </ol>
-<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p><strong>1、例子1</strong><br>一个IPv4报文长度为3820字节（载荷数据长度为3800字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片载荷数据最大长度选为<code>1400个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -3871,7 +3951,7 @@ text-align: center
 <td>分片3首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p>以上分片2报文假定经过一个网络，其使用的数据链路层协议的MTU为<code>1000个字节</code>，须进行再分片（示例中将分片载荷数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -3897,7 +3977,7 @@ text-align: center
 <td>分片2-2首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
+<p><strong>2、例子2</strong><br>一个IPv4报文长度为1508字节（载荷数据长度为1488字节，首部长度为20字节），其使用的数据链路层协议的MTU为<code>1500个字节</code>，须进行分片（示例中将分片载荷数据最大长度选为<code>800个字节</code>），分片后首部中变化字段情况描述如下。</p>
 <table>
 <thead>
 <tr>
@@ -3930,10 +4010,10 @@ text-align: center
 <td>分片2首部检验和，独立计算</td>
 </tr>
 </tbody></table>
-<h4 id="1-5-1、标识"><a href="#1-5-1、标识" class="headerlink" title="1.5.1、标识"></a><strong>1.5.1、标识</strong></h4><p>英文名：<code>Identification</code>。</p>
+<h4 id="1-6-1、Identification"><a href="#1-6-1、Identification" class="headerlink" title="1.6.1、Identification"></a><strong>1.6.1、Identification</strong></h4><p>中文名：<code>标识</code>。</p>
 <p>长度：16 bits。</p>
 <p>含义：IPv4协议实现程序维持一个计数器，每产生一个IPv4报文，计数器就加1，并将此值赋值给该报文的标识字段，<font color='red'>标识字段作为该IPv4报文的“标识”，不是序号</font>。当报文不分片时，该标识无实际意义；当报文分片时，分片报文会复制原报文的标识字段，接收端据此会将属于同一个IPv4报文的分片报文重新组装成原IPv4报文。</p>
-<h4 id="1-5-2、标志"><a href="#1-5-2、标志" class="headerlink" title="1.5.2、标志"></a><strong>1.5.2、标志</strong></h4><p>英文名：<code>Flags</code>。</p>
+<h4 id="1-6-2、Flags"><a href="#1-6-2、Flags" class="headerlink" title="1.6.2、Flags"></a><strong>1.6.2、Flags</strong></h4><p>中文名：<code>标志</code>。</p>
 <p>长度：3 bits。</p>
 <p>含义：共3位，现在只有后面两位有意义：</p>
 <ol>
@@ -3943,20 +4023,20 @@ text-align: center
 </ul>
 </li>
 <li>次低位记为DF（Don’t Fragment）：<ul>
-<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[4]</li>
+<li><code>DF=1</code>：表示不能分片，即便报文总长度超过所使用链路层协议的MTU值（该种情形下，链路层协议实现程序一般那是丢弃该报文，并发送“ICMP Packet Too Big”报文），此时必有<code>MF=0</code>[8]</li>
 <li><code>DF=0</code>：表示允许分片</li>
 </ul>
 </li>
 </ol>
-<h4 id="1-5-3、片偏移"><a href="#1-5-3、片偏移" class="headerlink" title="1.5.3、片偏移"></a><strong>1.5.3、片偏移</strong></h4><p>英文名：<code>Fragment offset</code>。</p>
+<h4 id="1-6-3、Fragment-Offset"><a href="#1-6-3、Fragment-Offset" class="headerlink" title="1.6.3、Fragment Offset"></a><strong>1.6.3、Fragment Offset</strong></h4><p>中文名：<code>片偏移</code>。</p>
 <p>长度：13 bits。</p>
-<p>含义：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内数据相对于原报文内数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
-<h3 id="1-6、生存时间"><a href="#1-6、生存时间" class="headerlink" title="1.6、生存时间"></a><strong>1.6、生存时间</strong></h3><p>英文名：<code>Time to Live</code>。</p>
+<p>含义：当报文不分片时，片偏移字段无实际意义；当报文分片时，片偏移字段的含义是：分片内载荷数据相对于原报文内载荷数据的偏移量，偏移量的具体计算公式为<code>偏移字节数/8（偏移字节数必为8的倍数，这跟上面“假如分成N个分片，则前N-1个分片载荷数据长度为8字节的倍数”的论述是相对应的）</code>，具体例子可参见“例子1”和“例子2”。</p>
+<h3 id="1-7、Time-to-Live"><a href="#1-7、Time-to-Live" class="headerlink" title="1.7、Time to Live"></a><strong>1.7、Time to Live</strong></h3><p>中文名：<code>生存时间</code>。</p>
 <p>长度：：8 bits。</p>
 <p>含义：生存时间，用于限制数据包在网络上的生存时间，防止数据包在网络中无限循环堵塞网络。在最初设计和实现中，其以秒为单位，报文在经过一个路由器时，该报文的TTL值会被减去在该路由器所耗费的时间，当TTL值减为0时，该报文就会被该路由器丢弃。后来随着技术发展，路由器处理报文的时间远小于1秒，但至少每次减1，因此演变成“跳数限制，每经过一个路由器转发就减去1，减至0后被路由器丢弃”。</p>
-<h3 id="1-7、协议"><a href="#1-7、协议" class="headerlink" title="1.7、协议"></a><strong>1.7、协议</strong></h3><p>英文名：<code>Protocol</code>。</p>
+<h3 id="1-8、Protocol"><a href="#1-8、Protocol" class="headerlink" title="1.8、Protocol"></a><strong>1.8、Protocol</strong></h3><p>中文名：<code>协议</code>。</p>
 <p>长度：8 bits。</p>
-<p>含义：报文数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
+<p>含义：报文载荷数据对应的协议，这个协议一般是传输层协议（“TCP”和“UDP”），但也可能是其他协议，比如“IP（指的是IPv4报文再封装到IPv4报文中）”，“IPv6（指的是IPv6报文再封装到IPv4报文中）”。常见值及对应的协议见下表。</p>
 <table>
 <thead>
 <tr>
@@ -3991,26 +4071,366 @@ text-align: center
 <td>89</td>
 </tr>
 </tbody></table>
-<h3 id="1-8、首部检验和"><a href="#1-8、首部检验和" class="headerlink" title="1.8、首部检验和"></a><strong>1.8、首部检验和</strong></h3><p>英文名：<code>Header checksum</code>。</p>
+<h3 id="1-9、Header-Checksum"><a href="#1-9、Header-Checksum" class="headerlink" title="1.9、Header Checksum"></a><strong>1.9、Header Checksum</strong></h3><p>中文名：<code>首部检验和</code>。</p>
 <p>长度：16 bits。</p>
 <p>含义：用来标识报文首部是否被篡改，须注意——通过首部检验和的检验是首部未被篡改的必要不充分条件。其具体工作机制是：在报文发送端，首先将首部检验和字段置为全0，然后将报文首部以16 bits为一组分成多组（由于首部长度是4字节的倍数，故正好能划分成整数组），执行<code>反码算术运算求和 + 取反码</code>运算，将结果置入首部检验和字段，后续每个路由器都执行上述运算过程，根据上述运算过程的特点，合法结果值应该是0，如果非0，表示必被篡改，直接丢弃。</p>
-<h3 id="1-9、源地址"><a href="#1-9、源地址" class="headerlink" title="1.9、源地址"></a><strong>1.9、源地址</strong></h3><p>英文名：<code>Source</code>。</p>
+<h3 id="1-10、Source-Address"><a href="#1-10、Source-Address" class="headerlink" title="1.10、Source Address"></a><strong>1.10、Source Address</strong></h3><p>中文名：<code>源地址</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：源IP地址。</p>
-<h3 id="1-10、目的地址"><a href="#1-10、目的地址" class="headerlink" title="1.10、目的地址"></a><strong>1.10、目的地址</strong></h3><p>英文名：<code>Destination</code>。</p>
+<h3 id="1-10、Destination-Address"><a href="#1-10、Destination-Address" class="headerlink" title="1.10、Destination Address"></a><strong>1.10、Destination Address</strong></h3><p>中文名：<code>目的地址</code>。</p>
 <p>长度：32 bits。</p>
 <p>含义：目的IP地址。</p>
-<h2 id="二、可选首部"><a href="#二、可选首部" class="headerlink" title="二、可选首部"></a><strong>二、可选首部</strong></h2><p>英文名：<code>Options</code>。</p>
-<p>长度：可变。结合“1.2、首部长度”小节和“固定首部定长20字节”可知：可选首部长度范围为<code>[0字节,40字节]</code>，且须是4字节倍数，否则需要进行0字节填充。</p>
-<p>含义：可选首部，用于扩展IPv4头部，实际不常用。</p>
-<h2 id="三、数据"><a href="#三、数据" class="headerlink" title="三、数据"></a><strong>三、数据</strong></h2><p>结合“1.4、总长度”小节和“1.2、首部长度”小节可知：数据长度范围为<code>[0字节,65535字节-20字节=65515字节]</code>。</p>
+<h3 id="1-11、Options和Padding"><a href="#1-11、Options和Padding" class="headerlink" title="1.11、Options和Padding"></a><strong>1.11、Options和Padding</strong></h3><p><code>Internet Header Length（IHL）</code>字段指出首部长度范围是<code>[20字节,60字节]</code>，而固定首部为定长<code>20字节</code>，那么“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>。<br>又要求首部长度须为4字节倍数，固定首部为<code>20字节</code>，所以“Options”和“Padding”字段合起来的长度也须为4字节倍数。</p>
+<h4 id="1-11-1、Options"><a href="#1-11-1、Options" class="headerlink" title="1.11.1、Options"></a><strong>1.11.1、Options</strong></h4><p>中文名：<code>可选首部</code>。</p>
+<p>长度：可变。“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>，且须为4字节倍数。</p>
+<p>含义：可选首部，用于扩展IPv4头部，<font color='red'>实际不常用</font>。</p>
+<h4 id="1-11-2、Padding"><a href="#1-11-2、Padding" class="headerlink" title="1.11.2、Padding"></a><strong>1.11.2、Padding</strong></h4><p>中文名：<code>填充数据</code>。</p>
+<p>长度：可变。“Options”和“Padding”字段合起来的长度范围为<code>[0字节,40字节]</code>，且须为4字节倍数。</p>
+<p>含义：零字节填充数据，确保“Options”和“Padding”字段合起来的长度为4字节倍数。</p>
+<h2 id="二、载荷数据"><a href="#二、载荷数据" class="headerlink" title="二、载荷数据"></a><strong>二、载荷数据</strong></h2><p>结合“1.5、Total Length”小节和“1.2、Internet Header Length (IHL)”小节可知：载荷数据长度范围为<code>[0字节,65535字节-首部至少20字节=65515字节]</code>。</p>
 <br/>
 
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[2]<a href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[3]<a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[4]<a href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[5]<a href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://en.wikipedia.org/wiki/IPv4#Packet_structure">https://en.wikipedia.org/wiki/IPv4#Packet_structure</a><br>[2]<a href="https://datatracker.ietf.org/doc/html/rfc791">https://datatracker.ietf.org/doc/html/rfc791</a><br>[3]<a href="https://datatracker.ietf.org/doc/html/rfc2474">https://datatracker.ietf.org/doc/html/rfc2474</a><br>[4]<a href="https://datatracker.ietf.org/doc/html/rfc3168">https://datatracker.ietf.org/doc/html/rfc3168</a><br>[5]<a href="https://en.wikipedia.org/wiki/Differentiated_services">https://en.wikipedia.org/wiki/Differentiated_services</a><br>[6]<a href="https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5">https://zh.wikipedia.org/wiki/%E6%98%BE%E5%BC%8F%E6%8B%A5%E5%A1%9E%E9%80%9A%E7%9F%A5</a><br>[7]<a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996">https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10314996</a><br>[8]<a href="https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu">https://support.huawei.com/enterprise/en/doc/EDOC1100278546/bc7714b7/understanding-mtu</a><br>[9]<a href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8</a></p>
 ]]></content>
       <categories>
         <category>网络原理</category>
       </categories>
+  </entry>
+  <entry>
+    <title>IntelliJ IDEA快捷键</title>
+    <url>/blog/2018/06/05/IntelliJ-IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
+    <content><![CDATA[<h2 id="一、编辑"><a href="#一、编辑" class="headerlink" title="一、编辑"></a><strong>一、编辑</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+Shift+Enter</td>
+<td>辅助完成代码语句</td>
+</tr>
+<tr>
+<td>Shift+Enter</td>
+<td>光标跳到新的一行</td>
+</tr>
+<tr>
+<td>Ctrl+p</td>
+<td>查看方法定义中的形式参数声明（需要光标处于参数输入区域）</td>
+</tr>
+<tr>
+<td>Ctrl+q</td>
+<td>快速查看JavaDoc</td>
+</tr>
+<tr>
+<td>Ctrl+F1</td>
+<td>查看对光标处错误和警告的描述</td>
+</tr>
+<tr>
+<td>Alt+Insert</td>
+<td>快速输入代码（Getters，Setters，Constructors，hashCode()，equals()，toString()，方法实现，方法覆盖）</td>
+</tr>
+<tr>
+<td>Ctrl+&#x2F;</td>
+<td>行注释&#x2F;取消行注释</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+&#x2F;</td>
+<td>块注释&#x2F;取消块注释</td>
+</tr>
+<tr>
+<td>Alt+Enter</td>
+<td>快速修复</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+l</td>
+<td>格式化</td>
+</tr>
+<tr>
+<td>Ctrl+a</td>
+<td>全选</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+y</td>
+<td>插入常见的Java代码片段和模板（Live Templates）</td>
+</tr>
+<tr>
+<td>Ctrl+j</td>
+<td>插入模板（Live Templates）</td>
+</tr>
+</tbody></table>
+<h2 id="二、查找与替换"><a href="#二、查找与替换" class="headerlink" title="二、查找与替换"></a><strong>二、查找与替换</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+Shift+f</td>
+<td>指定区域查找</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+r</td>
+<td>指定区域替换</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+u</td>
+<td>查找对当前内容的引用</td>
+</tr>
+</tbody></table>
+<h2 id="三、编译与运行"><a href="#三、编译与运行" class="headerlink" title="三、编译与运行"></a><strong>三、编译与运行</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F11</td>
+<td>重编译项目</td>
+</tr>
+<tr>
+<td>Ctrl+F10</td>
+<td>选择配置运行</td>
+</tr>
+<tr>
+<td>Ctrl+F9</td>
+<td>选择配置调试运行</td>
+</tr>
+<tr>
+<td>Shift+F10</td>
+<td>运行</td>
+</tr>
+<tr>
+<td>Shift+F9</td>
+<td>调试运行</td>
+</tr>
+</tbody></table>
+<h2 id="四、调试运行"><a href="#四、调试运行" class="headerlink" title="四、调试运行"></a><strong>四、调试运行</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F8</td>
+<td>步过</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>步入</td>
+</tr>
+<tr>
+<td>Shift+F8</td>
+<td>强制步过</td>
+</tr>
+<tr>
+<td>Shift+F7</td>
+<td>强制步入</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+9</td>
+<td>强制步到光标所在处</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+8</td>
+<td>执行表达式</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+b</td>
+<td>强制返回，指定返回值</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+e</td>
+<td>强制抛异常，指定具体异常对象</td>
+</tr>
+<tr>
+<td>Ctrl+F5</td>
+<td>重新调试运行</td>
+</tr>
+<tr>
+<td>Ctrl+F2</td>
+<td>停止调试运行</td>
+</tr>
+</tbody></table>
+<h2 id="五、浏览"><a href="#五、浏览" class="headerlink" title="五、浏览"></a><strong>五、浏览</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+n</td>
+<td>快速跳转到类</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+n</td>
+<td>快速跳转到文件</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+Alt+n</td>
+<td>快速跳转到符号</td>
+</tr>
+<tr>
+<td>Ctrl+PageDown&#x2F;PageUp</td>
+<td>跳转到右&#x2F;左侧标签页</td>
+</tr>
+<tr>
+<td>Alt+向左&#x2F;右方向键</td>
+<td>浏览回退&#x2F;前进</td>
+</tr>
+<tr>
+<td>Ctrl+m</td>
+<td>跳转到定义处，反向跳转等价于“Ctrl+Shift+u”</td>
+</tr>
+<tr>
+<td>Ctrl+i</td>
+<td>跳转到实现，与“Ctrl+u”互为一组</td>
+</tr>
+<tr>
+<td>Ctrl+u</td>
+<td>跳转到父类&#x2F;父方法，与“Ctrl+i”互为一组</td>
+</tr>
+<tr>
+<td>Alt+向上&#x2F;下方向键</td>
+<td>跳转到上一个&#x2F;下一个方法</td>
+</tr>
+<tr>
+<td>Ctrl+h</td>
+<td>跳转到类继承体系Tool窗口</td>
+</tr>
+<tr>
+<td>Ctrl+F12</td>
+<td>打开文件结构弹出窗口</td>
+</tr>
+<tr>
+<td>F2&#x2F;Shift+F2</td>
+<td>跳转到前一个&#x2F;后一个高亮错误（循环）</td>
+</tr>
+</tbody></table>
+<h2 id="六、重构"><a href="#六、重构" class="headerlink" title="六、重构"></a><strong>六、重构</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F5</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>移动</td>
+</tr>
+<tr>
+<td>Alt+Delete</td>
+<td>安全删除</td>
+</tr>
+<tr>
+<td>Shift+F6</td>
+<td>重命名</td>
+</tr>
+</tbody></table>
+<h2 id="七、通用"><a href="#七、通用" class="headerlink" title="七、通用"></a><strong>七、通用</strong></h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alt+1</td>
+<td>项目Tool窗口</td>
+</tr>
+<tr>
+<td>Alt+2</td>
+<td>文件结构Tool窗口</td>
+</tr>
+<tr>
+<td>Alt+3</td>
+<td>Find Tool窗口</td>
+</tr>
+<tr>
+<td>Alt+4</td>
+<td>TODO Tool窗口</td>
+</tr>
+<tr>
+<td>Alt+F12</td>
+<td>命令行Tool窗口</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+j</td>
+<td>快速查看Find Tool，Messages Tool，TODO Tool等窗口中的下一处命中</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+k</td>
+<td>快速查看Find Tool，Messages Tool，TODO Tool等窗口中的上一处命中</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+x</td>
+<td>关闭最近活动的Tool窗口</td>
+</tr>
+<tr>
+<td>Ctrl+w</td>
+<td>关闭编辑窗口中当前标签页</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+w</td>
+<td>关闭编辑窗口中除了当前标签页之外的所有标签页</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>焦点从Tool窗口（除了命令行Tool窗口）转到编辑器窗口</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+F12</td>
+<td>隐藏其他所有窗口，最大化编辑窗口</td>
+</tr>
+<tr>
+<td>Ctrl+s</td>
+<td>保存所有</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+s</td>
+<td>项目同步</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+t</td>
+<td>创建测试类及在测试类与被测试类之间互相跳转</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+o</td>
+<td>打开最近项目</td>
+</tr>
+<tr>
+<td>Ctrl+,</td>
+<td>Maven项目重新加载</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+a</td>
+<td>IDE行为查找</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+Alt+c</td>
+<td>复制引用。<font color='red'>能够复制完整的类路径，方法路径，源代码行路径等</font></td>
+</tr>
+<tr>
+<td>Ctrl+q</td>
+<td>快速查看文档信息（JavaDoc解析后信息）。连续按两下，依次打开&#x2F;关闭文档信息Tool窗口</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>生产力工具</category>
+        <category>键盘流</category>
+      </categories>
+      <tags>
+        <tag>IntelliJ IDEA</tag>
+      </tags>
   </entry>
   <entry>
     <title>IPv6报文</title>
@@ -4580,342 +5000,6 @@ text-align: center
       <categories>
         <category>网络原理</category>
       </categories>
-  </entry>
-  <entry>
-    <title>IntelliJ IDEA快捷键</title>
-    <url>/blog/2018/06/05/IntelliJ-IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
-    <content><![CDATA[<h2 id="一、编辑"><a href="#一、编辑" class="headerlink" title="一、编辑"></a><strong>一、编辑</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Ctrl+Shift+Enter</td>
-<td>辅助完成代码语句</td>
-</tr>
-<tr>
-<td>Shift+Enter</td>
-<td>光标跳到新的一行</td>
-</tr>
-<tr>
-<td>Ctrl+p</td>
-<td>查看方法定义中的形式参数声明（需要光标处于参数输入区域）</td>
-</tr>
-<tr>
-<td>Ctrl+q</td>
-<td>快速查看JavaDoc</td>
-</tr>
-<tr>
-<td>Ctrl+F1</td>
-<td>查看对光标处错误和警告的描述</td>
-</tr>
-<tr>
-<td>Alt+Insert</td>
-<td>快速输入代码（Getters，Setters，Constructors，hashCode()，equals()，toString()，方法实现，方法覆盖）</td>
-</tr>
-<tr>
-<td>Ctrl+&#x2F;</td>
-<td>行注释&#x2F;取消行注释</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+&#x2F;</td>
-<td>块注释&#x2F;取消块注释</td>
-</tr>
-<tr>
-<td>Alt+Enter</td>
-<td>快速修复</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+l</td>
-<td>格式化</td>
-</tr>
-<tr>
-<td>Ctrl+a</td>
-<td>全选</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+y</td>
-<td>插入常见的Java代码片段和模板（Live Templates）</td>
-</tr>
-<tr>
-<td>Ctrl+j</td>
-<td>插入模板（Live Templates）</td>
-</tr>
-</tbody></table>
-<h2 id="二、查找与替换"><a href="#二、查找与替换" class="headerlink" title="二、查找与替换"></a><strong>二、查找与替换</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Ctrl+Shift+f</td>
-<td>指定区域查找</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+r</td>
-<td>指定区域替换</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+u</td>
-<td>查找对当前内容的引用</td>
-</tr>
-</tbody></table>
-<h2 id="三、编译与运行"><a href="#三、编译与运行" class="headerlink" title="三、编译与运行"></a><strong>三、编译与运行</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>F11</td>
-<td>重编译项目</td>
-</tr>
-<tr>
-<td>Ctrl+F10</td>
-<td>选择配置运行</td>
-</tr>
-<tr>
-<td>Ctrl+F9</td>
-<td>选择配置调试运行</td>
-</tr>
-<tr>
-<td>Shift+F10</td>
-<td>运行</td>
-</tr>
-<tr>
-<td>Shift+F9</td>
-<td>调试运行</td>
-</tr>
-</tbody></table>
-<h2 id="四、调试运行"><a href="#四、调试运行" class="headerlink" title="四、调试运行"></a><strong>四、调试运行</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>F8</td>
-<td>步过</td>
-</tr>
-<tr>
-<td>F7</td>
-<td>步入</td>
-</tr>
-<tr>
-<td>Shift+F8</td>
-<td>强制步过</td>
-</tr>
-<tr>
-<td>Shift+F7</td>
-<td>强制步入</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+9</td>
-<td>强制步到光标所在处</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+8</td>
-<td>执行表达式</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+b</td>
-<td>强制返回，指定返回值</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+e</td>
-<td>强制抛异常，指定具体异常对象</td>
-</tr>
-<tr>
-<td>Ctrl+F5</td>
-<td>重新调试运行</td>
-</tr>
-<tr>
-<td>Ctrl+F2</td>
-<td>停止调试运行</td>
-</tr>
-</tbody></table>
-<h2 id="五、浏览"><a href="#五、浏览" class="headerlink" title="五、浏览"></a><strong>五、浏览</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Ctrl+n</td>
-<td>快速跳转到类</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+n</td>
-<td>快速跳转到文件</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+Alt+n</td>
-<td>快速跳转到符号</td>
-</tr>
-<tr>
-<td>Ctrl+PageDown&#x2F;PageUp</td>
-<td>跳转到右&#x2F;左侧标签页</td>
-</tr>
-<tr>
-<td>Alt+向左&#x2F;右方向键</td>
-<td>浏览回退&#x2F;前进</td>
-</tr>
-<tr>
-<td>Ctrl+m</td>
-<td>跳转到定义处，反向跳转等价于“Ctrl+Shift+u”</td>
-</tr>
-<tr>
-<td>Ctrl+i</td>
-<td>跳转到实现，与“Ctrl+u”互为一组</td>
-</tr>
-<tr>
-<td>Ctrl+u</td>
-<td>跳转到父类&#x2F;父方法，与“Ctrl+i”互为一组</td>
-</tr>
-<tr>
-<td>Alt+向上&#x2F;下方向键</td>
-<td>跳转到上一个&#x2F;下一个方法</td>
-</tr>
-<tr>
-<td>Ctrl+h</td>
-<td>跳转到类继承体系Tool窗口</td>
-</tr>
-<tr>
-<td>Ctrl+F12</td>
-<td>打开文件结构弹出窗口</td>
-</tr>
-<tr>
-<td>F2&#x2F;Shift+F2</td>
-<td>跳转到前一个&#x2F;后一个高亮错误（循环）</td>
-</tr>
-</tbody></table>
-<h2 id="六、重构"><a href="#六、重构" class="headerlink" title="六、重构"></a><strong>六、重构</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>F5</td>
-<td>复制</td>
-</tr>
-<tr>
-<td>F6</td>
-<td>移动</td>
-</tr>
-<tr>
-<td>Alt+Delete</td>
-<td>安全删除</td>
-</tr>
-<tr>
-<td>Shift+F6</td>
-<td>重命名</td>
-</tr>
-</tbody></table>
-<h2 id="七、通用"><a href="#七、通用" class="headerlink" title="七、通用"></a><strong>七、通用</strong></h2><table>
-<thead>
-<tr>
-<th>快捷键</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Alt+1</td>
-<td>项目Tool窗口</td>
-</tr>
-<tr>
-<td>Alt+2</td>
-<td>文件结构Tool窗口</td>
-</tr>
-<tr>
-<td>Alt+3</td>
-<td>Find Tool窗口</td>
-</tr>
-<tr>
-<td>Alt+4</td>
-<td>TODO Tool窗口</td>
-</tr>
-<tr>
-<td>Alt+F12</td>
-<td>命令行Tool窗口</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+j</td>
-<td>快速查看Find Tool，Messages Tool，TODO Tool等窗口中的下一处命中</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+k</td>
-<td>快速查看Find Tool，Messages Tool，TODO Tool等窗口中的上一处命中</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+x</td>
-<td>关闭最近活动的Tool窗口</td>
-</tr>
-<tr>
-<td>Ctrl+w</td>
-<td>关闭编辑窗口中当前标签页</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+w</td>
-<td>关闭编辑窗口中除了当前标签页之外的所有标签页</td>
-</tr>
-<tr>
-<td>Esc</td>
-<td>焦点从Tool窗口（除了命令行Tool窗口）转到编辑器窗口</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+F12</td>
-<td>隐藏其他所有窗口，最大化编辑窗口</td>
-</tr>
-<tr>
-<td>Ctrl+s</td>
-<td>保存所有</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+s</td>
-<td>项目同步</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+t</td>
-<td>创建测试类及在测试类与被测试类之间互相跳转</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+o</td>
-<td>打开最近项目</td>
-</tr>
-<tr>
-<td>Ctrl+,</td>
-<td>Maven项目重新加载</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+a</td>
-<td>IDE行为查找</td>
-</tr>
-<tr>
-<td>Ctrl+Shift+Alt+c</td>
-<td>复制引用。<font color='red'>能够复制完整的类路径，方法路径，源代码行路径等</font></td>
-</tr>
-<tr>
-<td>Ctrl+q</td>
-<td>快速查看文档信息（JavaDoc解析后信息）。连续按两下，依次打开&#x2F;关闭文档信息Tool窗口</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>生产力工具</category>
-        <category>键盘流</category>
-      </categories>
-      <tags>
-        <tag>IntelliJ IDEA</tag>
-      </tags>
   </entry>
   <entry>
     <title>IntelliJ IDEA的条件调试</title>
@@ -6032,73 +6116,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>JVM进程内5个主要内存区域中客体之间的联系</title>
-    <url>/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/</url>
-    <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
-<p>本文介绍JVM进程内5个主要内存区域中客体（变量、字段、对象等）之间的联系，5个主要内存区域是“Java虚拟机栈，本地方法栈，Java堆，方法区，显式调用JNI方法直接分配内存”，即不包括“程序计数器，JVM进程运行自身所需内存”。[1]</p>
-<h2 id="一、联系的本质"><a href="#一、联系的本质" class="headerlink" title="一、联系的本质"></a><strong>一、联系的本质</strong></h2><p>从内存和机器码的视角看，两块内存区域中客体之间的联系就是指针（概念引自“C&#x2F;C++语言”，这里是广义化的，可以是直接内存地址，也可以是间接内存地址）。</p>
-<p>从JVM的视角看，以上5块内存区域只不过是内存上的逻辑划分，其内客体之间的联系就是指针，只不过：</p>
-<ul>
-<li>有些在Java语言视图下是Java对象引用，比如“在Java方法中有语句<code>Object obj = new Object()</code>，在Java语言视图下，Java虚拟机栈中的变量obj客体与Java堆中相应实例对象客体之间的指针是Java对象引用”</li>
-<li>其他的则不是，比如“在Java方法中有语句<code>long base = sun.misc.Unsafe.allocateMemory(size)</code>，在Java语言视图下，Java虚拟机栈中的变量base客体与‘显式调用JNI方法直接分配内存’中相应内存块客体之间的指针不是Java对象引用”</li>
-</ul>
-<br/>
-
-<p><font color='red'>一个指针是Java对象引用须满足两个条件</font>：</p>
-<ol>
-<li>[<strong>条件1</strong>]指针指向一个Java对象</li>
-<li>[<strong>条件2</strong>]保存指针值的变量是Java对象引用变量</li>
-</ol>
-<p>这两个条件之间的关系是：</p>
-<ul>
-<li>条件1不满足，条件2必然不满足，否则此时Java对象引用变量便是一个非法定义</li>
-<li>条件1满足，条件2可能满足，也可能不满足，不满足的情形比如有“Java程序中一个long型变量保存一个Java对象的内存地址”，“本地方法实现中，执行上下文语境不是Java，一个C&#x2F;C++语言指针变量保存一个Java对象的内存地址”</li>
-</ul>
-<h2 id="二、联系示意图和说明"><a href="#二、联系示意图和说明" class="headerlink" title="二、联系示意图和说明"></a><strong>二、联系示意图和说明</strong></h2><p>在继续叙述之前，首先作三点说明：</p>
-<ul>
-<li>对于“方法区”，本文只考虑“类元数据，即Klass对象”，不考虑“运行时常量池、即时编译器编译以后的代码等”</li>
-<li>Java堆内是Java对象，分为：普通实例对象，数组对象，Class对象</li>
-<li>对于JNI方法，本地方法栈存放中间过程变量，直接操作目标内存块可以认为只位于“显式调用JNI方法直接分配内存”和“Java堆”，而不可以位于“Java虚拟机栈”，“本地方法栈”和“方法区”（虽然JNI方法理论上可以操作所在JVM进程内所有内存，但是直接操作“Java虚拟机栈”，“本地方法栈”和“方法区”中的内存块被认为不安全，这里不作考虑，笔者不清楚JDK本身是否对上述不安全行为有所限制）</li>
-</ul>
-<h3 id="2-1、联系示意图"><a href="#2-1、联系示意图" class="headerlink" title="2.1、联系示意图"></a><strong>2.1、联系示意图</strong></h3><p>联系示意图见图1。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20220128-0-0.svg"></p>
-<h3 id="2-2、联系说明"><a href="#2-2、联系说明" class="headerlink" title="2.2、联系说明"></a><strong>2.2、联系说明</strong></h3><ul>
-<li>[<strong>1</strong>]和[<strong>2</strong>]：Java对象的对象头中的“Klass Pointer”，指向方法区中的“类元数据，即Klass对象”，该指针不是Java对象引用，因为条件1和2不满足；方法区中“类元数据”的“_java_mirror”指针，指向Java堆中对应的“java.lang.Class对象”，该指针不是Java对象引用，因为条件1满足而条件2不满足。比如“有一个自定义类me.dslztx.AObject，加载该类创建一个实例对象aObject之后，方法区存在一个对应于me.dslztx.AObject的Klass对象aKlass，在Java堆中存在一个对应于me.dslztx.AObject的Class对象aClz（即一个java.lang.Class类的实例对象），现在aObject实例对象的对象头中的Klass Pointer指向aKlass，aKlass中的“_java_mirror”指针指向aClz”</li>
-<li>[<strong>3</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码1；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
-<li>[<strong>5</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码3；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
-<li>[<strong>7</strong>]：没有一个指针是Java对象引用，条件2必然不满足（因为是非Java方法的执行上下文），条件1可能满足也可能不满足，示例见源代码4。<font color='red'>这里有一点释疑：JNI方法声明中的输入参数和输出参数属于Java语言，如果相关变量是在本地方法栈中定义的，那条件2不是可能满足吗？答案是否的，因为在运行过程中，以上输入参数会被转换成适配JNI方法实现的输入参数，JNI方法实现的输出参数会被转换成适配以上输出参数，对于上述转换过程中的相关变量，笔者认为不存放在本地方法栈</font></li>
-<li>[<strong>4</strong>]、[<strong>6</strong>]、[<strong>8</strong>]：没有一个指针是Java对象引用，条件1必然不满足（否则这部分内存应该属于Java堆），此时条件2也必然不满足，示例见源代码5和源代码6</li>
-</ul>
-<p>源代码1：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内a字段客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">    AObject a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(AObject a)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>源代码2：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//obtainAddressJNI是一个待实现的获取对象内存地址的JNI方法</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aAddressTmp局部变量客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">aAddressTmp</span> <span class="operator">=</span> obtainAddressJNI(aObject);</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aAddressTmp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内aAddress字段客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> aAddress;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(<span class="type">long</span> aAddress)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.aAddress = aAddress;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>源代码3：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aObject局部变量客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>源代码4：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jboolean, <span class="built_in">Unsafe_CompareAndSwapObject</span>(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jobject e_h, jobject x_h))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_CompareAndSwapObject&quot;</span>);</span><br><span class="line">  oop x = JNIHandles::<span class="built_in">resolve</span>(x_h); <span class="comment">// 新值</span></span><br><span class="line">  oop e = JNIHandles::<span class="built_in">resolve</span>(e_h); <span class="comment">// 预期值</span></span><br><span class="line">  oop p = JNIHandles::<span class="built_in">resolve</span>(obj);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// addr变量虽然指向了Java堆中的一个对象，但是在本地方法语境中不是Java对象引用</span></span><br><span class="line">  HeapWord* addr = (HeapWord *)<span class="built_in">index_oop_from_field_offset_long</span>(p, offset);<span class="comment">// 在内存中的具体位置</span></span><br><span class="line">  oop res = oopDesc::<span class="built_in">atomic_compare_exchange_oop</span>(x, addr, e, <span class="literal">true</span>);<span class="comment">// 调用了另一个方法</span></span><br><span class="line">  jboolean success  = (res == e);  <span class="comment">// 如果返回的res等于e，则判定满足compare条件（说明res应该为内存中的当</span></span><br><span class="line">前值），但实际上会有ABA的问题</span><br><span class="line">  <span class="keyword">if</span> (success) <span class="comment">// success为true时，说明此时已经交换成功（调用的是最底层的cmpxchg指令）</span></span><br><span class="line">    <span class="built_in">update_barrier_set</span>((<span class="type">void</span>*)addr, x); <span class="comment">// 每次Reference类型数据写操作时，都会产生一个Write Barrier暂时&gt;中</span></span><br><span class="line">断操作，配合垃圾收集器</span><br><span class="line">  <span class="keyword">return</span> success;</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
-
-<p>源代码5：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> Unsafe.getUnsafe();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中base局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">base</span> <span class="operator">=</span> unsafe.allocateMemory(<span class="number">1</span> * <span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">CObject</span> <span class="variable">cObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CObject</span>(base);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中CObject实例对象内address字段客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> address;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CObject</span><span class="params">(<span class="type">long</span> address)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.address = address;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>源代码6：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jlong, <span class="built_in">Unsafe_AllocateMemory</span>(JNIEnv *env, jobject unsafe, jlong size))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_AllocateMemory&quot;</span>);</span><br><span class="line">  <span class="type">size_t</span> sz = (<span class="type">size_t</span>)size;</span><br><span class="line">  <span class="keyword">if</span> (sz != (julong)size || size &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_IllegalArgumentException</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (sz == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// sz局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">  sz = <span class="built_in">round_to</span>(sz, HeapWordSize);</span><br><span class="line">  <span class="type">void</span>* x = os::<span class="built_in">malloc</span>(sz, mtInternal);</span><br><span class="line">  <span class="keyword">if</span> (x == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_OutOfMemoryError</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//Copy::fill_to_words((HeapWord*)x, sz / HeapWordSize);</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">addr_to_java</span>(x);</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
-
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/12/19/JVM%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB/" title="JVM进程内存分类">《JVM进程内存分类》</a><br>[2]<a href="https://zhuanlan.zhihu.com/p/104725313">https://zhuanlan.zhihu.com/p/104725313</a><br>[3]<a href="https://www.sczyh30.com/posts/Java/jvm-klass-oop/">https://www.sczyh30.com/posts/Java/jvm-klass-oop/</a><br>[4]<a href="https://zhuanlan.zhihu.com/p/104494807">https://zhuanlan.zhihu.com/p/104494807</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
     <title>JVM进程内存分类</title>
     <url>/blog/2021/12/19/JVM%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -6252,6 +6269,73 @@ text-align: center
 <br/>
 
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.ibm.com/developerworks/library/j-nativememory-linux/">http://www.ibm.com/developerworks/library/j-nativememory-linux/</a><br>[2]<a href="https://geosmart.github.io/2016/03/07/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B8/">https://geosmart.github.io/2016/03/07/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B8/</a><br>[3]<a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html">http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html</a><br>[4]<a href="https://openjdk.java.net/jeps/122">https://openjdk.java.net/jeps/122</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>JVM进程内5个主要内存区域中客体之间的联系</title>
+    <url>/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/</url>
+    <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
+<p>本文介绍JVM进程内5个主要内存区域中客体（变量、字段、对象等）之间的联系，5个主要内存区域是“Java虚拟机栈，本地方法栈，Java堆，方法区，显式调用JNI方法直接分配内存”，即不包括“程序计数器，JVM进程运行自身所需内存”。[1]</p>
+<h2 id="一、联系的本质"><a href="#一、联系的本质" class="headerlink" title="一、联系的本质"></a><strong>一、联系的本质</strong></h2><p>从内存和机器码的视角看，两块内存区域中客体之间的联系就是指针（概念引自“C&#x2F;C++语言”，这里是广义化的，可以是直接内存地址，也可以是间接内存地址）。</p>
+<p>从JVM的视角看，以上5块内存区域只不过是内存上的逻辑划分，其内客体之间的联系就是指针，只不过：</p>
+<ul>
+<li>有些在Java语言视图下是Java对象引用，比如“在Java方法中有语句<code>Object obj = new Object()</code>，在Java语言视图下，Java虚拟机栈中的变量obj客体与Java堆中相应实例对象客体之间的指针是Java对象引用”</li>
+<li>其他的则不是，比如“在Java方法中有语句<code>long base = sun.misc.Unsafe.allocateMemory(size)</code>，在Java语言视图下，Java虚拟机栈中的变量base客体与‘显式调用JNI方法直接分配内存’中相应内存块客体之间的指针不是Java对象引用”</li>
+</ul>
+<br/>
+
+<p><font color='red'>一个指针是Java对象引用须满足两个条件</font>：</p>
+<ol>
+<li>[<strong>条件1</strong>]指针指向一个Java对象</li>
+<li>[<strong>条件2</strong>]保存指针值的变量是Java对象引用变量</li>
+</ol>
+<p>这两个条件之间的关系是：</p>
+<ul>
+<li>条件1不满足，条件2必然不满足，否则此时Java对象引用变量便是一个非法定义</li>
+<li>条件1满足，条件2可能满足，也可能不满足，不满足的情形比如有“Java程序中一个long型变量保存一个Java对象的内存地址”，“本地方法实现中，执行上下文语境不是Java，一个C&#x2F;C++语言指针变量保存一个Java对象的内存地址”</li>
+</ul>
+<h2 id="二、联系示意图和说明"><a href="#二、联系示意图和说明" class="headerlink" title="二、联系示意图和说明"></a><strong>二、联系示意图和说明</strong></h2><p>在继续叙述之前，首先作三点说明：</p>
+<ul>
+<li>对于“方法区”，本文只考虑“类元数据，即Klass对象”，不考虑“运行时常量池、即时编译器编译以后的代码等”</li>
+<li>Java堆内是Java对象，分为：普通实例对象，数组对象，Class对象</li>
+<li>对于JNI方法，本地方法栈存放中间过程变量，直接操作目标内存块可以认为只位于“显式调用JNI方法直接分配内存”和“Java堆”，而不可以位于“Java虚拟机栈”，“本地方法栈”和“方法区”（虽然JNI方法理论上可以操作所在JVM进程内所有内存，但是直接操作“Java虚拟机栈”，“本地方法栈”和“方法区”中的内存块被认为不安全，这里不作考虑，笔者不清楚JDK本身是否对上述不安全行为有所限制）</li>
+</ul>
+<h3 id="2-1、联系示意图"><a href="#2-1、联系示意图" class="headerlink" title="2.1、联系示意图"></a><strong>2.1、联系示意图</strong></h3><p>联系示意图见图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20220128-0-0.svg"></p>
+<h3 id="2-2、联系说明"><a href="#2-2、联系说明" class="headerlink" title="2.2、联系说明"></a><strong>2.2、联系说明</strong></h3><ul>
+<li>[<strong>1</strong>]和[<strong>2</strong>]：Java对象的对象头中的“Klass Pointer”，指向方法区中的“类元数据，即Klass对象”，该指针不是Java对象引用，因为条件1和2不满足；方法区中“类元数据”的“_java_mirror”指针，指向Java堆中对应的“java.lang.Class对象”，该指针不是Java对象引用，因为条件1满足而条件2不满足。比如“有一个自定义类me.dslztx.AObject，加载该类创建一个实例对象aObject之后，方法区存在一个对应于me.dslztx.AObject的Klass对象aKlass，在Java堆中存在一个对应于me.dslztx.AObject的Class对象aClz（即一个java.lang.Class类的实例对象），现在aObject实例对象的对象头中的Klass Pointer指向aKlass，aKlass中的“_java_mirror”指针指向aClz”</li>
+<li>[<strong>3</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码1；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
+<li>[<strong>5</strong>]：部分为Java语言视图下的Java对象引用，示例见源代码3；其他部分则不是（可能条件1不满足，此时条件2必然不满足，比如“指向一个字段的内存地址”；可能条件1满足而条件2不满足，比如“一个long型变量保存一个Java对象的内存地址”），示例见源代码2</li>
+<li>[<strong>7</strong>]：没有一个指针是Java对象引用，条件2必然不满足（因为是非Java方法的执行上下文），条件1可能满足也可能不满足，示例见源代码4。<font color='red'>这里有一点释疑：JNI方法声明中的输入参数和输出参数属于Java语言，如果相关变量是在本地方法栈中定义的，那条件2不是可能满足吗？答案是否的，因为在运行过程中，以上输入参数会被转换成适配JNI方法实现的输入参数，JNI方法实现的输出参数会被转换成适配以上输出参数，对于上述转换过程中的相关变量，笔者认为不存放在本地方法栈</font></li>
+<li>[<strong>4</strong>]、[<strong>6</strong>]、[<strong>8</strong>]：没有一个指针是Java对象引用，条件1必然不满足（否则这部分内存应该属于Java堆），此时条件2也必然不满足，示例见源代码5和源代码6</li>
+</ul>
+<p>源代码1：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内a字段客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">    AObject a;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(AObject a)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.a = a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码2：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//obtainAddressJNI是一个待实现的获取对象内存地址的JNI方法</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aAddressTmp局部变量客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">aAddressTmp</span> <span class="operator">=</span> obtainAddressJNI(aObject);</span><br><span class="line"></span><br><span class="line">        <span class="type">BObject</span> <span class="variable">bObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BObject</span>(aAddressTmp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中BObject实例对象内aAddress字段客体与Java堆中AObject实例对象之间的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> aAddress;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BObject</span><span class="params">(<span class="type">long</span> aAddress)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.aAddress = aAddress;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码3：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中aObject局部变量客体与Java堆中AObject实例对象之间的指针是Java对象引用</span></span><br><span class="line">        <span class="type">AObject</span> <span class="variable">aObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AObject</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AObject</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码4：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jboolean, <span class="built_in">Unsafe_CompareAndSwapObject</span>(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jobject e_h, jobject x_h))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_CompareAndSwapObject&quot;</span>);</span><br><span class="line">  oop x = JNIHandles::<span class="built_in">resolve</span>(x_h); <span class="comment">// 新值</span></span><br><span class="line">  oop e = JNIHandles::<span class="built_in">resolve</span>(e_h); <span class="comment">// 预期值</span></span><br><span class="line">  oop p = JNIHandles::<span class="built_in">resolve</span>(obj);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// addr变量虽然指向了Java堆中的一个对象，但是在本地方法语境中不是Java对象引用</span></span><br><span class="line">  HeapWord* addr = (HeapWord *)<span class="built_in">index_oop_from_field_offset_long</span>(p, offset);<span class="comment">// 在内存中的具体位置</span></span><br><span class="line">  oop res = oopDesc::<span class="built_in">atomic_compare_exchange_oop</span>(x, addr, e, <span class="literal">true</span>);<span class="comment">// 调用了另一个方法</span></span><br><span class="line">  jboolean success  = (res == e);  <span class="comment">// 如果返回的res等于e，则判定满足compare条件（说明res应该为内存中的当</span></span><br><span class="line">前值），但实际上会有ABA的问题</span><br><span class="line">  <span class="keyword">if</span> (success) <span class="comment">// success为true时，说明此时已经交换成功（调用的是最底层的cmpxchg指令）</span></span><br><span class="line">    <span class="built_in">update_barrier_set</span>((<span class="type">void</span>*)addr, x); <span class="comment">// 每次Reference类型数据写操作时，都会产生一个Write Barrier暂时&gt;中</span></span><br><span class="line">断操作，配合垃圾收集器</span><br><span class="line">  <span class="keyword">return</span> success;</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
+
+<p>源代码5：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> Unsafe.getUnsafe();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Java虚拟机栈中base局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">base</span> <span class="operator">=</span> unsafe.allocateMemory(<span class="number">1</span> * <span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">CObject</span> <span class="variable">cObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CObject</span>(base);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CObject</span> &#123;</span><br><span class="line">    <span class="comment">// Java堆中CObject实例对象内address字段客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">    <span class="type">long</span> address;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CObject</span><span class="params">(<span class="type">long</span> address)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.address = address;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码6：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">UNSAFE_ENTRY</span>(jlong, <span class="built_in">Unsafe_AllocateMemory</span>(JNIEnv *env, jobject unsafe, jlong size))</span><br><span class="line">  <span class="built_in">UnsafeWrapper</span>(<span class="string">&quot;Unsafe_AllocateMemory&quot;</span>);</span><br><span class="line">  <span class="type">size_t</span> sz = (<span class="type">size_t</span>)size;</span><br><span class="line">  <span class="keyword">if</span> (sz != (julong)size || size &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_IllegalArgumentException</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (sz == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// sz局部变量客体与“显式调用JNI方法直接分配内存”中一个内存块的指针不是Java对象引用</span></span><br><span class="line">  sz = <span class="built_in">round_to</span>(sz, HeapWordSize);</span><br><span class="line">  <span class="type">void</span>* x = os::<span class="built_in">malloc</span>(sz, mtInternal);</span><br><span class="line">  <span class="keyword">if</span> (x == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="built_in">THROW_0</span>(vmSymbols::<span class="built_in">java_lang_OutOfMemoryError</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//Copy::fill_to_words((HeapWord*)x, sz / HeapWordSize);</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">addr_to_java</span>(x);</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2021/12/19/JVM%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB/" title="JVM进程内存分类">《JVM进程内存分类》</a><br>[2]<a href="https://zhuanlan.zhihu.com/p/104725313">https://zhuanlan.zhihu.com/p/104725313</a><br>[3]<a href="https://www.sczyh30.com/posts/Java/jvm-klass-oop/">https://www.sczyh30.com/posts/Java/jvm-klass-oop/</a><br>[4]<a href="https://zhuanlan.zhihu.com/p/104494807">https://zhuanlan.zhihu.com/p/104494807</a></p>
 ]]></content>
       <categories>
         <category>语言</category>
@@ -6436,6 +6520,66 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>Java容器</title>
+    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
+<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
+<p>故Java容器划分示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
+<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
+<ul>
+<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
+<li><code>E next()</code>：下一个待遍历元素</li>
+<li><code>void remove()</code>：删除最近一个已遍历元素</li>
+</ul>
+<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
+<p>具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>迭代器类型</th>
+<th>描述</th>
+<th>在A上修改后B的表现</th>
+<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>快速失败</td>
+<td>fail-fast</td>
+<td>抛出<code>ConcurrentModificationException</code>异常</td>
+<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
+</tr>
+<tr>
+<td>快照式</td>
+<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
+<td>不抛出异常，通过B不能感知A上修改</td>
+<td>通过A不能感知B上修改</td>
+</tr>
+<tr>
+<td>弱一致性</td>
+<td>weakly consistent</td>
+<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
+<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>undefined</td>
+<td>未定义</td>
+<td>未定义</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>容器</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Java堆</title>
     <url>/blog/2022/01/16/Java%E5%A0%86/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -6568,66 +6712,6 @@ text-align: center
         <category>语言</category>
         <category>Java</category>
         <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java容器</title>
-    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
-<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
-<p>故Java容器划分示意图如图1。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
-<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
-<ul>
-<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
-<li><code>E next()</code>：下一个待遍历元素</li>
-<li><code>void remove()</code>：删除最近一个已遍历元素</li>
-</ul>
-<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
-<p>具体描述如下表。</p>
-<table>
-<thead>
-<tr>
-<th>迭代器类型</th>
-<th>描述</th>
-<th>在A上修改后B的表现</th>
-<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>快速失败</td>
-<td>fail-fast</td>
-<td>抛出<code>ConcurrentModificationException</code>异常</td>
-<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
-</tr>
-<tr>
-<td>快照式</td>
-<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
-<td>不抛出异常，通过B不能感知A上修改</td>
-<td>通过A不能感知B上修改</td>
-</tr>
-<tr>
-<td>弱一致性</td>
-<td>weakly consistent</td>
-<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
-<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
-</tr>
-<tr>
-<td>其他</td>
-<td>undefined</td>
-<td>未定义</td>
-<td>未定义</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>容器</category>
       </categories>
   </entry>
   <entry>
@@ -6845,6 +6929,15 @@ text-align: center
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java并发编程的艺术</title>
+    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
+    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
+]]></content>
+      <categories>
+        <category>书籍文档</category>
       </categories>
   </entry>
   <entry>
@@ -7326,28 +7419,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java并发编程的艺术</title>
-    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
-    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Java序列化机制释疑</title>
     <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
     <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
@@ -7363,6 +7434,19 @@ text-align: center
         <category>Java</category>
         <category>Java一般语法</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
   </entry>
   <entry>
     <title>Java打印日志最佳实践</title>
@@ -9640,7 +9724,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#109;&#97;&#x69;&#110;&#x2e;&#x63;&#x6e;">&#100;&#x73;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#109;&#97;&#x69;&#110;&#x2e;&#x63;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#x6c;&#x7a;&#116;&#120;&#64;&#100;&#x6f;&#109;&#97;&#105;&#x6e;&#x2e;&#99;&#110;">&#100;&#115;&#x6c;&#x7a;&#116;&#120;&#64;&#100;&#x6f;&#109;&#97;&#105;&#x6e;&#x2e;&#99;&#110;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -9664,7 +9748,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#111;&#x72;&#103;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;">&#x47;&#101;&#111;&#x72;&#103;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#x65;&#111;&#x72;&#103;&#101;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#x47;&#x65;&#111;&#x72;&#103;&#101;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -13179,6 +13263,24 @@ text-align: center
       </tags>
   </entry>
   <entry>
+    <title>head命令</title>
+    <url>/blog/2016/12/30/head%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">head [-n K] [FILE | -]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的前几行，默认为前10行。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：显示文件或者基本输入的前K行。</p>
+<br/>
+参考文献：
+[1]man head
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>happens-before规则</title>
     <url>/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/</url>
     <content><![CDATA[<h2 id="一、happens-before规则产生背景"><a href="#一、happens-before规则产生背景" class="headerlink" title="一、happens-before规则产生背景"></a><strong>一、happens-before规则产生背景</strong></h2><p>根据<a href="/2019/11/08/%E5%8F%AF%E8%A7%81%E6%80%A7%E4%B8%8E%E6%9C%89%E5%BA%8F%E6%80%A7/" title="可见性与有序性">《可见性与有序性》</a>，编写Java程序存在“可见性”和“有序性”问题。为提供确定性编程环境，JMM提供了一系列happens-before规则，遵循happens-before规则可获得相对应的“可见性”和“有序性”语义保证，其语义是：<code>假如操作A happens-before 操作B，那么“在可见性维度，操作A对操作B内存可见；在有序性维度，操作A先于操作B”</code>。</p>
@@ -13251,24 +13353,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>head命令</title>
-    <url>/blog/2016/12/30/head%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">head [-n K] [FILE | -]</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的前几行，默认为前10行。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：显示文件或者基本输入的前K行。</p>
-<br/>
-参考文献：
-[1]man head
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>iconv命令</title>
     <url>/blog/2016/10/20/iconv%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iconv -f SrcEncoding -t DestEncoding InputFile -o OutputFile </span><br></pre></td></tr></table></figure>
@@ -13335,35 +13419,6 @@ text-align: center
         <category>Java</category>
         <category>JDK</category>
       </categories>
-  </entry>
-  <entry>
-    <title>jhat命令</title>
-    <url>/blog/2017/04/19/jhat%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79。</p>
-<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jhat Java堆堆转存快照文件</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>解析hprof格式的Java堆堆转存快照文件，运行一个HTTP Server（默认端口为7000）。然后我们可通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息。</p>
-<h2 id="三、重要说明"><a href="#三、重要说明" class="headerlink" title="三、重要说明"></a><strong>三、重要说明</strong></h2><h3 id="3-1、hprof格式的Java堆堆转存快照文件的获取途径"><a href="#3-1、hprof格式的Java堆堆转存快照文件的获取途径" class="headerlink" title="3.1、hprof格式的Java堆堆转存快照文件的获取途径"></a><strong>3.1、hprof格式的Java堆堆转存快照文件的获取途径</strong></h3><p>获取途径有：</p>
-<ol>
-<li>使用“hprof”工具[3]</li>
-<li>通过“jmap -dump:format&#x3D;b,file&#x3D;FILENAME”命令</li>
-<li>使用“jconsole”工具[4]</li>
-<li>执行“java”命令时加上“-XX:+HeapDumpOnOutOfMemoryError”虚拟机参数</li>
-</ol>
-<h3 id="3-2、更加强大的Java堆堆转存快照文件解析工具"><a href="#3-2、更加强大的Java堆堆转存快照文件解析工具" class="headerlink" title="3.2、更加强大的Java堆堆转存快照文件解析工具"></a><strong>3.2、更加强大的Java堆堆转存快照文件解析工具</strong></h3><p>通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息主要有两种方式：静态方式和动态方式。静态方式：使用方式和页面含义非常直观，无需额外说明；动态方式：通过Object Query Language语言执行查询，要想获得关于Object Query Language语言的帮助，可访问<code>http://localhost:7000/oqlhelp/</code>网址。<br>总的来说，通过jhat命令接口，我们往往“不能快速甚至根本不能”获取一些重要的Java堆内存信息（比如说，获取实例的“Retained Size”[5]）。因此，在实际应用中，我们常常使用一些功能更加强大的解析工具，比如“Java VisualVM”，“Eclipse Memory Analyzer（MAT）”，“YourKit”，“JProfiler”等。</p>
-<br/>
-参考文献：
-[1]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
-[2]man jhat
-[3]http://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html
-[4]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html
-[5]https://www.yourkit.com/docs/java/help/sizes.jsp
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>JDK命令</tag>
-      </tags>
   </entry>
   <entry>
     <title>java命令</title>
@@ -13867,6 +13922,35 @@ text-align: center
 [15]https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmgc.html
 [16]http://ifeve.com/useful-jvm-flags-part-1-jvm-types-and-compiler-modes-2
 [17]http://www.importnew.com/20575.html
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>JDK命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>jhat命令</title>
+    <url>/blog/2017/04/19/jhat%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79。</p>
+<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jhat Java堆堆转存快照文件</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>解析hprof格式的Java堆堆转存快照文件，运行一个HTTP Server（默认端口为7000）。然后我们可通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息。</p>
+<h2 id="三、重要说明"><a href="#三、重要说明" class="headerlink" title="三、重要说明"></a><strong>三、重要说明</strong></h2><h3 id="3-1、hprof格式的Java堆堆转存快照文件的获取途径"><a href="#3-1、hprof格式的Java堆堆转存快照文件的获取途径" class="headerlink" title="3.1、hprof格式的Java堆堆转存快照文件的获取途径"></a><strong>3.1、hprof格式的Java堆堆转存快照文件的获取途径</strong></h3><p>获取途径有：</p>
+<ol>
+<li>使用“hprof”工具[3]</li>
+<li>通过“jmap -dump:format&#x3D;b,file&#x3D;FILENAME”命令</li>
+<li>使用“jconsole”工具[4]</li>
+<li>执行“java”命令时加上“-XX:+HeapDumpOnOutOfMemoryError”虚拟机参数</li>
+</ol>
+<h3 id="3-2、更加强大的Java堆堆转存快照文件解析工具"><a href="#3-2、更加强大的Java堆堆转存快照文件解析工具" class="headerlink" title="3.2、更加强大的Java堆堆转存快照文件解析工具"></a><strong>3.2、更加强大的Java堆堆转存快照文件解析工具</strong></h3><p>通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息主要有两种方式：静态方式和动态方式。静态方式：使用方式和页面含义非常直观，无需额外说明；动态方式：通过Object Query Language语言执行查询，要想获得关于Object Query Language语言的帮助，可访问<code>http://localhost:7000/oqlhelp/</code>网址。<br>总的来说，通过jhat命令接口，我们往往“不能快速甚至根本不能”获取一些重要的Java堆内存信息（比如说，获取实例的“Retained Size”[5]）。因此，在实际应用中，我们常常使用一些功能更加强大的解析工具，比如“Java VisualVM”，“Eclipse Memory Analyzer（MAT）”，“YourKit”，“JProfiler”等。</p>
+<br/>
+参考文献：
+[1]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
+[2]man jhat
+[3]http://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html
+[4]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html
+[5]https://www.yourkit.com/docs/java/help/sizes.jsp
 ]]></content>
       <categories>
         <category>语言</category>
@@ -18803,6 +18887,12 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>分界线</title>
+    <url>/blog/2024/03/01/%E5%88%86%E7%95%8C%E7%BA%BF/</url>
+    <content><![CDATA[<p>之后的是最新系统的博文！</p>
+]]></content>
+  </entry>
+  <entry>
     <title>创建JVM进程虚拟机参数配置最佳实践</title>
     <url>/blog/2018/09/29/%E5%88%9B%E5%BB%BAJVM%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
     <content><![CDATA[<h2 id="一、打印GC日志"><a href="#一、打印GC日志" class="headerlink" title="一、打印GC日志"></a><strong>一、打印GC日志</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+PrintGCID -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime -Xloggc:file</span><br></pre></td></tr></table></figure>
@@ -18817,12 +18907,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>Java</category>
         <category>JVM</category>
       </categories>
-  </entry>
-  <entry>
-    <title>分界线</title>
-    <url>/blog/2024/03/01/%E5%88%86%E7%95%8C%E7%BA%BF/</url>
-    <content><![CDATA[<p>之后的是最新系统的博文！</p>
-]]></content>
   </entry>
   <entry>
     <title>判定胜负</title>
@@ -18970,15 +19054,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>工程师进阶</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>博文导航</title>
-    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
-    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
-]]></content>
-      <categories>
-        <category>思维导图</category>
       </categories>
   </entry>
   <entry>
@@ -19182,6 +19257,15 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>博文导航</title>
+    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
+    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
+]]></content>
+      <categories>
+        <category>思维导图</category>
       </categories>
   </entry>
   <entry>
@@ -21781,6 +21865,27 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>晕车</title>
+    <url>/blog/2016/04/08/%E6%99%95%E8%BD%A6/</url>
+    <content><![CDATA[<p>“晕车”是日常生活中常见的现象，往往给当事人带来了很大困扰。</p>
+<h2 id="一、晕车原因阐述"><a href="#一、晕车原因阐述" class="headerlink" title="一、晕车原因阐述"></a><strong>一、晕车原因阐述</strong></h2><p>关于“晕车”原因最流行的假说是：当人眼所见到的运动与人的感觉系统（具体是人的“前庭系统”）所感受到的运动不相符时，就会晕车。</p>
+<p>“疲乏，异味”等因素能够加剧晕车，但不是晕车的主因。</p>
+<h2 id="二、晕车问题解决"><a href="#二、晕车问题解决" class="headerlink" title="二、晕车问题解决"></a><strong>二、晕车问题解决</strong></h2><p>下面这些措施均可用来缓解晕车症状。</p>
+<h3 id="2-1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”"><a href="#2-1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”" class="headerlink" title="2.1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”"></a><strong>2.1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”</strong></h3><p>当乘坐交通工具时，避免将人眼停留在交通工具内部的物体上（此时，你人眼所见到的运动是“静止的”，而你的感觉系统所感受到的运动一般是“运动的”，但也要注意，在有些运行得比较稳的交通工具内，你的感觉系统所感受到的运动也有可能是“静止的”，比如动车，高铁，飞机等），而要望向交通工具外部的物体（此时，你人眼所见到的运动是“运动的”，而你的感觉系统所感受到的运动一般也是“运动的”)，这样就能够避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”。</p>
+<p>在坐小汽车时，“坐副驾驶座”比“坐后面两个座位”比较不容易晕车的原因也正是如此。</p>
+<h3 id="2-2、闭眼"><a href="#2-2、闭眼" class="headerlink" title="2.2、闭眼"></a><strong>2.2、闭眼</strong></h3><p>闭眼或者睡觉，这排除了“晕车”形成条件中的“人眼所见到的运动”这一因素。</p>
+<h3 id="2-3、晕车药"><a href="#2-3、晕车药" class="headerlink" title="2.3、晕车药"></a><strong>2.3、晕车药</strong></h3><p>有些晕车药本质上是镇静类药物，主要是让你的感觉系统不要这么兴奋敏感；有些晕车药能够抑制你产生呕吐和恶心感。</p>
+<h3 id="2-4、转移注意力"><a href="#2-4、转移注意力" class="headerlink" title="2.4、转移注意力"></a><strong>2.4、转移注意力</strong></h3><p>聊天，听音乐（有些人对听音乐不感兴趣，可以改成听广播，听戏剧）等，可以转移你的注意力。<br>闻桔子皮，柠檬皮，吃生姜，吃薄荷，闻酒精等都让你接受“强刺激性”刺激，从而转移你的注意力。</p>
+<h3 id="2-5、减小对晕车后果的恐惧"><a href="#2-5、减小对晕车后果的恐惧" class="headerlink" title="2.5、减小对晕车后果的恐惧"></a><strong>2.5、减小对晕车后果的恐惧</strong></h3><p>准备好呕吐袋等，减小对晕车后果的恐惧，这样子能够避免自己一直担心晕车的后果，而导致最终不断在想“晕车”这件事。这其实也是“转移注意力”的一种。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zh.wikipedia.org/wiki/%E6%99%95%E5%8A%A8%E7%97%85">https://zh.wikipedia.org/wiki/%E6%99%95%E5%8A%A8%E7%97%85</a><br>[2]<a href="http://www.39world.com/drugs/010I0G3200830713.html">http://www.39world.com/drugs/010I0G3200830713.html</a><br>[3]<a href="http://zh.wikihow.com/%E9%98%B2%E6%AD%A2%E6%99%95%E8%BD%A6">http://zh.wikihow.com/%E9%98%B2%E6%AD%A2%E6%99%95%E8%BD%A6</a></p>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
+      </categories>
+  </entry>
+  <entry>
     <title>时区</title>
     <url>/blog/2018/09/07/%E6%97%B6%E5%8C%BA/</url>
     <content><![CDATA[<p>一个时区体系主要包括两个方面：绝对基准时间和相对参照时间。<br>在介绍之前，首先介绍关于经线的几个概念：</p>
@@ -22231,27 +22336,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 [10]https://time.is/zh/Beijing
 [11]https://www.zeitverschiebung.net/en/timezone/asia--macau
 [12]http://aju.space/2016/06/24/talk-about-time-and-timer.html
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>晕车</title>
-    <url>/blog/2016/04/08/%E6%99%95%E8%BD%A6/</url>
-    <content><![CDATA[<p>“晕车”是日常生活中常见的现象，往往给当事人带来了很大困扰。</p>
-<h2 id="一、晕车原因阐述"><a href="#一、晕车原因阐述" class="headerlink" title="一、晕车原因阐述"></a><strong>一、晕车原因阐述</strong></h2><p>关于“晕车”原因最流行的假说是：当人眼所见到的运动与人的感觉系统（具体是人的“前庭系统”）所感受到的运动不相符时，就会晕车。</p>
-<p>“疲乏，异味”等因素能够加剧晕车，但不是晕车的主因。</p>
-<h2 id="二、晕车问题解决"><a href="#二、晕车问题解决" class="headerlink" title="二、晕车问题解决"></a><strong>二、晕车问题解决</strong></h2><p>下面这些措施均可用来缓解晕车症状。</p>
-<h3 id="2-1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”"><a href="#2-1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”" class="headerlink" title="2.1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”"></a><strong>2.1、避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”</strong></h3><p>当乘坐交通工具时，避免将人眼停留在交通工具内部的物体上（此时，你人眼所见到的运动是“静止的”，而你的感觉系统所感受到的运动一般是“运动的”，但也要注意，在有些运行得比较稳的交通工具内，你的感觉系统所感受到的运动也有可能是“静止的”，比如动车，高铁，飞机等），而要望向交通工具外部的物体（此时，你人眼所见到的运动是“运动的”，而你的感觉系统所感受到的运动一般也是“运动的”)，这样就能够避免“人眼所见到的运动与人的感觉系统所感受到的运动不相符”。</p>
-<p>在坐小汽车时，“坐副驾驶座”比“坐后面两个座位”比较不容易晕车的原因也正是如此。</p>
-<h3 id="2-2、闭眼"><a href="#2-2、闭眼" class="headerlink" title="2.2、闭眼"></a><strong>2.2、闭眼</strong></h3><p>闭眼或者睡觉，这排除了“晕车”形成条件中的“人眼所见到的运动”这一因素。</p>
-<h3 id="2-3、晕车药"><a href="#2-3、晕车药" class="headerlink" title="2.3、晕车药"></a><strong>2.3、晕车药</strong></h3><p>有些晕车药本质上是镇静类药物，主要是让你的感觉系统不要这么兴奋敏感；有些晕车药能够抑制你产生呕吐和恶心感。</p>
-<h3 id="2-4、转移注意力"><a href="#2-4、转移注意力" class="headerlink" title="2.4、转移注意力"></a><strong>2.4、转移注意力</strong></h3><p>聊天，听音乐（有些人对听音乐不感兴趣，可以改成听广播，听戏剧）等，可以转移你的注意力。<br>闻桔子皮，柠檬皮，吃生姜，吃薄荷，闻酒精等都让你接受“强刺激性”刺激，从而转移你的注意力。</p>
-<h3 id="2-5、减小对晕车后果的恐惧"><a href="#2-5、减小对晕车后果的恐惧" class="headerlink" title="2.5、减小对晕车后果的恐惧"></a><strong>2.5、减小对晕车后果的恐惧</strong></h3><p>准备好呕吐袋等，减小对晕车后果的恐惧，这样子能够避免自己一直担心晕车的后果，而导致最终不断在想“晕车”这件事。这其实也是“转移注意力”的一种。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zh.wikipedia.org/wiki/%E6%99%95%E5%8A%A8%E7%97%85">https://zh.wikipedia.org/wiki/%E6%99%95%E5%8A%A8%E7%97%85</a><br>[2]<a href="http://www.39world.com/drugs/010I0G3200830713.html">http://www.39world.com/drugs/010I0G3200830713.html</a><br>[3]<a href="http://zh.wikihow.com/%E9%98%B2%E6%AD%A2%E6%99%95%E8%BD%A6">http://zh.wikihow.com/%E9%98%B2%E6%AD%A2%E6%99%95%E8%BD%A6</a></p>
 ]]></content>
       <categories>
         <category>杂七杂八</category>
