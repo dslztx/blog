@@ -2637,9 +2637,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#99;&#111;&#109;">&#103;&#x69;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#99;&#111;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#x67;&#105;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#99;&#111;&#109;">&#x67;&#105;&#116;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#99;&#111;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#x69;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#x62;&#46;&#x63;&#111;&#109;">&#x67;&#x69;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#x62;&#46;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#105;&#x74;&#64;&#x67;&#x69;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#109;">&#x67;&#105;&#x74;&#64;&#x67;&#x69;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;">&#103;&#x69;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#99;&#111;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#64;&#103;&#105;&#116;&#104;&#117;&#x62;&#x2e;&#x63;&#x6f;&#109;">&#x67;&#105;&#x74;&#64;&#103;&#105;&#116;&#104;&#117;&#x62;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -4494,7 +4494,7 @@ text-align: center
 </ol>
 </li>
 </ul>
-<p>首部格式见下表，说明如下（可参比<a href="/2024/03/13/IPv4%E6%8A%A5%E6%96%87/" title="IPv4报文">《IPv4报文》</a>中的“1.5、标识、标志和片偏移”小节）：</p>
+<p>首部格式见下表，说明如下（可参比<a href="/2024/03/13/IPv4%E6%8A%A5%E6%96%87/" title="IPv4报文">《IPv4报文》</a>中的相关内容）：</p>
 <ul>
 <li>Next Header：下一个首部的类型值</li>
 <li>Reserved：保留值，当前为全0</li>
@@ -6281,48 +6281,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java中绕过语法限制的途径</title>
-    <url>/blog/2020/10/10/Java%E4%B8%AD%E7%BB%95%E8%BF%87%E8%AF%AD%E6%B3%95%E9%99%90%E5%88%B6%E7%9A%84%E9%80%94%E5%BE%84/</url>
-    <content><![CDATA[<p>对于Java语言，存在一些途径可绕过语法限制，有些途径是官方的，有些途径是非官方的，下表罗列一些途径。</p>
-<table>
-<thead>
-<tr>
-<th>途径名称</th>
-<th>官方&#x2F;非官方</th>
-<th>绕过的语法限制</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>反射</td>
-<td>官方</td>
-<td>“不可访问的<code>方法</code>和<code>域</code>可访问化”，“能够对final域进行二次赋值”等</td>
-</tr>
-<tr>
-<td>JDK序列化</td>
-<td>官方</td>
-<td>能够对final域进行二次赋值（本质是通过反射实现的）</td>
-</tr>
-<tr>
-<td>官方原生方法</td>
-<td>官方</td>
-<td>理论上可以对Java进程所占有的内存做任何操作，比如“通过<code>System.setIn()</code>，<code>System.setOut()</code>和<code>System.setErr()</code>方法修改System类的<code>in</code>，<code>out</code>和<code>err</code>这3个<code>public final static</code>变量”</td>
-</tr>
-<tr>
-<td>非官方原生方法</td>
-<td>非官方</td>
-<td>理论上可以对Java进程所占有的内存做任何操作</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java中日期时间相关核心类</title>
     <url>/blog/2018/08/13/Java%E4%B8%AD%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E7%9B%B8%E5%85%B3%E6%A0%B8%E5%BF%83%E7%B1%BB/</url>
     <content><![CDATA[<h2 id="一、日期时间基本概念"><a href="#一、日期时间基本概念" class="headerlink" title="一、日期时间基本概念"></a><strong>一、日期时间基本概念</strong></h2><p>对于日期时间，首先作以下几点基本说明：</p>
@@ -6390,6 +6348,48 @@ text-align: center
 参考文献：
 [1]https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html
 [2]https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java中绕过语法限制的途径</title>
+    <url>/blog/2020/10/10/Java%E4%B8%AD%E7%BB%95%E8%BF%87%E8%AF%AD%E6%B3%95%E9%99%90%E5%88%B6%E7%9A%84%E9%80%94%E5%BE%84/</url>
+    <content><![CDATA[<p>对于Java语言，存在一些途径可绕过语法限制，有些途径是官方的，有些途径是非官方的，下表罗列一些途径。</p>
+<table>
+<thead>
+<tr>
+<th>途径名称</th>
+<th>官方&#x2F;非官方</th>
+<th>绕过的语法限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>反射</td>
+<td>官方</td>
+<td>“不可访问的<code>方法</code>和<code>域</code>可访问化”，“能够对final域进行二次赋值”等</td>
+</tr>
+<tr>
+<td>JDK序列化</td>
+<td>官方</td>
+<td>能够对final域进行二次赋值（本质是通过反射实现的）</td>
+</tr>
+<tr>
+<td>官方原生方法</td>
+<td>官方</td>
+<td>理论上可以对Java进程所占有的内存做任何操作，比如“通过<code>System.setIn()</code>，<code>System.setOut()</code>和<code>System.setErr()</code>方法修改System类的<code>in</code>，<code>out</code>和<code>err</code>这3个<code>public final static</code>变量”</td>
+</tr>
+<tr>
+<td>非官方原生方法</td>
+<td>非官方</td>
+<td>理论上可以对Java进程所占有的内存做任何操作</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1</a></p>
 ]]></content>
       <categories>
         <category>语言</category>
@@ -7335,6 +7335,19 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java序列化机制释疑</title>
     <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
     <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
@@ -7350,19 +7363,6 @@ text-align: center
         <category>Java</category>
         <category>Java一般语法</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
-      </tags>
   </entry>
   <entry>
     <title>Java打印日志最佳实践</title>
@@ -7862,18 +7862,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java编程思想第4版</title>
-    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
-    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
-<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
-附录A 补充材料
-附录B 资源
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java编程思想#访问权限控制</title>
     <url>/blog/2017/12/04/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6/</url>
     <content><![CDATA[<h2 id="一、Java的包机制"><a href="#一、Java的包机制" class="headerlink" title="一、Java的包机制"></a><strong>一、Java的包机制</strong></h2><h3 id="1-1、包机制的基本概念"><a href="#1-1、包机制的基本概念" class="headerlink" title="1.1、包机制的基本概念"></a><strong>1.1、包机制的基本概念</strong></h3><p>包机制是一个代码组织方案，用来解决名称冲突问题。为使得包的命名是独一无二的，常用的一个命名方案是使用反顺序的域名作为顶级包名。包的命名层次与目录层次结构一一对应。</p>
@@ -7971,6 +7959,18 @@ text-align: center
       <categories>
         <category>语言</category>
         <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java编程思想第4版</title>
+    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
+    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
+<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
+附录A 补充材料
+附录B 资源
+]]></content>
+      <categories>
+        <category>书籍文档</category>
       </categories>
   </entry>
   <entry>
@@ -9640,7 +9640,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#x64;&#x73;&#x6c;&#122;&#116;&#120;&#64;&#100;&#111;&#x6d;&#x61;&#105;&#110;&#46;&#99;&#x6e;">&#x64;&#x73;&#x6c;&#122;&#116;&#120;&#64;&#100;&#111;&#x6d;&#x61;&#105;&#110;&#46;&#99;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#109;&#97;&#x69;&#110;&#x2e;&#x63;&#x6e;">&#100;&#x73;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#109;&#97;&#x69;&#110;&#x2e;&#x63;&#x6e;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -9664,7 +9664,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#x65;&#111;&#x72;&#103;&#101;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#71;&#x65;&#111;&#x72;&#103;&#101;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#111;&#x72;&#103;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;">&#x47;&#101;&#111;&#x72;&#103;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -13337,6 +13337,35 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>jhat命令</title>
+    <url>/blog/2017/04/19/jhat%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79。</p>
+<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jhat Java堆堆转存快照文件</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>解析hprof格式的Java堆堆转存快照文件，运行一个HTTP Server（默认端口为7000）。然后我们可通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息。</p>
+<h2 id="三、重要说明"><a href="#三、重要说明" class="headerlink" title="三、重要说明"></a><strong>三、重要说明</strong></h2><h3 id="3-1、hprof格式的Java堆堆转存快照文件的获取途径"><a href="#3-1、hprof格式的Java堆堆转存快照文件的获取途径" class="headerlink" title="3.1、hprof格式的Java堆堆转存快照文件的获取途径"></a><strong>3.1、hprof格式的Java堆堆转存快照文件的获取途径</strong></h3><p>获取途径有：</p>
+<ol>
+<li>使用“hprof”工具[3]</li>
+<li>通过“jmap -dump:format&#x3D;b,file&#x3D;FILENAME”命令</li>
+<li>使用“jconsole”工具[4]</li>
+<li>执行“java”命令时加上“-XX:+HeapDumpOnOutOfMemoryError”虚拟机参数</li>
+</ol>
+<h3 id="3-2、更加强大的Java堆堆转存快照文件解析工具"><a href="#3-2、更加强大的Java堆堆转存快照文件解析工具" class="headerlink" title="3.2、更加强大的Java堆堆转存快照文件解析工具"></a><strong>3.2、更加强大的Java堆堆转存快照文件解析工具</strong></h3><p>通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息主要有两种方式：静态方式和动态方式。静态方式：使用方式和页面含义非常直观，无需额外说明；动态方式：通过Object Query Language语言执行查询，要想获得关于Object Query Language语言的帮助，可访问<code>http://localhost:7000/oqlhelp/</code>网址。<br>总的来说，通过jhat命令接口，我们往往“不能快速甚至根本不能”获取一些重要的Java堆内存信息（比如说，获取实例的“Retained Size”[5]）。因此，在实际应用中，我们常常使用一些功能更加强大的解析工具，比如“Java VisualVM”，“Eclipse Memory Analyzer（MAT）”，“YourKit”，“JProfiler”等。</p>
+<br/>
+参考文献：
+[1]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
+[2]man jhat
+[3]http://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html
+[4]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html
+[5]https://www.yourkit.com/docs/java/help/sizes.jsp
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>JDK命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java命令</title>
     <url>/blog/2017/04/12/java%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79。</p>
@@ -13838,35 +13867,6 @@ text-align: center
 [15]https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmgc.html
 [16]http://ifeve.com/useful-jvm-flags-part-1-jvm-types-and-compiler-modes-2
 [17]http://www.importnew.com/20575.html
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>JDK命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>jhat命令</title>
-    <url>/blog/2017/04/19/jhat%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79。</p>
-<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jhat Java堆堆转存快照文件</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a><strong>二、含义</strong></h2><p>解析hprof格式的Java堆堆转存快照文件，运行一个HTTP Server（默认端口为7000）。然后我们可通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息。</p>
-<h2 id="三、重要说明"><a href="#三、重要说明" class="headerlink" title="三、重要说明"></a><strong>三、重要说明</strong></h2><h3 id="3-1、hprof格式的Java堆堆转存快照文件的获取途径"><a href="#3-1、hprof格式的Java堆堆转存快照文件的获取途径" class="headerlink" title="3.1、hprof格式的Java堆堆转存快照文件的获取途径"></a><strong>3.1、hprof格式的Java堆堆转存快照文件的获取途径</strong></h3><p>获取途径有：</p>
-<ol>
-<li>使用“hprof”工具[3]</li>
-<li>通过“jmap -dump:format&#x3D;b,file&#x3D;FILENAME”命令</li>
-<li>使用“jconsole”工具[4]</li>
-<li>执行“java”命令时加上“-XX:+HeapDumpOnOutOfMemoryError”虚拟机参数</li>
-</ol>
-<h3 id="3-2、更加强大的Java堆堆转存快照文件解析工具"><a href="#3-2、更加强大的Java堆堆转存快照文件解析工具" class="headerlink" title="3.2、更加强大的Java堆堆转存快照文件解析工具"></a><strong>3.2、更加强大的Java堆堆转存快照文件解析工具</strong></h3><p>通过<code>http://localhost:7000</code>网址浏览解析得到的Java堆内存信息主要有两种方式：静态方式和动态方式。静态方式：使用方式和页面含义非常直观，无需额外说明；动态方式：通过Object Query Language语言执行查询，要想获得关于Object Query Language语言的帮助，可访问<code>http://localhost:7000/oqlhelp/</code>网址。<br>总的来说，通过jhat命令接口，我们往往“不能快速甚至根本不能”获取一些重要的Java堆内存信息（比如说，获取实例的“Retained Size”[5]）。因此，在实际应用中，我们常常使用一些功能更加强大的解析工具，比如“Java VisualVM”，“Eclipse Memory Analyzer（MAT）”，“YourKit”，“JProfiler”等。</p>
-<br/>
-参考文献：
-[1]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
-[2]man jhat
-[3]http://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html
-[4]http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html
-[5]https://www.yourkit.com/docs/java/help/sizes.jsp
 ]]></content>
       <categories>
         <category>语言</category>
@@ -16915,22 +16915,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>一个JVM进程卡住问题</title>
-    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
-<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
-<br/>
-图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
-
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
-<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
-]]></content>
-      <categories>
-        <category>性能调优</category>
-      </categories>
-  </entry>
-  <entry>
     <title>《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略</title>
     <url>/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
     <content><![CDATA[<p>本文讨论垃圾收集和内存分配技术。我们知道：</p>
@@ -17082,6 +17066,22 @@ text-align: center
 ]]></content>
       <categories>
         <category>TODEL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>一个JVM进程卡住问题</title>
+    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
+<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
+<br/>
+图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
+
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
+<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
+]]></content>
+      <categories>
+        <category>性能调优</category>
       </categories>
   </entry>
   <entry>
@@ -18803,12 +18803,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>分界线</title>
-    <url>/blog/2024/03/01/%E5%88%86%E7%95%8C%E7%BA%BF/</url>
-    <content><![CDATA[<p>之后的是最新系统的博文！</p>
-]]></content>
-  </entry>
-  <entry>
     <title>创建JVM进程虚拟机参数配置最佳实践</title>
     <url>/blog/2018/09/29/%E5%88%9B%E5%BB%BAJVM%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
     <content><![CDATA[<h2 id="一、打印GC日志"><a href="#一、打印GC日志" class="headerlink" title="一、打印GC日志"></a><strong>一、打印GC日志</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:+PrintGCID -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime -Xloggc:file</span><br></pre></td></tr></table></figure>
@@ -18823,6 +18817,12 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>Java</category>
         <category>JVM</category>
       </categories>
+  </entry>
+  <entry>
+    <title>分界线</title>
+    <url>/blog/2024/03/01/%E5%88%86%E7%95%8C%E7%BA%BF/</url>
+    <content><![CDATA[<p>之后的是最新系统的博文！</p>
+]]></content>
   </entry>
   <entry>
     <title>判定胜负</title>
@@ -18970,6 +18970,15 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>工程师进阶</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>博文导航</title>
+    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
+    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
+]]></content>
+      <categories>
+        <category>思维导图</category>
       </categories>
   </entry>
   <entry>
@@ -19173,15 +19182,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>博文导航</title>
-    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
-    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
-]]></content>
-      <categories>
-        <category>思维导图</category>
       </categories>
   </entry>
   <entry>
