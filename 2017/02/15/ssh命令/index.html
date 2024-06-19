@@ -274,7 +274,7 @@
 <ol>
 <li>SSH Client端所在的机器称为“本地机器”，SSH Server端所在的机器称为“RemoteHost”</li>
 <li>“-l，-i，-p，域名或者ip地址”这些参数的参数值已经在“ssh_config文件”中配置</li>
-<li>根据<a href="/2017/02/15/SSH%E5%8D%8F%E8%AE%AE/" title="SSH协议">《SSH协议》</a>，ssh连接必须由SSH Client请求建立，但是一旦得以建立，数据通信请求既可由SSH Client发起，也可由SSH Server发起，即在SSH连接建立后，可由任意端发起数据通信请求</li>
+<li>根据<a href="/blog/2017/02/15/SSH%E5%8D%8F%E8%AE%AE/" title="SSH协议">《SSH协议》</a>，ssh连接必须由SSH Client请求建立，但是一旦得以建立，数据通信请求既可由SSH Client发起，也可由SSH Server发起，即在SSH连接建立后，可由任意端发起数据通信请求</li>
 </ol>
 <p>使用SSH隧道的应用具体又可细分为4种形式，下面分别进行介绍。</p>
 <h3 id="2-1、SSH-Client端设定被监听的应用转发端口——本地转发"><a href="#2-1、SSH-Client端设定被监听的应用转发端口——本地转发" class="headerlink" title="2.1、SSH Client端设定被监听的应用转发端口——本地转发"></a><strong>2.1、SSH Client端设定被监听的应用转发端口——本地转发</strong></h3><h4 id="2-1-1、建立ssh连接命令"><a href="#2-1-1、建立ssh连接命令" class="headerlink" title="2.1.1、建立ssh连接命令"></a><strong>2.1.1、建立ssh连接命令</strong></h4><p>在本场景中，使用ssh程序建立SSH连接的命令如下：</p>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="一、Java语法语义1.1、synchronized关键词 实现Java语言内置锁 实现happens-before规则——对一个锁的解锁，happens-before于随后对这个锁的加锁  1.2、volatile关键词 针对所有基本类型和引用类型的简单读写操作（一个易混淆点，“变量自增”和“变量自减”不是简单读写操作）是否是原子的： 非volatile变量。除了long和double之外的基本">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-07-25T05:35:26.000Z">
-<meta property="article:modified_time" content="2024-06-15T14:00:12.292Z">
+<meta property="article:modified_time" content="2024-06-19T15:37:34.454Z">
 <meta property="article:author" content="dslztx">
 <meta name="twitter:card" content="summary">
 
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-06-15 22:00:12" itemprop="dateModified" datetime="2024-06-15T22:00:12+08:00">2024-06-15</time>
+                <time title="修改时间：2024-06-19 23:37:34" itemprop="dateModified" datetime="2024-06-19T23:37:34+08:00">2024-06-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -285,7 +285,7 @@
 <p><strong>备注</strong>：</p>
 <ul>
 <li>在上述3个语法语义中，最有价值的是第3个，其余两个价值不大</li>
-<li>在上述第1点和第3点中，提及到了“后续”，其实在并发环境中，“后续”的判定十分困难。在应用第3点中的happens-before规则时，如何绕过“后续”的判定可参见<a href="/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a></li>
+<li>在上述第1点和第3点中，提及到了“后续”，其实在并发环境中，“后续”的判定十分困难。在应用第3点中的happens-before规则时，如何绕过“后续”的判定可参见<a href="/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a></li>
 </ul>
 <h3 id="1-3、final关键词"><a href="#1-3、final关键词" class="headerlink" title="1.3、final关键词"></a><strong>1.3、final关键词</strong></h3><ol start="0">
 <li>表示“不可改变的”：<ul>
@@ -301,7 +301,7 @@
 <li>实现synchronized关键词相关的<code>hotspot/src/share/vm/runtime/objectMonitor.cpp:733</code>C++源代码处的<code>OrderAccess::fence()</code>内存屏障指令调用</li>
 <li>实现volatile关键词内存语义：<ol>
 <li>volatile变量简单读写操作最终映射到的目标机器指令是原子的</li>
-<li>为实现volatile变量写语义，对于volatile变量写操作应该有个绑定型内存屏障：其语义是“刷新缓存到内存，并使相应的缓存失效（这样子读取volatile变量时从内存重新加载最新值）”。需要绑定型内存屏障，是为了避免目标操作和内存屏障之间插入其他操作，关于绑定型内存屏障的介绍参见<a href="/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" title="内存屏障">《内存屏障》</a></li>
+<li>为实现volatile变量写语义，对于volatile变量写操作应该有个绑定型内存屏障：其语义是“刷新缓存到内存，并使相应的缓存失效（这样子读取volatile变量时从内存重新加载最新值）”。需要绑定型内存屏障，是为了避免目标操作和内存屏障之间插入其他操作，关于绑定型内存屏障的介绍参见<a href="/blog/2020/02/13/%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C/" title="内存屏障">《内存屏障》</a></li>
 <li>为实现volatile关键词的happens-before规则语义，在以上第2点的基础上，还需要按照以下方案添加内存屏障。可以发现，对于<code>在每个volatile写操作的前面插入一个LoadStore内存屏障</code>，<code>在每个volatile写操作的前面插入一个StoreStore内存屏障</code>和<code>volatile变量写操作应该有个绑定型内存屏障</code>的要求，可以用一个绑定型的StoreLoad内存屏障进行替代（因为StoreLoad内存屏障是“全能型”内存屏障，同时具有StoreStore，LoadLoad和LoadStore内存屏障的效果）。<font color='red'>需要说明的是，这里的描述掺杂了笔者的自我理解，跟书本《Java并发编程的艺术》P43的描述并不一致，如有错误，请不吝赐教</font>：<ul>
 <li>在每个volatile写操作的前面插入一个LoadStore内存屏障</li>
 <li>在每个volatile写操作的前面插入一个StoreStore内存屏障</li>

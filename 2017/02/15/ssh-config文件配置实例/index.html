@@ -256,7 +256,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>根据<a href="/2017/02/15/ssh-config%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" title="ssh_config配置文件">《ssh_config配置文件》</a>的介绍，这里做几个关于ssh_config文件配置的练习。</p>
+        <p>根据<a href="/blog/2017/02/15/ssh-config%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" title="ssh_config配置文件">《ssh_config配置文件》</a>的介绍，这里做几个关于ssh_config文件配置的练习。</p>
 <h2 id="一、环境设定"><a href="#一、环境设定" class="headerlink" title="一、环境设定"></a><strong>一、环境设定</strong></h2><p>1、假定使用ssh_config文件中的“<del>&#x2F;.ssh&#x2F;config”文件<br>2、现在有服务器A，B和C，这3台服务器上都运行SSH Server<br>3、A，B，C的域名分别为：“antix1.space.org，antix2.space.org，antix3.space.org”<br>4、A，B，C上SSH Server监听的端口号都为“1046”<br>5、本地机器上的SSH Client与A，B，C上的SSH Server建立SSH连接使用的账户都为“dsl”<br>6、本地机器上的SSH Client与A，B，C上的SSH Server建立SSH连接对应“dsl”账户的私钥文件都为“</del>&#x2F;.ssh&#x2F;dsl_private_key”</p>
 <h2 id="二、通过命令行方式与A，B，C上的SSH-Server建立SSH连接"><a href="#二、通过命令行方式与A，B，C上的SSH-Server建立SSH连接" class="headerlink" title="二、通过命令行方式与A，B，C上的SSH Server建立SSH连接"></a><strong>二、通过命令行方式与A，B，C上的SSH Server建立SSH连接</strong></h2><p>与A，B，C上的SSH Server建立SSH连接的命令分别如下所示：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -i ~/.ssh/dsl_private_key -l dsl -p 1046 antix1.space.org</span><br></pre></td></tr></table></figure>

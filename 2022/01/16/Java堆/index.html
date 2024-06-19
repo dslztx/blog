@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://blog.dslztx.top/imgs/20220116-0-0.png">
 <meta property="og:image" content="https://blog.dslztx.top/imgs/20220116-0-1.png">
 <meta property="article:published_time" content="2022-01-15T16:21:45.000Z">
-<meta property="article:modified_time" content="2024-06-15T14:00:12.288Z">
+<meta property="article:modified_time" content="2024-06-19T15:37:34.446Z">
 <meta property="article:author" content="dslztx">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://blog.dslztx.top/imgs/20220116-0-0.png">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-06-15 22:00:12" itemprop="dateModified" datetime="2024-06-15T22:00:12+08:00">2024-06-15</time>
+                <time title="修改时间：2024-06-19 23:37:34" itemprop="dateModified" datetime="2024-06-19T23:37:34+08:00">2024-06-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,7 +272,7 @@
       
         <p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
 <p>Java堆内有：Java对象、字符串常量池、包装器类常量池等。</p>
-<h2 id="一、Java对象"><a href="#一、Java对象" class="headerlink" title="一、Java对象"></a><strong>一、Java对象</strong></h2><p>参见<a href="/2022/01/26/Java%E5%AF%B9%E8%B1%A1/" title="Java对象">《Java对象》</a>。</p>
+<h2 id="一、Java对象"><a href="#一、Java对象" class="headerlink" title="一、Java对象"></a><strong>一、Java对象</strong></h2><p>参见<a href="/blog/2022/01/26/Java%E5%AF%B9%E8%B1%A1/" title="Java对象">《Java对象》</a>。</p>
 <h2 id="二、字符串常量池"><a href="#二、字符串常量池" class="headerlink" title="二、字符串常量池"></a><strong>二、字符串常量池</strong></h2><h3 id="2-1、概念"><a href="#2-1、概念" class="headerlink" title="2.1、概念"></a><strong>2.1、概念</strong></h3><p>字符串常量池，英文名称为“String Literal Pool”或者“String Constant Pool”，几点基本说明：</p>
 <ul>
 <li>处于Java堆中，是为了复用String实例对象（在Java语言中，String实例对象不可修改，因此，既能节省内存又不至于引入并发修改等问题）而设计的一种机制所关联的内存区域</li>
@@ -394,7 +394,7 @@
 </ol>
 <br/>
 
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/2022/01/10/%E6%96%B9%E6%B3%95%E5%8C%BA/" title="方法区">《方法区》</a><br>[2]<code>java.lang.String</code>类中<code>public native String intern()</code>方法的JavaDoc<br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/renfufei/article/details/77585294">https://blog.csdn.net/renfufei/article/details/77585294</a><br>[4]<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/122">http://openjdk.java.net/jeps/122</a><br>[5]<a target="_blank" rel="noopener" href="http://java-performance.info/string-intern-in-java-6-7-8/">http://java-performance.info/string-intern-in-java-6-7-8/</a><br>[6]<a target="_blank" rel="noopener" href="http://tech.meituan.com/in_depth_understanding_string_intern.html">http://tech.meituan.com/in_depth_understanding_string_intern.html</a><br>[7]<a target="_blank" rel="noopener" href="http://blog.csdn.net/u010297957/article/details/50995869">http://blog.csdn.net/u010297957/article/details/50995869</a><br>[8]<a target="_blank" rel="noopener" href="http://droidyue.com/blog/2014/12/21/string-literal-pool-in-java/index.html">http://droidyue.com/blog/2014/12/21/string-literal-pool-in-java/index.html</a><br>[9]<a target="_blank" rel="noopener" href="https://jimlife.wordpress.com/2007/08/10/java-constant-pool-string/">https://jimlife.wordpress.com/2007/08/10/java-constant-pool-string/</a><br>[10]<a target="_blank" rel="noopener" href="http://www.javaranch.com/journal/200409/ScjpTipLine-StringsLiterally.html">http://www.javaranch.com/journal/200409/ScjpTipLine-StringsLiterally.html</a><br>[11]<a target="_blank" rel="noopener" href="http://theopentutorials.com/tutorials/java/strings/string-literal-pool/">http://theopentutorials.com/tutorials/java/strings/string-literal-pool/</a><br>[12]<a target="_blank" rel="noopener" href="http://www.thejavageek.com/2013/06/19/the-string-constant-pool/">http://www.thejavageek.com/2013/06/19/the-string-constant-pool/</a><br>[13]<a target="_blank" rel="noopener" href="http://tangxman.github.io/2015/07/27/the-difference-of-java-string-pool/">http://tangxman.github.io/2015/07/27/the-difference-of-java-string-pool/</a><br>[14]<a target="_blank" rel="noopener" href="https://www.hollischuang.com/archives/6569">https://www.hollischuang.com/archives/6569</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2022/01/10/%E6%96%B9%E6%B3%95%E5%8C%BA/" title="方法区">《方法区》</a><br>[2]<code>java.lang.String</code>类中<code>public native String intern()</code>方法的JavaDoc<br>[3]<a target="_blank" rel="noopener" href="https://blog.csdn.net/renfufei/article/details/77585294">https://blog.csdn.net/renfufei/article/details/77585294</a><br>[4]<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/122">http://openjdk.java.net/jeps/122</a><br>[5]<a target="_blank" rel="noopener" href="http://java-performance.info/string-intern-in-java-6-7-8/">http://java-performance.info/string-intern-in-java-6-7-8/</a><br>[6]<a target="_blank" rel="noopener" href="http://tech.meituan.com/in_depth_understanding_string_intern.html">http://tech.meituan.com/in_depth_understanding_string_intern.html</a><br>[7]<a target="_blank" rel="noopener" href="http://blog.csdn.net/u010297957/article/details/50995869">http://blog.csdn.net/u010297957/article/details/50995869</a><br>[8]<a target="_blank" rel="noopener" href="http://droidyue.com/blog/2014/12/21/string-literal-pool-in-java/index.html">http://droidyue.com/blog/2014/12/21/string-literal-pool-in-java/index.html</a><br>[9]<a target="_blank" rel="noopener" href="https://jimlife.wordpress.com/2007/08/10/java-constant-pool-string/">https://jimlife.wordpress.com/2007/08/10/java-constant-pool-string/</a><br>[10]<a target="_blank" rel="noopener" href="http://www.javaranch.com/journal/200409/ScjpTipLine-StringsLiterally.html">http://www.javaranch.com/journal/200409/ScjpTipLine-StringsLiterally.html</a><br>[11]<a target="_blank" rel="noopener" href="http://theopentutorials.com/tutorials/java/strings/string-literal-pool/">http://theopentutorials.com/tutorials/java/strings/string-literal-pool/</a><br>[12]<a target="_blank" rel="noopener" href="http://www.thejavageek.com/2013/06/19/the-string-constant-pool/">http://www.thejavageek.com/2013/06/19/the-string-constant-pool/</a><br>[13]<a target="_blank" rel="noopener" href="http://tangxman.github.io/2015/07/27/the-difference-of-java-string-pool/">http://tangxman.github.io/2015/07/27/the-difference-of-java-string-pool/</a><br>[14]<a target="_blank" rel="noopener" href="https://www.hollischuang.com/archives/6569">https://www.hollischuang.com/archives/6569</a></p>
 
     </div>
 

@@ -288,7 +288,7 @@
 <h3 id="4-2、“df”命令与“ls，stat，du”命令的差异"><a href="#4-2、“df”命令与“ls，stat，du”命令的差异" class="headerlink" title="4.2、“df”命令与“ls，stat，du”命令的差异"></a><strong>4.2、“df”命令与“ls，stat，du”命令的差异</strong></h3><p><code>df</code>命令与<code>ls，stat，du</code>命令的差异：</p>
 <ul>
 <li><code>df</code>命令面向文件系统，<code>ls，stat，du</code>命令面向文件（包括“一般文件”和“目录文件”）</li>
-<li>在Block节点集合容量的范畴下，<code>ls，stat，du</code>命令统计“一般文件”的容量是基于“使用大小”的，统计“目录文件”的容量是基于“占用大小”的；<code>df</code>命令的统计是基于“占用大小”的（关于文件的“使用大小”和“占用大小”可见<a href="/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" title="Ext文件系统中，文件的“占用大小”和“使用大小”">《Ext文件系统中，文件的“占用大小”和“使用大小”》</a>）</li>
+<li>在Block节点集合容量的范畴下，<code>ls，stat，du</code>命令统计“一般文件”的容量是基于“使用大小”的，统计“目录文件”的容量是基于“占用大小”的；<code>df</code>命令的统计是基于“占用大小”的（关于文件的“使用大小”和“占用大小”可见<a href="/blog/2016/10/18/Ext%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%EF%BC%8C%E6%96%87%E4%BB%B6%E7%9A%84%E2%80%9C%E5%8D%A0%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D%E5%92%8C%E2%80%9C%E4%BD%BF%E7%94%A8%E5%A4%A7%E5%B0%8F%E2%80%9D/" title="Ext文件系统中，文件的“占用大小”和“使用大小”">《Ext文件系统中，文件的“占用大小”和“使用大小”》</a>）</li>
 <li><code>df</code>命令跟<code>ls，stat，du</code>命令不一样，加上“-h”选项并不会产生“计算误差”，因为在<code>df</code>命令中，加上“-h”选项导致的转换是在最终统计后直接进行的</li>
 </ul>
 <br/>

@@ -258,9 +258,9 @@
       
         <p>OpenSSH是一个实现SSH协议的软件，它主要分为两个端：SSH Server和SSH Client。<br><font color='red'>约定：以下所指的“连接”都指“SSH连接”。</font></p>
 <h2 id="一、SSH-Server"><a href="#一、SSH-Server" class="headerlink" title="一、SSH Server"></a><strong>一、SSH Server</strong></h2><p>用来提供SSH服务。<br>重要的有两个部件，分别是“sshd程序”和“sshd_config文件”。<br>“sshd程序”是SSH Server的“daemon程序”，“sshd_config文件”是“sshd程序”使用的配置文件。</p>
-<h2 id="二、SSH-Client"><a href="#二、SSH-Client" class="headerlink" title="二、SSH Client"></a><strong>二、SSH Client</strong></h2><p>用来请求SSH服务。<br>重要的有两个部件，分别是“ssh程序”和“ssh_config文件”。<br>“ssh程序”是SSH Client的客户程序，“ssh_config文件”是“ssh程序”使用的配置文件。关于“ssh程序”，可见<a href="/2017/02/15/ssh%E5%91%BD%E4%BB%A4/" title="ssh命令">《ssh命令》</a>。关于“ssh_config文件”，可见<a href="/2017/02/15/ssh-config%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" title="ssh_config配置文件">《ssh_config配置文件》</a>。</p>
+<h2 id="二、SSH-Client"><a href="#二、SSH-Client" class="headerlink" title="二、SSH Client"></a><strong>二、SSH Client</strong></h2><p>用来请求SSH服务。<br>重要的有两个部件，分别是“ssh程序”和“ssh_config文件”。<br>“ssh程序”是SSH Client的客户程序，“ssh_config文件”是“ssh程序”使用的配置文件。关于“ssh程序”，可见<a href="/blog/2017/02/15/ssh%E5%91%BD%E4%BB%A4/" title="ssh命令">《ssh命令》</a>。关于“ssh_config文件”，可见<a href="/blog/2017/02/15/ssh-config%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" title="ssh_config配置文件">《ssh_config配置文件》</a>。</p>
 <h2 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a><strong>三、其他</strong></h2><p>另外，OpenSSH还有一个处理密钥相关内容的机制，在这个机制中主要有以下这些内容：</p>
-<h3 id="3-1、“ssh-keygen程序”用于创建，管理，转换密钥"><a href="#3-1、“ssh-keygen程序”用于创建，管理，转换密钥" class="headerlink" title="3.1、“ssh-keygen程序”用于创建，管理，转换密钥"></a><strong>3.1、“ssh-keygen程序”用于创建，管理，转换密钥</strong></h3><p>“ssh-keygen程序”是用来创建，管理和转换密钥的工具。详细内容见<a href="/2017/02/15/ssh-keygen%E5%91%BD%E4%BB%A4/" title="ssh-keygen命令">《ssh-keygen命令》</a>。</p>
+<h3 id="3-1、“ssh-keygen程序”用于创建，管理，转换密钥"><a href="#3-1、“ssh-keygen程序”用于创建，管理，转换密钥" class="headerlink" title="3.1、“ssh-keygen程序”用于创建，管理，转换密钥"></a><strong>3.1、“ssh-keygen程序”用于创建，管理，转换密钥</strong></h3><p>“ssh-keygen程序”是用来创建，管理和转换密钥的工具。详细内容见<a href="/blog/2017/02/15/ssh-keygen%E5%91%BD%E4%BB%A4/" title="ssh-keygen命令">《ssh-keygen命令》</a>。</p>
 <h3 id="3-2、配置密钥用于建立SSH连接"><a href="#3-2、配置密钥用于建立SSH连接" class="headerlink" title="3.2、配置密钥用于建立SSH连接"></a><strong>3.2、配置密钥用于建立SSH连接</strong></h3><p>为了让SSH Client能够以xxx用户身份连接到SSH Server，需要经过以下步骤：</p>
 <ol>
 <li>使用“ssh-keygen程序”创建公钥私钥对</li>
@@ -268,12 +268,12 @@
 <li>将私钥分发给所有有权以xxx用户身份连接到SSH Server的SSH Client</li>
 </ol>
 <h3 id="3-3、管理可信任SSH-Server的Host-Key"><a href="#3-3、管理可信任SSH-Server的Host-Key" class="headerlink" title="3.3、管理可信任SSH Server的Host Key"></a><strong>3.3、管理可信任SSH Server的Host Key</strong></h3><p>当SSH Client连接SSH Server的时候，会将SSH Server所在主机的Host Key追加保存到SSH Client所在主机的“&#x2F;home&#x2F;xxx&#x2F;.ssh&#x2F;known_hosts”文件中，下次当该SSH Client再次连接同一个（IP地址或者域名一样）SSH Server的时候，会去判断两次连接中SSH Server所在主机的Host Key是否一致，如果不一致，很有可能存在中间人攻击。</p>
-<h3 id="3-4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”"><a href="#3-4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”" class="headerlink" title="3.4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”"></a><strong>3.4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”</strong></h3><p>详见<a href="/2017/02/14/ssh-add%E5%91%BD%E4%BB%A4/" title="ssh-add命令">《ssh-add命令》</a>和<a href="/2017/02/14/ssh-agent%E5%91%BD%E4%BB%A4/" title="ssh-agent命令">《ssh-agent命令》</a>。</p>
+<h3 id="3-4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”"><a href="#3-4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”" class="headerlink" title="3.4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”"></a><strong>3.4、使用“ssh-agent程序”接管“公钥私钥验证匹配计算过程”</strong></h3><p>详见<a href="/blog/2017/02/14/ssh-add%E5%91%BD%E4%BB%A4/" title="ssh-add命令">《ssh-add命令》</a>和<a href="/blog/2017/02/14/ssh-agent%E5%91%BD%E4%BB%A4/" title="ssh-agent命令">《ssh-agent命令》</a>。</p>
 <h2 id="四、以下是一些实践文章的链接"><a href="#四、以下是一些实践文章的链接" class="headerlink" title="四、以下是一些实践文章的链接"></a><strong>四、以下是一些实践文章的链接</strong></h2><ul>
-<li><a href="/2017/02/15/%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8CSSH-Server/" title="安装运行SSH Server">《安装运行SSH Server》</a></li>
-<li><a href="/2017/02/15/ssh-config%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E4%BE%8B/" title="ssh_config文件配置实例">《ssh_config文件配置实例》</a></li>
-<li><a href="/2017/02/15/ssh%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/" title="ssh应用实例">《ssh应用实例》</a></li>
-<li><a href="/2017/02/15/ssh%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E7%9C%9F%E5%AE%9E%E5%BA%94%E7%94%A8/" title="ssh端口转发真实应用">《ssh端口转发真实应用》</a></li>
+<li><a href="/blog/2017/02/15/%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8CSSH-Server/" title="安装运行SSH Server">《安装运行SSH Server》</a></li>
+<li><a href="/blog/2017/02/15/ssh-config%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E4%BE%8B/" title="ssh_config文件配置实例">《ssh_config文件配置实例》</a></li>
+<li><a href="/blog/2017/02/15/ssh%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/" title="ssh应用实例">《ssh应用实例》</a></li>
+<li><a href="/blog/2017/02/15/ssh%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E7%9C%9F%E5%AE%9E%E5%BA%94%E7%94%A8/" title="ssh端口转发真实应用">《ssh端口转发真实应用》</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/">《实战SSH端口转发[转]》</a>（备份：<a target="_blank" rel="noopener" href="http://blog.csdn.net/dslztx/article/details/46654383">《实战SSH端口转发[转]》</a>）</li>
 </ul>
 
