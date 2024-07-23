@@ -1196,6 +1196,34 @@
       </categories>
   </entry>
   <entry>
+    <title>Command-Line Mysql Client使用教程</title>
+    <url>/blog/2016/07/31/Command-Line-Mysql-Client%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<h2 id="一、进入Mysql-Client交互模式"><a href="#一、进入Mysql-Client交互模式" class="headerlink" title="一、进入Mysql Client交互模式"></a><strong>一、进入Mysql Client交互模式</strong></h2><h3 id="1-1、命令"><a href="#1-1、命令" class="headerlink" title="1.1、命令"></a><strong>1.1、命令</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql -h HostName/Ip -P PortNumber -u User -pPassword [--vertical]</span><br></pre></td></tr></table></figure>
+<h3 id="1-2、命令选项含义"><a href="#1-2、命令选项含义" class="headerlink" title="1.2、命令选项含义"></a><strong>1.2、命令选项含义</strong></h3><h4 id="1-2-1、“-h-HostName-Ip”"><a href="#1-2-1、“-h-HostName-Ip”" class="headerlink" title="1.2.1、“-h HostName&#x2F;Ip”"></a><strong>1.2.1、“-h HostName&#x2F;Ip”</strong></h4><p>指定Mysql Server地址。</p>
+<h4 id="1-2-2、“-P-PortNumber”"><a href="#1-2-2、“-P-PortNumber”" class="headerlink" title="1.2.2、“-P PortNumber”"></a><strong>1.2.2、“-P PortNumber”</strong></h4><p>指定Mysql Server监听端口。</p>
+<h4 id="1-2-3、“-u-User”"><a href="#1-2-3、“-u-User”" class="headerlink" title="1.2.3、“-u User”"></a><strong>1.2.3、“-u User”</strong></h4><p>指定登录Mysql Server的用户。</p>
+<h4 id="1-2-4、“-pPassword”"><a href="#1-2-4、“-pPassword”" class="headerlink" title="1.2.4、“-pPassword”"></a><strong>1.2.4、“-pPassword”</strong></h4><p>指定相应用户登录Mysql Server所使用密码。</p>
+<h4 id="1-2-5、“–vertical”"><a href="#1-2-5、“–vertical”" class="headerlink" title="1.2.5、“–vertical”"></a><strong>1.2.5、“–vertical”</strong></h4><p>SQL查询结果以垂直形式展示。作者认为，垂直形式比水平形式更清晰。<br><font color='red'>SQL查询以“\G”结尾，也可使得SQL查询结果以垂直形式展示。</font></p>
+<h2 id="二、进入Mysql-Client交互模式后，常用命令"><a href="#二、进入Mysql-Client交互模式后，常用命令" class="headerlink" title="二、进入Mysql Client交互模式后，常用命令"></a><strong>二、进入Mysql Client交互模式后，常用命令</strong></h2><p>进入Mysql交互模式后，可执行两类命令：“SQL查询语句”和“Mysql Client功能命令”。接下来介绍几个常用命令，其中既有属于“SQL查询语句”类别的，也有属于“Mysql Client功能命令”类别的。</p>
+<h3 id="2-1、exit-quit命令"><a href="#2-1、exit-quit命令" class="headerlink" title="2.1、exit&#x2F;quit命令"></a><strong>2.1、exit&#x2F;quit命令</strong></h3><p>退出Mysql Client交互模式。比如<code>exit;</code>。</p>
+<h3 id="2-2、source命令"><a href="#2-2、source命令" class="headerlink" title="2.2、source命令"></a><strong>2.2、source命令</strong></h3><p>以一个文件路径作为参数，解析执行文件中内容。比如<code>source /home/dsl/a.sql;</code>。</p>
+<h3 id="2-3、status命令"><a href="#2-3、status命令" class="headerlink" title="2.3、status命令"></a><strong>2.3、status命令</strong></h3><p>查询Mysql Server状态信息。比如<code>status;</code>。</p>
+<h3 id="2-4、tee命令"><a href="#2-4、tee命令" class="headerlink" title="2.4、tee命令"></a><strong>2.4、tee命令</strong></h3><p>以一个文件路径作为参数，将所有终端模拟器（比如Gnome Terminal）所打印信息同步打印到该文件，便于我们分析和处理SQL查询结果。比如<code>tee /home/dsl/mysql.out;</code>。</p>
+<h3 id="2-5、use命令"><a href="#2-5、use命令" class="headerlink" title="2.5、use命令"></a><strong>2.5、use命令</strong></h3><p>以一个Database名称作为参数，将该Database设为默认Database。比如<code>use dslztx;</code>。</p>
+<h3 id="2-6、charset命令"><a href="#2-6、charset命令" class="headerlink" title="2.6、charset命令"></a><strong>2.6、charset命令</strong></h3><p>以一个字符集名称作为参数，指定Mysql Client使用的字符集。注意跟图1中的字符集配置结合使用。比如<code>charset gbk;</code>。</p>
+<p>图1<br><img src="https://blog.dslztx.top/imgs/20160731-0-0.png"></p>
+<br/>
+参考文献：
+[1]mysql --help
+[2]Mysql Client交互模式内执行`help`命令
+]]></content>
+      <categories>
+        <category>系统架构</category>
+        <category>中间件</category>
+        <category>MySQL</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Chrome键盘快捷键</title>
     <url>/blog/2018/05/30/Chrome%E9%94%AE%E7%9B%98%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
     <content><![CDATA[<p>本文所描述Chrome键盘快捷键针对Windows和Linux操作系统下的Chrome浏览器。</p>
@@ -1373,34 +1401,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Command-Line Mysql Client使用教程</title>
-    <url>/blog/2016/07/31/Command-Line-Mysql-Client%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<h2 id="一、进入Mysql-Client交互模式"><a href="#一、进入Mysql-Client交互模式" class="headerlink" title="一、进入Mysql Client交互模式"></a><strong>一、进入Mysql Client交互模式</strong></h2><h3 id="1-1、命令"><a href="#1-1、命令" class="headerlink" title="1.1、命令"></a><strong>1.1、命令</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql -h HostName/Ip -P PortNumber -u User -pPassword [--vertical]</span><br></pre></td></tr></table></figure>
-<h3 id="1-2、命令选项含义"><a href="#1-2、命令选项含义" class="headerlink" title="1.2、命令选项含义"></a><strong>1.2、命令选项含义</strong></h3><h4 id="1-2-1、“-h-HostName-Ip”"><a href="#1-2-1、“-h-HostName-Ip”" class="headerlink" title="1.2.1、“-h HostName&#x2F;Ip”"></a><strong>1.2.1、“-h HostName&#x2F;Ip”</strong></h4><p>指定Mysql Server地址。</p>
-<h4 id="1-2-2、“-P-PortNumber”"><a href="#1-2-2、“-P-PortNumber”" class="headerlink" title="1.2.2、“-P PortNumber”"></a><strong>1.2.2、“-P PortNumber”</strong></h4><p>指定Mysql Server监听端口。</p>
-<h4 id="1-2-3、“-u-User”"><a href="#1-2-3、“-u-User”" class="headerlink" title="1.2.3、“-u User”"></a><strong>1.2.3、“-u User”</strong></h4><p>指定登录Mysql Server的用户。</p>
-<h4 id="1-2-4、“-pPassword”"><a href="#1-2-4、“-pPassword”" class="headerlink" title="1.2.4、“-pPassword”"></a><strong>1.2.4、“-pPassword”</strong></h4><p>指定相应用户登录Mysql Server所使用密码。</p>
-<h4 id="1-2-5、“–vertical”"><a href="#1-2-5、“–vertical”" class="headerlink" title="1.2.5、“–vertical”"></a><strong>1.2.5、“–vertical”</strong></h4><p>SQL查询结果以垂直形式展示。作者认为，垂直形式比水平形式更清晰。<br><font color='red'>SQL查询以“\G”结尾，也可使得SQL查询结果以垂直形式展示。</font></p>
-<h2 id="二、进入Mysql-Client交互模式后，常用命令"><a href="#二、进入Mysql-Client交互模式后，常用命令" class="headerlink" title="二、进入Mysql Client交互模式后，常用命令"></a><strong>二、进入Mysql Client交互模式后，常用命令</strong></h2><p>进入Mysql交互模式后，可执行两类命令：“SQL查询语句”和“Mysql Client功能命令”。接下来介绍几个常用命令，其中既有属于“SQL查询语句”类别的，也有属于“Mysql Client功能命令”类别的。</p>
-<h3 id="2-1、exit-quit命令"><a href="#2-1、exit-quit命令" class="headerlink" title="2.1、exit&#x2F;quit命令"></a><strong>2.1、exit&#x2F;quit命令</strong></h3><p>退出Mysql Client交互模式。比如<code>exit;</code>。</p>
-<h3 id="2-2、source命令"><a href="#2-2、source命令" class="headerlink" title="2.2、source命令"></a><strong>2.2、source命令</strong></h3><p>以一个文件路径作为参数，解析执行文件中内容。比如<code>source /home/dsl/a.sql;</code>。</p>
-<h3 id="2-3、status命令"><a href="#2-3、status命令" class="headerlink" title="2.3、status命令"></a><strong>2.3、status命令</strong></h3><p>查询Mysql Server状态信息。比如<code>status;</code>。</p>
-<h3 id="2-4、tee命令"><a href="#2-4、tee命令" class="headerlink" title="2.4、tee命令"></a><strong>2.4、tee命令</strong></h3><p>以一个文件路径作为参数，将所有终端模拟器（比如Gnome Terminal）所打印信息同步打印到该文件，便于我们分析和处理SQL查询结果。比如<code>tee /home/dsl/mysql.out;</code>。</p>
-<h3 id="2-5、use命令"><a href="#2-5、use命令" class="headerlink" title="2.5、use命令"></a><strong>2.5、use命令</strong></h3><p>以一个Database名称作为参数，将该Database设为默认Database。比如<code>use dslztx;</code>。</p>
-<h3 id="2-6、charset命令"><a href="#2-6、charset命令" class="headerlink" title="2.6、charset命令"></a><strong>2.6、charset命令</strong></h3><p>以一个字符集名称作为参数，指定Mysql Client使用的字符集。注意跟图1中的字符集配置结合使用。比如<code>charset gbk;</code>。</p>
-<p>图1<br><img src="https://blog.dslztx.top/imgs/20160731-0-0.png"></p>
-<br/>
-参考文献：
-[1]mysql --help
-[2]Mysql Client交互模式内执行`help`命令
-]]></content>
-      <categories>
-        <category>系统架构</category>
-        <category>中间件</category>
-        <category>MySQL</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Confluence Wiki标记语言</title>
     <url>/blog/2017/02/07/Confluence-Wiki%E6%A0%87%E8%AE%B0%E8%AF%AD%E8%A8%80/</url>
     <content><![CDATA[<h2 id="一、标题"><a href="#一、标题" class="headerlink" title="一、标题"></a><strong>一、标题</strong></h2><h3 id="1-1、语法"><a href="#1-1、语法" class="headerlink" title="1.1、语法"></a><strong>1.1、语法</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">h1.一级标题</span><br><span class="line">h2.二级标题</span><br><span class="line">h3.三级标题</span><br><span class="line">h4.四级标题</span><br><span class="line">h5.五级标题</span><br><span class="line">h6.六级标题</span><br></pre></td></tr></table></figure>
@@ -1431,19 +1431,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Debian开启邮件MTA</title>
-    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
-    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
-
-<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Executors</title>
     <url>/blog/2021/05/15/Executors/</url>
     <content><![CDATA[<p>一个跟线程池相关的工厂方法类，主要用来生成几类“ThreadPoolExecutor”和“ScheduledThreadPoolExecutor”。</p>
@@ -1470,6 +1457,19 @@
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Debian开启邮件MTA</title>
+    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
+    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
+
+<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
       </categories>
   </entry>
   <entry>
@@ -2637,9 +2637,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#105;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#x63;&#x6f;&#109;">&#x67;&#105;&#x74;&#64;&#x67;&#105;&#x74;&#x68;&#117;&#x62;&#46;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#109;">&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#x69;&#116;&#64;&#103;&#105;&#116;&#104;&#x75;&#x62;&#46;&#99;&#111;&#109;">&#x67;&#x69;&#116;&#64;&#103;&#105;&#116;&#104;&#x75;&#x62;&#46;&#99;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#x69;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#x6d;">&#x67;&#x69;&#116;&#x40;&#x67;&#105;&#116;&#104;&#x75;&#98;&#46;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#x2e;&#99;&#111;&#x6d;">&#103;&#x69;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#x2e;&#99;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#116;&#64;&#103;&#105;&#x74;&#x68;&#x75;&#98;&#x2e;&#x63;&#x6f;&#109;">&#x67;&#105;&#116;&#64;&#103;&#105;&#x74;&#x68;&#x75;&#98;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -3502,7 +3502,7 @@ text-align: center
 |               |              |                    |
 +---------------+-+-+----------++-++------------+-+-+
                 |                                   |
-                +-------New IPv4 Payload Data------->
+                <-------New IPv4 Payload Data------->
 </pre>
 
 <p><code>ESP Payload Data</code>：对原IPv4报文载荷数据进行ESP运算获得。</p>
@@ -5126,173 +5126,6 @@ text-align: center
       </tags>
   </entry>
   <entry>
-    <title>JMM</title>
-    <url>/blog/2020/07/24/JMM/</url>
-    <content><![CDATA[<h2 id="一、内存模型"><a href="#一、内存模型" class="headerlink" title="一、内存模型"></a><strong>一、内存模型</strong></h2><h3 id="1-1、含义"><a href="#1-1、含义" class="headerlink" title="1.1、含义"></a><strong>1.1、含义</strong></h3><p>内存模型描述的是“对于一个变量A，线程t1能够读取到线程t2对该变量的写入”的条件，即关于内存可见性（这里和后续如无特别说明，都指代“广义内存可见性”）的条件。比如“线程t1对一个volatile变量的写入，线程t2能否读取到”，“线程t1将一个final变量传递给线程t2，在t2中该变量对应的实例是否真的已经构造完成，而不存在由于重排序导致的构造未完成情形”。</p>
-<p>有4点需要注意：</p>
-<ul>
-<li>线程t1和t2可以是同一个线程</li>
-<li>在有些场景中，不是“线程”，而是“协程” </li>
-<li>有不同层级的内存模型，比如“处理器层级的内存模型”，“语言层级的内存模型”</li>
-<li><font color='red'>“内存模型”主要围绕<code>可见性问题（“可见性问题”和“有序性问题”等价）</code>，这是主要矛盾，其中所涉及到的“原子性问题”是次要矛盾，因此，JMM内容归属于“可见性与有序性”分类</font></li>
-</ul>
-<h3 id="1-2、理论参考模型——顺序一致性内存模型"><a href="#1-2、理论参考模型——顺序一致性内存模型" class="headerlink" title="1.2、理论参考模型——顺序一致性内存模型"></a><strong>1.2、理论参考模型——顺序一致性内存模型</strong></h3><p>顺序一致性内存模型是一个理想化的理论参考模型，它提供极强的内存可见性保证。</p>
-<p>顺序一致性内存模型有两大特性：</p>
-<ol>
-<li>一个线程中的所有操作必须按照程序的顺序来执行</li>
-<li>（不管程序是否同步）所有线程都只能看到一个单一的操作执行顺序。因为，在顺序一致性内存模型中，每个操作都必须原子执行且立刻对所有线程可见</li>
-</ol>
-<h3 id="1-3、实际内存模型"><a href="#1-3、实际内存模型" class="headerlink" title="1.3、实际内存模型"></a><strong>1.3、实际内存模型</strong></h3><p>根据顺序一致性内存模型的描述可知，顺序一致性内存模型与“重排序（这里和后续如无特别说明，都指代‘广义重排序’）”的冲突是显而易见的。<br>比如：</p>
-<ul>
-<li>如果存在引入<code>高速缓存-写缓冲器-失效队列</code>机制导致的狭义可见性问题（属于“广义重排序”的一种），那么顺序一致性内存模型的第2点就不能满足</li>
-<li>如果存在狭义重排序问题，那么顺序一致性内存模型的第1点就不能满足</li>
-</ul>
-<p>而我们知道，当不允许重排序时，执行性能会变得很差。</p>
-<p>因此，总结来说，顺序一致性内存模型具有的优缺点分别如下：</p>
-<ul>
-<li>优点，易编程性好</li>
-<li>缺点，执行性能差</li>
-</ul>
-<br/>
-
-<p>实际内存模型往往通过损失“易编程性”来获得“执行性能的提升”，具体手段就是允许重排序，所允许的重排序类型越多，则“损失的易编程性越大，执行性能提升越多”。</p>
-<p>以下图1给出了几个实际内存模型（包括几个“处理器层级内存模型”和几个“语言层级内存模型”）在“执行性能-易编程性”二维图中的相对位置。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20200724-0-1.png"></p>
-<h4 id="1-3-1、处理器层级实际内存模型"><a href="#1-3-1、处理器层级实际内存模型" class="headerlink" title="1.3.1、处理器层级实际内存模型"></a><strong>1.3.1、处理器层级实际内存模型</strong></h4><p>处理器层级实际内存模型根据所允许的重排序类型分为4种：TSO，PSO，RMO和PowerPC。如表1所示。</p>
-<p>表1</p>
-<table>
-<thead>
-<tr>
-<th>内存模型类别</th>
-<th>Store-Load重排序</th>
-<th>Store-Store重排序</th>
-<th>Load-Load和Load-Store重排序</th>
-<th>可以更早读取到其他处理器的写（也是一种重排序）</th>
-<th>可以更早读取到当前处理器的写（也是一种重排序）</th>
-<th>具体处理器案例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>TSO</td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td>SPARC-TSO，X86</td>
-</tr>
-<tr>
-<td>PSO</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td>SPARC-PSO</td>
-</tr>
-<tr>
-<td>RMO</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td>IA64<sup>[2]</sup></td>
-</tr>
-<tr>
-<td>PowerPC</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td>PowerPC<sup>[3]</sup></td>
-</tr>
-</tbody></table>
-<p><strong>备注：</strong></p>
-<ul>
-<li>SPARC架构见[1]</li>
-<li>两个PowerPC：一个是内存模型类别，一个是具体处理器案例</li>
-</ul>
-<h4 id="1-3-2、语言层级实际内存模型"><a href="#1-3-2、语言层级实际内存模型" class="headerlink" title="1.3.2、语言层级实际内存模型"></a><strong>1.3.2、语言层级实际内存模型</strong></h4><p>比如有：</p>
-<ul>
-<li>C++ 11的内存模型——C++ 11 MM</li>
-<li>Java的内存模型——JMM</li>
-<li>.Net的内存模型——CLR2.0 MM</li>
-<li>Go的内存模型</li>
-<li>Rust的内存模型</li>
-</ul>
-<h2 id="二、JMM"><a href="#二、JMM" class="headerlink" title="二、JMM"></a><strong>二、JMM</strong></h2><p>Java内存模型，英文全称为“Java Memory Model”，简称JMM。</p>
-<p>在谈论JMM的时候，经常会涉及到JSR-133，这两者的关系是：JSR-133是一个定义JMM的规范，它增强改进了旧规范定义的JMM。</p>
-<p>JMM有3大特性：</p>
-<ul>
-<li>单线程程序。单线程程序的执行具有顺序一致性，即“程序的执行结果与该程序在顺序一致性内存模型中的执行结果相同”</li>
-<li>正确同步的多线程程序。正确同步的多线程程序的执行具有顺序一致性，即“程序的执行结果与该程序在顺序一致性内存模型中的执行结果相同”</li>
-<li>未同步&#x2F;未正确同步的多线程程序。JMM为它们提供了最小安全性保障，即“线程执行时读取到的值，要么是之前某个线程写入的值，要么是默认值（0、null、false）”</li>
-</ul>
-<p>为便于程序员编写正确同步的多线程程序，JMM设计了一整套规范，作了基础设施实现（主要使用“内存屏障”消除不需要的“重排序”），向程序员提供交付了“JMM内存抽象模型”，“相关语法关键词”，“happens-before规则”以及其他相关语义确保。</p>
-<h3 id="2-1、JMM内存抽象模型"><a href="#2-1、JMM内存抽象模型" class="headerlink" title="2.1、JMM内存抽象模型"></a><strong>2.1、JMM内存抽象模型</strong></h3><p>JMM向程序员提供一个抽象的内存模型，向下屏蔽千差万别的具体硬件差异，具体如图2所示。</p>
-<p>关于这个抽象内存模型有以下几点说明：</p>
-<ul>
-<li>Java进程的内存主要分为“程序计数器，Java虚拟机栈，本地方法栈，Java堆，方法区，直接内存”，其中对于线程私有内存（程序计数器，Java虚拟机栈，本地方法栈）中的变量不会存在可见性问题，因此示意图中的主内存指代线程共享内存（Java堆，方法区，直接内存），且一般就是指“Java堆”</li>
-<li>在视图中每个线程都有一个私有的本地内存，本地内存中存储了主内存中共享变量的副本。但其实本地内存只是JMM用来便于描述的一个抽象概念，它并不真实存在，而只是“缓存、写缓冲区、寄存器”等机制的代指</li>
-</ul>
-<p>图2</p>
-<p><img src="https://blog.dslztx.top/imgs/20200724-0-2.jpg"></p>
-<h3 id="2-2、相关语法关键词"><a href="#2-2、相关语法关键词" class="headerlink" title="2.2、相关语法关键词"></a><strong>2.2、相关语法关键词</strong></h3><p>相关实现提供的语法关键词有：</p>
-<ul>
-<li>synchronized</li>
-<li>volatile</li>
-<li>final</li>
-<li>…</li>
-</ul>
-<p>需要注意的是，上述关键词的完整语法语义不只来自于JMM，也来自于其他的Java语言语法规范。</p>
-<h3 id="2-3、happens-before规则"><a href="#2-3、happens-before规则" class="headerlink" title="2.3、happens-before规则"></a><strong>2.3、happens-before规则</strong></h3><p>详见<a href="/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a>。</p>
-<h3 id="2-4、其他相关语义确保"><a href="#2-4、其他相关语义确保" class="headerlink" title="2.4、其他相关语义确保"></a><strong>2.4、其他相关语义确保</strong></h3><p>比如：</p>
-<ul>
-<li>JMM不保证对long型和double型变量的简单读和写操作具有原子性；JMM保证对除了long型和double型之外的变量的简单读和写操作具有原子性</li>
-<li>在构造方法中对final实例成员变量A赋值，在构造方法返回之前，被构造对象的实例对象引用不被其他线程所见，在构造方法返回后，通过该实例对象引用读取A，那么对于该<code>读操作</code>来说，“构造方法中对A的赋值确保内存可见，如果A是个引用变量，其指向实例对象P，那么构造方法之前所有对P的操作都确保内存可见”。详见[10]中“final关键词内存可见语义规则”小节</li>
-<li>类的初始化（Class被加载之后，被线程使用之前）是线程安全的，具体是通过加锁实现的[9]</li>
-</ul>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zh.wikipedia.org/wiki/SPARC">https://zh.wikipedia.org/wiki/SPARC</a><br>[2]<a href="https://baike.baidu.com/item/ia64">https://baike.baidu.com/item/ia64</a><br>[3]<a href="https://zh.wikipedia.org/wiki/PowerPC">https://zh.wikipedia.org/wiki/PowerPC</a><br>[4]<a href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/10.1.html">https://tiancaiamao.gitbooks.io/go-internals/content/zh/10.1.html</a><br>[5]《Java并发编程的艺术》<br>[6]《JSR-133：Java内存<sup>TM</sup>模型与线程规范》<br>[7]<a href="https://developer.ibm.com/zh/articles/j-jtp03304/">https://developer.ibm.com/zh/articles/j-jtp03304/</a><br>[8]<a href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html</a><br>[9]《Java并发编程的艺术》P72<br>[10]<a href="/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>JVM垃圾收集器GC分类和触发</title>
-    <url>/blog/2018/12/21/JVM%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8GC%E5%88%86%E7%B1%BB%E5%92%8C%E8%A7%A6%E5%8F%91/</url>
-    <content><![CDATA[<h2 id="一、GC分类"><a href="#一、GC分类" class="headerlink" title="一、GC分类"></a><strong>一、GC分类</strong></h2><h3 id="1-1、Minor-GC"><a href="#1-1、Minor-GC" class="headerlink" title="1.1、Minor GC"></a><strong>1.1、Minor GC</strong></h3><p>指代年轻代的GC。Minor GC又被称为Young GC，简称YGC。</p>
-<h3 id="1-2、Major-GC"><a href="#1-2、Major-GC" class="headerlink" title="1.2、Major GC"></a><strong>1.2、Major GC</strong></h3><p>指代老年代的GC。</p>
-<h3 id="1-3、Full-GC"><a href="#1-3、Full-GC" class="headerlink" title="1.3、Full GC"></a><strong>1.3、Full GC</strong></h3><p>年轻代+老年代的GC。</p>
-<h3 id="1-4、Mixed-GC"><a href="#1-4、Mixed-GC" class="headerlink" title="1.4、Mixed GC"></a><strong>1.4、Mixed GC</strong></h3><p>年轻代+部分老年代的GC。当下只存在于G1垃圾收集器中。</p>
-<h2 id="二、GC是否触发和GC触发条件"><a href="#二、GC是否触发和GC触发条件" class="headerlink" title="二、GC是否触发和GC触发条件"></a><strong>二、GC是否触发和GC触发条件</strong></h2><p>通常对“GC是否触发”和“GC触发条件”的描述是粗粒度和不准确的，细粒度和准确的描述需要结合所选用垃圾收集器，所选用垃圾收集器最终具体决定“GC是否触发，GC触发条件，GC算法”的所有细节。<font color='red'>要想获取全面准确细节的最好方式就是阅读所选用垃圾收集器的源代码</font>。</p>
-<h3 id="2-1、GC是否触发"><a href="#2-1、GC是否触发" class="headerlink" title="2.1、GC是否触发"></a><strong>2.1、GC是否触发</strong></h3><p>举例说明对“GC是否触发”的细粒度准确描述需要结合所选用垃圾收集器：</p>
-<ul>
-<li>有“当年轻代Eden区不能分配对象时，触发Minor GC”的通用描述，实际上当选用面向整个Java堆不分年轻代和老年代的垃圾收集器时，根本就不存在Minor GC</li>
-<li>有“满足XX条件时，触发Mixed GC”的通用描述，实际当选用非G1垃圾收集器时，根本就不存在Mixed GC</li>
-</ul>
-<h3 id="2-2、GC触发条件"><a href="#2-2、GC触发条件" class="headerlink" title="2.2、GC触发条件"></a><strong>2.2、GC触发条件</strong></h3><p>举例说明对“GC触发条件”的细粒度准确描述需要结合所选用垃圾收集器：</p>
-<ul>
-<li>有“满足XX条件时，触发Major GC”的通用描述，实际上当选用CMS垃圾收集器时，还可通过<code>-XX:CMSInitiatingOccupancyFraction=N</code>JVM参数配置Major GC触发的额外条件</li>
-</ul>
-<br/>
-参考文献：
-[1]http://www.importnew.com/15820.html
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
     <title>JDK正则表达式</title>
     <url>/blog/2017/05/26/JDK%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
     <content><![CDATA[<p>使用的JDK版本为jdk1.7.0_79，它的正则表达式匹配引擎采用的匹配模型见<a href="/blog/2017/06/02/%E4%B8%80%E7%A7%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%9E%8B/" title="一种正则表达式匹配模型">《一种正则表达式匹配模型》</a>。<br>匹配过程涉及到两个对象：正则表达式（可由所有字符构成，包括打印字符和非打印字符）和目标字符串（可由所有字符构成，包括打印字符和非打印字符）。</p>
@@ -6116,6 +5949,173 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>JMM</title>
+    <url>/blog/2020/07/24/JMM/</url>
+    <content><![CDATA[<h2 id="一、内存模型"><a href="#一、内存模型" class="headerlink" title="一、内存模型"></a><strong>一、内存模型</strong></h2><h3 id="1-1、含义"><a href="#1-1、含义" class="headerlink" title="1.1、含义"></a><strong>1.1、含义</strong></h3><p>内存模型描述的是“对于一个变量A，线程t1能够读取到线程t2对该变量的写入”的条件，即关于内存可见性（这里和后续如无特别说明，都指代“广义内存可见性”）的条件。比如“线程t1对一个volatile变量的写入，线程t2能否读取到”，“线程t1将一个final变量传递给线程t2，在t2中该变量对应的实例是否真的已经构造完成，而不存在由于重排序导致的构造未完成情形”。</p>
+<p>有4点需要注意：</p>
+<ul>
+<li>线程t1和t2可以是同一个线程</li>
+<li>在有些场景中，不是“线程”，而是“协程” </li>
+<li>有不同层级的内存模型，比如“处理器层级的内存模型”，“语言层级的内存模型”</li>
+<li><font color='red'>“内存模型”主要围绕<code>可见性问题（“可见性问题”和“有序性问题”等价）</code>，这是主要矛盾，其中所涉及到的“原子性问题”是次要矛盾，因此，JMM内容归属于“可见性与有序性”分类</font></li>
+</ul>
+<h3 id="1-2、理论参考模型——顺序一致性内存模型"><a href="#1-2、理论参考模型——顺序一致性内存模型" class="headerlink" title="1.2、理论参考模型——顺序一致性内存模型"></a><strong>1.2、理论参考模型——顺序一致性内存模型</strong></h3><p>顺序一致性内存模型是一个理想化的理论参考模型，它提供极强的内存可见性保证。</p>
+<p>顺序一致性内存模型有两大特性：</p>
+<ol>
+<li>一个线程中的所有操作必须按照程序的顺序来执行</li>
+<li>（不管程序是否同步）所有线程都只能看到一个单一的操作执行顺序。因为，在顺序一致性内存模型中，每个操作都必须原子执行且立刻对所有线程可见</li>
+</ol>
+<h3 id="1-3、实际内存模型"><a href="#1-3、实际内存模型" class="headerlink" title="1.3、实际内存模型"></a><strong>1.3、实际内存模型</strong></h3><p>根据顺序一致性内存模型的描述可知，顺序一致性内存模型与“重排序（这里和后续如无特别说明，都指代‘广义重排序’）”的冲突是显而易见的。<br>比如：</p>
+<ul>
+<li>如果存在引入<code>高速缓存-写缓冲器-失效队列</code>机制导致的狭义可见性问题（属于“广义重排序”的一种），那么顺序一致性内存模型的第2点就不能满足</li>
+<li>如果存在狭义重排序问题，那么顺序一致性内存模型的第1点就不能满足</li>
+</ul>
+<p>而我们知道，当不允许重排序时，执行性能会变得很差。</p>
+<p>因此，总结来说，顺序一致性内存模型具有的优缺点分别如下：</p>
+<ul>
+<li>优点，易编程性好</li>
+<li>缺点，执行性能差</li>
+</ul>
+<br/>
+
+<p>实际内存模型往往通过损失“易编程性”来获得“执行性能的提升”，具体手段就是允许重排序，所允许的重排序类型越多，则“损失的易编程性越大，执行性能提升越多”。</p>
+<p>以下图1给出了几个实际内存模型（包括几个“处理器层级内存模型”和几个“语言层级内存模型”）在“执行性能-易编程性”二维图中的相对位置。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20200724-0-1.png"></p>
+<h4 id="1-3-1、处理器层级实际内存模型"><a href="#1-3-1、处理器层级实际内存模型" class="headerlink" title="1.3.1、处理器层级实际内存模型"></a><strong>1.3.1、处理器层级实际内存模型</strong></h4><p>处理器层级实际内存模型根据所允许的重排序类型分为4种：TSO，PSO，RMO和PowerPC。如表1所示。</p>
+<p>表1</p>
+<table>
+<thead>
+<tr>
+<th>内存模型类别</th>
+<th>Store-Load重排序</th>
+<th>Store-Store重排序</th>
+<th>Load-Load和Load-Store重排序</th>
+<th>可以更早读取到其他处理器的写（也是一种重排序）</th>
+<th>可以更早读取到当前处理器的写（也是一种重排序）</th>
+<th>具体处理器案例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TSO</td>
+<td>Y</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Y</td>
+<td>SPARC-TSO，X86</td>
+</tr>
+<tr>
+<td>PSO</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+<td></td>
+<td>Y</td>
+<td>SPARC-PSO</td>
+</tr>
+<tr>
+<td>RMO</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+<td>Y</td>
+<td>IA64<sup>[2]</sup></td>
+</tr>
+<tr>
+<td>PowerPC</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>PowerPC<sup>[3]</sup></td>
+</tr>
+</tbody></table>
+<p><strong>备注：</strong></p>
+<ul>
+<li>SPARC架构见[1]</li>
+<li>两个PowerPC：一个是内存模型类别，一个是具体处理器案例</li>
+</ul>
+<h4 id="1-3-2、语言层级实际内存模型"><a href="#1-3-2、语言层级实际内存模型" class="headerlink" title="1.3.2、语言层级实际内存模型"></a><strong>1.3.2、语言层级实际内存模型</strong></h4><p>比如有：</p>
+<ul>
+<li>C++ 11的内存模型——C++ 11 MM</li>
+<li>Java的内存模型——JMM</li>
+<li>.Net的内存模型——CLR2.0 MM</li>
+<li>Go的内存模型</li>
+<li>Rust的内存模型</li>
+</ul>
+<h2 id="二、JMM"><a href="#二、JMM" class="headerlink" title="二、JMM"></a><strong>二、JMM</strong></h2><p>Java内存模型，英文全称为“Java Memory Model”，简称JMM。</p>
+<p>在谈论JMM的时候，经常会涉及到JSR-133，这两者的关系是：JSR-133是一个定义JMM的规范，它增强改进了旧规范定义的JMM。</p>
+<p>JMM有3大特性：</p>
+<ul>
+<li>单线程程序。单线程程序的执行具有顺序一致性，即“程序的执行结果与该程序在顺序一致性内存模型中的执行结果相同”</li>
+<li>正确同步的多线程程序。正确同步的多线程程序的执行具有顺序一致性，即“程序的执行结果与该程序在顺序一致性内存模型中的执行结果相同”</li>
+<li>未同步&#x2F;未正确同步的多线程程序。JMM为它们提供了最小安全性保障，即“线程执行时读取到的值，要么是之前某个线程写入的值，要么是默认值（0、null、false）”</li>
+</ul>
+<p>为便于程序员编写正确同步的多线程程序，JMM设计了一整套规范，作了基础设施实现（主要使用“内存屏障”消除不需要的“重排序”），向程序员提供交付了“JMM内存抽象模型”，“相关语法关键词”，“happens-before规则”以及其他相关语义确保。</p>
+<h3 id="2-1、JMM内存抽象模型"><a href="#2-1、JMM内存抽象模型" class="headerlink" title="2.1、JMM内存抽象模型"></a><strong>2.1、JMM内存抽象模型</strong></h3><p>JMM向程序员提供一个抽象的内存模型，向下屏蔽千差万别的具体硬件差异，具体如图2所示。</p>
+<p>关于这个抽象内存模型有以下几点说明：</p>
+<ul>
+<li>Java进程的内存主要分为“程序计数器，Java虚拟机栈，本地方法栈，Java堆，方法区，直接内存”，其中对于线程私有内存（程序计数器，Java虚拟机栈，本地方法栈）中的变量不会存在可见性问题，因此示意图中的主内存指代线程共享内存（Java堆，方法区，直接内存），且一般就是指“Java堆”</li>
+<li>在视图中每个线程都有一个私有的本地内存，本地内存中存储了主内存中共享变量的副本。但其实本地内存只是JMM用来便于描述的一个抽象概念，它并不真实存在，而只是“缓存、写缓冲区、寄存器”等机制的代指</li>
+</ul>
+<p>图2</p>
+<p><img src="https://blog.dslztx.top/imgs/20200724-0-2.jpg"></p>
+<h3 id="2-2、相关语法关键词"><a href="#2-2、相关语法关键词" class="headerlink" title="2.2、相关语法关键词"></a><strong>2.2、相关语法关键词</strong></h3><p>相关实现提供的语法关键词有：</p>
+<ul>
+<li>synchronized</li>
+<li>volatile</li>
+<li>final</li>
+<li>…</li>
+</ul>
+<p>需要注意的是，上述关键词的完整语法语义不只来自于JMM，也来自于其他的Java语言语法规范。</p>
+<h3 id="2-3、happens-before规则"><a href="#2-3、happens-before规则" class="headerlink" title="2.3、happens-before规则"></a><strong>2.3、happens-before规则</strong></h3><p>详见<a href="/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/" title="happens-before规则">《happens-before规则》</a>。</p>
+<h3 id="2-4、其他相关语义确保"><a href="#2-4、其他相关语义确保" class="headerlink" title="2.4、其他相关语义确保"></a><strong>2.4、其他相关语义确保</strong></h3><p>比如：</p>
+<ul>
+<li>JMM不保证对long型和double型变量的简单读和写操作具有原子性；JMM保证对除了long型和double型之外的变量的简单读和写操作具有原子性</li>
+<li>在构造方法中对final实例成员变量A赋值，在构造方法返回之前，被构造对象的实例对象引用不被其他线程所见，在构造方法返回后，通过该实例对象引用读取A，那么对于该<code>读操作</code>来说，“构造方法中对A的赋值确保内存可见，如果A是个引用变量，其指向实例对象P，那么构造方法之前所有对P的操作都确保内存可见”。详见[10]中“final关键词内存可见语义规则”小节</li>
+<li>类的初始化（Class被加载之后，被线程使用之前）是线程安全的，具体是通过加锁实现的[9]</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zh.wikipedia.org/wiki/SPARC">https://zh.wikipedia.org/wiki/SPARC</a><br>[2]<a href="https://baike.baidu.com/item/ia64">https://baike.baidu.com/item/ia64</a><br>[3]<a href="https://zh.wikipedia.org/wiki/PowerPC">https://zh.wikipedia.org/wiki/PowerPC</a><br>[4]<a href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/10.1.html">https://tiancaiamao.gitbooks.io/go-internals/content/zh/10.1.html</a><br>[5]《Java并发编程的艺术》<br>[6]《JSR-133：Java内存<sup>TM</sup>模型与线程规范》<br>[7]<a href="https://developer.ibm.com/zh/articles/j-jtp03304/">https://developer.ibm.com/zh/articles/j-jtp03304/</a><br>[8]<a href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html</a><br>[9]《Java并发编程的艺术》P72<br>[10]<a href="/blog/2020/07/25/synchronized-volatile-final%E5%85%B3%E9%94%AE%E8%AF%8D/" title="synchronized-volatile-final关键词">《synchronized-volatile-final关键词》</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>JVM垃圾收集器GC分类和触发</title>
+    <url>/blog/2018/12/21/JVM%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8GC%E5%88%86%E7%B1%BB%E5%92%8C%E8%A7%A6%E5%8F%91/</url>
+    <content><![CDATA[<h2 id="一、GC分类"><a href="#一、GC分类" class="headerlink" title="一、GC分类"></a><strong>一、GC分类</strong></h2><h3 id="1-1、Minor-GC"><a href="#1-1、Minor-GC" class="headerlink" title="1.1、Minor GC"></a><strong>1.1、Minor GC</strong></h3><p>指代年轻代的GC。Minor GC又被称为Young GC，简称YGC。</p>
+<h3 id="1-2、Major-GC"><a href="#1-2、Major-GC" class="headerlink" title="1.2、Major GC"></a><strong>1.2、Major GC</strong></h3><p>指代老年代的GC。</p>
+<h3 id="1-3、Full-GC"><a href="#1-3、Full-GC" class="headerlink" title="1.3、Full GC"></a><strong>1.3、Full GC</strong></h3><p>年轻代+老年代的GC。</p>
+<h3 id="1-4、Mixed-GC"><a href="#1-4、Mixed-GC" class="headerlink" title="1.4、Mixed GC"></a><strong>1.4、Mixed GC</strong></h3><p>年轻代+部分老年代的GC。当下只存在于G1垃圾收集器中。</p>
+<h2 id="二、GC是否触发和GC触发条件"><a href="#二、GC是否触发和GC触发条件" class="headerlink" title="二、GC是否触发和GC触发条件"></a><strong>二、GC是否触发和GC触发条件</strong></h2><p>通常对“GC是否触发”和“GC触发条件”的描述是粗粒度和不准确的，细粒度和准确的描述需要结合所选用垃圾收集器，所选用垃圾收集器最终具体决定“GC是否触发，GC触发条件，GC算法”的所有细节。<font color='red'>要想获取全面准确细节的最好方式就是阅读所选用垃圾收集器的源代码</font>。</p>
+<h3 id="2-1、GC是否触发"><a href="#2-1、GC是否触发" class="headerlink" title="2.1、GC是否触发"></a><strong>2.1、GC是否触发</strong></h3><p>举例说明对“GC是否触发”的细粒度准确描述需要结合所选用垃圾收集器：</p>
+<ul>
+<li>有“当年轻代Eden区不能分配对象时，触发Minor GC”的通用描述，实际上当选用面向整个Java堆不分年轻代和老年代的垃圾收集器时，根本就不存在Minor GC</li>
+<li>有“满足XX条件时，触发Mixed GC”的通用描述，实际当选用非G1垃圾收集器时，根本就不存在Mixed GC</li>
+</ul>
+<h3 id="2-2、GC触发条件"><a href="#2-2、GC触发条件" class="headerlink" title="2.2、GC触发条件"></a><strong>2.2、GC触发条件</strong></h3><p>举例说明对“GC触发条件”的细粒度准确描述需要结合所选用垃圾收集器：</p>
+<ul>
+<li>有“满足XX条件时，触发Major GC”的通用描述，实际上当选用CMS垃圾收集器时，还可通过<code>-XX:CMSInitiatingOccupancyFraction=N</code>JVM参数配置Major GC触发的额外条件</li>
+</ul>
+<br/>
+参考文献：
+[1]http://www.importnew.com/15820.html
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
     <title>JVM进程内5个主要内存区域中客体之间的联系</title>
     <url>/blog/2022/01/28/JVM%E8%BF%9B%E7%A8%8B%E5%86%855%E4%B8%AA%E4%B8%BB%E8%A6%81%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%AD%E5%AE%A2%E4%BD%93%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -6520,66 +6520,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java容器</title>
-    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
-<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
-<p>故Java容器划分示意图如图1。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
-<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
-<ul>
-<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
-<li><code>E next()</code>：下一个待遍历元素</li>
-<li><code>void remove()</code>：删除最近一个已遍历元素</li>
-</ul>
-<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
-<p>具体描述如下表。</p>
-<table>
-<thead>
-<tr>
-<th>迭代器类型</th>
-<th>描述</th>
-<th>在A上修改后B的表现</th>
-<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>快速失败</td>
-<td>fail-fast</td>
-<td>抛出<code>ConcurrentModificationException</code>异常</td>
-<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
-</tr>
-<tr>
-<td>快照式</td>
-<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
-<td>不抛出异常，通过B不能感知A上修改</td>
-<td>通过A不能感知B上修改</td>
-</tr>
-<tr>
-<td>弱一致性</td>
-<td>weakly consistent</td>
-<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
-<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
-</tr>
-<tr>
-<td>其他</td>
-<td>undefined</td>
-<td>未定义</td>
-<td>未定义</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>容器</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java堆</title>
     <url>/blog/2022/01/16/Java%E5%A0%86/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -6712,6 +6652,66 @@ text-align: center
         <category>语言</category>
         <category>Java</category>
         <category>JVM</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java容器</title>
+    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
+<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
+<p>故Java容器划分示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
+<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
+<ul>
+<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
+<li><code>E next()</code>：下一个待遍历元素</li>
+<li><code>void remove()</code>：删除最近一个已遍历元素</li>
+</ul>
+<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
+<p>具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>迭代器类型</th>
+<th>描述</th>
+<th>在A上修改后B的表现</th>
+<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>快速失败</td>
+<td>fail-fast</td>
+<td>抛出<code>ConcurrentModificationException</code>异常</td>
+<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
+</tr>
+<tr>
+<td>快照式</td>
+<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
+<td>不抛出异常，通过B不能感知A上修改</td>
+<td>通过A不能感知B上修改</td>
+</tr>
+<tr>
+<td>弱一致性</td>
+<td>weakly consistent</td>
+<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
+<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>undefined</td>
+<td>未定义</td>
+<td>未定义</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>容器</category>
       </categories>
   </entry>
   <entry>
@@ -6956,6 +6956,19 @@ text-align: center
         <category>Java</category>
         <category>Java一般语法</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/blog/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
   </entry>
   <entry>
     <title>Java并发编程基础</title>
@@ -7458,19 +7471,6 @@ text-align: center
       </categories>
       <tags>
         <tag>日志</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/blog/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
       </tags>
   </entry>
   <entry>
@@ -9724,7 +9724,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#x6d;&#97;&#x69;&#110;&#x2e;&#99;&#x6e;">&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#100;&#x6f;&#x6d;&#97;&#x69;&#110;&#x2e;&#99;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#x64;&#115;&#x6c;&#x7a;&#116;&#120;&#64;&#x64;&#x6f;&#109;&#x61;&#105;&#110;&#x2e;&#99;&#110;">&#x64;&#115;&#x6c;&#x7a;&#116;&#120;&#64;&#x64;&#x6f;&#109;&#x61;&#105;&#110;&#x2e;&#99;&#110;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -9748,7 +9748,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#111;&#114;&#103;&#101;&#64;&#103;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x47;&#101;&#111;&#114;&#103;&#101;&#64;&#103;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#101;&#x6f;&#114;&#103;&#101;&#x40;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#71;&#101;&#x6f;&#114;&#103;&#101;&#x40;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -9790,6 +9790,26 @@ text-align: center
         <category>协议规范</category>
         <category>邮件解析</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Redis使用最佳实践</title>
+    <url>/blog/2016/07/28/Redis%E4%BD%BF%E7%94%A8%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Redis-Cluster内尽量避免使用大Hash对象"><a href="#一、Redis-Cluster内尽量避免使用大Hash对象" class="headerlink" title="一、Redis Cluster内尽量避免使用大Hash对象"></a><strong>一、Redis Cluster内尽量避免使用大Hash对象</strong></h2><p>一个Hash对象对应一个key，在Redis Cluster内，该Hash对象会整体存储于某个节点上。因此，在Redis Cluster内，如果使用大Hash对象（即使用内存量巨大的Hash对象），会导致这部分内存不能均匀地分布于整个Redis Cluster。</p>
+<h2 id="二、禁止一次性请求大量数据"><a href="#二、禁止一次性请求大量数据" class="headerlink" title="二、禁止一次性请求大量数据"></a><strong>二、禁止一次性请求大量数据</strong></h2><p>禁止一次性请求大量数据，否则会出现“Read timed out”。<br>出现“Read timed out”的原因是：在访问Redis请求时，本地会开启一个计时器，当超过设定的“超时时间”，还未收到请求返回结果，就会出现“Read timed out”。<br>一次性请求大量数据，从请求发出到收到返回结果会耗费很长时间，最终会导致出现“Read timed out”。<br>比如使用HMGET（时间复杂度为O(N)），HKEYS（时间复杂度为O(N)），HGETALL（时间复杂度为O(N)）等命令时，很容易出现一次性请求大量数据的情形，导致“Read timed out”。为了避免这种情况，可采用“分批请求数据（‘Pipelining HGET命令’或者‘分批传FIELDS给HMGET’）”，“使用替换命令（比如使用HSCAN代替HKEYS）”等方式来解决。</p>
+<p>备注：<br>“Redis服务器存在性能问题，Redis服务器与本地之间存在网络问题”等也会导致出现“Read timed out”。</p>
+<br/>
+参考文献：
+[1]http://redis.io/commands/scan
+[2]https://www.javacodegeeks.com/2015/09/redis-clustering.html
+]]></content>
+      <categories>
+        <category>系统架构</category>
+        <category>中间件</category>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
   </entry>
   <entry>
     <title>RMI</title>
@@ -9895,26 +9915,6 @@ text-align: center
       <categories>
         <category>语言</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Redis使用最佳实践</title>
-    <url>/blog/2016/07/28/Redis%E4%BD%BF%E7%94%A8%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Redis-Cluster内尽量避免使用大Hash对象"><a href="#一、Redis-Cluster内尽量避免使用大Hash对象" class="headerlink" title="一、Redis Cluster内尽量避免使用大Hash对象"></a><strong>一、Redis Cluster内尽量避免使用大Hash对象</strong></h2><p>一个Hash对象对应一个key，在Redis Cluster内，该Hash对象会整体存储于某个节点上。因此，在Redis Cluster内，如果使用大Hash对象（即使用内存量巨大的Hash对象），会导致这部分内存不能均匀地分布于整个Redis Cluster。</p>
-<h2 id="二、禁止一次性请求大量数据"><a href="#二、禁止一次性请求大量数据" class="headerlink" title="二、禁止一次性请求大量数据"></a><strong>二、禁止一次性请求大量数据</strong></h2><p>禁止一次性请求大量数据，否则会出现“Read timed out”。<br>出现“Read timed out”的原因是：在访问Redis请求时，本地会开启一个计时器，当超过设定的“超时时间”，还未收到请求返回结果，就会出现“Read timed out”。<br>一次性请求大量数据，从请求发出到收到返回结果会耗费很长时间，最终会导致出现“Read timed out”。<br>比如使用HMGET（时间复杂度为O(N)），HKEYS（时间复杂度为O(N)），HGETALL（时间复杂度为O(N)）等命令时，很容易出现一次性请求大量数据的情形，导致“Read timed out”。为了避免这种情况，可采用“分批请求数据（‘Pipelining HGET命令’或者‘分批传FIELDS给HMGET’）”，“使用替换命令（比如使用HSCAN代替HKEYS）”等方式来解决。</p>
-<p>备注：<br>“Redis服务器存在性能问题，Redis服务器与本地之间存在网络问题”等也会导致出现“Read timed out”。</p>
-<br/>
-参考文献：
-[1]http://redis.io/commands/scan
-[2]https://www.javacodegeeks.com/2015/09/redis-clustering.html
-]]></content>
-      <categories>
-        <category>系统架构</category>
-        <category>中间件</category>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
   </entry>
   <entry>
     <title>SFTP协议</title>
@@ -13263,24 +13263,6 @@ text-align: center
       </tags>
   </entry>
   <entry>
-    <title>head命令</title>
-    <url>/blog/2016/12/30/head%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">head [-n K] [FILE | -]</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的前几行，默认为前10行。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：显示文件或者基本输入的前K行。</p>
-<br/>
-参考文献：
-[1]man head
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>happens-before规则</title>
     <url>/blog/2019/12/17/happens-before%E8%A7%84%E5%88%99/</url>
     <content><![CDATA[<h2 id="一、happens-before规则产生背景"><a href="#一、happens-before规则产生背景" class="headerlink" title="一、happens-before规则产生背景"></a><strong>一、happens-before规则产生背景</strong></h2><p>根据<a href="/blog/2019/11/08/%E5%8F%AF%E8%A7%81%E6%80%A7%E4%B8%8E%E6%9C%89%E5%BA%8F%E6%80%A7/" title="可见性与有序性">《可见性与有序性》</a>，编写Java程序存在“可见性”和“有序性”问题。为提供确定性编程环境，JMM提供了一系列happens-before规则，遵循happens-before规则可获得相对应的“可见性”和“有序性”语义保证，其语义是：<code>假如操作A happens-before 操作B，那么“在可见性维度，操作A对操作B内存可见；在有序性维度，操作A先于操作B”</code>。</p>
@@ -13351,6 +13333,24 @@ text-align: center
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>head命令</title>
+    <url>/blog/2016/12/30/head%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">head [-n K] [FILE | -]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的前几行，默认为前10行。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：显示文件或者基本输入的前K行。</p>
+<br/>
+参考文献：
+[1]man head
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
   </entry>
   <entry>
     <title>iconv命令</title>
@@ -16211,24 +16211,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>tail命令</title>
-    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
-<br/>
-参考文献：
-[1]man tail
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>synchronized锁内部实现</title>
     <url>/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</url>
     <content><![CDATA[<h2 id="一、基本语义"><a href="#一、基本语义" class="headerlink" title="一、基本语义"></a><strong>一、基本语义</strong></h2><h3 id="1-1、两种形式、一种锁"><a href="#1-1、两种形式、一种锁" class="headerlink" title="1.1、两种形式、一种锁"></a><strong>1.1、两种形式、一种锁</strong></h3><p>synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）<code>synchronized方法</code>；2）<code>synchronized(Java对象obj)语句块</code>。</p>
@@ -16520,6 +16502,24 @@ text-align: center
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>tail命令</title>
+    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
+<br/>
+参考文献：
+[1]man tail
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
   </entry>
   <entry>
     <title>tar命令</title>
@@ -16999,22 +16999,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>一个JVM进程卡住问题</title>
-    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
-<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
-<br/>
-图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
-
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
-<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
-<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
-]]></content>
-      <categories>
-        <category>性能调优</category>
-      </categories>
-  </entry>
-  <entry>
     <title>《深入理解Java虚拟机：JVM高级特性与最佳实践》垃圾收集器与内存分配策略</title>
     <url>/blog/2017/03/16/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9AJVM%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E3%80%8B%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
     <content><![CDATA[<p>本文讨论垃圾收集和内存分配技术。我们知道：</p>
@@ -17166,6 +17150,22 @@ text-align: center
 ]]></content>
       <categories>
         <category>TODEL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>一个JVM进程卡住问题</title>
+    <url>/blog/2018/12/29/%E4%B8%80%E4%B8%AAJVM%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="一、现象描述"><a href="#一、现象描述" class="headerlink" title="一、现象描述"></a><strong>一、现象描述</strong></h2><p>一个JVM进程运行一段时间后，应用线程卡住不能继续正常运行。</p>
+<h2 id="二、排查复盘"><a href="#二、排查复盘" class="headerlink" title="二、排查复盘"></a><strong>二、排查复盘</strong></h2><p>排查过程复盘：<br>0. 执行<code>jstat</code>命令，发现进程持续进行“Full GC”，导致应用线程卡住<br>0. 分别执行<code>jmap</code>和<code>jstack</code>命令，dump堆内存快照和线程快照<br>0. 使用Memory Analyzer解析堆内存快照，发现所有应用线程几乎耗尽所有堆内存，结合线程快照，发现这些应用线程都处于正常工作路径，且都处于“RUNNABLE”的线程状态<br>0. 根据上一点发现可知，该进程正常运行的确需要更多堆内存（不存在“内存泄漏”，“垃圾回收策略可改进”等可能），加大堆内存，进程正常运行，问题不再重现</p>
+<br/>
+图1 Memory Analyzer解析堆内存快照结果（由于截图所限，只是部分应用线程）
+
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-1.png"></p>
+<p>图2 线程快照内相应线程信息（以“pool-1-thread-1”应用线程为例）</p>
+<p><img src="https://blog.dslztx.top/imgs/20181229-0-2.png"></p>
+]]></content>
+      <categories>
+        <category>性能调优</category>
       </categories>
   </entry>
   <entry>
@@ -19057,15 +19057,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>博文导航</title>
-    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
-    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
-]]></content>
-      <categories>
-        <category>思维导图</category>
-      </categories>
-  </entry>
-  <entry>
     <title>单例</title>
     <url>/blog/2020/07/26/%E5%8D%95%E4%BE%8B/</url>
     <content><![CDATA[<h2 id="一、含义"><a href="#一、含义" class="headerlink" title="一、含义"></a><strong>一、含义</strong></h2><p>“单例”的书面含义是：在一个Java进程中，某个给定类的实例只允许存在一个。</p>
@@ -19266,6 +19257,15 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>博文导航</title>
+    <url>/blog/2020/09/09/%E5%8D%9A%E6%96%87%E5%AF%BC%E8%88%AA/</url>
+    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20200909-0-0.svg"></p>
+]]></content>
+      <categories>
+        <category>思维导图</category>
       </categories>
   </entry>
   <entry>
@@ -19679,6 +19679,29 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>围棋定式</title>
+    <url>/blog/2023/12/28/%E5%9B%B4%E6%A3%8B%E5%AE%9A%E5%BC%8F/</url>
+    <content><![CDATA[<h2 id="一、定式基本概念"><a href="#一、定式基本概念" class="headerlink" title="一、定式基本概念"></a><strong>一、定式基本概念</strong></h2><p>定式是根据经验总结出来的一种约定俗成的行棋方式：</p>
+<ol>
+<li>定式范围一般在角部，也存在少数范围很大（比如“涉及半个棋盘”）的大型定式</li>
+<li>黑白双方遵照定式行棋，在定式范围内，最终形成大体安定、得失差不多的基本棋形</li>
+</ol>
+<h2 id="二、记忆定式"><a href="#二、记忆定式" class="headerlink" title="二、记忆定式"></a><strong>二、记忆定式</strong></h2><p>是否需要记忆定式：</p>
+<ol>
+<li>定式具有一定价值，可减少相应场景中的计算量</li>
+<li>定式千千万，切忌贪多，记忆经典定式即可</li>
+<li>记忆定式注重理解，切忌死记硬背</li>
+</ol>
+<p><font color='red'>须注意</font>：在实际行棋中，对方可能不遵循定式。此时返璞归真，须完全依靠计算力</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://mp.weixin.qq.com/s/9SWUoYza6I2_efK8Q8DhYg">https://mp.weixin.qq.com/s/9SWUoYza6I2_efK8Q8DhYg</a></p>
+]]></content>
+      <categories>
+        <category>围棋</category>
+      </categories>
+  </entry>
+  <entry>
     <title>围棋基础</title>
     <url>/blog/2023/10/09/%E5%9B%B4%E6%A3%8B%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h2 id="一、围棋定义"><a href="#一、围棋定义" class="headerlink" title="一、围棋定义"></a><strong>一、围棋定义</strong></h2><p>围棋是黑白双方的对弈。</p>
@@ -19732,29 +19755,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 <br/>
 
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]《白小夕围棋》</p>
-]]></content>
-      <categories>
-        <category>围棋</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>围棋定式</title>
-    <url>/blog/2023/12/28/%E5%9B%B4%E6%A3%8B%E5%AE%9A%E5%BC%8F/</url>
-    <content><![CDATA[<h2 id="一、定式基本概念"><a href="#一、定式基本概念" class="headerlink" title="一、定式基本概念"></a><strong>一、定式基本概念</strong></h2><p>定式是根据经验总结出来的一种约定俗成的行棋方式：</p>
-<ol>
-<li>定式范围一般在角部，也存在少数范围很大（比如“涉及半个棋盘”）的大型定式</li>
-<li>黑白双方遵照定式行棋，在定式范围内，最终形成大体安定、得失差不多的基本棋形</li>
-</ol>
-<h2 id="二、记忆定式"><a href="#二、记忆定式" class="headerlink" title="二、记忆定式"></a><strong>二、记忆定式</strong></h2><p>是否需要记忆定式：</p>
-<ol>
-<li>定式具有一定价值，可减少相应场景中的计算量</li>
-<li>定式千千万，切忌贪多，记忆经典定式即可</li>
-<li>记忆定式注重理解，切忌死记硬背</li>
-</ol>
-<p><font color='red'>须注意</font>：在实际行棋中，对方可能不遵循定式。此时返璞归真，须完全依靠计算力</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://mp.weixin.qq.com/s/9SWUoYza6I2_efK8Q8DhYg">https://mp.weixin.qq.com/s/9SWUoYza6I2_efK8Q8DhYg</a></p>
 ]]></content>
       <categories>
         <category>围棋</category>
@@ -20451,64 +20451,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>并发Set</title>
-    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
-    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
-<ul>
-<li>其在Java容器中的划分位置见[1]</li>
-<li>根接口为Set，其内元素允许为<code>NULL</code></li>
-<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
-<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
-<li>接下来介绍其常见的两个子类：<ul>
-<li>CopyOnWriteArraySet</li>
-<li>SynchronizedSet</li>
-</ul>
-</li>
-</ul>
-<br/>
-
-<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
-<ul>
-<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
-<li>底层数据结构基于“数组”，还是“链表”</li>
-<li>实现操作的线程安全策略</li>
-<li>生成的迭代器性质[1]</li>
-</ul>
-<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于<code>CopyOnWriteArrayList</code></li>
-<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
-<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
-<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
-<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
-</ul>
-<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
-<p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于所传入的Set实例，有界性也依赖于它</li>
-<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
-<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
-<li><code>Object mutex</code>：传入的锁对象</li>
-</ul>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
     <title>并发Queue</title>
     <url>/blog/2021/08/11/%E5%B9%B6%E5%8F%91Queue/</url>
     <content><![CDATA[<p>本文介绍并发Queue，有几点说明：</p>
@@ -21111,6 +21053,103 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>并发Set</title>
+    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
+    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
+<ul>
+<li>其在Java容器中的划分位置见[1]</li>
+<li>根接口为Set，其内元素允许为<code>NULL</code></li>
+<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
+<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
+<li>接下来介绍其常见的两个子类：<ul>
+<li>CopyOnWriteArraySet</li>
+<li>SynchronizedSet</li>
+</ul>
+</li>
+</ul>
+<br/>
+
+<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
+<ul>
+<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
+<li>底层数据结构基于“数组”，还是“链表”</li>
+<li>实现操作的线程安全策略</li>
+<li>生成的迭代器性质[1]</li>
+</ul>
+<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于<code>CopyOnWriteArrayList</code></li>
+<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
+<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
+<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
+<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
+</ul>
+<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
+<p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于所传入的Set实例，有界性也依赖于它</li>
+<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
+<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
+<li><code>Object mutex</code>：传入的锁对象</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>开车</title>
+    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
+    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
+<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
+<li>踩住刹车</li>
+<li>插入钥匙，点火</li>
+<li>挂好档位（从停车档到行驶档）</li>
+<li>松掉刹车</li>
+</ol>
+<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
+<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
+<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
+<ul>
+<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
+<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
+</ul>
+<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
+<ol>
+<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
+<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
+</ol>
+<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
+<ol>
+<li>不要“松掉刹车”，就是“踩住刹车”</li>
+<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
+<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
+<li>不要“踩住刹车”，就是“松掉刹车”</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
+      </categories>
+  </entry>
+  <entry>
     <title>并发工具类</title>
     <url>/blog/2021/04/25/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/</url>
     <content><![CDATA[<h2 id="一、CountDownLatch"><a href="#一、CountDownLatch" class="headerlink" title="一、CountDownLatch"></a><strong>一、CountDownLatch</strong></h2><h3 id="1-1、语义和使用示例"><a href="#1-1、语义和使用示例" class="headerlink" title="1.1、语义和使用示例"></a><strong>1.1、语义和使用示例</strong></h3><p>对于CountDownLatch实例对象，构造时传入一个计数值<code>int count</code>：</p>
@@ -21278,45 +21317,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>开车</title>
-    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
-    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
-<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
-<li>踩住刹车</li>
-<li>插入钥匙，点火</li>
-<li>挂好档位（从停车档到行驶档）</li>
-<li>松掉刹车</li>
-</ol>
-<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
-<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
-<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
-<ul>
-<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
-<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
-</ul>
-<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
-<ol>
-<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
-<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
-</ol>
-<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
-<ol>
-<li>不要“松掉刹车”，就是“踩住刹车”</li>
-<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
-<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
-<li>不要“踩住刹车”，就是“松掉刹车”</li>
-</ol>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
