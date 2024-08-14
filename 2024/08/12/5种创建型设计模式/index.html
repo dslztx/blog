@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、Factory Method Pattern中文名：工厂方法设计模式。 1.1、痛点不使用new等直接方法创建目标类的实例对象，而是使用工厂方法创建，针对痛点：  便于使用 便于扩展  1.2、实现有两种实现形式：  实例工厂方法 静态工厂方法  1.2.1、实例工厂方法实现形式分“目标类只有1个”和“目标类不只1个，且具有共同父类”两种情况进行介绍。 1.2.1.1、目标类只有1个示例代码如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="5种创建型设计模式">
+<meta property="og:url" content="https://dslztx.github.io/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、Factory Method Pattern中文名：工厂方法设计模式。 1.1、痛点不使用new等直接方法创建目标类的实例对象，而是使用工厂方法创建，针对痛点：  便于使用 便于扩展  1.2、实现有两种实现形式：  实例工厂方法 静态工厂方法  1.2.1、实例工厂方法实现形式分“目标类只有1个”和“目标类不只1个，且具有共同父类”两种情况进行介绍。 1.2.1.1、目标类只有1个示例代码如">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-12T13:11:31.000Z">
+<meta property="article:modified_time" content="2024-08-14T15:32:33.355Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>5种创建型设计模式 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          5种创建型设计模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-12 21:11:31" itemprop="dateCreated datePublished" datetime="2024-08-12T21:11:31+08:00">2024-08-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-14 23:32:33" itemprop="dateModified" datetime="2024-08-14T23:32:33+08:00">2024-08-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/08/12/5种创建型设计模式/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、Factory-Method-Pattern"><a href="#一、Factory-Method-Pattern" class="headerlink" title="一、Factory Method Pattern"></a><strong>一、Factory Method Pattern</strong></h2><p>中文名：工厂方法设计模式。</p>
+<h3 id="1-1、痛点"><a href="#1-1、痛点" class="headerlink" title="1.1、痛点"></a><strong>1.1、痛点</strong></h3><p>不使用<code>new</code>等直接方法创建目标类的实例对象，而是使用工厂方法创建，针对痛点：</p>
+<ol>
+<li>便于使用</li>
+<li>便于扩展</li>
+</ol>
+<h3 id="1-2、实现"><a href="#1-2、实现" class="headerlink" title="1.2、实现"></a><strong>1.2、实现</strong></h3><p>有两种实现形式：</p>
+<ul>
+<li>实例工厂方法</li>
+<li>静态工厂方法</li>
+</ul>
+<h4 id="1-2-1、实例工厂方法实现形式"><a href="#1-2-1、实例工厂方法实现形式" class="headerlink" title="1.2.1、实例工厂方法实现形式"></a><strong>1.2.1、实例工厂方法实现形式</strong></h4><p>分“目标类只有1个”和“目标类不只1个，且具有共同父类”两种情况进行介绍。</p>
+<h5 id="1-2-1-1、目标类只有1个"><a href="#1-2-1-1、目标类只有1个" class="headerlink" title="1.2.1.1、目标类只有1个"></a><strong>1.2.1.1、目标类只有1个</strong></h5><p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserFactory</span> &#123;</span><br><span class="line"></span><br><span class="line">    User <span class="title function_">createUser</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = <span class="string">&quot;dslztx&quot;</span>;</span><br><span class="line">        user.age = <span class="number">35</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryMethodExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">UserFactory</span> <span class="variable">userFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserFactory</span>();</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userFactory.createUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-2-1-2、目标类不只1个，且具有共同父类"><a href="#1-2-1-2、目标类不只1个，且具有共同父类" class="headerlink" title="1.2.1.2、目标类不只1个，且具有共同父类"></a><strong>1.2.1.2、目标类不只1个，且具有共同父类</strong></h5><p><font color='red'>讲解设计模式的教材&#x2F;材料在介绍工厂方法设计模式时常基于该场景。</font></p>
+<p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 首先，我们需要定义一个图形接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后，我们实现两个具体的图形类，分别是 Circle（圆形）和 Rectangle（矩形）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Drawing a circle&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Drawing a rectangle&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接下来，我们创建一个抽象工厂类 ShapeFactory</span></span><br><span class="line"><span class="comment">// 它定义了一个抽象的工厂方法 createShape，子类将实现这个方法来创建具体的图形对象</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    <span class="keyword">abstract</span> Shape <span class="title function_">createShape</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后，我们创建两个具体的工厂类，分别是 CircleFactory 和 RectangleFactory</span></span><br><span class="line"><span class="comment">// 它们分别实现了 ShapeFactory 并重写了 createShape 方法来返回相应的图形对象</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CircleFactory</span> <span class="keyword">extends</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    Shape <span class="title function_">createShape</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Circle</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RectangleFactory</span> <span class="keyword">extends</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    Shape <span class="title function_">createShape</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Rectangle</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们可以使用这些工厂类来创建图形对象</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryMethodExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ShapeFactory</span> <span class="variable">circleFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CircleFactory</span>();</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">circle</span> <span class="operator">=</span> circleFactory.createShape();</span><br><span class="line">        circle.draw();</span><br><span class="line"></span><br><span class="line">        <span class="type">ShapeFactory</span> <span class="variable">rectangleFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RectangleFactory</span>();</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">rectangle</span> <span class="operator">=</span> rectangleFactory.createShape();</span><br><span class="line">        rectangle.draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-2、静态工厂方法实现形式"><a href="#1-2-2、静态工厂方法实现形式" class="headerlink" title="1.2.2、静态工厂方法实现形式"></a><strong>1.2.2、静态工厂方法实现形式</strong></h4><p>分“目标类只有1个”和“目标类不只1个，且具有共同父类”两种情况进行介绍。</p>
+<h5 id="1-2-2-1、目标类只有1个"><a href="#1-2-2-1、目标类只有1个" class="headerlink" title="1.2.2.1、目标类只有1个"></a><strong>1.2.2.1、目标类只有1个</strong></h5><p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserFactoryStatic</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> User <span class="title function_">createUser</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = <span class="string">&quot;dslztx&quot;</span>;</span><br><span class="line">        user.age = <span class="number">35</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryMethodExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> UserFactoryStatic.createUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-2-2-2、目标类不只1个，且具有共同父类"><a href="#1-2-2-2、目标类不只1个，且具有共同父类" class="headerlink" title="1.2.2.2、目标类不只1个，且具有共同父类"></a><strong>1.2.2.2、目标类不只1个，且具有共同父类</strong></h5><p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 首先，我们需要定义一个图形接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后，我们实现两个具体的图形类，分别是 Circle（圆形）和 Rectangle（矩形）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Drawing a circle&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Drawing a rectangle&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShapeFactoryStatic</span> &#123;</span><br><span class="line">    <span class="comment">// 利用类型参数来创建具体图形子类对象</span></span><br><span class="line">    <span class="keyword">static</span> &lt;T <span class="keyword">extends</span> <span class="title class_">Shape</span>&gt; T <span class="title function_">createShape</span><span class="params">(Class&lt;T&gt; tClass)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (tClass == Circle.class) &#123;</span><br><span class="line">            <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">Circle</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tClass == Rectangle.class) &#123;</span><br><span class="line">            <span class="keyword">return</span> (T) <span class="keyword">new</span> <span class="title class_">Rectangle</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryMethodExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">circle</span> <span class="operator">=</span> ShapeFactoryStatic.createShape(Circle.class);</span><br><span class="line">        circle.draw();</span><br><span class="line"></span><br><span class="line">        <span class="type">Shape</span> <span class="variable">rectangle</span> <span class="operator">=</span> ShapeFactoryStatic.createShape(Rectangle.class);</span><br><span class="line">        rectangle.draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-3、JDK中的例子"><a href="#1-3、JDK中的例子" class="headerlink" title="1.3、JDK中的例子"></a><strong>1.3、JDK中的例子</strong></h3><p>JDK中的例子：</p>
+<ol>
+<li><code>Integer.valueOf(int i)</code>：方便扩展成缓存<code>[-128,127]</code>值范围内的Integer对象进行复用</li>
+<li><code>Object.toString()</code></li>
+<li><code>Calendar getInstance()</code></li>
+</ol>
+<h2 id="二、Abstract-Factory-Pattern"><a href="#二、Abstract-Factory-Pattern" class="headerlink" title="二、Abstract Factory Pattern"></a><strong>二、Abstract Factory Pattern</strong></h2><p>中文名：抽象工厂设计模式。<br>另外一个名字为：Kit Pattern，工具箱设计模式。</p>
+<h3 id="2-1、痛点"><a href="#2-1、痛点" class="headerlink" title="2.1、痛点"></a><strong>2.1、痛点</strong></h3><p>实现需求：需要创建一系列相关或相互依赖的对象，这些对象属于一组相关的产品族，同时，系统需要保证这些产品族之间的一致性。</p>
+<h3 id="2-2、实现"><a href="#2-2、实现" class="headerlink" title="2.2、实现"></a><strong>2.2、实现</strong></h3><p>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法。</p>
+<p>注意与“工厂方法设计模式”实现的区分：对于<code>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法</code>，其属于“工厂方法设计模式”中的<code>实例工厂方法</code>实现形式；反之，“工厂方法设计模式”中还有<code>静态工厂方法</code>实现形式，也有非<code>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法</code>的<code>实例工厂方法</code>实现形式。<font color='red'>故“抽象工厂设计模式”属于“工厂方法设计模式”的子集</font>。</p>
+<p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象产品接口：操作系统</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">OperatingSystem</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品接口：应用程序</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">open</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象工厂接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">SoftwareFactory</span> &#123;</span><br><span class="line">    OperatingSystem <span class="title function_">createOperatingSystem</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    Application <span class="title function_">createApplication</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品：Windows操作系统</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WindowsOS</span> <span class="keyword">implements</span> <span class="title class_">OperatingSystem</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Running Windows OS&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品：Linux操作系统</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LinuxOS</span> <span class="keyword">implements</span> <span class="title class_">OperatingSystem</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Running Linux OS&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品：Word应用程序</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WordApplication</span> <span class="keyword">implements</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">open</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Opening Word Application&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品：Excel应用程序</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExcelApplication</span> <span class="keyword">implements</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">open</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Opening Excel Application&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂：Windows工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WindowsFactory</span> <span class="keyword">implements</span> <span class="title class_">SoftwareFactory</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> OperatingSystem <span class="title function_">createOperatingSystem</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">WindowsOS</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Application <span class="title function_">createApplication</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ExcelApplication</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂：Linux工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LinuxFactory</span> <span class="keyword">implements</span> <span class="title class_">SoftwareFactory</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> OperatingSystem <span class="title function_">createOperatingSystem</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">LinuxOS</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Application <span class="title function_">createApplication</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">WordApplication</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这个示例中，抽象工厂模式通过SoftwareFactory接口和其实现类来创建不同类型的操作系统和应用程序。</span></span><br><span class="line"><span class="comment">// 客户端代码可以根据需要选择不同的工厂实例来创建不同的产品组合。</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">SoftwareFactory</span> <span class="variable">windowsFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WindowsFactory</span>();</span><br><span class="line">        <span class="type">OperatingSystem</span> <span class="variable">windowsOS</span> <span class="operator">=</span> windowsFactory.createOperatingSystem();</span><br><span class="line">        <span class="type">Application</span> <span class="variable">windowsApp</span> <span class="operator">=</span> windowsFactory.createApplication();</span><br><span class="line"></span><br><span class="line">        windowsOS.run();</span><br><span class="line">        windowsApp.open();</span><br><span class="line"></span><br><span class="line">        <span class="type">SoftwareFactory</span> <span class="variable">linuxFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LinuxFactory</span>();</span><br><span class="line">        <span class="type">OperatingSystem</span> <span class="variable">linuxOS</span> <span class="operator">=</span> linuxFactory.createOperatingSystem();</span><br><span class="line">        <span class="type">Application</span> <span class="variable">linuxApp</span> <span class="operator">=</span> linuxFactory.createApplication();</span><br><span class="line"></span><br><span class="line">        linuxOS.run();</span><br><span class="line">        linuxApp.open();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3、JDK中的例子"><a href="#2-3、JDK中的例子" class="headerlink" title="2.3、JDK中的例子"></a><strong>2.3、JDK中的例子</strong></h3><h4 id="2-3-1、java-awt-Toolkit"><a href="#2-3-1、java-awt-Toolkit" class="headerlink" title="2.3.1、java.awt.Toolkit"></a><strong>2.3.1、<code>java.awt.Toolkit</code></strong></h4><p>工厂类父类<code>java.awt.Toolkit</code>和其中3个抽象工厂方法（实际不只3个，这里只罗列3个进行举例说明）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Toolkit</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> ButtonPeer <span class="title function_">createButton</span><span class="params">(Button target)</span> <span class="keyword">throws</span> HeadlessException;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> TextFieldPeer <span class="title function_">createTextField</span><span class="params">(TextField target)</span> <span class="keyword">throws</span> HeadlessException;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> LabelPeer <span class="title function_">createLabel</span><span class="params">(Label target)</span> <span class="keyword">throws</span> HeadlessException;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Button产品的父类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ButtonPeer</span> <span class="keyword">extends</span> <span class="title class_">ComponentPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>TextField产品的父类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">TextFieldPeer</span> <span class="keyword">extends</span> <span class="title class_">TextComponentPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Label产品的父类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">LabelPeer</span> <span class="keyword">extends</span> <span class="title class_">ComponentPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-1-1、Windows-JDK"><a href="#2-3-1-1、Windows-JDK" class="headerlink" title="2.3.1.1、Windows JDK"></a><strong>2.3.1.1、Windows JDK</strong></h5><p><code>java.awt.Toolkit</code>的具体子类<code>sun.awt.windows.WToolkit</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">WToolkit</span> <span class="keyword">extends</span> <span class="title class_">SunToolkit</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Button产品的具体子类<code>sun.awt.windows.WButtonPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">WButtonPeer</span> <span class="keyword">extends</span> <span class="title class_">WComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">ButtonPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>TextField产品的具体子类<code>sun.awt.windows.WTextFieldPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">WTextFieldPeer</span> <span class="keyword">extends</span> <span class="title class_">WTextComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">TextFieldPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Label产品的具体子类<code>sun.awt.windows.WLabelPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">WLabelPeer</span> <span class="keyword">extends</span> <span class="title class_">WComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">LabelPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-1-2、Linux-JDK"><a href="#2-3-1-2、Linux-JDK" class="headerlink" title="2.3.1.2、Linux JDK"></a><strong>2.3.1.2、Linux JDK</strong></h5><p><code>java.awt.Toolkit</code>的具体子类<code>sun.awt.X11.XToolkit</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">XToolkit</span> <span class="keyword">extends</span> <span class="title class_">UNIXToolkit</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Button产品的具体子类<code>sun.awt.X11.XButtonPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XButtonPeer</span> <span class="keyword">extends</span> <span class="title class_">XComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">ButtonPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>TextField产品的具体子类<code>sun.awt.X11.XTextFieldPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">XTextFieldPeer</span> <span class="keyword">extends</span> <span class="title class_">XComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">TextFieldPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Label产品的具体子类<code>sun.awt.X11.XLabelPeer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">XLabelPeer</span> <span class="keyword">extends</span> <span class="title class_">XComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">LabelPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Builder-Pattern"><a href="#三、Builder-Pattern" class="headerlink" title="三、Builder Pattern"></a><strong>三、Builder Pattern</strong></h2><p>中文名：构建者设计模式。</p>
+<h3 id="3-1、痛点"><a href="#3-1、痛点" class="headerlink" title="3.1、痛点"></a><strong>3.1、痛点</strong></h3><p>适用场景：对于一个实例对象，很难一次性构建完成或者一次性构建完成代价很大。它的本质是将构建实例对象所需的信息从“一次性输入”改为“非一次性输入”。</p>
+<h3 id="3-2、实现"><a href="#3-2、实现" class="headerlink" title="3.2、实现"></a><strong>3.2、实现</strong></h3><p>有两种实现形式：</p>
+<ul>
+<li>二角色——Client和Builder，实际经常使用的实现形式</li>
+<li>三角色——Client，Director和Builder，很多设计模式书籍建议的实现形式，引入Director的本意是将Client和Builder解耦，但也引入了额外的维护成本，故权衡下来，在引入构建者设计模式时经常使用“二角色”实现形式</li>
+</ul>
+<p><strong>备注</strong>：多见“Builder实例的构建方法返回Builder实例本身”以进行链式调用</p>
+<h4 id="3-2-1、“二角色”实现形式"><a href="#3-2-1、“二角色”实现形式" class="headerlink" title="3.2.1、“二角色”实现形式"></a><strong>3.2.1、“二角色”实现形式</strong></h4><p>包含Client和Builder两种角色，Builder角色负责构建实例对象，Client角色（即业务代码）直接与Builder角色进行交互。</p>
+<p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">House</span> &#123;</span><br><span class="line"></span><br><span class="line">    String foundation;</span><br><span class="line">    String structure;</span><br><span class="line">    String roof;</span><br><span class="line">    String interior;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HouseBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">House</span> <span class="variable">house</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HouseBuilder</span><span class="params">()</span> &#123;</span><br><span class="line">        house = <span class="keyword">new</span> <span class="title class_">House</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildFoundation</span><span class="params">(String foundation)</span> &#123;</span><br><span class="line">        house.foundation = foundation;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildStructure</span><span class="params">(String structure)</span> &#123;</span><br><span class="line">        house.structure = structure;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildRoof</span><span class="params">(String roof)</span> &#123;</span><br><span class="line">        house.roof = roof;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildInterior</span><span class="params">(String interior)</span> &#123;</span><br><span class="line">        house.interior = interior;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> House <span class="title function_">getHouse</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> house;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">HouseBuilder</span> <span class="variable">houseBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HouseBuilder</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得foundation变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">foundation</span> <span class="operator">=</span> <span class="string">&quot;FakeFoundation&quot;</span>;</span><br><span class="line">        houseBuilder.buildFoundation(foundation);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得structure变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">structure</span> <span class="operator">=</span> <span class="string">&quot;FakeStructure&quot;</span>;</span><br><span class="line">        houseBuilder.buildStructure(structure);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得roof变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">roof</span> <span class="operator">=</span> <span class="string">&quot;FakeRoof&quot;</span>;</span><br><span class="line">        houseBuilder.buildRoof(roof);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得interior变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">interior</span> <span class="operator">=</span> <span class="string">&quot;FakeInterior&quot;</span>;</span><br><span class="line">        houseBuilder.buildInterior(interior);</span><br><span class="line"></span><br><span class="line">        System.out.println(houseBuilder.getHouse());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 例子所描述的场景中，很难一次性获得构建House实例对象所需的信息，构建者设计模式很好地解决这个问题</span></span><br><span class="line">        <span class="comment">// Client直接与Builder进行交互</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-2、“三角色”实现形式"><a href="#3-2-2、“三角色”实现形式" class="headerlink" title="3.2.2、“三角色”实现形式"></a><strong>3.2.2、“三角色”实现形式</strong></h4><p>包含Client、Director和Builder三种角色，Builder角色负责构建实例对象，Client角色（即业务代码）通过Director角色与Builder角色进行交互。</p>
+<p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">House</span> &#123;</span><br><span class="line"></span><br><span class="line">    String foundation;</span><br><span class="line">    String structure;</span><br><span class="line">    String roof;</span><br><span class="line">    String interior;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HouseBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">House</span> <span class="variable">house</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HouseBuilder</span><span class="params">()</span> &#123;</span><br><span class="line">        house = <span class="keyword">new</span> <span class="title class_">House</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildFoundation</span><span class="params">(String foundation)</span> &#123;</span><br><span class="line">        house.foundation = foundation;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildStructure</span><span class="params">(String structure)</span> &#123;</span><br><span class="line">        house.structure = structure;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildRoof</span><span class="params">(String roof)</span> &#123;</span><br><span class="line">        house.roof = roof;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildInterior</span><span class="params">(String interior)</span> &#123;</span><br><span class="line">        house.interior = interior;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> House <span class="title function_">getHouse</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> house;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Director</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> HouseBuilder houseBuilder;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Director</span><span class="params">(HouseBuilder builder)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.houseBuilder = builder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> House <span class="title function_">constructHouse</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得foundation变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">foundation</span> <span class="operator">=</span> <span class="string">&quot;FakeFoundation&quot;</span>;</span><br><span class="line">        houseBuilder.buildFoundation(foundation);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得structure变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">structure</span> <span class="operator">=</span> <span class="string">&quot;FakeStructure&quot;</span>;</span><br><span class="line">        houseBuilder.buildStructure(structure);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得roof变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">roof</span> <span class="operator">=</span> <span class="string">&quot;FakeRoof&quot;</span>;</span><br><span class="line">        houseBuilder.buildRoof(roof);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刚开始获取不到，经过很复杂的计算才获得interior变量值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">interior</span> <span class="operator">=</span> <span class="string">&quot;FakeInterior&quot;</span>;</span><br><span class="line">        houseBuilder.buildInterior(interior);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> houseBuilder.getHouse();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">HouseBuilder</span> <span class="variable">concreteBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HouseBuilder</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">Director</span> <span class="variable">director</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Director</span>(concreteBuilder);</span><br><span class="line"></span><br><span class="line">        <span class="type">House</span> <span class="variable">concreteHouse</span> <span class="operator">=</span> director.constructHouse();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Concrete House: &quot;</span> + concreteHouse);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 例子所描述的场景中，很难一次性获得构建House实例对象所需的信息，构建者设计模式很好地解决这个问题</span></span><br><span class="line">        <span class="comment">// Client通过Director与Builder进行交互</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3、JDK中的例子"><a href="#3-3、JDK中的例子" class="headerlink" title="3.3、JDK中的例子"></a><strong>3.3、JDK中的例子</strong></h3><h4 id="3-3-1、StringBuilder"><a href="#3-3-1、StringBuilder" class="headerlink" title="3.3.1、StringBuilder"></a><strong>3.3.1、StringBuilder</strong></h4><p>构建一个String实例对象不能一次性输入所有信息，须多次输入，适合使用StringBuilder。</p>
+<p>采用“二角色”实现形式的示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Subject&quot;</span>);</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Content&quot;</span>);</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Footer&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(sb.toString());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="四、Prototype-Pattern"><a href="#四、Prototype-Pattern" class="headerlink" title="四、Prototype Pattern"></a><strong>四、Prototype Pattern</strong></h2><p>中文名：原型设计模式。</p>
+<h3 id="4-1、痛点"><a href="#4-1、痛点" class="headerlink" title="4.1、痛点"></a><strong>4.1、痛点</strong></h3><p>实现业务需求：根据已存在实例对象克隆“具有一模一样值”的实例对象。</p>
+<p>克隆具有克隆深浅的属性，关于克隆深浅有两点说明：</p>
+<ol>
+<li>越浅的克隆，克隆对象与原对象共享内存越多，两者互相独立性越差；越深的克隆，克隆对象与原对象共享内存越少，两者互相独立性越好</li>
+<li><font color='red'>经常简单将克隆分为“浅度克隆”和“深度克隆”，其实是错误的，因为“浅度克隆”和“深度克隆”之间没有明确的界限</font></li>
+</ol>
+<p>在以下示例代码中，呈现了对于<code>shallowClone -&gt; deepClone -&gt; deepMoreClone</code>，克隆越来越深（佐证了难以简单划分“浅度克隆”和“深度克隆”），克隆对象与原对象共享内存越来越少，两者互相独立性越来越好。</p>
+<p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line"></span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">shallowClone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = name;</span><br><span class="line">        user.age = age;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserRepo</span> &#123;</span><br><span class="line"></span><br><span class="line">    List&lt;User&gt; userList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;User&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> UserRepo <span class="title function_">shallowClone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">UserRepo</span> <span class="variable">userRepo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserRepo</span>();</span><br><span class="line">        userRepo.userList = userList;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userRepo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> UserRepo <span class="title function_">deepClone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">UserRepo</span> <span class="variable">userRepo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserRepo</span>();</span><br><span class="line">        userRepo.userList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(userList);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userRepo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> UserRepo <span class="title function_">deepMoreClone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">UserRepo</span> <span class="variable">userRepo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserRepo</span>();</span><br><span class="line"></span><br><span class="line">        List&lt;User&gt; tmpUserList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (User user : userList) &#123;</span><br><span class="line">            tmpUserList.add(user.shallowClone());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        userRepo.userList = tmpUserList;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userRepo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2、实现"><a href="#4-2、实现" class="headerlink" title="4.2、实现"></a><strong>4.2、实现</strong></h3><p>有3种实现形式</p>
+<ul>
+<li>自实现复制方法</li>
+<li>JDK的<code>Object.clone()</code>原生机制</li>
+<li>第三方复制框架</li>
+</ul>
+<h4 id="4-2-1、自实现复制方法"><a href="#4-2-1、自实现复制方法" class="headerlink" title="4.2.1、自实现复制方法"></a><strong>4.2.1、自实现复制方法</strong></h4><p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = <span class="string">&quot;dslztx&quot;</span>;</span><br><span class="line">        user.age = <span class="number">35</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">copiedUser</span> <span class="operator">=</span> copy(user);</span><br><span class="line">        System.out.println(copiedUser.name);</span><br><span class="line">        System.out.println(copiedUser.age);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> User <span class="title function_">copy</span><span class="params">(User a)</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = a.name;</span><br><span class="line">        user.age = a.age;</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-2、JDK的Object-clone-原生机制"><a href="#4-2-2、JDK的Object-clone-原生机制" class="headerlink" title="4.2.2、JDK的Object.clone()原生机制"></a><strong>4.2.2、JDK的<code>Object.clone()</code>原生机制</strong></h4><p>示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="keyword">return</span> (User) <span class="built_in">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.name = <span class="string">&quot;dslztx&quot;</span>;</span><br><span class="line">        user.age = <span class="number">35</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">copiedUser</span> <span class="operator">=</span> user.clone();</span><br><span class="line">        System.out.println(copiedUser.name);</span><br><span class="line">        System.out.println(copiedUser.age);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-2-3、第三方复制框架"><a href="#4-2-3、第三方复制框架" class="headerlink" title="4.2.3、第三方复制框架"></a><strong>4.2.3、第三方复制框架</strong></h4><p>使用第三方复制框架，比如“Apache commons-beanutils包中的BeanUtils.copyProperties工具方法”。</p>
+<h3 id="4-3、JDK中的例子"><a href="#4-3、JDK中的例子" class="headerlink" title="4.3、JDK中的例子"></a><strong>4.3、JDK中的例子</strong></h3><h4 id="4-3-1、ArrayList的clone-方法"><a href="#4-3-1、ArrayList的clone-方法" class="headerlink" title="4.3.1、ArrayList的clone()方法"></a><strong>4.3.1、ArrayList的<code>clone()</code>方法</strong></h4><p>重写覆盖<code>Object.clone()</code>方法实现ArrayList自己的<code>clone()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ArrayList&lt;?&gt; v = (ArrayList&lt;?&gt;) <span class="built_in">super</span>.clone();</span><br><span class="line">        v.elementData = Arrays.copyOf(elementData, size);</span><br><span class="line">        v.modCount = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">        <span class="comment">// this shouldn&#x27;t happen, since we are Cloneable</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InternalError</span>(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、Singleton"><a href="#五、Singleton" class="headerlink" title="五、Singleton"></a><strong>五、Singleton</strong></h2><p>中文名：单例设计模式。</p>
+<h3 id="5-1、痛点"><a href="#5-1、痛点" class="headerlink" title="5.1、痛点"></a><strong>5.1、痛点</strong></h3><p>实现业务需求：全局具有唯一实例。</p>
+<h3 id="5-2、实现"><a href="#5-2、实现" class="headerlink" title="5.2、实现"></a><strong>5.2、实现</strong></h3><p>单例有多种实现形式，参见<a href="/blog/2020/07/26/%E5%8D%95%E4%BE%8B/" title="单例">《单例》</a>。</p>
+<h3 id="5-3、JDK中的例子"><a href="#5-3、JDK中的例子" class="headerlink" title="5.3、JDK中的例子"></a><strong>5.3、JDK中的例子</strong></h3><h4 id="5-3-1、java-lang-Runtime实例对象"><a href="#5-3-1、java-lang-Runtime实例对象" class="headerlink" title="5.3.1、java.lang.Runtime实例对象"></a><strong>5.3.1、<code>java.lang.Runtime</code>实例对象</strong></h4><p><code>java.lang.Runtime</code>实例对象是单例的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Runtime</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Runtime</span> <span class="variable">currentRuntime</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runtime</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Runtime <span class="title function_">getRuntime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> currentRuntime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/H16g_yZwRMIKagPb8oNIYQ">https://mp.weixin.qq.com/s/H16g_yZwRMIKagPb8oNIYQ</a><br>[2]<a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv18266097">https://www.bilibili.com/read/cv18266097</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="5种创建型设计模式">https://dslztx.github.io/blog/2024/08/12/5种创建型设计模式/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/05/19/IPsec%E5%8D%8F%E8%AE%AE%E5%A5%97%E8%A3%85%E4%B9%8BAH%E5%92%8CESP%E5%8D%8F%E8%AE%AE/" rel="prev" title="IPsec协议套装之AH和ESP协议">
+      <i class="fa fa-chevron-left"></i> IPsec协议套装之AH和ESP协议
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Factory-Method-Pattern"><span class="nav-text">一、Factory Method Pattern</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81%E7%97%9B%E7%82%B9"><span class="nav-text">1.1、痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">1.2、实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1%E3%80%81%E5%AE%9E%E4%BE%8B%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%BD%A2%E5%BC%8F"><span class="nav-text">1.2.1、实例工厂方法实现形式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-1-1%E3%80%81%E7%9B%AE%E6%A0%87%E7%B1%BB%E5%8F%AA%E6%9C%891%E4%B8%AA"><span class="nav-text">1.2.1.1、目标类只有1个</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-1-2%E3%80%81%E7%9B%AE%E6%A0%87%E7%B1%BB%E4%B8%8D%E5%8F%AA1%E4%B8%AA%EF%BC%8C%E4%B8%94%E5%85%B7%E6%9C%89%E5%85%B1%E5%90%8C%E7%88%B6%E7%B1%BB"><span class="nav-text">1.2.1.2、目标类不只1个，且具有共同父类</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-2%E3%80%81%E9%9D%99%E6%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%BD%A2%E5%BC%8F"><span class="nav-text">1.2.2、静态工厂方法实现形式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-2-1%E3%80%81%E7%9B%AE%E6%A0%87%E7%B1%BB%E5%8F%AA%E6%9C%891%E4%B8%AA"><span class="nav-text">1.2.2.1、目标类只有1个</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-2-2%E3%80%81%E7%9B%AE%E6%A0%87%E7%B1%BB%E4%B8%8D%E5%8F%AA1%E4%B8%AA%EF%BC%8C%E4%B8%94%E5%85%B7%E6%9C%89%E5%85%B1%E5%90%8C%E7%88%B6%E7%B1%BB"><span class="nav-text">1.2.2.2、目标类不只1个，且具有共同父类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81JDK%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-text">1.3、JDK中的例子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Abstract-Factory-Pattern"><span class="nav-text">二、Abstract Factory Pattern</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81%E7%97%9B%E7%82%B9"><span class="nav-text">2.1、痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">2.2、实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%E3%80%81JDK%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-text">2.3、JDK中的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-1%E3%80%81java-awt-Toolkit"><span class="nav-text">2.3.1、java.awt.Toolkit</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-1-1%E3%80%81Windows-JDK"><span class="nav-text">2.3.1.1、Windows JDK</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-1-2%E3%80%81Linux-JDK"><span class="nav-text">2.3.1.2、Linux JDK</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Builder-Pattern"><span class="nav-text">三、Builder Pattern</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E3%80%81%E7%97%9B%E7%82%B9"><span class="nav-text">3.1、痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">3.2、实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-1%E3%80%81%E2%80%9C%E4%BA%8C%E8%A7%92%E8%89%B2%E2%80%9D%E5%AE%9E%E7%8E%B0%E5%BD%A2%E5%BC%8F"><span class="nav-text">3.2.1、“二角色”实现形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-2%E3%80%81%E2%80%9C%E4%B8%89%E8%A7%92%E8%89%B2%E2%80%9D%E5%AE%9E%E7%8E%B0%E5%BD%A2%E5%BC%8F"><span class="nav-text">3.2.2、“三角色”实现形式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%E3%80%81JDK%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-text">3.3、JDK中的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-1%E3%80%81StringBuilder"><span class="nav-text">3.3.1、StringBuilder</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Prototype-Pattern"><span class="nav-text">四、Prototype Pattern</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%E3%80%81%E7%97%9B%E7%82%B9"><span class="nav-text">4.1、痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">4.2、实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-1%E3%80%81%E8%87%AA%E5%AE%9E%E7%8E%B0%E5%A4%8D%E5%88%B6%E6%96%B9%E6%B3%95"><span class="nav-text">4.2.1、自实现复制方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-2%E3%80%81JDK%E7%9A%84Object-clone-%E5%8E%9F%E7%94%9F%E6%9C%BA%E5%88%B6"><span class="nav-text">4.2.2、JDK的Object.clone()原生机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-3%E3%80%81%E7%AC%AC%E4%B8%89%E6%96%B9%E5%A4%8D%E5%88%B6%E6%A1%86%E6%9E%B6"><span class="nav-text">4.2.3、第三方复制框架</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%E3%80%81JDK%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-text">4.3、JDK中的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-1%E3%80%81ArrayList%E7%9A%84clone-%E6%96%B9%E6%B3%95"><span class="nav-text">4.3.1、ArrayList的clone()方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Singleton"><span class="nav-text">五、Singleton</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1%E3%80%81%E7%97%9B%E7%82%B9"><span class="nav-text">5.1、痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">5.2、实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3%E3%80%81JDK%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-text">5.3、JDK中的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-1%E3%80%81java-lang-Runtime%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1"><span class="nav-text">5.3.1、java.lang.Runtime实例对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">323</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/";
+    this.page.identifier = "2024/08/12/5种创建型设计模式/";
+    this.page.title = "5种创建型设计模式";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
