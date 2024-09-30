@@ -533,7 +533,8 @@
     <title>5种创建型设计模式</title>
     <url>/blog/2024/08/12/5%E7%A7%8D%E5%88%9B%E5%BB%BA%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<p>创建型设计模式：关注对象的实例化过程。</p>
-<h2 id="一、Factory-Method-Pattern"><a href="#一、Factory-Method-Pattern" class="headerlink" title="一、Factory Method Pattern"></a><strong>一、Factory Method Pattern</strong></h2><p>中文名：工厂方法设计模式。</p>
+<p>创建型设计模式共5种：工厂方法设计模式，抽象工厂设计模式，构建者设计模式，原型设计模式和单例设计模式。</p>
+<h2 id="一、工厂方法设计模式"><a href="#一、工厂方法设计模式" class="headerlink" title="一、工厂方法设计模式"></a><strong>一、工厂方法设计模式</strong></h2><p>英文名：Factory Method Pattern。</p>
 <h3 id="1-1、痛点"><a href="#1-1、痛点" class="headerlink" title="1.1、痛点"></a><strong>1.1、痛点</strong></h3><p>不使用<code>new</code>等直接方法创建目标类的实例对象，而是使用工厂方法创建，针对痛点：</p>
 <ol>
 <li>便于使用</li>
@@ -567,7 +568,8 @@
 <li><code>Object.toString()</code></li>
 <li><code>Calendar getInstance()</code></li>
 </ol>
-<h2 id="二、Abstract-Factory-Pattern"><a href="#二、Abstract-Factory-Pattern" class="headerlink" title="二、Abstract Factory Pattern"></a><strong>二、Abstract Factory Pattern</strong></h2><p>中文名：抽象工厂设计模式。<br>另外一个名字为：Kit Pattern，工具箱设计模式。</p>
+<h2 id="二、抽象工厂设计模式"><a href="#二、抽象工厂设计模式" class="headerlink" title="二、抽象工厂设计模式"></a><strong>二、抽象工厂设计模式</strong></h2><p>英文名：Abstract Factory Pattern。</p>
+<p>另外一个名字为：Kit Pattern，工具箱设计模式。</p>
 <h3 id="2-1、痛点"><a href="#2-1、痛点" class="headerlink" title="2.1、痛点"></a><strong>2.1、痛点</strong></h3><p>实现需求：需要创建一系列相关或相互依赖的对象，这些对象属于一组相关的产品族，同时，系统需要保证这些产品族之间的一致性。</p>
 <h3 id="2-2、实现"><a href="#2-2、实现" class="headerlink" title="2.2、实现"></a><strong>2.2、实现</strong></h3><p>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法。</p>
 <p>注意与“工厂方法设计模式”实现的区分：对于<code>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法</code>，其属于“工厂方法设计模式”中的<code>实例工厂方法</code>实现形式；反之，“工厂方法设计模式”中还有<code>静态工厂方法</code>实现形式，也有非<code>实现必存在工厂类父类，且该工厂类父类中必存在抽象工厂方法</code>的<code>实例工厂方法</code>实现形式。<font color='red'>故“抽象工厂设计模式”属于“工厂方法设计模式”的子集</font>。</p>
@@ -610,7 +612,7 @@
 <p>Label产品的具体子类<code>sun.awt.X11.XLabelPeer</code>：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">XLabelPeer</span> <span class="keyword">extends</span> <span class="title class_">XComponentPeer</span> <span class="keyword">implements</span> <span class="title class_">LabelPeer</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="三、Builder-Pattern"><a href="#三、Builder-Pattern" class="headerlink" title="三、Builder Pattern"></a><strong>三、Builder Pattern</strong></h2><p>中文名：构建者设计模式。</p>
+<h2 id="三、构建者设计模式"><a href="#三、构建者设计模式" class="headerlink" title="三、构建者设计模式"></a><strong>三、构建者设计模式</strong></h2><p>英文名：Builder Pattern。</p>
 <h3 id="3-1、痛点"><a href="#3-1、痛点" class="headerlink" title="3.1、痛点"></a><strong>3.1、痛点</strong></h3><p>适用场景：对于一个实例对象，很难一次性构建完成或者一次性构建完成代价很大。它的本质是将构建实例对象所需的信息从“一次性输入”改为“非一次性输入”。</p>
 <h3 id="3-2、实现"><a href="#3-2、实现" class="headerlink" title="3.2、实现"></a><strong>3.2、实现</strong></h3><p>有两种实现形式：</p>
 <ul>
@@ -631,7 +633,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Subject&quot;</span>);</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Content&quot;</span>);</span><br><span class="line"></span><br><span class="line">        sb.append(<span class="string">&quot;Footer&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(sb.toString());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="四、Prototype-Pattern"><a href="#四、Prototype-Pattern" class="headerlink" title="四、Prototype Pattern"></a><strong>四、Prototype Pattern</strong></h2><p>中文名：原型设计模式。</p>
+<h2 id="四、原型设计模式"><a href="#四、原型设计模式" class="headerlink" title="四、原型设计模式"></a><strong>四、原型设计模式</strong></h2><p>英文名：Prototype Pattern。</p>
 <h3 id="4-1、痛点"><a href="#4-1、痛点" class="headerlink" title="4.1、痛点"></a><strong>4.1、痛点</strong></h3><p>实现业务需求：根据已存在实例对象克隆“具有一模一样值”的实例对象。</p>
 <p>克隆具有克隆深浅的属性，关于克隆深浅有两点说明：</p>
 <ol>
@@ -656,7 +658,7 @@
 <h3 id="4-3、JDK中的例子"><a href="#4-3、JDK中的例子" class="headerlink" title="4.3、JDK中的例子"></a><strong>4.3、JDK中的例子</strong></h3><h4 id="4-3-1、ArrayList的clone-方法"><a href="#4-3-1、ArrayList的clone-方法" class="headerlink" title="4.3.1、ArrayList的clone()方法"></a><strong>4.3.1、ArrayList的<code>clone()</code>方法</strong></h4><p>重写覆盖<code>Object.clone()</code>方法实现ArrayList自己的<code>clone()</code>方法：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ArrayList&lt;?&gt; v = (ArrayList&lt;?&gt;) <span class="built_in">super</span>.clone();</span><br><span class="line">        v.elementData = Arrays.copyOf(elementData, size);</span><br><span class="line">        v.modCount = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">        <span class="comment">// this shouldn&#x27;t happen, since we are Cloneable</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InternalError</span>(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="五、Singleton"><a href="#五、Singleton" class="headerlink" title="五、Singleton"></a><strong>五、Singleton</strong></h2><p>中文名：单例设计模式。</p>
+<h2 id="五、单例设计模式"><a href="#五、单例设计模式" class="headerlink" title="五、单例设计模式"></a><strong>五、单例设计模式</strong></h2><p>英文名：Singleton。</p>
 <h3 id="5-1、痛点"><a href="#5-1、痛点" class="headerlink" title="5.1、痛点"></a><strong>5.1、痛点</strong></h3><p>实现业务需求：全局具有唯一实例。</p>
 <h3 id="5-2、实现"><a href="#5-2、实现" class="headerlink" title="5.2、实现"></a><strong>5.2、实现</strong></h3><p>单例有多种实现形式，参见<a href="/blog/2020/07/26/%E5%8D%95%E4%BE%8B/" title="单例">《单例》</a>。</p>
 <h3 id="5-3、JDK中的例子"><a href="#5-3、JDK中的例子" class="headerlink" title="5.3、JDK中的例子"></a><strong>5.3、JDK中的例子</strong></h3><h4 id="5-3-1、java-lang-Runtime实例对象"><a href="#5-3-1、java-lang-Runtime实例对象" class="headerlink" title="5.3.1、java.lang.Runtime实例对象"></a><strong>5.3.1、<code>java.lang.Runtime</code>实例对象</strong></h4><p><code>java.lang.Runtime</code>实例对象是单例的。</p>
@@ -691,6 +693,107 @@
       <tags>
         <tag>Linux命令</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>7种结构型设计模式</title>
+    <url>/blog/2024/08/22/7%E7%A7%8D%E7%BB%93%E6%9E%84%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p>结构型设计模式：关注对象之间的组合方式，以达到构建更大结构的目标，践行“组合优于继承”理念。</p>
+<p>结构型设计模式共7种：桥接设计模式，合成设计模式，门面设计模式，享元设计模式，适配器设计模式，装饰器设计模式，代理设计模式。</p>
+<br/>
+
+<p>几种易混淆设计模式之间的区分：</p>
+<ul>
+<li><code>装饰器设计模式</code> VS <code>代理设计模式</code>：前者是后者的子集</li>
+</ul>
+<h2 id="一、桥接设计模式"><a href="#一、桥接设计模式" class="headerlink" title="一、桥接设计模式"></a><strong>一、桥接设计模式</strong></h2><p>英文名：Bridge Pattern。</p>
+<h3 id="1-1、痛点"><a href="#1-1、痛点" class="headerlink" title="1.1、痛点"></a><strong>1.1、痛点</strong></h3><p>业务需求有两个关联的变化维度（大于两个变化维度的处理类似），两个变化维度分别有M和N种可能：</p>
+<ol>
+<li>以继承方式实现，需要M*N个具体子类</li>
+<li>践行“组合优于继承”理念，使用组合方式实现，只需要M+N个具体子类</li>
+</ol>
+<p>以代码的形式进行描述即：有两个抽象父类A和B，A中具有一个B的引用，A有M个具体子类，B有N个具体子类。</p>
+<h3 id="1-2、实现"><a href="#1-2、实现" class="headerlink" title="1.2、实现"></a><strong>1.2、实现</strong></h3><p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 抽象父类B：颜色接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Color</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">printColor</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 颜色接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Red</span> <span class="keyword">implements</span> <span class="title class_">Color</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printColor</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;print red color&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 颜色接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Yellow</span> <span class="keyword">implements</span> <span class="title class_">Color</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printColor</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;print yellow color&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 颜色接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Blue</span> <span class="keyword">implements</span> <span class="title class_">Color</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">printColor</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;print blue color&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象父类A：形状接口，持有对颜色接口的引用</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="comment">// 一个对颜色接口的引用</span></span><br><span class="line">    <span class="keyword">protected</span> Color color;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Shape</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.color = color;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 形状接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Circle</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(color);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.print(<span class="string">&quot;Drawing a circle. &quot;</span>);</span><br><span class="line">        color.printColor();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 形状接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Square</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Square</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(color);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.print(<span class="string">&quot;Drawing a square. &quot;</span>);</span><br><span class="line">        color.printColor();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 形状接口的具体子类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Rectangle</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(color);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.print(<span class="string">&quot;Drawing a rectangle. &quot;</span>);</span><br><span class="line">        color.printColor();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这个示例中，颜色变化维度有3种可能，形状变化维度有3种可能：</span></span><br><span class="line"><span class="comment">// 1)如果采用继承实现，需要有3*3=9个具体子类</span></span><br><span class="line"><span class="comment">// 2)这里采用桥接设计模式实现，只需要3+3=6个具体子类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BridgePatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Color</span> <span class="variable">redColor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Red</span>();</span><br><span class="line">        <span class="type">Color</span> <span class="variable">yellowColor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yellow</span>();</span><br><span class="line">        <span class="type">Color</span> <span class="variable">blueColor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Blue</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">Shape</span> <span class="variable">redCircle</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Circle</span>(redColor);</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">yellowRectangle</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Rectangle</span>(yellowColor);</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">blueSquare</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Square</span>(blueColor);</span><br><span class="line"></span><br><span class="line">        redCircle.draw();</span><br><span class="line">        yellowRectangle.draw();</span><br><span class="line">        blueSquare.draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3、JDK中的例子"><a href="#1-3、JDK中的例子" class="headerlink" title="1.3、JDK中的例子"></a><strong>1.3、JDK中的例子</strong></h3><ul>
+<li>抽象父类<code>java.util.logging.Handler</code>和<code>java.util.logging.Formatter</code>，在<code>java.util.logging.Handler</code>中持有一个<code>java.util.logging.Formatter</code>引用</li>
+</ul>
+<h2 id="二、合成设计模式"><a href="#二、合成设计模式" class="headerlink" title="二、合成设计模式"></a><strong>二、合成设计模式</strong></h2><p>英文名：Composite Pattern。</p>
+<p><font color='red'>很多时候也被称为“组合设计模式”，但易与“Composition over Inheritance &#x2F; Composite Reuse Principle”的中文名“组合优于继承”产生混淆，故建议将前者中的“Composite”译为“合成”，而将后者中的“Composition &#x2F; Composite”译为“组合”。</font></p>
+<h3 id="2-1、痛点"><a href="#2-1、痛点" class="headerlink" title="2.1、痛点"></a><strong>2.1、痛点</strong></h3><p>有一组部件，部件之间具有<code>整体-部分</code>的关系，希望以一致的方式处理<code>部分部件</code>和<code>整体部件</code>，而不需要进行特殊处理。<font color='red'>在该场景中，部分部件和整体部件的共同抽象父类被称为“组件接口”，部分部件被称为“叶子部件”，整体部件被称为“容器部件”</font>。</p>
+<h3 id="2-2、实现"><a href="#2-2、实现" class="headerlink" title="2.2、实现"></a><strong>2.2、实现</strong></h3><p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 组件接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">FileSystemComponent</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">displayInfo</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 叶子部件</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">File</span> <span class="keyword">implements</span> <span class="title class_">FileSystemComponent</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">File</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">displayInfo</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;File: &quot;</span> + name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 容器部件</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Directory</span> <span class="keyword">implements</span> <span class="title class_">FileSystemComponent</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> List&lt;FileSystemComponent&gt; components;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Directory</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        components = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addComponent</span><span class="params">(FileSystemComponent component)</span> &#123;</span><br><span class="line">        components.add(component);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">displayInfo</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Directory: &quot;</span> + name);</span><br><span class="line">        <span class="keyword">for</span> (FileSystemComponent component : components) &#123;</span><br><span class="line">            component.displayInfo();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CompositePatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建文件和文件夹</span></span><br><span class="line">        <span class="type">File</span> <span class="variable">file1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;file1.txt&quot;</span>);</span><br><span class="line">        <span class="type">File</span> <span class="variable">file2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;file2.txt&quot;</span>);</span><br><span class="line">        <span class="type">Directory</span> <span class="variable">subDirectory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Directory</span>(<span class="string">&quot;Subdirectory&quot;</span>);</span><br><span class="line">        subDirectory.addComponent(file1);</span><br><span class="line">        subDirectory.addComponent(file2);</span><br><span class="line"></span><br><span class="line">        <span class="type">Directory</span> <span class="variable">rootDirectory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Directory</span>(<span class="string">&quot;Root&quot;</span>);</span><br><span class="line">        rootDirectory.addComponent(subDirectory);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 展示文件系统结构</span></span><br><span class="line">        rootDirectory.displayInfo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3、JDK中的例子"><a href="#2-3、JDK中的例子" class="headerlink" title="2.3、JDK中的例子"></a><strong>2.3、JDK中的例子</strong></h3><ul>
+<li><code>java.awt.Component</code>是合成设计模式中的组件接口，<code>java.awt.Container</code>是相应的容器部件，<code>java.awt.Checkbox</code>、<code>java.awt.Label</code>和<code>java.awt.Button</code>等是相应的叶子部件</li>
+</ul>
+<h2 id="三、门面设计模式"><a href="#三、门面设计模式" class="headerlink" title="三、门面设计模式"></a><strong>三、门面设计模式</strong></h2><p>英文名：Facade Pattern。</p>
+<p>又常被称为“外观设计模式”。</p>
+<h3 id="3-1、痛点"><a href="#3-1、痛点" class="headerlink" title="3.1、痛点"></a><strong>3.1、痛点</strong></h3><p>提供一个简单易用具有一致性的接口，屏蔽实际实现的复杂性和多样性。<font color='red'>在该场景中，有3个角色——<code>Client（业务代码）</code>，<code>Facade（门面接口）</code>和<code>具体实现Facade的逻辑</code>，3个角色的交互是单向的：<code>Client -&gt; Facade -&gt; 具体实现Facade的逻辑</code></font>。</p>
+<h3 id="3-2、实现"><a href="#3-2、实现" class="headerlink" title="3.2、实现"></a><strong>3.2、实现</strong></h3><h4 id="3-2-1、示例代码1-1"><a href="#3-2-1、示例代码1-1" class="headerlink" title="3.2.1、示例代码1[1]"></a><strong>3.2.1、示例代码1[1]</strong></h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 子系统：音响</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StereoSystem</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOn</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Stereo System is turned on&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOff</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Stereo System is turned off&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统：投影仪</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Projector</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOn</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Projector is turned on&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOff</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Projector is turned off&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统：灯光控制</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LightsControl</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOn</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Lights are turned on&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">turnOff</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Lights are turned off&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 门面类：家庭影院外观</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HomeTheaterFacade</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> StereoSystem stereo;</span><br><span class="line">    <span class="keyword">private</span> Projector projector;</span><br><span class="line">    <span class="keyword">private</span> LightsControl lights;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HomeTheaterFacade</span><span class="params">()</span> &#123;</span><br><span class="line">        stereo = <span class="keyword">new</span> <span class="title class_">StereoSystem</span>();</span><br><span class="line">        projector = <span class="keyword">new</span> <span class="title class_">Projector</span>();</span><br><span class="line">        lights = <span class="keyword">new</span> <span class="title class_">LightsControl</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">watchMovie</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Getting ready to watch a movie...&quot;</span>);</span><br><span class="line">        lights.turnOff();</span><br><span class="line">        projector.turnOn();</span><br><span class="line">        stereo.turnOn();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">endMovie</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Ending the movie...&quot;</span>);</span><br><span class="line">        stereo.turnOff();</span><br><span class="line">        projector.turnOff();</span><br><span class="line">        lights.turnOn();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// HomeTheaterFacade充当了一个门面类，封装了音响、投影仪和灯光控制等子系统的复杂操作，以便业务代码可以通过简单的调用来完成观影过程</span></span><br><span class="line"><span class="comment">// 这样，业务代码不需要了解各个子系统的具体操作，只需通过门面类的方法来控制整个家庭影院系统的行为</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FacadePatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">HomeTheaterFacade</span> <span class="variable">homeTheater</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HomeTheaterFacade</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 准备观影</span></span><br><span class="line">        homeTheater.watchMovie();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 结束观影</span></span><br><span class="line">        homeTheater.endMovie();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-2、示例代码2"><a href="#3-2-2、示例代码2" class="headerlink" title="3.2.2、示例代码2"></a><strong>3.2.2、示例代码2</strong></h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">ROOT_LOGGER_NAME</span> <span class="operator">=</span> <span class="string">&quot;ROOT&quot;</span>;</span><br><span class="line"></span><br><span class="line">    String <span class="title function_">getName</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isTraceEnabled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(String var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(String var1, Object var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(String var1, Object var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(String var1, Object... var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(String var1, Throwable var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isTraceEnabled</span><span class="params">(Marker var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(Marker var1, String var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(Marker var1, String var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(Marker var1, String var2, Object var3, Object var4)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(Marker var1, String var2, Object... var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">trace</span><span class="params">(Marker var1, String var2, Throwable var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isDebugEnabled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(String var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(String var1, Object var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(String var1, Object var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(String var1, Object... var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(String var1, Throwable var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isDebugEnabled</span><span class="params">(Marker var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(Marker var1, String var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(Marker var1, String var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(Marker var1, String var2, Object var3, Object var4)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(Marker var1, String var2, Object... var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">debug</span><span class="params">(Marker var1, String var2, Throwable var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isInfoEnabled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(String var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(String var1, Object var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(String var1, Object var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(String var1, Object... var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(String var1, Throwable var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isInfoEnabled</span><span class="params">(Marker var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(Marker var1, String var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(Marker var1, String var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(Marker var1, String var2, Object var3, Object var4)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(Marker var1, String var2, Object... var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">info</span><span class="params">(Marker var1, String var2, Throwable var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isWarnEnabled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(String var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(String var1, Object var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(String var1, Object... var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(String var1, Object var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(String var1, Throwable var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isWarnEnabled</span><span class="params">(Marker var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(Marker var1, String var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(Marker var1, String var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(Marker var1, String var2, Object var3, Object var4)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(Marker var1, String var2, Object... var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">warn</span><span class="params">(Marker var1, String var2, Throwable var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isErrorEnabled</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(String var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(String var1, Object var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(String var1, Object var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(String var1, Object... var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(String var1, Throwable var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isErrorEnabled</span><span class="params">(Marker var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(Marker var1, String var2)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(Marker var1, String var2, Object var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(Marker var1, String var2, Object var3, Object var4)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(Marker var1, String var2, Object... var3)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">error</span><span class="params">(Marker var1, String var2, Throwable var3)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上是门面日志框架SLF4J的日志门面接口，运行时，框架会绑定（内部通过“适配器设计模式”实现）到根据一定策略找到选中的具体日志框架，比如“Log4j”，“Logback”，“JDK Logging”，“Commons Logging”等。<br>业务代码使用SLF4J调用日志记录接口时的交互方向是：<code>业务代码 -&gt; org.slf4j.Logger日志门面接口 -&gt; 具体绑定到的日志类</code>。<br>使用日志门面接口，得到了一个简单易用具有一致性的日志接口，屏蔽了具体日志实现的多样性。</p>
+<h3 id="3-3、JDK中的例子"><a href="#3-3、JDK中的例子" class="headerlink" title="3.3、JDK中的例子"></a><strong>3.3、JDK中的例子</strong></h3><ul>
+<li><code>java.sql.DriverManager</code>是一个门面接口，屏蔽了操作数据库驱动器实例的复杂性</li>
+</ul>
+<h2 id="四、享元设计模式"><a href="#四、享元设计模式" class="headerlink" title="四、享元设计模式"></a><strong>四、享元设计模式</strong></h2><p>英文名：Flyweight Pattern。</p>
+<h3 id="4-1、痛点"><a href="#4-1、痛点" class="headerlink" title="4.1、痛点"></a><strong>4.1、痛点</strong></h3><p>为节约资源，维护一个实例对象池，当欲根据一定条件获取一个实例对象时，先看池中是否有符合条件的实例对象，存在直接返回池中实例对象，不重新生成；不存在则生成一个新实例对象，放入池中并返回。<font color='red'>享元设计模式本质就是常说的用于资源优化的池技术。</font></p>
+<h3 id="4-2、实现"><a href="#4-2、实现" class="headerlink" title="4.2、实现"></a><strong>4.2、实现</strong></h3><p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Color</span> &#123;</span><br><span class="line">    RED, BLUE, GREEN;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Circle</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Color color;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Circle</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.color = color;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;Color, Circle&gt; circleMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Circle <span class="title function_">getCircle</span><span class="params">(Color color)</span> &#123;</span><br><span class="line">        <span class="type">Circle</span> <span class="variable">circle</span> <span class="operator">=</span> circleMap.get(color);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (circle == <span class="literal">null</span>) &#123;</span><br><span class="line">            circle = <span class="keyword">new</span> <span class="title class_">Circle</span>(color);</span><br><span class="line">            circleMap.put(color, circle);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> circle;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FlyweightPatternExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        Color[] colors = &#123;Color.RED, Color.GREEN, Color.BLUE&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">            <span class="type">Color</span> <span class="variable">randomColor</span> <span class="operator">=</span> colors[(<span class="type">int</span>) (Math.random() * colors.length)];</span><br><span class="line">            <span class="type">Circle</span> <span class="variable">circle</span> <span class="operator">=</span> ShapeFactory.getCircle(randomColor);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3、JDK中的例子"><a href="#4-3、JDK中的例子" class="headerlink" title="4.3、JDK中的例子"></a><strong>4.3、JDK中的例子</strong></h3><ul>
+<li>线程池</li>
+<li>数据库连接池</li>
+<li><code>Byte/Short/Integer/Long/Character/Boolean</code>类的<code>valueOf()</code>方法实现中使用了享元设计模式</li>
+<li><code>java.lang.String</code>类的<code>intern()</code>方法实现中使用了享元设计模式</li>
+</ul>
+<h2 id="五、适配器设计模式"><a href="#五、适配器设计模式" class="headerlink" title="五、适配器设计模式"></a><strong>五、适配器设计模式</strong></h2><p>英文名：Adapter Pattern。</p>
+<h3 id="5-1、痛点"><a href="#5-1、痛点" class="headerlink" title="5.1、痛点"></a><strong>5.1、痛点</strong></h3><p>现有一个类A，业务代码只能使用类B，创建一个类C，它继承自类B，内部持有一个类A的实例引用a，其内部方法的实现主要通过调用a的方法实现。</p>
+<h3 id="5-2、实现"><a href="#5-2、实现" class="headerlink" title="5.2、实现"></a><strong>5.2、实现</strong></h3><p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 统一的Shape接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> width, <span class="type">int</span> height)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 已存在的LegacyRectangle类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LegacyRectangle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">(<span class="type">int</span> x1, <span class="type">int</span> y1, <span class="type">int</span> x2, <span class="type">int</span> y2)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;LegacyRectangle: Point1(&quot;</span> + x1 + <span class="string">&quot;, &quot;</span> + y1 + <span class="string">&quot;), Point2(&quot;</span> + x2 + <span class="string">&quot;, &quot;</span> + y2 + <span class="string">&quot;)&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 适配器类，将LegacyRectangle适配到Shape接口上</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RectangleAdapter</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> LegacyRectangle legacyRectangle;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RectangleAdapter</span><span class="params">(LegacyRectangle legacyRectangle)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.legacyRectangle = legacyRectangle;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> width, <span class="type">int</span> height)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">x1</span> <span class="operator">=</span> x;</span><br><span class="line">        <span class="type">int</span> <span class="variable">y1</span> <span class="operator">=</span> y;</span><br><span class="line">        <span class="type">int</span> <span class="variable">x2</span> <span class="operator">=</span> x + width;</span><br><span class="line">        <span class="type">int</span> <span class="variable">y2</span> <span class="operator">=</span> y + height;</span><br><span class="line">        legacyRectangle.display(x1, y1, x2, y2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这个示例中，LegacyRectangle是已经存在的类，而RectangleAdapter是适配器类，用于将LegacyRectangle适配到Shape接口上</span></span><br><span class="line"><span class="comment">// 业务代码通过使用适配器来画一个矩形，实际上是调用了LegacyRectangle的display方法，但是通过适配器，它符合了Shape接口的标准</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AdapterPatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">LegacyRectangle</span> <span class="variable">legacyRectangle</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LegacyRectangle</span>();</span><br><span class="line">        <span class="type">Shape</span> <span class="variable">shapeAdapter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RectangleAdapter</span>(legacyRectangle);</span><br><span class="line"></span><br><span class="line">        shapeAdapter.draw(<span class="number">10</span>, <span class="number">20</span>, <span class="number">50</span>, <span class="number">30</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3、JDK中的例子"><a href="#5-3、JDK中的例子" class="headerlink" title="5.3、JDK中的例子"></a><strong>5.3、JDK中的例子</strong></h3><ul>
+<li>适配器类<code>java.io.InputStreamReader</code>：用于将<code>java.io.InputStream</code>类适配到接口<code>java.io.Reader</code>上</li>
+<li>适配器类<code>java.io.OutputStreamWriter</code>：用于将<code>java.io.OutputStream</code>类适配到接口<code>java.io.Writer</code>上</li>
+</ul>
+<h2 id="六、装饰器设计模式"><a href="#六、装饰器设计模式" class="headerlink" title="六、装饰器设计模式"></a><strong>六、装饰器设计模式</strong></h2><p>英文名：Decorator Pattern。</p>
+<h3 id="6-1、痛点"><a href="#6-1、痛点" class="headerlink" title="6.1、痛点"></a><strong>6.1、痛点</strong></h3><p>已有接口A，一个实现接口A的类B，再新建一个实现接口A的类C，作为类B的装饰器类，其内部持有一个类B的实例引用b，其实现方法的形式为<code>简单扩展语句（装饰语句） + 调用b的相应方法</code>，即实现“在复用类B代码基础上，对类B进行浅度扩展”需求。</p>
+<h3 id="6-2、实现"><a href="#6-2、实现" class="headerlink" title="6.2、实现"></a><strong>6.2、实现</strong></h3><p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 一个咖啡接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Coffee</span> &#123;</span><br><span class="line">    <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    String <span class="title function_">description</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一个基本的咖啡类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleCoffee</span> <span class="keyword">implements</span> <span class="title class_">Coffee</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">2.0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">description</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Simple Coffee&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一个装饰器类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MilkDecorator</span> <span class="keyword">implements</span> <span class="title class_">Coffee</span> &#123;</span><br><span class="line"></span><br><span class="line">    Coffee decoratedCoffee;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MilkDecorator</span><span class="params">(Coffee coffee)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.decoratedCoffee = coffee;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> decoratedCoffee.cost() + <span class="number">1.0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">description</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> decoratedCoffee.description() + <span class="string">&quot;, with Milk&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 另外一个装饰器类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SugarDecorator</span> <span class="keyword">implements</span> <span class="title class_">Coffee</span> &#123;</span><br><span class="line"></span><br><span class="line">    Coffee decoratedCoffee;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SugarDecorator</span><span class="params">(Coffee coffee)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.decoratedCoffee = coffee;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> decoratedCoffee.cost() + <span class="number">0.5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">description</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> decoratedCoffee.description() + <span class="string">&quot;, with Sugar&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这个示例中，Coffee接口定义了基本的咖啡功能。SimpleCoffee类实现了基本的咖啡</span></span><br><span class="line"><span class="comment">// MilkDecorator和SugarDecorator是两个装饰器类，在原始咖啡上添加新的功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DecoratorPatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Coffee</span> <span class="variable">simpleCoffee</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleCoffee</span>();</span><br><span class="line">        System.out.println(<span class="string">&quot;Cost: $&quot;</span> + simpleCoffee.cost() + <span class="string">&quot;, Description: &quot;</span> + simpleCoffee.description());</span><br><span class="line"></span><br><span class="line">        <span class="type">Coffee</span> <span class="variable">milkCoffee</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MilkDecorator</span>(simpleCoffee);</span><br><span class="line">        System.out.println(<span class="string">&quot;Cost: $&quot;</span> + milkCoffee.cost() + <span class="string">&quot;, Description: &quot;</span> + milkCoffee.description());</span><br><span class="line"></span><br><span class="line">        <span class="type">Coffee</span> <span class="variable">sugarMilkCoffee</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SugarDecorator</span>(milkCoffee);</span><br><span class="line">        System.out.println(<span class="string">&quot;Cost: $&quot;</span> + sugarMilkCoffee.cost() + <span class="string">&quot;, Description: &quot;</span> + sugarMilkCoffee.description());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3、JDK中的例子"><a href="#6-3、JDK中的例子" class="headerlink" title="6.3、JDK中的例子"></a><strong>6.3、JDK中的例子</strong></h3><ul>
+<li><code>java.io.BufferedReader</code>对<code>java.io.Reader</code>进行装饰</li>
+<li><code>java.io.BufferedWriter</code>对<code>java.io.Writer</code>进行装饰</li>
+<li><code>java.io.BufferedInputStream</code>对<code>java.io.InputStream</code>进行装饰</li>
+<li><code>java.io.BufferedOutputStream</code>对<code>java.io.OutputStream</code>进行装饰</li>
+</ul>
+<h2 id="七、代理设计模式"><a href="#七、代理设计模式" class="headerlink" title="七、代理设计模式"></a><strong>七、代理设计模式</strong></h2><p>英文名：Proxy Pattern。</p>
+<h3 id="7-1、痛点"><a href="#7-1、痛点" class="headerlink" title="7.1、痛点"></a><strong>7.1、痛点</strong></h3><p>已有接口A，一个实现接口A的类B，再新建一个实现接口A的类C，作为类B的代理类，其内部持有一个类B的实例引用b，其实现方法的形式为<code>复杂扩展语句 + 可能调用也可能不调用b的相应方法</code>，即实现“在复用类B代码基础上，对类B进行深度扩展”需求。</p>
+<h3 id="7-2、实现"><a href="#7-2、实现" class="headerlink" title="7.2、实现"></a><strong>7.2、实现</strong></h3><p>有两种实现形式：</p>
+<ul>
+<li>静态代理</li>
+<li>动态代理</li>
+</ul>
+<h4 id="7-2-1、静态代理"><a href="#7-2-1、静态代理" class="headerlink" title="7.2.1、静态代理"></a><strong>7.2.1、静态代理</strong></h4><p>静态代理是指代理关系在编译期确定的代理模式。</p>
+<p>示例代码如下[1]：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 图像接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Image</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 真实图像类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RealImage</span> <span class="keyword">implements</span> <span class="title class_">Image</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String filename;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RealImage</span><span class="params">(String filename)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.filename = filename;</span><br><span class="line">        loadImageFromDisk();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">loadImageFromDisk</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Loading image from disk: &quot;</span> + filename);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Displaying image: &quot;</span> + filename);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代理图像类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ProxyImage</span> <span class="keyword">implements</span> <span class="title class_">Image</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> RealImage realImage;</span><br><span class="line">    <span class="keyword">private</span> String filename;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ProxyImage</span><span class="params">(String filename)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.filename = filename;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (realImage == <span class="literal">null</span>) &#123;</span><br><span class="line">            realImage = <span class="keyword">new</span> <span class="title class_">RealImage</span>(filename);</span><br><span class="line">        &#125;</span><br><span class="line">        realImage.display();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这个示例中，Image接口定义了display方法，RealImage是实际的图像加载类，而ProxyImage是代理图像类</span></span><br><span class="line"><span class="comment">// 当ProxyImage的display方法被调用时，它会在需要时创建一个RealImage实例，并调用其display方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProxyPatternExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Image</span> <span class="variable">image</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProxyImage</span>(<span class="string">&quot;sample.jpg&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 图像未加载，直到调用display()方法</span></span><br><span class="line">        image.display();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 图像已加载，无需再次创建</span></span><br><span class="line">        image.display();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-2-2、动态代理"><a href="#7-2-2、动态代理" class="headerlink" title="7.2.2、动态代理"></a><strong>7.2.2、动态代理</strong></h4><p>动态代理是指代理类在编译前不存在，代理关系在运行时确定的代理模式。动态代理的实现方案有很多，比如“JDK动态代理”，“CGLIB动态代理”，“Javassist动态代理”和“ASM动态代理”等。</p>
+<p>以下是一个使用JDK动态代理实现方案的示例代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> me;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UserDao</span> &#123;</span><br><span class="line"></span><br><span class="line">    String <span class="title function_">insert</span><span class="params">(String data)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被代理类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserDaoImpl</span> <span class="keyword">implements</span> <span class="title class_">UserDao</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">insert</span><span class="params">(String data)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;insert success&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JDKProxyExample</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">UserDao</span> <span class="variable">proxyDao</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserDaoImpl</span>();</span><br><span class="line"></span><br><span class="line">        Class[] interfaces = &#123;UserDao.class&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用newProxyInstance静态方法生成一个代理对象</span></span><br><span class="line">        proxyDao = (UserDao) Proxy.newProxyInstance(JDKProxyExample.class.getClassLoader(), interfaces, <span class="keyword">new</span> <span class="title class_">MyInvocationHandler</span>(proxyDao));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 代理对象的update方法实际实现逻辑见MyInvocationHandler</span></span><br><span class="line">        proxyDao.insert(<span class="string">&quot;10&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyInvocationHandler</span> <span class="keyword">implements</span> <span class="title class_">InvocationHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    Object obj;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyInvocationHandler</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.obj = obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 被代理方法之前</span></span><br><span class="line">        System.out.println(<span class="string">&quot;before insert&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 被代理类原方法的执行</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">res</span> <span class="operator">=</span> method.invoke(obj, args);</span><br><span class="line">        System.out.println(<span class="string">&quot;insert result is &quot;</span> + res);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 被代理方法之后</span></span><br><span class="line">        System.out.println(<span class="string">&quot;after insert&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3、JDK中的例子"><a href="#7-3、JDK中的例子" class="headerlink" title="7.3、JDK中的例子"></a><strong>7.3、JDK中的例子</strong></h3><ol>
+<li>JDK 1.8中找不到静态代理的例子</li>
+<li>JDK 1.8中能找到很多使用动态代理的例子，比如“<code>javax.management.JMX</code>类<code>createProxy</code>方法中的<code>Object proxy = Proxy.newProxyInstance(interfaceClass.getClassLoader(), interfaces, handler)</code>语句”</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://mp.weixin.qq.com/s/H16g_yZwRMIKagPb8oNIYQ">https://mp.weixin.qq.com/s/H16g_yZwRMIKagPb8oNIYQ</a><br>[2]<a href="https://juejin.cn/post/7031543219066404878">https://juejin.cn/post/7031543219066404878</a><br>[3]<a href="https://juejin.cn/post/7029586308854972446">https://juejin.cn/post/7029586308854972446</a></p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
   </entry>
   <entry>
     <title>AQS</title>
@@ -1163,6 +1266,43 @@
       </categories>
   </entry>
   <entry>
+    <title>CAS</title>
+    <url>/blog/2020/01/14/CAS/</url>
+    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
+<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
+<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
+<ul>
+<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
+<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
+</ul>
+<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
+<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
+<br/>
+
+<p><strong>备注：</strong></p>
+<ul>
+<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
+</ul>
+<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
+<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
+<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Bash Shell快捷键</title>
     <url>/blog/2018/05/31/Bash-Shell%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
     <content><![CDATA[<h2 id="一、移动"><a href="#一、移动" class="headerlink" title="一、移动"></a><strong>一、移动</strong></h2><table>
@@ -1274,43 +1414,6 @@
       <tags>
         <tag>Shell</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>CAS</title>
-    <url>/blog/2020/01/14/CAS/</url>
-    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
-<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
-<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
-<ul>
-<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
-<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
-</ul>
-<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
-<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
-<br/>
-
-<p><strong>备注：</strong></p>
-<ul>
-<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
-</ul>
-<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
-<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
-<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
   </entry>
   <entry>
     <title>CPU</title>
@@ -1451,34 +1554,6 @@
 ]]></content>
       <categories>
         <category>计算机组成原理</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Command-Line Mysql Client使用教程</title>
-    <url>/blog/2016/07/31/Command-Line-Mysql-Client%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<h2 id="一、进入Mysql-Client交互模式"><a href="#一、进入Mysql-Client交互模式" class="headerlink" title="一、进入Mysql Client交互模式"></a><strong>一、进入Mysql Client交互模式</strong></h2><h3 id="1-1、命令"><a href="#1-1、命令" class="headerlink" title="1.1、命令"></a><strong>1.1、命令</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql -h HostName/Ip -P PortNumber -u User -pPassword [--vertical]</span><br></pre></td></tr></table></figure>
-<h3 id="1-2、命令选项含义"><a href="#1-2、命令选项含义" class="headerlink" title="1.2、命令选项含义"></a><strong>1.2、命令选项含义</strong></h3><h4 id="1-2-1、“-h-HostName-Ip”"><a href="#1-2-1、“-h-HostName-Ip”" class="headerlink" title="1.2.1、“-h HostName&#x2F;Ip”"></a><strong>1.2.1、“-h HostName&#x2F;Ip”</strong></h4><p>指定Mysql Server地址。</p>
-<h4 id="1-2-2、“-P-PortNumber”"><a href="#1-2-2、“-P-PortNumber”" class="headerlink" title="1.2.2、“-P PortNumber”"></a><strong>1.2.2、“-P PortNumber”</strong></h4><p>指定Mysql Server监听端口。</p>
-<h4 id="1-2-3、“-u-User”"><a href="#1-2-3、“-u-User”" class="headerlink" title="1.2.3、“-u User”"></a><strong>1.2.3、“-u User”</strong></h4><p>指定登录Mysql Server的用户。</p>
-<h4 id="1-2-4、“-pPassword”"><a href="#1-2-4、“-pPassword”" class="headerlink" title="1.2.4、“-pPassword”"></a><strong>1.2.4、“-pPassword”</strong></h4><p>指定相应用户登录Mysql Server所使用密码。</p>
-<h4 id="1-2-5、“–vertical”"><a href="#1-2-5、“–vertical”" class="headerlink" title="1.2.5、“–vertical”"></a><strong>1.2.5、“–vertical”</strong></h4><p>SQL查询结果以垂直形式展示。作者认为，垂直形式比水平形式更清晰。<br><font color='red'>SQL查询以“\G”结尾，也可使得SQL查询结果以垂直形式展示。</font></p>
-<h2 id="二、进入Mysql-Client交互模式后，常用命令"><a href="#二、进入Mysql-Client交互模式后，常用命令" class="headerlink" title="二、进入Mysql Client交互模式后，常用命令"></a><strong>二、进入Mysql Client交互模式后，常用命令</strong></h2><p>进入Mysql交互模式后，可执行两类命令：“SQL查询语句”和“Mysql Client功能命令”。接下来介绍几个常用命令，其中既有属于“SQL查询语句”类别的，也有属于“Mysql Client功能命令”类别的。</p>
-<h3 id="2-1、exit-quit命令"><a href="#2-1、exit-quit命令" class="headerlink" title="2.1、exit&#x2F;quit命令"></a><strong>2.1、exit&#x2F;quit命令</strong></h3><p>退出Mysql Client交互模式。比如<code>exit;</code>。</p>
-<h3 id="2-2、source命令"><a href="#2-2、source命令" class="headerlink" title="2.2、source命令"></a><strong>2.2、source命令</strong></h3><p>以一个文件路径作为参数，解析执行文件中内容。比如<code>source /home/dsl/a.sql;</code>。</p>
-<h3 id="2-3、status命令"><a href="#2-3、status命令" class="headerlink" title="2.3、status命令"></a><strong>2.3、status命令</strong></h3><p>查询Mysql Server状态信息。比如<code>status;</code>。</p>
-<h3 id="2-4、tee命令"><a href="#2-4、tee命令" class="headerlink" title="2.4、tee命令"></a><strong>2.4、tee命令</strong></h3><p>以一个文件路径作为参数，将所有终端模拟器（比如Gnome Terminal）所打印信息同步打印到该文件，便于我们分析和处理SQL查询结果。比如<code>tee /home/dsl/mysql.out;</code>。</p>
-<h3 id="2-5、use命令"><a href="#2-5、use命令" class="headerlink" title="2.5、use命令"></a><strong>2.5、use命令</strong></h3><p>以一个Database名称作为参数，将该Database设为默认Database。比如<code>use dslztx;</code>。</p>
-<h3 id="2-6、charset命令"><a href="#2-6、charset命令" class="headerlink" title="2.6、charset命令"></a><strong>2.6、charset命令</strong></h3><p>以一个字符集名称作为参数，指定Mysql Client使用的字符集。注意跟图1中的字符集配置结合使用。比如<code>charset gbk;</code>。</p>
-<p>图1<br><img src="https://blog.dslztx.top/imgs/20160731-0-0.png"></p>
-<br/>
-参考文献：
-[1]mysql --help
-[2]Mysql Client交互模式内执行`help`命令
-]]></content>
-      <categories>
-        <category>系统架构</category>
-        <category>中间件</category>
-        <category>MySQL</category>
       </categories>
   </entry>
   <entry>
@@ -1659,16 +1734,31 @@
       </tags>
   </entry>
   <entry>
-    <title>Debian开启邮件MTA</title>
-    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
-    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
-
-<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
+    <title>Command-Line Mysql Client使用教程</title>
+    <url>/blog/2016/07/31/Command-Line-Mysql-Client%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<h2 id="一、进入Mysql-Client交互模式"><a href="#一、进入Mysql-Client交互模式" class="headerlink" title="一、进入Mysql Client交互模式"></a><strong>一、进入Mysql Client交互模式</strong></h2><h3 id="1-1、命令"><a href="#1-1、命令" class="headerlink" title="1.1、命令"></a><strong>1.1、命令</strong></h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql -h HostName/Ip -P PortNumber -u User -pPassword [--vertical]</span><br></pre></td></tr></table></figure>
+<h3 id="1-2、命令选项含义"><a href="#1-2、命令选项含义" class="headerlink" title="1.2、命令选项含义"></a><strong>1.2、命令选项含义</strong></h3><h4 id="1-2-1、“-h-HostName-Ip”"><a href="#1-2-1、“-h-HostName-Ip”" class="headerlink" title="1.2.1、“-h HostName&#x2F;Ip”"></a><strong>1.2.1、“-h HostName&#x2F;Ip”</strong></h4><p>指定Mysql Server地址。</p>
+<h4 id="1-2-2、“-P-PortNumber”"><a href="#1-2-2、“-P-PortNumber”" class="headerlink" title="1.2.2、“-P PortNumber”"></a><strong>1.2.2、“-P PortNumber”</strong></h4><p>指定Mysql Server监听端口。</p>
+<h4 id="1-2-3、“-u-User”"><a href="#1-2-3、“-u-User”" class="headerlink" title="1.2.3、“-u User”"></a><strong>1.2.3、“-u User”</strong></h4><p>指定登录Mysql Server的用户。</p>
+<h4 id="1-2-4、“-pPassword”"><a href="#1-2-4、“-pPassword”" class="headerlink" title="1.2.4、“-pPassword”"></a><strong>1.2.4、“-pPassword”</strong></h4><p>指定相应用户登录Mysql Server所使用密码。</p>
+<h4 id="1-2-5、“–vertical”"><a href="#1-2-5、“–vertical”" class="headerlink" title="1.2.5、“–vertical”"></a><strong>1.2.5、“–vertical”</strong></h4><p>SQL查询结果以垂直形式展示。作者认为，垂直形式比水平形式更清晰。<br><font color='red'>SQL查询以“\G”结尾，也可使得SQL查询结果以垂直形式展示。</font></p>
+<h2 id="二、进入Mysql-Client交互模式后，常用命令"><a href="#二、进入Mysql-Client交互模式后，常用命令" class="headerlink" title="二、进入Mysql Client交互模式后，常用命令"></a><strong>二、进入Mysql Client交互模式后，常用命令</strong></h2><p>进入Mysql交互模式后，可执行两类命令：“SQL查询语句”和“Mysql Client功能命令”。接下来介绍几个常用命令，其中既有属于“SQL查询语句”类别的，也有属于“Mysql Client功能命令”类别的。</p>
+<h3 id="2-1、exit-quit命令"><a href="#2-1、exit-quit命令" class="headerlink" title="2.1、exit&#x2F;quit命令"></a><strong>2.1、exit&#x2F;quit命令</strong></h3><p>退出Mysql Client交互模式。比如<code>exit;</code>。</p>
+<h3 id="2-2、source命令"><a href="#2-2、source命令" class="headerlink" title="2.2、source命令"></a><strong>2.2、source命令</strong></h3><p>以一个文件路径作为参数，解析执行文件中内容。比如<code>source /home/dsl/a.sql;</code>。</p>
+<h3 id="2-3、status命令"><a href="#2-3、status命令" class="headerlink" title="2.3、status命令"></a><strong>2.3、status命令</strong></h3><p>查询Mysql Server状态信息。比如<code>status;</code>。</p>
+<h3 id="2-4、tee命令"><a href="#2-4、tee命令" class="headerlink" title="2.4、tee命令"></a><strong>2.4、tee命令</strong></h3><p>以一个文件路径作为参数，将所有终端模拟器（比如Gnome Terminal）所打印信息同步打印到该文件，便于我们分析和处理SQL查询结果。比如<code>tee /home/dsl/mysql.out;</code>。</p>
+<h3 id="2-5、use命令"><a href="#2-5、use命令" class="headerlink" title="2.5、use命令"></a><strong>2.5、use命令</strong></h3><p>以一个Database名称作为参数，将该Database设为默认Database。比如<code>use dslztx;</code>。</p>
+<h3 id="2-6、charset命令"><a href="#2-6、charset命令" class="headerlink" title="2.6、charset命令"></a><strong>2.6、charset命令</strong></h3><p>以一个字符集名称作为参数，指定Mysql Client使用的字符集。注意跟图1中的字符集配置结合使用。比如<code>charset gbk;</code>。</p>
+<p>图1<br><img src="https://blog.dslztx.top/imgs/20160731-0-0.png"></p>
+<br/>
+参考文献：
+[1]mysql --help
+[2]Mysql Client交互模式内执行`help`命令
 ]]></content>
       <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
+        <category>系统架构</category>
+        <category>中间件</category>
+        <category>MySQL</category>
       </categories>
   </entry>
   <entry>
@@ -1700,6 +1790,19 @@
       <tags>
         <tag>Wiki</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Debian开启邮件MTA</title>
+    <url>/blog/2019/01/17/Debian%E5%BC%80%E5%90%AF%E9%82%AE%E4%BB%B6MTA/</url>
+    <content><![CDATA[<p>Debian上默认安装的邮件MTA是“Exim4”，开启“Exim4”的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/exim4 start</span><br></pre></td></tr></table></figure>
+
+<p>备注：<br>“Exim4”这个邮件MTA可作为SMTP Server</p>
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
   </entry>
   <entry>
     <title>Executors</title>
@@ -2895,9 +2998,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#x74;&#x40;&#103;&#105;&#116;&#104;&#x75;&#x62;&#46;&#99;&#x6f;&#109;">&#103;&#x69;&#x74;&#x40;&#103;&#105;&#116;&#104;&#x75;&#x62;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#x67;&#x69;&#116;&#64;&#x67;&#105;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;">&#x67;&#x69;&#116;&#64;&#x67;&#105;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#109;">&#x67;&#105;&#x74;&#x40;&#x67;&#105;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#64;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;">&#103;&#x69;&#116;&#64;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#109;">&#103;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#103;&#x69;&#x74;&#64;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#111;&#109;">&#103;&#x69;&#x74;&#64;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -6623,48 +6726,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java中绕过语法限制的途径</title>
-    <url>/blog/2020/10/10/Java%E4%B8%AD%E7%BB%95%E8%BF%87%E8%AF%AD%E6%B3%95%E9%99%90%E5%88%B6%E7%9A%84%E9%80%94%E5%BE%84/</url>
-    <content><![CDATA[<p>对于Java语言，存在一些途径可绕过语法限制，有些途径是官方的，有些途径是非官方的，下表罗列一些途径。</p>
-<table>
-<thead>
-<tr>
-<th>途径名称</th>
-<th>官方&#x2F;非官方</th>
-<th>绕过的语法限制</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>反射</td>
-<td>官方</td>
-<td>“不可访问的<code>方法</code>和<code>域</code>可访问化”，“能够对final域进行二次赋值”等</td>
-</tr>
-<tr>
-<td>JDK序列化</td>
-<td>官方</td>
-<td>能够对final域进行二次赋值（本质是通过反射实现的）</td>
-</tr>
-<tr>
-<td>官方原生方法</td>
-<td>官方</td>
-<td>理论上可以对Java进程所占有的内存做任何操作，比如“通过<code>System.setIn()</code>，<code>System.setOut()</code>和<code>System.setErr()</code>方法修改System类的<code>in</code>，<code>out</code>和<code>err</code>这3个<code>public final static</code>变量”</td>
-</tr>
-<tr>
-<td>非官方原生方法</td>
-<td>非官方</td>
-<td>理论上可以对Java进程所占有的内存做任何操作</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java中日期时间相关核心类</title>
     <url>/blog/2018/08/13/Java%E4%B8%AD%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E7%9B%B8%E5%85%B3%E6%A0%B8%E5%BF%83%E7%B1%BB/</url>
     <content><![CDATA[<h2 id="一、日期时间基本概念"><a href="#一、日期时间基本概念" class="headerlink" title="一、日期时间基本概念"></a><strong>一、日期时间基本概念</strong></h2><p>对于日期时间，首先作以下几点基本说明：</p>
@@ -6732,6 +6793,48 @@ text-align: center
 参考文献：
 [1]https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html
 [2]https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java中绕过语法限制的途径</title>
+    <url>/blog/2020/10/10/Java%E4%B8%AD%E7%BB%95%E8%BF%87%E8%AF%AD%E6%B3%95%E9%99%90%E5%88%B6%E7%9A%84%E9%80%94%E5%BE%84/</url>
+    <content><![CDATA[<p>对于Java语言，存在一些途径可绕过语法限制，有些途径是官方的，有些途径是非官方的，下表罗列一些途径。</p>
+<table>
+<thead>
+<tr>
+<th>途径名称</th>
+<th>官方&#x2F;非官方</th>
+<th>绕过的语法限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>反射</td>
+<td>官方</td>
+<td>“不可访问的<code>方法</code>和<code>域</code>可访问化”，“能够对final域进行二次赋值”等</td>
+</tr>
+<tr>
+<td>JDK序列化</td>
+<td>官方</td>
+<td>能够对final域进行二次赋值（本质是通过反射实现的）</td>
+</tr>
+<tr>
+<td>官方原生方法</td>
+<td>官方</td>
+<td>理论上可以对Java进程所占有的内存做任何操作，比如“通过<code>System.setIn()</code>，<code>System.setOut()</code>和<code>System.setErr()</code>方法修改System类的<code>in</code>，<code>out</code>和<code>err</code>这3个<code>public final static</code>变量”</td>
+</tr>
+<tr>
+<td>非官方原生方法</td>
+<td>非官方</td>
+<td>理论上可以对Java进程所占有的内存做任何操作</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1">https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.5.1</a></p>
 ]]></content>
       <categories>
         <category>语言</category>
@@ -8304,18 +8407,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>Java编程思想第4版</title>
-    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
-    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
-<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
-附录A 补充材料
-附录B 资源
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Java编程踩坑记</title>
     <url>/blog/2018/08/04/Java%E7%BC%96%E7%A8%8B%E8%B8%A9%E5%9D%91%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="一、使用File-renameTo-File-方法移动文件可能失败"><a href="#一、使用File-renameTo-File-方法移动文件可能失败" class="headerlink" title="一、使用File#renameTo(File)方法移动文件可能失败"></a><strong>一、使用<code>File#renameTo(File)</code>方法移动文件可能失败</strong></h2><p>使用<code>File#renameTo(File)</code>方法移动文件可能失败，查看该方法的JavaDoc，发现失败原因可能如下：</p>
@@ -8336,6 +8427,18 @@ text-align: center
       <tags>
         <tag>Java</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Java编程思想第4版</title>
+    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
+    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
+<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
+附录A 补充材料
+附录B 资源
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
   </entry>
   <entry>
     <title>Java运行时汇编指令查看</title>
@@ -9982,7 +10085,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#x40;&#100;&#111;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#99;&#x6e;">&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#x40;&#100;&#111;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#99;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#x64;&#111;&#109;&#97;&#x69;&#x6e;&#x2e;&#x63;&#110;">&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#x64;&#111;&#109;&#97;&#x69;&#x6e;&#x2e;&#x63;&#110;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -10006,7 +10109,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#x6f;&#x72;&#x67;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;">&#x47;&#101;&#x6f;&#x72;&#x67;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#x65;&#x6f;&#x72;&#103;&#x65;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#71;&#x65;&#x6f;&#x72;&#103;&#x65;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -16469,24 +16572,6 @@ text-align: center
       </categories>
   </entry>
   <entry>
-    <title>tail命令</title>
-    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
-<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
-<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
-<br/>
-参考文献：
-[1]man tail
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>synchronized锁内部实现</title>
     <url>/blog/2020/03/26/synchronized%E9%94%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</url>
     <content><![CDATA[<h2 id="一、基本语义"><a href="#一、基本语义" class="headerlink" title="一、基本语义"></a><strong>一、基本语义</strong></h2><h3 id="1-1、两种形式、一种锁"><a href="#1-1、两种形式、一种锁" class="headerlink" title="1.1、两种形式、一种锁"></a><strong>1.1、两种形式、一种锁</strong></h3><p>synchronized关键词对应synchronized锁，synchronized关键词有两种形式的用法：1）<code>synchronized方法</code>；2）<code>synchronized(Java对象obj)语句块</code>。</p>
@@ -16778,6 +16863,24 @@ text-align: center
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>tail命令</title>
+    <url>/blog/2016/12/30/tail%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="一、常用用法"><a href="#一、常用用法" class="headerlink" title="一、常用用法"></a><strong>一、常用用法</strong></h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tail [-n K] [-f] [FILE | -]</span><br></pre></td></tr></table></figure>
+<h2 id="二、含义与选项"><a href="#二、含义与选项" class="headerlink" title="二、含义与选项"></a><strong>二、含义与选项</strong></h2><h3 id="2-1、含义"><a href="#2-1、含义" class="headerlink" title="2.1、含义"></a><strong>2.1、含义</strong></h3><p>显示文件或者基本输入的后几行，默认为后10行。</p>
+<h3 id="2-2、选项"><a href="#2-2、选项" class="headerlink" title="2.2、选项"></a><strong>2.2、选项</strong></h3><p>“-n K”：表示显示文件或者基本输入的后K行。<br>“-f”：表示随着文件或者基本输入内容的增加而增加显示内容。</p>
+<br/>
+参考文献：
+[1]man tail
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux命令</tag>
+      </tags>
   </entry>
   <entry>
     <title>tar命令</title>
@@ -20709,64 +20812,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>并发Set</title>
-    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
-    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
-<ul>
-<li>其在Java容器中的划分位置见[1]</li>
-<li>根接口为Set，其内元素允许为<code>NULL</code></li>
-<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
-<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
-<li>接下来介绍其常见的两个子类：<ul>
-<li>CopyOnWriteArraySet</li>
-<li>SynchronizedSet</li>
-</ul>
-</li>
-</ul>
-<br/>
-
-<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
-<ul>
-<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
-<li>底层数据结构基于“数组”，还是“链表”</li>
-<li>实现操作的线程安全策略</li>
-<li>生成的迭代器性质[1]</li>
-</ul>
-<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于<code>CopyOnWriteArrayList</code></li>
-<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
-<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
-<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
-<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
-</ul>
-<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
-<p><strong>1、核心原理</strong></p>
-<ul>
-<li>基于所传入的Set实例，有界性也依赖于它</li>
-<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
-<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
-</ul>
-<p><strong>2、构造参数</strong></p>
-<ul>
-<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
-<li><code>Object mutex</code>：传入的锁对象</li>
-</ul>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
     <title>并发Queue</title>
     <url>/blog/2021/08/11/%E5%B9%B6%E5%8F%91Queue/</url>
     <content><![CDATA[<p>本文介绍并发Queue，有几点说明：</p>
@@ -21369,42 +21414,61 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
-    <title>开车</title>
-    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
-    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
-<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
-<li>踩住刹车</li>
-<li>插入钥匙，点火</li>
-<li>挂好档位（从停车档到行驶档）</li>
-<li>松掉刹车</li>
-</ol>
-<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
-<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
-<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
+    <title>并发Set</title>
+    <url>/blog/2021/09/29/%E5%B9%B6%E5%8F%91Set/</url>
+    <content><![CDATA[<p>本文介绍并发Set，有几点说明：</p>
 <ul>
-<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
-<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
+<li>其在Java容器中的划分位置见[1]</li>
+<li>根接口为Set，其内元素允许为<code>NULL</code></li>
+<li>并发Set的常见使用场景不太用到迭代器，故本文对迭代器不作深入叙述</li>
+<li><font color='red'>如果实在不行，可用并发Map实现并发Set的功能，只要将“键值”取为某个特殊值即可</font></li>
+<li>接下来介绍其常见的两个子类：<ul>
+<li>CopyOnWriteArraySet</li>
+<li>SynchronizedSet</li>
 </ul>
-<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
-<ol>
-<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
-<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
-</ol>
-<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
-<ol>
-<li>不要“松掉刹车”，就是“踩住刹车”</li>
-<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
-<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
-<li>不要“踩住刹车”，就是“松掉刹车”</li>
-</ol>
+</li>
+</ul>
 <br/>
 
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
+<p>接下来对具体实现子类的介绍，主要基于以下几个维度：</p>
+<ul>
+<li>是否有界，分为“设计是否有界”和“实际是否有界”，实际有“设计有界，实际有界”，“设计无界，实际无界”和“设计无界，实际有界，可称为假性无界”这3种情况</li>
+<li>底层数据结构基于“数组”，还是“链表”</li>
+<li>实现操作的线程安全策略</li>
+<li>生成的迭代器性质[1]</li>
+</ul>
+<h2 id="一、CopyOnWriteArraySet"><a href="#一、CopyOnWriteArraySet" class="headerlink" title="一、CopyOnWriteArraySet"></a><strong>一、CopyOnWriteArraySet</strong></h2><p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于<code>CopyOnWriteArrayList</code></li>
+<li>有界性与<code>CopyOnWriteArrayList</code>一致</li>
+<li>实现操作的线程安全策略借助于<code>CopyOnWriteArrayList</code></li>
+<li>生成的迭代器就是所基于<code>CopyOnWriteArrayList</code>生成的迭代器</li>
+<li>由于基于<code>CopyOnWriteArrayList</code>，所以其增删改查操作的时间复杂度劣于<code>HashSet</code></li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Collection&lt;? extends E&gt; c</code>：初始化元素来源集合</li>
+</ul>
+<h2 id="二、SynchronizedSet"><a href="#二、SynchronizedSet" class="headerlink" title="二、SynchronizedSet"></a><strong>二、SynchronizedSet</strong></h2><p><code>java.util.Collections</code>类中的内部类。</p>
+<p><strong>1、核心原理</strong></p>
+<ul>
+<li>基于所传入的Set实例，有界性也依赖于它</li>
+<li>使用<code>synchronized</code>实现操作的线程安全，故属于<code>同步容器</code></li>
+<li>生成所传入Set实例的迭代器，故迭代器性质须具体情况具体分析</li>
+</ul>
+<p><strong>2、构造参数</strong></p>
+<ul>
+<li><code>Set&lt;E&gt; s</code>：SynchronizedSet实例所基于的底层Set实例，注意其跟“初始化元素来源集合”不一样，后者在复制后就不再有关联</li>
+<li><code>Object mutex</code>：传入的锁对象</li>
+</ul>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/" title="Java容器">《Java容器》</a></p>
 ]]></content>
       <categories>
-        <category>杂七杂八</category>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
       </categories>
   </entry>
   <entry>
@@ -21575,6 +21639,45 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>开车</title>
+    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
+    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
+<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
+<li>踩住刹车</li>
+<li>插入钥匙，点火</li>
+<li>挂好档位（从停车档到行驶档）</li>
+<li>松掉刹车</li>
+</ol>
+<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
+<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
+<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
+<ul>
+<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
+<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
+</ul>
+<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
+<ol>
+<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
+<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
+</ol>
+<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
+<ol>
+<li>不要“松掉刹车”，就是“踩住刹车”</li>
+<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
+<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
+<li>不要“踩住刹车”，就是“松掉刹车”</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
@@ -24305,6 +24408,53 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 ]]></content>
       <categories>
         <category>计算机组成原理</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>设计模式概论</title>
+    <url>/blog/2024/10/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%AE%BA/</url>
+    <content><![CDATA[<h2 id="一、进行良好编程设计的常见6大原则"><a href="#一、进行良好编程设计的常见6大原则" class="headerlink" title="一、进行良好编程设计的常见6大原则"></a><strong>一、进行良好编程设计的常见6大原则</strong></h2><p>首先介绍进行良好编程设计的常见的6大原则，分为三类。</p>
+<p>本节叙述还涉及到一个概念——<font color='red'>继承有“多态”和“复用”两个作用</font>。</p>
+<h3 id="1-1、第一类"><a href="#1-1、第一类" class="headerlink" title="1.1、第一类"></a><strong>1.1、第一类</strong></h3><p>围绕“扩展时，不影响现有代码”目标。</p>
+<h4 id="1-1-1、开闭原则"><a href="#1-1-1、开闭原则" class="headerlink" title="1.1.1、开闭原则"></a><strong>1.1.1、开闭原则</strong></h4><p>英文名：Open Close Principle。</p>
+<p>内容：对扩展开放，对修改关闭。</p>
+<p>含义：即“扩展时，不影响现有代码”目标本身，具体实现途径是：基于<code>接口或者抽象父类</code>编程，利用类继承的多态特性（<font color='red'>继承的多态作用</font>），扩展时通过新的具体实现子类完成，在不影响现有代码的前提下，达成扩展目标。</p>
+<h4 id="1-1-2、依赖倒转原则"><a href="#1-1-2、依赖倒转原则" class="headerlink" title="1.1.2、依赖倒转原则"></a><strong>1.1.2、依赖倒转原则</strong></h4><p>英文名：Dependence Inversion Principle。</p>
+<p>内容：底层模块依赖高层模块中提炼出来的<code>接口或者抽象父类</code>层。</p>
+<p>含义：有高层模块和底层模块两个模块，直观的依赖关系是高层模块依赖底层模块，这带来了“扩展底层模块时影响高层模块”问题，为了解决该问题，从高层模块提炼出<code>接口或者抽象父类</code>层，高层模块和底层模块都依赖这个<code>接口或者抽象父类</code>层，倒转指的是从“高层模块依赖底层模块”到“底层模块依赖高层模块中提炼出来的<code>接口或者抽象父类</code>层”[1]。<font color='red'>本质上来说，依赖倒转原则是开闭原则在高层模块底层模块依赖场景中的应用</font>。</p>
+<h4 id="1-1-3、里氏替换原则"><a href="#1-1-3、里氏替换原则" class="headerlink" title="1.1.3、里氏替换原则"></a><strong>1.1.3、里氏替换原则</strong></h4><p>英文名：Liskov Substitution Principle。</p>
+<p>内容：任何<code>接口或者抽象父类</code>可以出现的地方，具体实现子类一定可以出现。</p>
+<p>含义：里氏替换原则是开闭原则的规范和限制，因为不满足里氏替换原则的继承关系不能达成开闭原则场景中的扩展目标。</p>
+<h3 id="1-2、第二类"><a href="#1-2、第二类" class="headerlink" title="1.2、第二类"></a><strong>1.2、第二类</strong></h3><p>围绕“扩展时，在不能做到不影响现有代码的情形下，对现有代码影响尽量小”目标，这个目标等价于“类或者模块设计须高内聚低耦合”目标。</p>
+<h4 id="1-2-1、单一职责原则"><a href="#1-2-1、单一职责原则" class="headerlink" title="1.2.1、单一职责原则"></a><strong>1.2.1、单一职责原则</strong></h4><p>英文名：Single Responsibility Principle。</p>
+<p>内容：一个类或者模块只负责完成一个职责。</p>
+<p>含义：从职责维度追求达成类或者模块设计的“高内聚低耦合”目标。</p>
+<h4 id="1-2-2、迪米特原则"><a href="#1-2-2、迪米特原则" class="headerlink" title="1.2.2、迪米特原则"></a><strong>1.2.2、迪米特原则</strong></h4><p>英文名：Demeter Principle。</p>
+<p>内容：指的是一个类或者模块应当尽量减少与其他实体的相互作用，增强独立性。</p>
+<p>含义：通过应用该原则，可以降低类或者模块之间的耦合性，增强独立性，达成“高内聚低耦合”目标，但是具有副作用——“在类和模块之间直接联系减少的情形下，产生了大量的中介和传递类”，须权衡使用该原则。</p>
+<h3 id="1-3、第三类"><a href="#1-3、第三类" class="headerlink" title="1.3、第三类"></a><strong>1.3、第三类</strong></h3><p>围绕“如何更好进行复用”目标。</p>
+<h4 id="1-3-1、组合优于继承"><a href="#1-3-1、组合优于继承" class="headerlink" title="1.3.1、组合优于继承"></a><strong>1.3.1、组合优于继承</strong></h4><p>英文名：Composition over Inheritance &#x2F; Composite Reuse Principle。</p>
+<p>内容：有“组合”和“继承（<font color='red'>继承的复用作用</font>）”两种复用方式，在这两种复用方式中，组合优于继承。</p>
+<p>含义：在有些场景中，继承层次过深过于复杂，会影响代码的可读性和可维护性；在有些场景中，使用继承方式进行复用会导致类爆炸问题，可参见“桥接设计模式”说明。</p>
+<h2 id="二、设计模式概论"><a href="#二、设计模式概论" class="headerlink" title="二、设计模式概论"></a><strong>二、设计模式概论</strong></h2><p>设计模式是针对某类业务场景进行权衡设计后的编程范式，具有特点：</p>
+<ol>
+<li>针对某类业务场景，故不是银弹</li>
+<li>进行权衡设计（在权衡设计过程中涉及到“是否遵循以上6大原则”等问题）的产物，故应用设计模式是在付出一定代价的前提下获取收益</li>
+</ol>
+<p>常见的设计模式有23种，根据以上设计模式的定义，可以再创建新的设计模式。</p>
+<hr>
+<p>如何应用设计模式：</p>
+<ol>
+<li>理解设计模式，吸收设计模式养分</li>
+<li>在实际编程过程中，切忌拿着锤子找钉子，此时最好忘记设计模式，否则反而形成干扰，具体业务场景进行具体的良好设计即可</li>
+<li>事后发现正好凑巧应用了某个设计模式，那么后续在介绍这段代码时，可以引用设计模式概念，从而带来“体现设计思考”和“帮助他人理解”两个好处</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://www.jianshu.com/p/8d7723cd4e24">https://www.jianshu.com/p/8d7723cd4e24</a></p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
       </categories>
   </entry>
   <entry>
