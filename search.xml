@@ -118,6 +118,23 @@
       </categories>
   </entry>
   <entry>
+    <title>3个JDK最好一致</title>
+    <url>/blog/2019/05/20/3%E4%B8%AAJDK%E6%9C%80%E5%A5%BD%E4%B8%80%E8%87%B4/</url>
+    <content><![CDATA[<p>3个JDK（源码所使用JDK，目标运行平台JDK，编译所使用JDK）最好一致，以避免一些奇怪的异常或者错误。</p>
+<h2 id="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"><a href="#一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形" class="headerlink" title="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"></a><strong>一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形</strong></h2><p>实验代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    ConcurrentHashMap&lt;String, AtomicInteger&gt; domainCounts = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        main.f();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> domainCounts.keySet().iterator(); ((Iterator)iterator).hasNext();) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">val</span> <span class="operator">=</span> (String)iterator.next();</span><br><span class="line"></span><br><span class="line">            System.out.println(val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译命令为<code>~/jdk1.8/bin/javac -source 1.6 -target 1.6 Main.java</code>，运行命令为<code>~/jdk1.6/bin/java Main</code>，抛出异常如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">        at Main.f(Main.java:15)</span><br><span class="line">        at Main.main(Main.java:11)</span><br></pre></td></tr></table></figure>
+<p>执行<code>javap -v Main</code>命令，发现<code>f()</code>方法对应的内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void f();</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=2, locals=3, args_size=1</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: getfield      #4                  // Field domainCounts:Ljava/util/concurrent/ConcurrentHashMap;</span><br><span class="line">         4: invokevirtual #8                  // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">         7: invokevirtual #9                  // Method java/util/concurrent/ConcurrentHashMap$KeySetView.iterator:()Ljava/util/Iterator;</span><br><span class="line">        10: astore_1</span><br><span class="line">        11: aload_1</span><br><span class="line">        12: invokeinterface #10,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z</span><br><span class="line">        17: ifeq          40</span><br><span class="line">        20: aload_1</span><br><span class="line">        21: invokeinterface #11,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;</span><br><span class="line">        26: checkcast     #12                 // class java/lang/String</span><br><span class="line">        29: astore_2</span><br><span class="line">        30: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        33: aload_2</span><br><span class="line">        34: invokevirtual #14                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        37: goto          11</span><br><span class="line">        40: return</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 15: 0</span><br><span class="line">        line 16: 20</span><br><span class="line">        line 18: 30</span><br><span class="line">        line 19: 37</span><br><span class="line">        line 20: 40</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">        frame_type = 252 /* append */</span><br><span class="line">          offset_delta = 11</span><br><span class="line">          locals = [ class java/util/Iterator ]</span><br><span class="line">        frame_type = 250 /* chop */</span><br><span class="line">          offset_delta = 28</span><br></pre></td></tr></table></figure>
+<p>查看上述内容，可发现绑定到了属于JDK1.8的<code>java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView</code>，从而可知在使用JDK1.8编译的时候，一些特定于JDK1.8的依赖信息被写入到了CLASS文件中（<font color='red'>笔者认为这是JDK1.8中javac命令实现的bug，因为我们指定了<code>-target 1.6</code>，自然期待的结果应该是特定于JDK1.6的依赖信息被写入到CLASS文件中</font>），这最终导致了当运行于JDK1.6目标平台时会抛出<code>java.lang.NoClassDefFoundError</code>异常。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+      </categories>
+  </entry>
+  <entry>
     <title>12种基础死活棋形</title>
     <url>/blog/2023/11/19/12%E7%A7%8D%E5%9F%BA%E7%A1%80%E6%AD%BB%E6%B4%BB%E6%A3%8B%E5%BD%A2/</url>
     <content><![CDATA[<p>棋形，是棋子在棋盘上组合成的各种形状。<br>本文介绍12种基础死活棋形，包括：两种死形，四种活形，六种半死不活形。</p>
@@ -510,23 +527,6 @@
 ]]></content>
       <categories>
         <category>围棋</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>3个JDK最好一致</title>
-    <url>/blog/2019/05/20/3%E4%B8%AAJDK%E6%9C%80%E5%A5%BD%E4%B8%80%E8%87%B4/</url>
-    <content><![CDATA[<p>3个JDK（源码所使用JDK，目标运行平台JDK，编译所使用JDK）最好一致，以避免一些奇怪的异常或者错误。</p>
-<h2 id="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"><a href="#一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形" class="headerlink" title="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"></a><strong>一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形</strong></h2><p>实验代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    ConcurrentHashMap&lt;String, AtomicInteger&gt; domainCounts = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        main.f();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> domainCounts.keySet().iterator(); ((Iterator)iterator).hasNext();) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">val</span> <span class="operator">=</span> (String)iterator.next();</span><br><span class="line"></span><br><span class="line">            System.out.println(val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编译命令为<code>~/jdk1.8/bin/javac -source 1.6 -target 1.6 Main.java</code>，运行命令为<code>~/jdk1.6/bin/java Main</code>，抛出异常如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">        at Main.f(Main.java:15)</span><br><span class="line">        at Main.main(Main.java:11)</span><br></pre></td></tr></table></figure>
-<p>执行<code>javap -v Main</code>命令，发现<code>f()</code>方法对应的内容如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void f();</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=2, locals=3, args_size=1</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: getfield      #4                  // Field domainCounts:Ljava/util/concurrent/ConcurrentHashMap;</span><br><span class="line">         4: invokevirtual #8                  // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">         7: invokevirtual #9                  // Method java/util/concurrent/ConcurrentHashMap$KeySetView.iterator:()Ljava/util/Iterator;</span><br><span class="line">        10: astore_1</span><br><span class="line">        11: aload_1</span><br><span class="line">        12: invokeinterface #10,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z</span><br><span class="line">        17: ifeq          40</span><br><span class="line">        20: aload_1</span><br><span class="line">        21: invokeinterface #11,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;</span><br><span class="line">        26: checkcast     #12                 // class java/lang/String</span><br><span class="line">        29: astore_2</span><br><span class="line">        30: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        33: aload_2</span><br><span class="line">        34: invokevirtual #14                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        37: goto          11</span><br><span class="line">        40: return</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 15: 0</span><br><span class="line">        line 16: 20</span><br><span class="line">        line 18: 30</span><br><span class="line">        line 19: 37</span><br><span class="line">        line 20: 40</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">        frame_type = 252 /* append */</span><br><span class="line">          offset_delta = 11</span><br><span class="line">          locals = [ class java/util/Iterator ]</span><br><span class="line">        frame_type = 250 /* chop */</span><br><span class="line">          offset_delta = 28</span><br></pre></td></tr></table></figure>
-<p>查看上述内容，可发现绑定到了属于JDK1.8的<code>java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView</code>，从而可知在使用JDK1.8编译的时候，一些特定于JDK1.8的依赖信息被写入到了CLASS文件中（<font color='red'>笔者认为这是JDK1.8中javac命令实现的bug，因为我们指定了<code>-target 1.6</code>，自然期待的结果应该是特定于JDK1.6的依赖信息被写入到CLASS文件中</font>），这最终导致了当运行于JDK1.6目标平台时会抛出<code>java.lang.NoClassDefFoundError</code>异常。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
       </categories>
   </entry>
   <entry>
@@ -1266,43 +1266,6 @@
       </categories>
   </entry>
   <entry>
-    <title>CAS</title>
-    <url>/blog/2020/01/14/CAS/</url>
-    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
-<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
-<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
-<ul>
-<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
-<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
-</ul>
-<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
-<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
-<br/>
-
-<p><strong>备注：</strong></p>
-<ul>
-<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
-</ul>
-<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
-<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
-<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Bash Shell快捷键</title>
     <url>/blog/2018/05/31/Bash-Shell%E5%BF%AB%E6%8D%B7%E9%94%AE/</url>
     <content><![CDATA[<h2 id="一、移动"><a href="#一、移动" class="headerlink" title="一、移动"></a><strong>一、移动</strong></h2><table>
@@ -1414,6 +1377,43 @@
       <tags>
         <tag>Shell</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>CAS</title>
+    <url>/blog/2020/01/14/CAS/</url>
+    <content><![CDATA[<h2 id="一、CAS原子操作含义"><a href="#一、CAS原子操作含义" class="headerlink" title="一、CAS原子操作含义"></a><strong>一、CAS原子操作含义</strong></h2><p>CAS原子操作：“CAS”表示“Compare And Swap”，即“比较并替换”，具体是<code>欲更新一个内存区域A值，输入两个参数——“待比较值”和“待更新值”，先将A当前值与“待比较值”比较，如果比较结果相等，则将A值更新为“待更新值”，否则失败返回</code>。</p>
+<h2 id="二、CAS原子操作存在的问题"><a href="#二、CAS原子操作存在的问题" class="headerlink" title="二、CAS原子操作存在的问题"></a><strong>二、CAS原子操作存在的问题</strong></h2><h3 id="2-1、ABA问题"><a href="#2-1、ABA问题" class="headerlink" title="2.1、ABA问题"></a><strong>2.1、ABA问题</strong></h3><p>有一个内存区域A，它的当前值为a，后来经历了“a-b”和“b-a”的值更新过程，此时如果对A执行CAS原子操作，“待比较值”为a，“待更新值”为d，则能够顺利执行，但是与预期并不一致，预期的内存区域A的值的迁移关系应该是<code>a-d</code>，而不是<code>a-b-a-d</code>。<br>解决方案是：另外再加一个版本号，在进行值更新的同时升版本号。</p>
+<p><font color='red'>特别需要注意的是</font>，“ABA问题”的描述只是一个统称，本质上来说，“ABA问题”包括两类：</p>
+<ul>
+<li>偶数ABA问题，比如“A-A”，“A-B-C-A”，“A-B-C-D-E-A”，…</li>
+<li>奇数ABA问题，比如“A-B-A”，“A-B-C-D-A”，“A-B-C-D-E-F-A”，…</li>
+</ul>
+<h3 id="2-2、只能保证替换一个内存区域值的操作的原子性"><a href="#2-2、只能保证替换一个内存区域值的操作的原子性" class="headerlink" title="2.2、只能保证替换一个内存区域值的操作的原子性"></a><strong>2.2、只能保证替换一个内存区域值的操作的原子性</strong></h3><p>只能保证替换一个内存区域值的操作的原子性，而并不能保证替换大于1个内存区域值的操作的原子性。</p>
+<h2 id="三、指令集中的CAS原子操作指令"><a href="#三、指令集中的CAS原子操作指令" class="headerlink" title="三、指令集中的CAS原子操作指令"></a><strong>三、指令集中的CAS原子操作指令</strong></h2><p>不同的指令集具有不同的CAS原子操作指令或者其等价。比如“在X86指令体系中，<code>CMPXCHG</code>就是一个常见的CAS操作指令，需要注意的是，在多CPU或者CPU核环境中，需要给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>才能确保原子性”，“天生原子机器指令CAS”。</p>
+<br/>
+
+<p><strong>备注：</strong></p>
+<ul>
+<li>后续可知，加上<code>LOCK指令前缀</code>，不仅使得“原子化”，也使得“禁止重排序”，“刷新缓存到内存”和“使缓存失效”，这里给<code>CMPXCHG</code>指令加上<code>LOCK指令前缀</code>，只是为了“原子化”，后三者效果只是顺带，另外，CAS原子操作指令并不只有<code>LOCK CMPXCHG</code>这种形式，因此，在通用使用CAS原子操作指令时并不能作具有“禁止重排序”，“刷新缓存到内存”和“使缓存失效”效果的假定</li>
+</ul>
+<h2 id="四、JDK中提供的CAS原子方法"><a href="#四、JDK中提供的CAS原子方法" class="headerlink" title="四、JDK中提供的CAS原子方法"></a><strong>四、JDK中提供的CAS原子方法</strong></h2><p>JDK中提供的CAS原子方法是“sun.misc.Unsafe”类下的<code>compareAndSwapObject()</code>，<code>compareAndSwapInt()</code>和<code>compareAndSwapLong()</code>方法。</p>
+<p>查看这3个方法的本地实现（C&#x2F;C++语言源代码），可知核心就是直接调用<code>LOCK CMPXCHAG</code>指令（在X86指令体系中）。</p>
+<p>以<code>compareAndSwapInt()</code>方法为例，跟踪其本地实现源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> JNINativeMethod methods_15[] = &#123;</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapInt&quot;</span>,  CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;I&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapInt )  &#125;,</span><br><span class="line">	&#123; CC <span class="string">&quot;compareAndSwapLong&quot;</span>, CC <span class="string">&quot;(&quot;</span>OBJ <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;J&quot;</span> <span class="string">&quot;)Z&quot;</span>, <span class="built_in">FN_PTR</span>( Unsafe_CompareAndSwapLong ) &#125;,</span><br><span class="line">	<span class="comment">/* 省略一堆代码... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Unsafe_CompareAndSwapInt</span>( JNIEnv * env, jobject unsafe, jobject obj, jlong offset, jint e, jint x ) ) &#123;</span><br><span class="line">	<span class="built_in">UnsafeWrapper</span>( <span class="string">&quot;Unsafe_CompareAndSwapInt&quot;</span> );</span><br><span class="line">	oop	p	= JNIHandles::<span class="built_in">resolve</span>( obj );</span><br><span class="line">	jint	* addr	= (jint *) <span class="built_in">index_oop_from_field_offset_long</span>( p, offset );</span><br><span class="line">	<span class="keyword">return</span>( (jint) (Atomic::<span class="built_in">cmpxchg</span>( x, addr, e ) ) == e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> jint <span class="title">Atomic::cmpxchg</span><span class="params">( jint exchange_value, <span class="keyword">volatile</span> jint*     dest, jint compare_value )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> mp = os::<span class="built_in">is_MP</span>();</span><br><span class="line">	<span class="function">__asm__ <span class="title">volatile</span> <span class="params">(LOCK_IF_MP( % <span class="number">4</span> ) <span class="string">&quot;cmpxchgl %1,(%3)&quot;</span></span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;=a&quot;</span> (exchange_value)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;r&quot;</span> (exchange_value), <span class="string">&quot;a&quot;</span> (compare_value), <span class="string">&quot;r&quot;</span> (dest), <span class="string">&quot;r&quot;</span> (mp)</span></span></span><br><span class="line"><span class="params"><span class="function">			  : <span class="string">&quot;cc&quot;</span>, <span class="string">&quot;memory&quot;</span>)</span></span>;</span><br><span class="line">	<span class="keyword">return</span>(exchange_value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可知在执行<code>compareAndSwapInt()</code>方法时，最后会执行到<code>LOCK_IF_MP( % 4 ) &quot;cmpxchgl %1,(%3)&quot;</code>语句，其中<code>LOCK_IF_MP( % 4 )</code>表示在单CPU且单核的环境中，可以优化不加<code>LOCK指令前缀</code>，否则就需要加<code>LOCK指令前缀</code>以确保<code>cmpxchgl</code>的原子性，而<code>cmpxchgl</code>表示一个属于<code>CMPXCHG</code>家族的CAS操作指令，它的末尾<code>l</code>表示操作数长度为4。</p>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://juejin.im/post/5a73cbbff265da4e807783f5">https://juejin.im/post/5a73cbbff265da4e807783f5</a><br>[2]<a href="https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock">https://stackoverflow.com/questions/27837731/is-x86-cmpxchg-atomic-if-so-why-does-it-need-lock</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java并发</category>
+      </categories>
   </entry>
   <entry>
     <title>CPU</title>
@@ -2998,9 +2998,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#103;&#x69;&#116;&#64;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;">&#103;&#x69;&#116;&#64;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#x2e;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#109;">&#103;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#x75;&#98;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#103;&#x69;&#x74;&#64;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#111;&#109;">&#103;&#x69;&#x74;&#64;&#103;&#105;&#x74;&#104;&#x75;&#98;&#46;&#x63;&#111;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#x6f;&#x6d;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#x63;&#x6f;&#109;">&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#x6f;&#109;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -8407,6 +8407,18 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>Java编程思想第4版</title>
+    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
+    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
+<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
+附录A 补充材料
+附录B 资源
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Java编程踩坑记</title>
     <url>/blog/2018/08/04/Java%E7%BC%96%E7%A8%8B%E8%B8%A9%E5%9D%91%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="一、使用File-renameTo-File-方法移动文件可能失败"><a href="#一、使用File-renameTo-File-方法移动文件可能失败" class="headerlink" title="一、使用File#renameTo(File)方法移动文件可能失败"></a><strong>一、使用<code>File#renameTo(File)</code>方法移动文件可能失败</strong></h2><p>使用<code>File#renameTo(File)</code>方法移动文件可能失败，查看该方法的JavaDoc，发现失败原因可能如下：</p>
@@ -8427,18 +8439,6 @@ text-align: center
       <tags>
         <tag>Java</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Java编程思想第4版</title>
-    <url>/blog/2018/07/29/Java%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%E7%AC%AC4%E7%89%88/</url>
-    <content><![CDATA[<h2 id="一、-对象导论"><a href="#一、-对象导论" class="headerlink" title="一、 对象导论"></a><strong>一、 对象导论</strong></h2><h2 id="二、一切都是对象"><a href="#二、一切都是对象" class="headerlink" title="二、一切都是对象"></a><strong>二、一切都是对象</strong></h2><h2 id="三、操作符"><a href="#三、操作符" class="headerlink" title="三、操作符"></a><strong>三、操作符</strong></h2><h2 id="四、控制执行流程"><a href="#四、控制执行流程" class="headerlink" title="四、控制执行流程"></a><strong>四、控制执行流程</strong></h2><h2 id="五、初始化与清理"><a href="#五、初始化与清理" class="headerlink" title="五、初始化与清理"></a><strong>五、初始化与清理</strong></h2><h2 id="六、访问权限控制"><a href="#六、访问权限控制" class="headerlink" title="六、访问权限控制"></a><strong>六、访问权限控制</strong></h2><h2 id="七、复用类"><a href="#七、复用类" class="headerlink" title="七、复用类"></a><strong>七、复用类</strong></h2><h2 id="八、多态"><a href="#八、多态" class="headerlink" title="八、多态"></a><strong>八、多态</strong></h2><h2 id="九、接口"><a href="#九、接口" class="headerlink" title="九、接口"></a><strong>九、接口</strong></h2><h2 id="十、内部类"><a href="#十、内部类" class="headerlink" title="十、内部类"></a><strong>十、内部类</strong></h2><h2 id="十一、持有对象"><a href="#十一、持有对象" class="headerlink" title="十一、持有对象"></a><strong>十一、持有对象</strong></h2><h2 id="十二、通过异常处理错误"><a href="#十二、通过异常处理错误" class="headerlink" title="十二、通过异常处理错误"></a><strong>十二、通过异常处理错误</strong></h2><h2 id="十三、字符串"><a href="#十三、字符串" class="headerlink" title="十三、字符串"></a><strong>十三、字符串</strong></h2><h2 id="十四、类型信息"><a href="#十四、类型信息" class="headerlink" title="十四、类型信息"></a><strong>十四、类型信息</strong></h2><h2 id="十五、泛型"><a href="#十五、泛型" class="headerlink" title="十五、泛型"></a><strong>十五、泛型</strong></h2><h2 id="十六、数组"><a href="#十六、数组" class="headerlink" title="十六、数组"></a><strong>十六、数组</strong></h2><h2 id="十七、容器深入研究"><a href="#十七、容器深入研究" class="headerlink" title="十七、容器深入研究"></a><strong>十七、容器深入研究</strong></h2><h2 id="十八、Java-I-O系统"><a href="#十八、Java-I-O系统" class="headerlink" title="十八、Java I&#x2F;O系统"></a><strong>十八、Java I&#x2F;O系统</strong></h2><h2 id="十九、枚举类型"><a href="#十九、枚举类型" class="headerlink" title="十九、枚举类型"></a><strong>十九、枚举类型</strong></h2><h2 id="二十、注解"><a href="#二十、注解" class="headerlink" title="二十、注解"></a><strong>二十、注解</strong></h2><h2 id="二十一、并发"><a href="#二十一、并发" class="headerlink" title="二十一、并发"></a><strong>二十一、并发</strong></h2><p>关联内容博文：<br>0. <a href="/blog/2020/07/31/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Java并发编程基础">Java并发编程基础</a></p>
-<h2 id="二十二、图形化用户界面"><a href="#二十二、图形化用户界面" class="headerlink" title="二十二、图形化用户界面"></a><strong>二十二、图形化用户界面</strong></h2><br/>
-附录A 补充材料
-附录B 资源
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
   </entry>
   <entry>
     <title>Java运行时汇编指令查看</title>
@@ -8764,31 +8764,6 @@ text-align: center
 [2]http://g33kinfo.com/info/archives/5630
 [3]https://www.quora.com/What-does-rsync-do-that-makes-it-so-efficient-at-deleting-many-small-files
 [4]https://www.slashroot.in/which-is-the-fastest-method-to-delete-files-in-linux
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Linux下，使用云盘同步Google Chrome书签</title>
-    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
-    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
-<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
-<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
-<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
-<ol>
-<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
-<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
-<li>将临时文件重命名为Bookmarks</li>
-<li>删除原有的书签数据文件</li>
-</ol>
-<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
-<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
-<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
-<br/>
-参考文献：
-[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -9176,6 +9151,31 @@ text-align: center
 [7]http://en.wikipedia.org/wiki/Setuid#setuid_and_setgid_on_directories
 [8]http://en.wikipedia.org/wiki/Sticky_bit
 [9]http://www.linuxquestions.org/questions/linux-software-2/rename-and-ctime-913753
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux下，使用云盘同步Google Chrome书签</title>
+    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
+    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
+<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
+<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
+<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
+<ol>
+<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
+<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
+<li>将临时文件重命名为Bookmarks</li>
+<li>删除原有的书签数据文件</li>
+</ol>
+<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
+<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
+<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
+<br/>
+参考文献：
+[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -10085,7 +10085,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#x64;&#111;&#109;&#97;&#x69;&#x6e;&#x2e;&#x63;&#110;">&#100;&#115;&#108;&#122;&#x74;&#120;&#x40;&#x64;&#111;&#109;&#97;&#x69;&#x6e;&#x2e;&#x63;&#110;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#64;&#x64;&#x6f;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#x63;&#x6e;">&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#64;&#x64;&#x6f;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#x63;&#x6e;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -10109,7 +10109,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#x65;&#x6f;&#x72;&#103;&#x65;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#71;&#x65;&#x6f;&#x72;&#103;&#x65;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#x6f;&#114;&#103;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x47;&#101;&#x6f;&#114;&#103;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -21759,6 +21759,15 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
     <title>思维导图之计算机组成原理</title>
     <url>/blog/2019/06/02/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E4%B9%8B%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20190602-0-0.svg"></p>
+]]></content>
+      <categories>
+        <category>思维导图</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>思维导图之设计模式</title>
+    <url>/blog/2024/10/01/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E4%B9%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p><img src="https://blog.dslztx.top/imgs/20241001-0-0.svg"></p>
 ]]></content>
       <categories>
         <category>思维导图</category>
