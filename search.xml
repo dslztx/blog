@@ -118,23 +118,6 @@
       </categories>
   </entry>
   <entry>
-    <title>3个JDK最好一致</title>
-    <url>/blog/2019/05/20/3%E4%B8%AAJDK%E6%9C%80%E5%A5%BD%E4%B8%80%E8%87%B4/</url>
-    <content><![CDATA[<p>3个JDK（源码所使用JDK，目标运行平台JDK，编译所使用JDK）最好一致，以避免一些奇怪的异常或者错误。</p>
-<h2 id="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"><a href="#一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形" class="headerlink" title="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"></a><strong>一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形</strong></h2><p>实验代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    ConcurrentHashMap&lt;String, AtomicInteger&gt; domainCounts = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        main.f();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> domainCounts.keySet().iterator(); ((Iterator)iterator).hasNext();) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">val</span> <span class="operator">=</span> (String)iterator.next();</span><br><span class="line"></span><br><span class="line">            System.out.println(val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编译命令为<code>~/jdk1.8/bin/javac -source 1.6 -target 1.6 Main.java</code>，运行命令为<code>~/jdk1.6/bin/java Main</code>，抛出异常如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">        at Main.f(Main.java:15)</span><br><span class="line">        at Main.main(Main.java:11)</span><br></pre></td></tr></table></figure>
-<p>执行<code>javap -v Main</code>命令，发现<code>f()</code>方法对应的内容如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void f();</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=2, locals=3, args_size=1</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: getfield      #4                  // Field domainCounts:Ljava/util/concurrent/ConcurrentHashMap;</span><br><span class="line">         4: invokevirtual #8                  // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">         7: invokevirtual #9                  // Method java/util/concurrent/ConcurrentHashMap$KeySetView.iterator:()Ljava/util/Iterator;</span><br><span class="line">        10: astore_1</span><br><span class="line">        11: aload_1</span><br><span class="line">        12: invokeinterface #10,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z</span><br><span class="line">        17: ifeq          40</span><br><span class="line">        20: aload_1</span><br><span class="line">        21: invokeinterface #11,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;</span><br><span class="line">        26: checkcast     #12                 // class java/lang/String</span><br><span class="line">        29: astore_2</span><br><span class="line">        30: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        33: aload_2</span><br><span class="line">        34: invokevirtual #14                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        37: goto          11</span><br><span class="line">        40: return</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 15: 0</span><br><span class="line">        line 16: 20</span><br><span class="line">        line 18: 30</span><br><span class="line">        line 19: 37</span><br><span class="line">        line 20: 40</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">        frame_type = 252 /* append */</span><br><span class="line">          offset_delta = 11</span><br><span class="line">          locals = [ class java/util/Iterator ]</span><br><span class="line">        frame_type = 250 /* chop */</span><br><span class="line">          offset_delta = 28</span><br></pre></td></tr></table></figure>
-<p>查看上述内容，可发现绑定到了属于JDK1.8的<code>java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView</code>，从而可知在使用JDK1.8编译的时候，一些特定于JDK1.8的依赖信息被写入到了CLASS文件中（<font color='red'>笔者认为这是JDK1.8中javac命令实现的bug，因为我们指定了<code>-target 1.6</code>，自然期待的结果应该是特定于JDK1.6的依赖信息被写入到CLASS文件中</font>），这最终导致了当运行于JDK1.6目标平台时会抛出<code>java.lang.NoClassDefFoundError</code>异常。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
     <title>12种基础死活棋形</title>
     <url>/blog/2023/11/19/12%E7%A7%8D%E5%9F%BA%E7%A1%80%E6%AD%BB%E6%B4%BB%E6%A3%8B%E5%BD%A2/</url>
     <content><![CDATA[<p>棋形，是棋子在棋盘上组合成的各种形状。<br>本文介绍12种基础死活棋形，包括：两种死形，四种活形，六种半死不活形。</p>
@@ -527,6 +510,23 @@
 ]]></content>
       <categories>
         <category>围棋</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>3个JDK最好一致</title>
+    <url>/blog/2019/05/20/3%E4%B8%AAJDK%E6%9C%80%E5%A5%BD%E4%B8%80%E8%87%B4/</url>
+    <content><![CDATA[<p>3个JDK（源码所使用JDK，目标运行平台JDK，编译所使用JDK）最好一致，以避免一些奇怪的异常或者错误。</p>
+<h2 id="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"><a href="#一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形" class="headerlink" title="一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形"></a><strong>一、3个JDK不一致导致抛出NoClassDefFoundError异常的一种情形</strong></h2><p>实验代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    ConcurrentHashMap&lt;String, AtomicInteger&gt; domainCounts = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        main.f();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">f</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> domainCounts.keySet().iterator(); ((Iterator)iterator).hasNext();) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">val</span> <span class="operator">=</span> (String)iterator.next();</span><br><span class="line"></span><br><span class="line">            System.out.println(val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译命令为<code>~/jdk1.8/bin/javac -source 1.6 -target 1.6 Main.java</code>，运行命令为<code>~/jdk1.6/bin/java Main</code>，抛出异常如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">        at Main.f(Main.java:15)</span><br><span class="line">        at Main.main(Main.java:11)</span><br></pre></td></tr></table></figure>
+<p>执行<code>javap -v Main</code>命令，发现<code>f()</code>方法对应的内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void f();</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=2, locals=3, args_size=1</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: getfield      #4                  // Field domainCounts:Ljava/util/concurrent/ConcurrentHashMap;</span><br><span class="line">         4: invokevirtual #8                  // Method java/util/concurrent/ConcurrentHashMap.keySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;</span><br><span class="line">         7: invokevirtual #9                  // Method java/util/concurrent/ConcurrentHashMap$KeySetView.iterator:()Ljava/util/Iterator;</span><br><span class="line">        10: astore_1</span><br><span class="line">        11: aload_1</span><br><span class="line">        12: invokeinterface #10,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z</span><br><span class="line">        17: ifeq          40</span><br><span class="line">        20: aload_1</span><br><span class="line">        21: invokeinterface #11,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;</span><br><span class="line">        26: checkcast     #12                 // class java/lang/String</span><br><span class="line">        29: astore_2</span><br><span class="line">        30: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        33: aload_2</span><br><span class="line">        34: invokevirtual #14                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        37: goto          11</span><br><span class="line">        40: return</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 15: 0</span><br><span class="line">        line 16: 20</span><br><span class="line">        line 18: 30</span><br><span class="line">        line 19: 37</span><br><span class="line">        line 20: 40</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">        frame_type = 252 /* append */</span><br><span class="line">          offset_delta = 11</span><br><span class="line">          locals = [ class java/util/Iterator ]</span><br><span class="line">        frame_type = 250 /* chop */</span><br><span class="line">          offset_delta = 28</span><br></pre></td></tr></table></figure>
+<p>查看上述内容，可发现绑定到了属于JDK1.8的<code>java.util.concurrent.ConcurrentHashMap.keySet()Ljava/util/concurrent/ConcurrentHashMap$KeySetView</code>，从而可知在使用JDK1.8编译的时候，一些特定于JDK1.8的依赖信息被写入到了CLASS文件中（<font color='red'>笔者认为这是JDK1.8中javac命令实现的bug，因为我们指定了<code>-target 1.6</code>，自然期待的结果应该是特定于JDK1.6的依赖信息被写入到CLASS文件中</font>），这最终导致了当运行于JDK1.6目标平台时会抛出<code>java.lang.NoClassDefFoundError</code>异常。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
       </categories>
   </entry>
   <entry>
@@ -1848,6 +1848,25 @@
       </categories>
   </entry>
   <entry>
+    <title>GFW原理</title>
+    <url>/blog/2024/02/06/GFW%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h2 id="一、防火墙原理"><a href="#一、防火墙原理" class="headerlink" title="一、防火墙原理"></a><strong>一、防火墙原理</strong></h2><p>防火墙屏蔽主要有以下这3种形式：</p>
+<ol>
+<li>DNS污染，进行域名解析的时候，它返回给你错误的IP</li>
+<li>封杀IP地址</li>
+<li>关键词过滤</li>
+</ol>
+<h2 id="二、穿越防火墙原理"><a href="#二、穿越防火墙原理" class="headerlink" title="二、穿越防火墙原理"></a><strong>二、穿越防火墙原理</strong></h2><p>针对以上屏蔽方式，解决方案分别如下：</p>
+<ol>
+<li>针对1，我们可以通过Hosts文件，在本地进行域名解析</li>
+<li>针对2和3，只能通过加密代理等方式进行，比如使用GoAgent（Google服务器作为代理服务器），VPN，ShadowSocks，Skype等程序和机制</li>
+</ol>
+]]></content>
+      <categories>
+        <category>网络原理</category>
+      </categories>
+  </entry>
+  <entry>
     <title>FutureTask和ScheduledFutureTask</title>
     <url>/blog/2021/05/16/FutureTask%E5%92%8CScheduledFutureTask/</url>
     <content><![CDATA[<p>在阅读和过程中，会碰到以下几个互相之间具有联系的类和接口：</p>
@@ -2053,25 +2072,6 @@
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>GFW原理</title>
-    <url>/blog/2024/02/06/GFW%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h2 id="一、防火墙原理"><a href="#一、防火墙原理" class="headerlink" title="一、防火墙原理"></a><strong>一、防火墙原理</strong></h2><p>防火墙屏蔽主要有以下这3种形式：</p>
-<ol>
-<li>DNS污染，进行域名解析的时候，它返回给你错误的IP</li>
-<li>封杀IP地址</li>
-<li>关键词过滤</li>
-</ol>
-<h2 id="二、穿越防火墙原理"><a href="#二、穿越防火墙原理" class="headerlink" title="二、穿越防火墙原理"></a><strong>二、穿越防火墙原理</strong></h2><p>针对以上屏蔽方式，解决方案分别如下：</p>
-<ol>
-<li>针对1，我们可以通过Hosts文件，在本地进行域名解析</li>
-<li>针对2和3，只能通过加密代理等方式进行，比如使用GoAgent（Google服务器作为代理服务器），VPN，ShadowSocks，Skype等程序和机制</li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络原理</category>
       </categories>
   </entry>
   <entry>
@@ -2998,9 +2998,9 @@
 <p>执行<code>git log --graph --topo-order --decorate --oneline --all</code>命令，查看此时的提交节点拓扑图，结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*   5ba2e1a (HEAD, master) Merge branch &#x27;dev&#x27;</span><br><span class="line">|\  </span><br><span class="line">| * 6252efa 4.txt</span><br><span class="line">* | 5c28268 3.txt</span><br><span class="line">|/  </span><br><span class="line">* 7a9965c alter again</span><br><span class="line">* d0c01f4 add again</span><br><span class="line">* 5fb58d0 delete</span><br><span class="line">* ba32a2c rename</span><br><span class="line">* 4c4c21a alter</span><br><span class="line">* 46400e7 add</span><br></pre></td></tr></table></figure>
 <h2 id="六、进阶——远程仓库"><a href="#六、进阶——远程仓库" class="headerlink" title="六、进阶——远程仓库"></a><strong>六、进阶——远程仓库</strong></h2><h3 id="6-1、说明"><a href="#6-1、说明" class="headerlink" title="6.1、说明"></a><strong>6.1、说明</strong></h3><p>远程仓库的作用：既可作为本地仓库的远程备份，又可作为多人协作的中间联络者。接下来以流行的Github上的远程仓库为例进行介绍。</p>
-<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#x6f;&#x6d;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#99;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
-<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#x63;&#x6f;&#109;">&#103;&#105;&#116;&#64;&#103;&#x69;&#116;&#104;&#x75;&#x62;&#x2e;&#x63;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
-<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#x6f;&#109;">&#x67;&#105;&#x74;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
+<h3 id="6-2、实战"><a href="#6-2、实战" class="headerlink" title="6.2、实战"></a><strong>6.2、实战</strong></h3><h4 id="6-2-1、关联本地仓库和远程仓库"><a href="#6-2-1、关联本地仓库和远程仓库" class="headerlink" title="6.2.1、关联本地仓库和远程仓库"></a><strong>6.2.1、关联本地仓库和远程仓库</strong></h4><p><strong>1、命令和说明</strong><br>如果通过执行<code>git clone 远程仓库地址</code>命令方式，克隆远程仓库而创建得到本地仓库，那么该本地仓库已自动与远程仓库建立关联；如果通过在目录下执行<code>git init</code>命令而初始化创建得到本地仓库，那么后续可执行<code>git remote add SHORT_NAME 远程仓库地址（SHORT_NAME表示远程仓库别名，便于后续引用该远程仓库，默认的别名为origin）</code>命令建立该本地仓库与远程仓库的关联。<br><strong>2、实战</strong><br>在Github上新建一个远程仓库（假设远程仓库地址为“<a href="mailto:&#x67;&#x69;&#116;&#64;&#x67;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#x6d;">&#x67;&#x69;&#116;&#64;&#x67;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#x6d;</a>:dslztx&#x2F;learngit.git”），Git本地仓库使用已存在的“dslztx”本地仓库，将两者进行关联的命令为<code>git remote add origin git@github.com:dslztx/learngit.git</code>。</p>
+<h4 id="6-2-2、推送到远程仓库"><a href="#6-2-2、推送到远程仓库" class="headerlink" title="6.2.2、推送到远程仓库"></a><strong>6.2.2、推送到远程仓库</strong></h4><p><strong>1、命令和说明</strong><br><code>git push origin master</code>：将本地仓库的master分支的内容推送到远程仓库的master分支，如果有冲突，先解决冲突，再推送。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git push origin master</code>命令，可发现“<a href="mailto:&#103;&#105;&#x74;&#64;&#103;&#105;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#x6d;">&#103;&#105;&#x74;&#64;&#103;&#105;&#116;&#x68;&#117;&#98;&#46;&#x63;&#111;&#x6d;</a>:dslztx&#x2F;learngit.git”指代的远程仓库下有了一个master分支，且该分支的内容与本地仓库的master分支内容一致。</p>
+<h4 id="6-2-3、从远程仓库拉取"><a href="#6-2-3、从远程仓库拉取" class="headerlink" title="6.2.3、从远程仓库拉取"></a><strong>6.2.3、从远程仓库拉取</strong></h4><p><strong>1、命令和说明</strong><br><code>git pull origin master</code>：从远程仓库的master分支拉取内容到本地仓库的master分支。<br><strong>2、实战</strong><br>在dslztx本地仓库下执行<code>git pull origin master</code>命令，可发现本地仓库master分支的内容与“<a href="mailto:&#103;&#105;&#116;&#x40;&#103;&#105;&#x74;&#104;&#x75;&#x62;&#46;&#99;&#x6f;&#109;">&#103;&#105;&#116;&#x40;&#103;&#105;&#x74;&#104;&#x75;&#x62;&#46;&#99;&#x6f;&#109;</a>:dslztx&#x2F;learngit.git”所指代远程仓库下master分支内容一致。</p>
 <h2 id="七、进阶——标签管理"><a href="#七、进阶——标签管理" class="headerlink" title="七、进阶——标签管理"></a><strong>七、进阶——标签管理</strong></h2><h3 id="7-1、说明"><a href="#7-1、说明" class="headerlink" title="7.1、说明"></a><strong>7.1、说明</strong></h3><p>标签的作用：作为提交节点的别名，相较于提交节点ID，更加便于记忆和使用。</p>
 <h3 id="7-2、实战"><a href="#7-2、实战" class="headerlink" title="7.2、实战"></a><strong>7.2、实战</strong></h3><h4 id="7-2-1、查看标签"><a href="#7-2-1、查看标签" class="headerlink" title="7.2.1、查看标签"></a><strong>7.2.1、查看标签</strong></h4><p><strong>1、命令和说明</strong><br><code>git tag</code>：查看所有标签，标签默认按照标签名称的字典序进行排序。<br><strong>2、实战</strong><br>参见下面小节。</p>
 <h4 id="7-2-2、查看标签对应版本信息"><a href="#7-2-2、查看标签对应版本信息" class="headerlink" title="7.2.2、查看标签对应版本信息"></a><strong>7.2.2、查看标签对应版本信息</strong></h4><p><strong>1、命令和说明</strong><br><code>git show TAG_NAME</code>：查看指定标签对应的版本的信息。<br><strong>2、实战</strong><br>参见下面小节。</p>
@@ -6881,6 +6881,66 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>Java容器</title>
+    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
+    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
+<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
+<p>故Java容器划分示意图如图1。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
+<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
+<ul>
+<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
+<li><code>E next()</code>：下一个待遍历元素</li>
+<li><code>void remove()</code>：删除最近一个已遍历元素</li>
+</ul>
+<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
+<p>具体描述如下表。</p>
+<table>
+<thead>
+<tr>
+<th>迭代器类型</th>
+<th>描述</th>
+<th>在A上修改后B的表现</th>
+<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>快速失败</td>
+<td>fail-fast</td>
+<td>抛出<code>ConcurrentModificationException</code>异常</td>
+<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
+</tr>
+<tr>
+<td>快照式</td>
+<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
+<td>不抛出异常，通过B不能感知A上修改</td>
+<td>通过A不能感知B上修改</td>
+</tr>
+<tr>
+<td>弱一致性</td>
+<td>weakly consistent</td>
+<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
+<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>undefined</td>
+<td>未定义</td>
+<td>未定义</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>容器</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Java堆</title>
     <url>/blog/2022/01/16/Java%E5%A0%86/</url>
     <content><![CDATA[<p>本文默认基于64位的JDK 8（其虚拟机实现是HotSpot），除非特别说明。</p>
@@ -7013,66 +7073,6 @@ text-align: center
         <category>语言</category>
         <category>Java</category>
         <category>JVM</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java容器</title>
-    <url>/blog/2021/06/21/Java%E5%AE%B9%E5%99%A8/</url>
-    <content><![CDATA[<h2 id="一、Java容器绪论"><a href="#一、Java容器绪论" class="headerlink" title="一、Java容器绪论"></a><strong>一、Java容器绪论</strong></h2><p>Java容器主要包括两类，对应的根接口分别为<code>Map</code>和<code>Collection</code>。<br><code>Collection</code>又主要包括3类，对应的根接口分别为<code>List</code>，<code>Queue</code>和<code>Set</code>。</p>
-<p><code>Map</code>、<code>List</code>、<code>Queue</code>和<code>Set</code>又都有“并发”和“非并发（普通）”之分。在并发容器中，如果简单粗暴使用<code>synchronized</code>实现操作的线程安全，该并发容器又可被称为“同步容器”。</p>
-<p>故Java容器划分示意图如图1。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20210621-0-0.svg"></p>
-<h2 id="二、一些说明"><a href="#二、一些说明" class="headerlink" title="二、一些说明"></a><strong>二、一些说明</strong></h2><h3 id="2-1、Collection接口的迭代器"><a href="#2-1、Collection接口的迭代器" class="headerlink" title="2.1、Collection接口的迭代器"></a><strong>2.1、Collection接口的迭代器</strong></h3><p><code>Collection</code>接口继承<code>Iterable</code>接口，因此其有<code>Iterator&lt;E&gt; iterator()</code>方法生成迭代器。<br>迭代器的主要方法如下：</p>
-<ul>
-<li><code>boolean hasNext()</code>：是否存在下一个待遍历元素</li>
-<li><code>E next()</code>：下一个待遍历元素</li>
-<li><code>void remove()</code>：删除最近一个已遍历元素</li>
-</ul>
-<p>假设Collection实例为A，其生成的迭代器实例为B，一段时间内同时使用A和B进行操作（逻辑同时，指“使用A后再使用B”或者“使用B后再使用A”，故可以是多线程的，也可以是单线程的），根据“在A上修改后B的表现”和“在B上修改后A的表现”可将迭代器分为4类：快速失败、快照式、弱一致性和其他。</p>
-<p>具体描述如下表。</p>
-<table>
-<thead>
-<tr>
-<th>迭代器类型</th>
-<th>描述</th>
-<th>在A上修改后B的表现</th>
-<th>在B上修改（迭代器的修改操作只有<code>remove()</code>）后A的表现</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>快速失败</td>
-<td>fail-fast</td>
-<td>抛出<code>ConcurrentModificationException</code>异常</td>
-<td>具体实现具体定义。比如“ArrayList对应迭代器的<code>remove()</code>方法实现是转发调用外围ArrayList实例的<code>remove(int index)</code>方法”</td>
-</tr>
-<tr>
-<td>快照式</td>
-<td>snapshot，在创建生成迭代器时，复制一份内容，故后续两边的操作互相独立</td>
-<td>不抛出异常，通过B不能感知A上修改</td>
-<td>通过A不能感知B上修改</td>
-</tr>
-<tr>
-<td>弱一致性</td>
-<td>weakly consistent</td>
-<td>不抛出异常，通过B不一定能够感知A上的修改，即便能够感知，也不一定是准确一致的，比如“有ArrayBlockingQueue实例A，其对应的迭代器实例为B，调用B的<code>hasNext()</code>方法返回true，后续再调用B的<code>next()</code>方法必返回一个元素，如果此时通过A已经删除该元素，则产生不一致”</td>
-<td>通过A不一定能够感知B上的修改，即便能够感知，也不一定是准确一致的</td>
-</tr>
-<tr>
-<td>其他</td>
-<td>undefined</td>
-<td>未定义</td>
-<td>未定义</td>
-</tr>
-</tbody></table>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="https://zhuanlan.zhihu.com/p/300162795">https://zhuanlan.zhihu.com/p/300162795</a><br>[2]<a href="https://blog.csdn.net/yuanlaijike/article/details/108177720">https://blog.csdn.net/yuanlaijike/article/details/108177720</a></p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>容器</category>
       </categories>
   </entry>
   <entry>
@@ -7291,6 +7291,45 @@ text-align: center
         <category>Java</category>
         <category>Java并发</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Java并发编程的艺术</title>
+    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
+    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
+]]></content>
+      <categories>
+        <category>书籍文档</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java序列化机制释疑</title>
+    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
+    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
+<ul>
+<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
+<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
+</ul>
+<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
+<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
+]]></content>
+      <categories>
+        <category>语言</category>
+        <category>Java</category>
+        <category>Java一般语法</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Java开发私人最佳实践</title>
+    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
+<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/blog/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
+]]></content>
+      <categories>
+        <category>语言</category>
+      </categories>
+      <tags>
+        <tag>长期维护</tag>
+      </tags>
   </entry>
   <entry>
     <title>Java并发编程基础</title>
@@ -7769,45 +7808,6 @@ text-align: center
         <category>Java</category>
         <category>Java并发</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Java并发编程的艺术</title>
-    <url>/blog/2019/08/20/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E8%89%BA%E6%9C%AF/</url>
-    <content><![CDATA[<p><del>第一章 并发编程的挑战</del><br><del>第二章 Java并发机制的底层实现原理</del><br><del>第三章 Java内存模型</del><br><del>第四章 Java并发编程基础</del><br><del>第五章 Java中的锁</del><br><del>第六章 Java并发容器和框架</del><br><del>第七章 Java中的13个原子操作类</del><br><del>第八章 Java中的并发工具类</del><br><del>第九章 Java中的线程池</del><br><del>第十章 Executor框架</del><br><del>第十一章 Java并发编程实践</del></p>
-]]></content>
-      <categories>
-        <category>书籍文档</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java序列化机制释疑</title>
-    <url>/blog/2018/11/26/Java%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6%E9%87%8A%E7%96%91/</url>
-    <content><![CDATA[<h2 id="一、同一个Java-Bean"><a href="#一、同一个Java-Bean" class="headerlink" title="一、同一个Java Bean"></a><strong>一、同一个Java Bean</strong></h2><p>一个Java Bean序列化时状态以“A”指代，反序列化时状态以“B”指代，那么存在如下兼容性描述：</p>
-<ul>
-<li>如果A和B的<code>serialVersionUID</code>字段值不一致，那么反序列化“序列化A生成的字节流”尝试获取B时失败，抛出<code>java.io.InvalidClassException</code>异常</li>
-<li>如果A和B的<code>serialVersionUID</code>字段值一致，那么B相对于A增加或者减少字段，都不影响反序列化“序列化A生成的字节流”尝试获取B时的成功</li>
-</ul>
-<h2 id="二、不同Java-Bean"><a href="#二、不同Java-Bean" class="headerlink" title="二、不同Java Bean"></a><strong>二、不同Java Bean</strong></h2><p>不同的两个Java Bean “C”和“D”（包括“类名不同”和“类名相同，所在包路径不同”），无论其中的“serialVersionUID”字段值是否一致，反序列化“序列化C生成的字节流”尝试获取D时失败，抛出<code>java.lang.ClassCastException</code>异常</p>
-<h2 id="三、有序列表或者数组中的元素顺序保持不变"><a href="#三、有序列表或者数组中的元素顺序保持不变" class="headerlink" title="三、有序列表或者数组中的元素顺序保持不变"></a><strong>三、有序列表或者数组中的元素顺序保持不变</strong></h2><p>对于有序列表或者数组，经过序列化和反序列化后，有序列表或者数组中的元素顺序保持不变。</p>
-]]></content>
-      <categories>
-        <category>语言</category>
-        <category>Java</category>
-        <category>Java一般语法</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Java开发私人最佳实践</title>
-    <url>/blog/2016/08/13/Java%E5%BC%80%E5%8F%91%E7%A7%81%E4%BA%BA%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<h2 id="一、Java打印日志最佳实践"><a href="#一、Java打印日志最佳实践" class="headerlink" title="一、Java打印日志最佳实践"></a><strong>一、Java打印日志最佳实践</strong></h2><a href="/blog/2016/08/13/Java%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java打印日志最佳实践">《Java打印日志最佳实践》</a>
-<h2 id="二、Java内记录代码块执行时间最佳实践"><a href="#二、Java内记录代码块执行时间最佳实践" class="headerlink" title="二、Java内记录代码块执行时间最佳实践"></a><strong>二、Java内记录代码块执行时间最佳实践</strong></h2><a href="/blog/2016/08/12/Java%E5%86%85%E8%AE%B0%E5%BD%95%E4%BB%A3%E7%A0%81%E5%9D%97%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" title="Java内记录代码块执行时间最佳实践">《Java内记录代码块执行时间最佳实践》</a>
-]]></content>
-      <categories>
-        <category>语言</category>
-      </categories>
-      <tags>
-        <tag>长期维护</tag>
-      </tags>
   </entry>
   <entry>
     <title>Java打印日志最佳实践</title>
@@ -8771,6 +8771,31 @@ text-align: center
       </categories>
   </entry>
   <entry>
+    <title>Linux下，使用云盘同步Google Chrome书签</title>
+    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
+    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
+<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
+<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
+<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
+<ol>
+<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
+<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
+<li>将临时文件重命名为Bookmarks</li>
+<li>删除原有的书签数据文件</li>
+</ol>
+<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
+<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
+<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
+<br/>
+参考文献：
+[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
+]]></content>
+      <categories>
+        <category>计算机操作系统</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Linux文件权限</title>
     <url>/blog/2017/06/15/Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/</url>
     <content><![CDATA[<h2 id="一、文件"><a href="#一、文件" class="headerlink" title="一、文件"></a><strong>一、文件</strong></h2><p>Linux文件分为：一般文件（通常简称为文件）和目录。<br>文件由“Inode节点和Block节点集”构成。</p>
@@ -9151,31 +9176,6 @@ text-align: center
 [7]http://en.wikipedia.org/wiki/Setuid#setuid_and_setgid_on_directories
 [8]http://en.wikipedia.org/wiki/Sticky_bit
 [9]http://www.linuxquestions.org/questions/linux-software-2/rename-and-ctime-913753
-]]></content>
-      <categories>
-        <category>计算机操作系统</category>
-        <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Linux下，使用云盘同步Google Chrome书签</title>
-    <url>/blog/2015/10/31/Linux%E4%B8%8B%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BA%91%E7%9B%98%E5%90%8C%E6%AD%A5Google-Chrome%E4%B9%A6%E7%AD%BE/</url>
-    <content><![CDATA[<h2 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a><strong>一、问题描述</strong></h2><p>本人使用Linux操作系统，用的浏览器是Google Chrome。发现Chrome自带的书签同步功能同步书签会出现书签文件夹产生重复的情况，Xmarks插件也不是很合用。<br>另外还尝试了Delicious，UC云同步，印象笔记，有道笔记，百度云收藏等产品，发现都不是很合用。</p>
-<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a><strong>二、分析</strong></h2><p>Google Chrome的所有书签数据以单一文件形式存放，如果可以使用云盘来同步该文件，就可以达到同步书签的目的。可选用的云盘有百度云盘，360云盘，金山快盘等，而在Linux上，金山快盘有官方客户端，因而选用金山快盘。</p>
-<h2 id="三、解决方案"><a href="#三、解决方案" class="headerlink" title="三、解决方案"></a><strong>三、解决方案</strong></h2><p>假定有两台Linux机子（OS1和OS2），其上都安装有金山快盘和Google Chrome。在OS1上，金山快盘的工作目录是pandir1，Google Chrome的书签数据文件所在目录是bookmarkdir1；在OS2上，金山快盘的工作目录是pandir2，Google Chrome的书签数据文件所在目录是bookmarkdir2。另外假定书签数据文件的名称为Bookmarks。<br>接下来根据上述背景进行说明。</p>
-<h3 id="3-1、错误的解决方案"><a href="#3-1、错误的解决方案" class="headerlink" title="3.1、错误的解决方案"></a><strong>3.1、错误的解决方案</strong></h3><p>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的Google Chrome书签数据文件所在目录bookmarkdir1，删除原有的书签数据文件，执行<code>ln pandir1/Bookmarks Bookmarks</code>命令，建立一个硬链接文件；在OS2上，也做类似操作，在bookmarkdir2中建立一个硬链接文件<br>3、原以为经过1和2步骤，OS1上的Google Chrome对书签的操作会保存到bookmarkdir1下的Bookmarks硬链接文件，也即保存到pandir1下的Bookmarks文件，这也就是金山快盘云服务器上的Bookmarks文件。对于OS2上的Google Chrome来说也是类似的。此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件<br>4、其实，Google Chrome保存书签操作数据的具体步骤如下：[1]</p>
-<ol>
-<li>创建一个临时文件，将原有的书签数据和书签操作数据存入该临时文件</li>
-<li>将原有的书签数据文件重命名为其他名称（本来的名称是Bookmarks)</li>
-<li>将临时文件重命名为Bookmarks</li>
-<li>删除原有的书签数据文件</li>
-</ol>
-<p>根据以上过程，可以发现Google Chrome在保存书签操作数据的时候，会删除在bookmarkdir1或者bookmarkdir2下的Bookmarks硬链接文件，而创建一个新的文件，这个新的文件跟pandir1或者pandir2下的Bookmarks文件没有任何关系，这就导致了“OS1和OS2上的Google Chrome等价于操作同一个书签数据文件”的说法是不成立的，也就说明了以上这种解决方案是错误的。</p>
-<h3 id="3-2、正确的解决方案"><a href="#3-2、正确的解决方案" class="headerlink" title="3.2、正确的解决方案"></a><strong>3.2、正确的解决方案</strong></h3><p>在讲述正确的解决方案之前，先介绍金山快盘如何判断云服务器端的文件和本地端的文件是否是同一个文件。经过实验发现，关于这个问题，判断标准是“名称是否一致，文件类型等因素不在考虑范围之内”。<br>在这种情况下，假如在云服务器端有个A文件，本地端有个A文件，A文件是个硬连接文件（或者软符号链接文件），它具体指向本地端的另外一个地方的某个文件AA，此时云服务器端的A文件和本地端的AA文件保持同步，关于本地端的A文件和本地端的AA文件之间的链接关系无需金山快盘程序关心，而由本地文件系统处理。<br>1、将初始的书签数据文件Bookmarks上传到金山快盘云服务器上，将其同步到OS1上的金山快盘工作目录pandir1中和同步到OS2上的金山快盘工作目录pandir2中，即现在在pandir1中和pandir2中都存在Bookmarks文件<br>2、进入OS1的金山快盘工作目录pandir1，删除1步骤中得到的Bookmarks文件，执行<code>ln -s bookmarkdir1/Bookmarks Bookmarks</code>命令，建立一个软符号链接文件，该软符号链接文件指向的是OS1上Google Chrome的书签数据文件；在OS2上，也做类似操作，在pandir2中建立一个软符号链接文件<br>3、经过1和2，此时，OS1和OS2上的Google Chrome等价于操作同一个书签数据文件，即达到了我们的目标</p>
-<p><strong>备注：</strong><br>1、默认情况下，在Linux上，Google Chrome的书签数据文件路径是<code>~/.config/google-chrome/Default/Bookmarks</code><br>2、使用以上解决方案需要遵循一个操作规范：在本地，每次操作书签数据文件之前，都要使用金山快盘进行更新得到最新的书签数据文件，在此基础上操作书签，在操作完成之后，需要使用金山快盘将最新的书签数据文件更新到云服务器端。只有这样子，书签数据文件的同步工作才能正常进行，而不会出现覆盖等现象<br>3、另外最重要的一点是要关闭Google Chrome自带的书签同步功能：打开chrome浏览器的设置选项，进入高级同步设置选项，勾选掉“书签”选项，点击确定，使得chrome浏览器自带的书签同步功能失效</p>
-<br/>
-参考文献：
-[1]http://superuser.com/questions/993833/why-is-a-created-own-bookmarks-file-deleted-by-chrome/993845?noredirect=1#comment1372457_993845
 ]]></content>
       <categories>
         <category>计算机操作系统</category>
@@ -10085,7 +10085,7 @@ text-align: center
 <h5 id="4-1-4-2、user-defined-field"><a href="#4-1-4-2、user-defined-field" class="headerlink" title="4.1.4.2、user-defined-field"></a><strong>4.1.4.2、user-defined-field</strong></h5><p><font color='red'>user-defined-field</font>&#x3D;&lt; 用户自定义完全私有的消息头字段（Header-Field），为了避免冲突，消息头字段名称（Field-Name）一般以“X-&#x2F;x-”字符串作为前缀 &gt;</p>
 <h3 id="4-2、转发"><a href="#4-2、转发" class="headerlink" title="4.2、转发"></a><strong>4.2、转发</strong></h3><p>转发消息时会在不改变原有消息头字段（Header-Field）的基础上，增加一些以“Resent-”字符串作为前缀的消息头字段（Header-Field），这些消息头字段（Header-Field）的含义跟去掉“Resent-”字符串前缀对应的消息头字段（Header-Field）一致。</p>
 <h3 id="4-3、再细化"><a href="#4-3、再细化" class="headerlink" title="4.3、再细化"></a><strong>4.3、再细化</strong></h3><h4 id="4-3-1、“Trace”族消息头字段"><a href="#4-3-1、“Trace”族消息头字段" class="headerlink" title="4.3.1、“Trace”族消息头字段"></a><strong>4.3.1、“Trace”族消息头字段</strong></h4><p>“Trace”族消息头字段主要由消息投递环节各个设备（除了发件人设备s）添加，用于记录路由信息。定义如下：<br><font color='red'>source</font>&#x3D;[<font color='red'>trace</font>]<font color='red'>originator</font>[<font color='red'>resent</font>]<br><font color='red'>trace</font>&#x3D;(<font color='red'>return</font>)(1*<font color='red'>received</font>)<br><font color='red'>return</font>&#x3D;”Return-path””:”<font color='red'>route-addr</font>(<font color='red'>CRLF</font>)<br><font color='red'>received</font>&#x3D;”Received””:”[“from”<font color='red'>domain</font>][“by”<font color='red'>domain</font>][“via”<font color='red'>atom</font>]&#40;*(“with”<font color='red'>atom</font>)&#41;[“id”<font color='red'>msg-id</font>][“for”<font color='red'>addr-spec</font>]”;”<font color='red'>date-time</font>(<font color='red'>CRLF</font>)<br><font color='red'>msg-id</font>&#x3D;”&lt;”<font color='red'>addr-spec</font>“&gt;”</p>
-<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#64;&#x64;&#x6f;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#x63;&#x6e;">&#100;&#x73;&#108;&#x7a;&#x74;&#x78;&#64;&#x64;&#x6f;&#x6d;&#x61;&#x69;&#x6e;&#x2e;&#x63;&#x6e;</a>”。</p>
+<h5 id="4-3-1-1、“Return-Path”消息头字段"><a href="#4-3-1-1、“Return-Path”消息头字段" class="headerlink" title="4.3.1.1、“Return-Path”消息头字段"></a><strong>4.3.1.1、“Return-Path”消息头字段</strong></h5><p>该消息头字段由消息投递环节最后一个设备（收件人设备e）添加，给出了确切地指向发件人的路由信息。类似的“Reply-To”消息头字段由发件人设备s添加，显式指定回复消息的接收者。<br>比如如下“Return-Path”字段值表示：消息反向依次经历“domain1，domain2，…，domainN”设备，消息发件人为“<a href="mailto:&#100;&#115;&#108;&#x7a;&#x74;&#x78;&#x40;&#100;&#111;&#x6d;&#97;&#x69;&#x6e;&#x2e;&#99;&#110;">&#100;&#115;&#108;&#x7a;&#x74;&#x78;&#x40;&#100;&#111;&#x6d;&#97;&#x69;&#x6e;&#x2e;&#99;&#110;</a>”。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@domain1,@domain2,...,@domainN:dslztx@domain.cn</span><br></pre></td></tr></table></figure>
 <h5 id="4-3-1-2、“Received”消息头字段"><a href="#4-3-1-2、“Received”消息头字段" class="headerlink" title="4.3.1.2、“Received”消息头字段"></a><strong>4.3.1.2、“Received”消息头字段</strong></h5><p>该消息头字段由消息投递环节的各个设备添加（除了发件人设备s），用于记录消息在两个设备间的传递过程。<br>“from”：来源设备的IP地址、域名或主机名。<br>“by”：当前设备的IP地址、域名或主机名。<br>“via”：使用的物理传输路径，比如“Arpanet”、“Phonenet”等，具体值在“Network Information Center”中注册。<br>“with”：使用的传输协议，比如“SMTP”、“ESMTP”、“X.25”等，具体值在“Network Information Center”中注册。<br>“id”：消息在当前设备中的唯一序列号。<br>“for”：消息的收件人地址（“原始形式”，在消息投递环节中，消息的收件人地址有可能被各个设备转变成各种扩展形式，比如“缩写形式”）。<br>紧随其后的时间戳是当前设备接收该消息的时间。</p>
 <h4 id="4-3-2、“Originator”族消息头字段"><a href="#4-3-2、“Originator”族消息头字段" class="headerlink" title="4.3.2、“Originator”族消息头字段"></a><strong>4.3.2、“Originator”族消息头字段</strong></h4><p>“Originator”族消息头字段主要用于记录消息的发件人，也可用于显式指定回复消息的接收者。定义如下：<br><font color='red'>originator</font>&#x3D;<font color='red'>authentic</font>[“Reply-To””:”(1#<font color='red'>address</font>)(<font color='red'>CRLF</font>)]<br><font color='red'>authentic</font>&#x3D;”From””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)&#x2F;(“Sender””:”<font color='red'>mailbox</font>(<font color='red'>CRLF</font>)”From””:”(1#<font color='red'>mailbox</font>)(<font color='red'>CRLF</font>))</p>
@@ -10109,7 +10109,7 @@ text-align: center
 <h2 id="五、日期和时间规范"><a href="#五、日期和时间规范" class="headerlink" title="五、日期和时间规范"></a><strong>五、日期和时间规范</strong></h2><h3 id="5-1、定义"><a href="#5-1、定义" class="headerlink" title="5.1、定义"></a><strong>5.1、定义</strong></h3><p><font color='red'>date-time</font>&#x3D;&#91;<font color='red'>day</font>“,”&#93;(<font color='red'>date</font>)(<font color='red'>time</font>)<br><font color='red'>day</font>&#x3D;”Mon”&#x2F;“Tue”&#x2F;“Wed”&#x2F;“Thu”&#x2F;“Fri”&#x2F;“Sat”&#x2F;“Sun”<br><font color='red'>date</font>&#x3D;(1*2<font color='red'>DIGIT</font>)(<font color='red'>month</font>)(2<font color='red'>DIGIT</font>)<br><font color='red'>month</font>&#x3D;”Jan”&#x2F;“Feb”&#x2F;“Mar”&#x2F;“Apr”&#x2F;“May”&#x2F;“Jun”&#x2F;“Jul”&#x2F;“Aug”&#x2F;“Sep”&#x2F;“Oct”&#x2F;“Nov”&#x2F;“Dec”<br><font color='red'>time</font>&#x3D;(<font color='red'>hour</font>)(<font color='red'>zone</font>)<br><font color='red'>hour</font>&#x3D;2<font color='red'>DIGIT</font>“:”2<font color='red'>DIGIT</font>[“:”2<font color='red'>DIGIT</font>]<br><font color='red'>zone</font>&#x3D;”UT”&#x2F;“GMT”&#x2F;“EST”&#x2F;“EDT”&#x2F;“CST”&#x2F;“CDT”&#x2F;“MST”&#x2F;“MDT”&#x2F;“PST”&#x2F;“PDT”&#x2F;1<font color='red'>ALPHA</font>&#x2F;((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)</p>
 <h3 id="5-2、“zone”含义"><a href="#5-2、“zone”含义" class="headerlink" title="5.2、“zone”含义"></a><strong>5.2、“<font color='red'>zone</font>”含义</strong></h3><p>“UT”：表示“Universal Time”或者“Greenwich Mean Time”。<br>“GMT”：表示“Greenwich Mean Time”。<br>“EST&#x2F;EDT&#x2F;CST&#x2F;CDT&#x2F;MST&#x2F;MDT&#x2F;PST&#x2F;PDT”：表示北美时区标准。<br>“1<font color='red'>ALPHA</font>”：军事标准，“Z”表示“Universal Time”，“A”表示相对于“Universal Time”早1小时，“M”表示相对于“Universal Time”早12小时，“N”表示相对于“Universal Time”晚1小时，“Y”表示相对于“Universal Time”晚12小时等。<br>‘((“+”&#x2F;“-“)4<font color='red'>DIGIT</font>)’：与“UT”的偏移值。</p>
 <h2 id="六、地址规范"><a href="#六、地址规范" class="headerlink" title="六、地址规范"></a><strong>六、地址规范</strong></h2><h3 id="6-1、定义"><a href="#6-1、定义" class="headerlink" title="6.1、定义"></a><strong>6.1、定义</strong></h3><p><font color='red'>address</font>&#x3D;<font color='red'>mailbox</font>&#x2F;<font color='red'>group</font><br><font color='red'>mailbox</font>&#x3D;<font color='red'>addr-spec</font>&#x2F;(<font color='red'>phrase</font>)(<font color='red'>route-addr</font>)<br><font color='red'>addr-spec</font>&#x3D;<font color='red'>local-part</font>“@”<font color='red'>domain</font><br><font color='red'>local-part</font>&#x3D;<font color='red'>word</font>*(“.”<font color='red'>word</font>)<br><font color='red'>domain</font>&#x3D;<font color='red'>sub-domain</font>*(“.”<font color='red'>sub-domain</font>)<br><font color='red'>sub-domain</font>&#x3D;<font color='red'>domain-ref</font>&#x2F;<font color='red'>domain-literal</font><br><font color='red'>domain-ref</font>&#x3D;<font color='red'>atom</font><br><font color='red'>route-addr</font>&#x3D;”&lt;”[<font color='red'>route</font>]<font color='red'>addr-spec</font>“&gt;”<br><font color='red'>route</font>&#x3D;1#(“@”<font color='red'>domain</font>)”:”<br><font color='red'>group</font>&#x3D;<font color='red'>phrase</font>“:”[#<font color='red'>mailbox</font>]”;”</p>
-<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#x47;&#101;&#x6f;&#114;&#103;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x47;&#101;&#x6f;&#114;&#103;&#x65;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
+<h3 id="6-2、含义"><a href="#6-2、含义" class="headerlink" title="6.2、含义"></a><strong>6.2、含义</strong></h3><p><font color='red'>mailbox</font>举例如：“<a href="mailto:&#71;&#x65;&#x6f;&#x72;&#x67;&#101;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;">&#71;&#x65;&#x6f;&#x72;&#x67;&#101;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a>”，“George Jones&#60;Group@Host&#62;”等。</p>
 <h4 id="6-2-1、Domain-Literial"><a href="#6-2-1、Domain-Literial" class="headerlink" title="6.2.1、Domain-Literial"></a><strong>6.2.1、Domain-Literial</strong></h4><p>表示“ARPA Internet”地址，由4部分组成，每一部分都是一个8比特整型数值，形如：[10.0.3.19]。<font color='red'>“Domain-Literial”的使用不再被鼓励。</font></p>
 <h4 id="6-2-2、Postmaster-Domain"><a href="#6-2-2、Postmaster-Domain" class="headerlink" title="6.2.2、Postmaster@Domain"></a><strong>6.2.2、Postmaster@Domain</strong></h4><p>作为特殊保留地址（表示相应域名下管理员的地址），不区分大小写。</p>
 <h2 id="七、字段添加过程"><a href="#七、字段添加过程" class="headerlink" title="七、字段添加过程"></a><strong>七、字段添加过程</strong></h2><p>一封消息从“生成”到“到达”收件人需要经历一系列设备，示意图如图1所示。</p>
@@ -21472,6 +21472,45 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
       </categories>
   </entry>
   <entry>
+    <title>开车</title>
+    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
+    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
+<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
+<li>踩住刹车</li>
+<li>插入钥匙，点火</li>
+<li>挂好档位（从停车档到行驶档）</li>
+<li>松掉刹车</li>
+</ol>
+<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
+<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
+<p>图1</p>
+<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
+<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
+<ul>
+<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
+<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
+</ul>
+<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
+<ol>
+<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
+<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
+</ol>
+<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
+<ol>
+<li>不要“松掉刹车”，就是“踩住刹车”</li>
+<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
+<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
+<li>不要“踩住刹车”，就是“松掉刹车”</li>
+</ol>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
+]]></content>
+      <categories>
+        <category>杂七杂八</category>
+      </categories>
+  </entry>
+  <entry>
     <title>并发工具类</title>
     <url>/blog/2021/04/25/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/</url>
     <content><![CDATA[<h2 id="一、CountDownLatch"><a href="#一、CountDownLatch" class="headerlink" title="一、CountDownLatch"></a><strong>一、CountDownLatch</strong></h2><h3 id="1-1、语义和使用示例"><a href="#1-1、语义和使用示例" class="headerlink" title="1.1、语义和使用示例"></a><strong>1.1、语义和使用示例</strong></h3><p>对于CountDownLatch实例对象，构造时传入一个计数值<code>int count</code>：</p>
@@ -21639,45 +21678,6 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
         <category>语言</category>
         <category>Java</category>
         <category>Java并发</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>开车</title>
-    <url>/blog/2016/04/09/%E5%BC%80%E8%BD%A6/</url>
-    <content><![CDATA[<p>开车主要有4个环节：启动，行驶，停入停车位和停止。</p>
-<h2 id="一、启动"><a href="#一、启动" class="headerlink" title="一、启动"></a><strong>一、启动</strong></h2><ol>
-<li>踩住刹车</li>
-<li>插入钥匙，点火</li>
-<li>挂好档位（从停车档到行驶档）</li>
-<li>松掉刹车</li>
-</ol>
-<h2 id="二、行驶"><a href="#二、行驶" class="headerlink" title="二、行驶"></a><strong>二、行驶</strong></h2><p>主要有以下几方面内容：控制方向盘，估算车身与分道线的距离，估算与前车的距离，判断是否能够变道而不与后来车相撞等。</p>
-<h3 id="2-1、控制方向盘"><a href="#2-1、控制方向盘" class="headerlink" title="2.1、控制方向盘"></a><strong>2.1、控制方向盘</strong></h3><p>为了便于说明，首先对方向盘不同位置进行标记，如图1所示。</p>
-<p>图1</p>
-<p><img src="https://blog.dslztx.top/imgs/20160409-0-1.jpg"></p>
-<p>很明显，方向盘控制模型可以简化为360度内方向盘控制模型，接下来是方向盘控制的几条原则：</p>
-<ul>
-<li>3点和9点是两个主着力点，这两个位置非常关键。左手要么不放，要么放在9点这个位置；同理，右手要么不放，要么就放在3点这个位置。千万注意，这里的3点，6点，9点，12点指代的是方向盘上处于初始状态下的绝对位置，不会随着方向盘的转动而变化。</li>
-<li>方向盘控制的360度范围内，由于生理限制，不可能由双手控制转过180度角度，因而设定“一只手控制180度角度的转动，另外一只手控制另外180度角度的转动”，处于控制状态的手称为“控制手”，处于非控制状态的手称为“辅助手”，由“控制手”发力，“辅助手”只是用来作为安全保障。</li>
-</ul>
-<p>下面是一套确定“控制手”（确定了“控制手”自然就确定了“辅助手”）的逻辑规则：</p>
-<ol>
-<li>在方向盘处于0度，180度，负180度，360度，-360度状态时，确定“控制手”</li>
-<li>当欲从左向右转时，左侧主着力点绑定的手成为“控制手”；当欲从右向左转时，右侧主着力点绑定的手成为“控制手”。比如方向盘处于0度状态时，欲从左向右转，此时9点是主着力点，9点绑定的手是左手，因而左手是“控制手”；当方向盘处于0度状态时，欲从右向左转，此时3点是主着力点，3点绑定的手是右手，因而右手是“控制手”。（当然也可以是另外一套相反的确定“控制手”的逻辑规则：当欲从左向右转时，右侧主着力点绑定的手成为“控制手”；当欲从右向左转时，左侧主着力点绑定的手成为“控制手”）<font color='red'>在实际中，只需要刚开始确定“控制手”，接下来“控制手”的确定会由于生理限制的存在而发生得很自然。</font></li>
-</ol>
-<h3 id="2-2、估算车身与分道线的距离"><a href="#2-2、估算车身与分道线的距离" class="headerlink" title="2.2、估算车身与分道线的距离"></a><strong>2.2、估算车身与分道线的距离</strong></h3><h3 id="2-3、估算与前车的距离"><a href="#2-3、估算与前车的距离" class="headerlink" title="2.3、估算与前车的距离"></a><strong>2.3、估算与前车的距离</strong></h3><h3 id="2-4、判断是否能够变道而不与后来车相撞"><a href="#2-4、判断是否能够变道而不与后来车相撞" class="headerlink" title="2.4、判断是否能够变道而不与后来车相撞"></a><strong>2.4、判断是否能够变道而不与后来车相撞</strong></h3><h2 id="三、停入停车位"><a href="#三、停入停车位" class="headerlink" title="三、停入停车位"></a><strong>三、停入停车位</strong></h2><h2 id="四、停止"><a href="#四、停止" class="headerlink" title="四、停止"></a><strong>四、停止</strong></h2><p>完全是“启动”环节的逆向操作。（注意跟“一、启动”的比照）：</p>
-<ol>
-<li>不要“松掉刹车”，就是“踩住刹车”</li>
-<li>不要“挂好档位（从停车档到行驶档）”，就是“挂好档位（从行驶档到停车档）”</li>
-<li>不要“插入钥匙，点火”，就是“拔出钥匙，熄火”</li>
-<li>不要“踩住刹车”，就是“松掉刹车”</li>
-</ol>
-<br/>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a href="http://www.autohome.com.cn/use/201203/306279.html">http://www.autohome.com.cn/use/201203/306279.html</a></p>
-]]></content>
-      <categories>
-        <category>杂七杂八</category>
       </categories>
   </entry>
   <entry>
@@ -24422,23 +24422,26 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
   <entry>
     <title>设计模式概论</title>
     <url>/blog/2024/10/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%AE%BA/</url>
-    <content><![CDATA[<h2 id="一、进行良好编程设计的常见6大原则"><a href="#一、进行良好编程设计的常见6大原则" class="headerlink" title="一、进行良好编程设计的常见6大原则"></a><strong>一、进行良好编程设计的常见6大原则</strong></h2><p>首先介绍进行良好编程设计的常见的6大原则，分为三类。</p>
+    <content><![CDATA[<h2 id="一、进行良好编程设计的常见7大原则"><a href="#一、进行良好编程设计的常见7大原则" class="headerlink" title="一、进行良好编程设计的常见7大原则"></a><strong>一、进行良好编程设计的常见7大原则</strong></h2><p>首先介绍进行良好编程设计的常见的7大原则，分为三类。</p>
 <p>本节叙述还涉及到一个概念——<font color='red'>继承有“多态”和“复用”两个作用</font>。</p>
 <h3 id="1-1、第一类"><a href="#1-1、第一类" class="headerlink" title="1.1、第一类"></a><strong>1.1、第一类</strong></h3><p>围绕“扩展时，不影响现有代码”目标。</p>
 <h4 id="1-1-1、开闭原则"><a href="#1-1-1、开闭原则" class="headerlink" title="1.1.1、开闭原则"></a><strong>1.1.1、开闭原则</strong></h4><p>英文名：Open Close Principle。</p>
 <p>内容：对扩展开放，对修改关闭。</p>
-<p>含义：即“扩展时，不影响现有代码”目标本身，具体实现途径是：基于<code>接口或者抽象父类</code>编程，利用类继承的多态特性（<font color='red'>继承的多态作用</font>），扩展时通过新的具体实现子类完成，在不影响现有代码的前提下，达成扩展目标。</p>
+<p>含义：即“扩展时，不影响现有代码”目标本身，具体实现途径是：基于接口编程，利用类继承的多态特性（<font color='red'>继承的多态作用</font>），扩展时通过新的具体实现子类完成，在不影响现有代码的前提下，达成扩展目标。</p>
 <h4 id="1-1-2、依赖倒转原则"><a href="#1-1-2、依赖倒转原则" class="headerlink" title="1.1.2、依赖倒转原则"></a><strong>1.1.2、依赖倒转原则</strong></h4><p>英文名：Dependence Inversion Principle。</p>
-<p>内容：底层模块依赖高层模块中提炼出来的<code>接口或者抽象父类</code>层。</p>
-<p>含义：有高层模块和底层模块两个模块，直观的依赖关系是高层模块依赖底层模块，这带来了“扩展底层模块时影响高层模块”问题，为了解决该问题，从高层模块提炼出<code>接口或者抽象父类</code>层，高层模块和底层模块都依赖这个<code>接口或者抽象父类</code>层，倒转指的是从“高层模块依赖底层模块”到“底层模块依赖高层模块中提炼出来的<code>接口或者抽象父类</code>层”[1]。<font color='red'>本质上来说，依赖倒转原则是开闭原则在高层模块底层模块依赖场景中的应用</font>。</p>
+<p>内容：底层模块依赖高层模块中提炼出来的接口层。</p>
+<p>含义：有高层模块和底层模块两个模块，直观的依赖关系是高层模块依赖底层模块，这带来了“扩展底层模块时影响高层模块”问题，为了解决该问题，从高层模块提炼出接口层，高层模块和底层模块都依赖这个接口层，倒转指的是从“高层模块依赖底层模块”到“底层模块依赖高层模块中提炼出来的接口层”[1]。<font color='red'>本质上来说，依赖倒转原则是开闭原则在高层模块底层模块依赖场景中的应用</font>。</p>
 <h4 id="1-1-3、里氏替换原则"><a href="#1-1-3、里氏替换原则" class="headerlink" title="1.1.3、里氏替换原则"></a><strong>1.1.3、里氏替换原则</strong></h4><p>英文名：Liskov Substitution Principle。</p>
-<p>内容：任何<code>接口或者抽象父类</code>可以出现的地方，具体实现子类一定可以出现。</p>
+<p>内容：任何接口可以出现的地方，具体实现子类一定可以出现。</p>
 <p>含义：里氏替换原则是开闭原则的规范和限制，因为不满足里氏替换原则的继承关系不能达成开闭原则场景中的扩展目标。</p>
 <h3 id="1-2、第二类"><a href="#1-2、第二类" class="headerlink" title="1.2、第二类"></a><strong>1.2、第二类</strong></h3><p>围绕“扩展时，在不能做到不影响现有代码的情形下，对现有代码影响尽量小”目标，这个目标等价于“类或者模块设计须高内聚低耦合”目标。</p>
 <h4 id="1-2-1、单一职责原则"><a href="#1-2-1、单一职责原则" class="headerlink" title="1.2.1、单一职责原则"></a><strong>1.2.1、单一职责原则</strong></h4><p>英文名：Single Responsibility Principle。</p>
 <p>内容：一个类或者模块只负责完成一个职责。</p>
 <p>含义：从职责维度追求达成类或者模块设计的“高内聚低耦合”目标。</p>
-<h4 id="1-2-2、迪米特原则"><a href="#1-2-2、迪米特原则" class="headerlink" title="1.2.2、迪米特原则"></a><strong>1.2.2、迪米特原则</strong></h4><p>英文名：Demeter Principle。</p>
+<h4 id="1-2-2、接口隔离原则"><a href="#1-2-2、接口隔离原则" class="headerlink" title="1.2.2、接口隔离原则"></a><strong>1.2.2、接口隔离原则</strong></h4><p>英文名：Interface Segregation Principle。</p>
+<p>内容：使用多个专门的接口，而不使用单一的总接口，即继承时不依赖不需要的接口。</p>
+<p>含义：从接口继承维度追求达成类或者模块设计的“高内聚低耦合”目标。</p>
+<h4 id="1-2-3、迪米特原则"><a href="#1-2-3、迪米特原则" class="headerlink" title="1.2.3、迪米特原则"></a><strong>1.2.3、迪米特原则</strong></h4><p>英文名：Demeter Principle。</p>
 <p>内容：指的是一个类或者模块应当尽量减少与其他实体的相互作用，增强独立性。</p>
 <p>含义：通过应用该原则，可以降低类或者模块之间的耦合性，增强独立性，达成“高内聚低耦合”目标，但是具有副作用——“在类和模块之间直接联系减少的情形下，产生了大量的中介和传递类”，须权衡使用该原则。</p>
 <h3 id="1-3、第三类"><a href="#1-3、第三类" class="headerlink" title="1.3、第三类"></a><strong>1.3、第三类</strong></h3><p>围绕“如何更好进行复用”目标。</p>
@@ -24448,7 +24451,7 @@ Google中通过`markdown slide`或者`markdown ppt`关键词搜索得到上述�
 <h2 id="二、设计模式概论"><a href="#二、设计模式概论" class="headerlink" title="二、设计模式概论"></a><strong>二、设计模式概论</strong></h2><p>设计模式是针对某类业务场景进行权衡设计后的编程范式，具有特点：</p>
 <ol>
 <li>针对某类业务场景，故不是银弹</li>
-<li>进行权衡设计（在权衡设计过程中涉及到“是否遵循以上6大原则”等问题）的产物，故应用设计模式是在付出一定代价的前提下获取收益</li>
+<li>进行权衡设计（在权衡设计过程中涉及到“是否遵循以上7大原则”等问题）的产物，故应用设计模式是在付出一定代价的前提下获取收益</li>
 </ol>
 <p>常见的设计模式有23种，根据以上设计模式的定义，可以再创建新的设计模式。</p>
 <hr>
