@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、DNS协议DNS协议是实现域名解析的核心协议，作为应用层协议其使用的传输层协议——主要场景用UDP协议，部分场景用TCP协议。 当前有DoH、DoT和DoQ等扩展协议，以解决明文泄露与劫持等问题：  DoH：DNS over HTTPS，DNS报文封装在HTTPS（HTTP&#x2F;2&#x2F;3），RFC 8484 DoT：DNS over TLS，在TCP之上直接加TLS加密，RFC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS网络协议">
+<meta property="og:url" content="https://dslztx.github.io/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="一、DNS协议DNS协议是实现域名解析的核心协议，作为应用层协议其使用的传输层协议——主要场景用UDP协议，部分场景用TCP协议。 当前有DoH、DoT和DoQ等扩展协议，以解决明文泄露与劫持等问题：  DoH：DNS over HTTPS，DNS报文封装在HTTPS（HTTP&#x2F;2&#x2F;3），RFC 8484 DoT：DNS over TLS，在TCP之上直接加TLS加密，RFC">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-06T12:22:31.000Z">
+<meta property="article:modified_time" content="2026-07-21T14:09:03.018Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DNS网络协议 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DNS网络协议
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-03-06 20:22:31" itemprop="dateCreated datePublished" datetime="2026-03-06T20:22:31+08:00">2026-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-21 22:09:03" itemprop="dateModified" datetime="2026-07-21T22:09:03+08:00">2026-07-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/03/06/DNS网络协议/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、DNS协议"><a href="#一、DNS协议" class="headerlink" title="一、DNS协议"></a><strong>一、DNS协议</strong></h2><p>DNS协议是实现域名解析的核心协议，作为应用层协议其使用的传输层协议——主要场景用UDP协议，部分场景用TCP协议。</p>
+<p>当前有DoH、DoT和DoQ等扩展协议，以解决明文泄露与劫持等问题：</p>
+<ol>
+<li>DoH：DNS over HTTPS，DNS报文封装在HTTPS（HTTP&#x2F;2&#x2F;3），RFC 8484</li>
+<li>DoT：DNS over TLS，在TCP之上直接加TLS加密，RFC 7858&#x2F;8310</li>
+<li>DoQ：DNS over QUIC，基于QUIC协议，RFC 9250</li>
+</ol>
+<h2 id="二、DNS协议报文"><a href="#二、DNS协议报文" class="headerlink" title="二、DNS协议报文"></a><strong>二、DNS协议报文</strong></h2><p>理解DNS协议报文格式是掌握域名解析原理的关键，分为<code>查询报文</code>和<code>响应报文</code>两种类型，二者格式基本一致，仅部分字段功能存在差异。<br>下面简称DNS协议报文为DNS报文。</p>
+<p>DNS报文采用固定格式的二进制结构，整体分为5个区域，按顺序排列如下：</p>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>长度（字节）</th>
+<th>核心作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Header（首部）</td>
+<td>12</td>
+<td>- 包含：DNS报文的基础控制信息（比如“查询&#x2F;响应标识”、“操作码”、“返回码”等）<br/>- 查询报文和响应报文都必有<br/></td>
+</tr>
+<tr>
+<td>Question（问题区）</td>
+<td>可变</td>
+<td>由条目构成。<br/>- 条目包含：待解析的域名、解析类型<br/>- 条目数量：查询报文&#x3D;1，响应报文&#x3D;0或者1</td>
+</tr>
+<tr>
+<td>Answer（回答区）</td>
+<td>可变</td>
+<td>由条目构成。<br/>- 条目包含：解析结果<br/>- 条目数量：查询报文&#x3D;0，响应报文&gt;&#x3D;0</td>
+</tr>
+<tr>
+<td>Authority（授权区）</td>
+<td>可变</td>
+<td>由条目构成。<br/>- 条目包含：1）传统条目，权威DNS服务器的域名；2）扩展条目，本文不深入<br/>- 条目数量：查询报文&#x3D;0，响应报文&gt;&#x3D;0</td>
+</tr>
+<tr>
+<td>Additional（附加区）</td>
+<td>可变</td>
+<td>由条目构成。<br/>- 条目包含：1）传统条目，授权区权威DNS服务器的IP地址；2）OPT扩展条目<br/>- 条目数量：查询报文&#x3D;0或者1，响应报文&gt;&#x3D;0</td>
+</tr>
+</tbody></table>
+<p><font color='red'>须知：本文实验过程中DNS报文由Wireshark捕获，其展示字段跟RFC不尽相同。</font></p>
+<h3 id="2-1、首部（Header）"><a href="#2-1、首部（Header）" class="headerlink" title="2.1、首部（Header）"></a><strong>2.1、首部（Header）</strong></h3><h4 id="2-1-1、含义"><a href="#2-1-1、含义" class="headerlink" title="2.1.1、含义"></a><strong>2.1.1、含义</strong></h4><ul>
+<li>固定长度12字节</li>
+<li>包含：DNS报文的基础控制信息，比如“查询&#x2F;响应标识”、“操作码”、“返回码”等</li>
+<li>查询报文和响应报文都必有</li>
+</ul>
+<h4 id="2-1-2、详细"><a href="#2-1-2、详细" class="headerlink" title="2.1.2、详细"></a><strong>2.1.2、详细</strong></h4><p>首部是DNS报文的“控制中枢”，12字节被划分为6个2字节字段——<code>ID</code>，<code>Flags</code>，<code>QDCOUNT</code>，<code>ANCOUNT</code>，<code>NSCOUNT</code>和<code>ARCOUNT</code>，其中<code>Flags</code>字段又被细分为10个子字段，划分示意见表1，各个字段和子字段详细介绍见表2。</p>
+<p>表1</p>
+<table class="beauty-table">
+  <caption style="background:#781549; color:white;">
+    <i>Header</i></caption>
+  <tbody>
+    <tr>
+      <th>
+        <i>Offsets</i>
+      </th>
+      <th>Octet</th>
+      <th colspan="8">0</th>
+      <th colspan="8">1</th>
+    <tr>
+      <th>Octet</th>
+      <th>Bit</th>
+      <th style="width:5.2%;">0</th>
+      <th style="width:5.2%;">1</th>
+      <th style="width:5.2%;">2</th>
+      <th style="width:5.2%;">3</th>
+      <th style="width:5.2%;">4</th>
+      <th style="width:5.2%;">5</th>
+      <th style="width:5.2%;">6</th>
+      <th style="width:5.2%;">7</th>
+      <th style="width:5.2%;">8</th>
+      <th style="width:5.2%;">9</th>
+      <th style="width:5.2%;">10</th>
+      <th style="width:5.2%;">11</th>
+      <th style="width:5.2%;">12</th>
+      <th style="width:5.2%;">13</th>
+      <th style="width:5.2%;">14</th>
+      <th style="width:5.2%;">15</th>
+    <tr>
+      <th>0</th>
+      <th>0</th>
+      <td colspan="16">
+        <i>ID (16 bits)</i>
+      </td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <th>16</th>
+      <td colspan="1">
+        <i>QR (1 bit)</i>
+      </td>
+      <td colspan="4">
+        <i>Qpcode (4 bits)</i>
+      </td>
+      <td colspan="1">
+        <i>AA (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>TC (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>RD (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>RA (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>Z (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>AD (1 bit)</i>
+      </td>
+      <td colspan="1">
+        <i>CD (1 bit)</i>
+      </td>
+      <td colspan="4">
+        <i>RCODE (4 bits)</i>
+      </td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <th>32</th>
+      <td colspan="16">
+        <i>QDCOUNT (16 bits)</i>
+      </td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <th>48</th>
+      <td colspan="16">
+        <i>ANCOUNT (16 bits)</i>
+      </td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <th>64</th>
+      <td colspan="16">
+        <i>NSCOUNT (16 bits)</i>
+      </td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <th>80</th>
+      <td colspan="16">
+        <i>ARCOUNT (16 bits)</i>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>表2</p>
+<table>
+<thead>
+<tr>
+<th>字段（2字节）</th>
+<th>字段与子字段含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ID（标识）</td>
+<td>唯一标识一次DNS查询&#x2F;响应会话：查询报文的ID为<code>0x1234</code>，针对该次查询的响应报文的ID也为<code>0x1234</code></td>
+</tr>
+<tr>
+<td>Flags（标志位）</td>
+<td>2字节（16位）被细分为多个子字段，是首部的核心：<br/><br/>1、<strong>QR（1 bit）</strong>：查询&#x2F;响应报文标识<br/>- 0 &#x3D; 查询报文<br/>- 1 &#x3D; 响应报文<br/><br/>2、<strong>Opcode（4 bits）</strong>：操作类型。查询报文设置，响应报文回显<br>- 0 &#x3D; 标准查询，最常用，比如A记录解析<br>- 1 &#x3D; 反向查询，事实废弃<br>- 2 &#x3D; 状态查询，查询DNS服务器状态<br>- 3-15 &#x3D; 保留，未公开使用<br><br/>3、<strong>AA（Authoritative，1 bit）</strong>：权威响应标识。查询报文无效，响应报文有效<br>- 1 &#x3D; Answer（回答区）有响应结果，且该响应结果由该域名的权威DNS服务器给出<br>- 0 &#x3D; 分为两种情形：1）Answer（回答区）有响应结果，但该响应结果不由该域名的权威DNS服务器给出，可能由转发DNS服务器或者递归DNS服务器给出；2）Answer（回答区）未有响应结果<br/><br>4、<strong>TC（Truncated，1 bit）</strong>：截断标识。查询报文和响应报文各自独立有效<br>- 1 &#x3D; 报文长度超过UDP默认512字节，已被截断（需用TCP重传）<br>- 0 &#x3D; 未截断<br><br>5、<strong>RD（Recursion Desired，1 bit）</strong>：递归查询标识。查询报文设置，响应报文回显<br>- 1 &#x3D; 请求递归查询（服务器需直接返回最终结果）<br>- 0 &#x3D; 非递归查询（服务器仅返回已知信息，可能需要客户端进一步查询）<br><br>6、<strong>RA（Recursion Available，1 bit）</strong>：递归可用标识。查询报文无效，响应报文有效<br>- 1 &#x3D; 服务器支持递归查询<br>- 0 &#x3D; 服务器不支持递归（若客户端请求了递归，会返回错误）<br><br>7、<strong>Z（1 bit）</strong>：保留位，必须为0（未来扩展预留）<br/><br/>8、<strong>AD（Authentic Data，1 bit）</strong>：标记响应数据是否经过DNSSEC验证。查询报文无效，响应报文有效<br/>- 0 &#x3D; 未验证<br/>- 1 &#x3D; 已验证<br/><br/>9、<strong>CD（Checking Disabled，1 bit）</strong>：客户端控制是否执行DNSSEC签名验证。查询报文设置，响应报文回显<br/>- 0 &#x3D; 不禁用，由DNS服务器按照自身安全策略决定是否进行DNSSEC签名验证<br/>- 1 &#x3D; 禁用，禁止DNS服务器进行DNSSEC签名验证，即使DNS服务器本身安全策略要求进行DNSSEC签名验证<br/><br/>10、<strong>RCODE（4 bits）</strong>：返回码，标识解析结果状态。查询报文无效，响应报文有效<br>- 0 &#x3D; 成功<br>- 1 &#x3D; 格式错误<br>- 2 &#x3D; 服务器故障<br>- 3 &#x3D; 域名不存在<br>- 4 &#x3D; 不支持的操作<br>- 5 &#x3D; 拒绝<br>- 6-15 &#x3D; 保留</td>
+</tr>
+<tr>
+<td>QDCOUNT（问题区条目数量）</td>
+<td>16位无符号整型，条目数量：查询报文&#x3D;1，响应报文&#x3D;0或者1</td>
+</tr>
+<tr>
+<td>ANCOUNT（回答区条目数量）</td>
+<td>16位无符号整型，条目数量：查询报文&#x3D;0，响应报文&gt;&#x3D;0</td>
+</tr>
+<tr>
+<td>NSCOUNT（授权区条目数量）</td>
+<td>16位无符号整型，条目数量：查询报文&#x3D;0，响应报文&gt;&#x3D;0</td>
+</tr>
+<tr>
+<td>ARCOUNT（附加区条目数量）</td>
+<td>16位无符号整型，条目数量：查询报文&#x3D;0或者1，响应报文&gt;&#x3D;0</td>
+</tr>
+</tbody></table>
+<h4 id="2-1-3、实验"><a href="#2-1-3、实验" class="headerlink" title="2.1.3、实验"></a><strong>2.1.3、实验</strong></h4><p>查询CNAME记录：<code>dig baidu.com CNAME +short</code>。</p>
+<p>查询报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (query)</span><br><span class="line">    Transaction ID: 0x1b08</span><br><span class="line">    Flags: 0x0100 Standard query</span><br><span class="line">        0... .... .... .... = Response: Message is a query</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...1 .... .... = Recursion desired: Do query recursively  (要求递归查询)</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 0</span><br><span class="line">    Authority RRs: 0</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        baidu.com: type CNAME, class IN</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            [Name Length: 9]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: CNAME (Canonical NAME for an alias) (5)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 512</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x0000</span><br><span class="line">                0... .... .... .... = DO bit: Cannot handle DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<p>响应报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0x1b08</span><br><span class="line">    Flags: 0x8180 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .0.. .... .... = Authoritative: Server is not an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...1 .... .... = Recursion desired: Do query recursively</span><br><span class="line">        .... .... 1... .... = Recursion available: Server can do recursive queries  (支持递归查询)</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 0  (递归查询后确实没有baidu.com的别名记录)</span><br><span class="line">    Authority RRs: 1</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        baidu.com: type CNAME, class IN</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            [Name Length: 9]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: CNAME (Canonical NAME for an alias) (5)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Authoritative nameservers</span><br><span class="line">        baidu.com: type SOA, class IN, mname dns.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: SOA (Start Of a zone of Authority) (6)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 31</span><br><span class="line">            Primary name server: dns.baidu.com</span><br><span class="line">            Responsible authority&#x27;s mailbox: sa.baidu.com</span><br><span class="line">            Serial Number: 2012150707</span><br><span class="line">            Refresh Interval: 300 (5 minutes)</span><br><span class="line">            Retry Interval: 300 (5 minutes)</span><br><span class="line">            Expire limit: 2592000 (30 days)</span><br><span class="line">            Minimum TTL: 600 (10 minutes)</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 1232</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x0000</span><br><span class="line">                0... .... .... .... = DO bit: Cannot handle DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2、问题区（Question）"><a href="#2-2、问题区（Question）" class="headerlink" title="2.2、问题区（Question）"></a><strong>2.2、问题区（Question）</strong></h3><h4 id="2-2-1、含义"><a href="#2-2-1、含义" class="headerlink" title="2.2.1、含义"></a><strong>2.2.1、含义</strong></h4><ul>
+<li>可变字节</li>
+<li>问题区由条目构成：<ul>
+<li>条目用于携带查询的具体信息，比如“要查询的域名”，“查询的资源记录类型”，“查询类”</li>
+<li>条目数量（查询报文&#x3D;1，响应报文&#x3D;0或者1，由首部<code>QDCOUNT</code>指定）：响应报文通过包含问题区，能够明确地对应之前的查询请求，让接收方清楚地知道这次响应是针对哪个具体的查询做出的</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-2、条目格式"><a href="#2-2-2、条目格式" class="headerlink" title="2.2.2、条目格式"></a><strong>2.2.2、条目格式</strong></h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>长度（字节）</th>
+<th>含义与示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>QNAME（域名）</td>
+<td>可变</td>
+<td>域名有“常规格式”和“压缩格式”两种表示方式<br/><br/>常规格式：将域名按“.”分割为多个部分，每个部分前加1字节标识“部分长度”，最后用1字节<code>0x00</code>标识域名结束，<br/>比如：域名<code>www.baidu.com</code>按“.”分割为“www”，“baidu”和“com”3个部分，最后编码为<code>0x03(部分长度) 0x77 0x77 0x77 0x05(部分长度) 0x62 0x61 0x69 0x64 0x75 0x03(部分长度) 0x63 0x6F 0x6D 0x00(标识域名结束)</code><br/><br/>压缩格式：前2位为<code>11</code>，用于标识压缩格式，后14位为“域名在报文中的偏移地址”，比如：若在报文偏移<code>0x0C</code>处存在相同域名，可编码为<code>0xC00C(11000000,00001100)</code><br/><br/>由于问题区在报文的位置，问题区条目域名一般只能使用常规格式</td>
+</tr>
+<tr>
+<td>QTYPE（类型）</td>
+<td>2</td>
+<td>需要解析的记录类型，常见类型：<br>- 0x0006 &#x3D; SOA记录<br/>- 0x0002 &#x3D; NS记录<br/>- 0x0001 &#x3D; A记录<br/>- 0x0005 &#x3D; CNAME记录<br/>- 0x000c &#x3D; PTR记录<br/>- 0x000f &#x3D; MX记录<br/>- 0x0010 &#x3D; TXT记录<br/>- 0x001c &#x3D;  AAAA记录</td>
+</tr>
+<tr>
+<td>QCLASS（类别）</td>
+<td>2</td>
+<td>解析的网络类别，一般就为<code>0x0001 = IN类（代表Internet）</code></td>
+</tr>
+</tbody></table>
+<h4 id="2-2-3、实验"><a href="#2-2-3、实验" class="headerlink" title="2.2.3、实验"></a><strong>2.2.3、实验</strong></h4><p>查询TXT记录：<code>dig 163.com txt +short</code>。</p>
+<p>响应报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0xe0ef</span><br><span class="line">    Flags: 0x8180 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .0.. .... .... = Authoritative: Server is not an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...1 .... .... = Recursion desired: Do query recursively</span><br><span class="line">        .... .... 1... .... = Recursion available: Server can do recursive queries</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 7</span><br><span class="line">    Authority RRs: 0</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        163.com: type TXT, class IN  //对应的字节流：0x03 0x31 0x36 0x33 0x03 0x63 0x6f 0x6d 0x00 0x00 0x10 0x00 0x01</span><br><span class="line">            Name: 163.com</span><br><span class="line">            [Name Length: 7]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Answers</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 37</span><br><span class="line">            TXT Length: 36</span><br><span class="line">            TXT: v=spf1 include:spf.mail.163.com -all</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 33</span><br><span class="line">            TXT Length: 32</span><br><span class="line">            TXT: 0hz8zn8jpkr3vffgll8hnd6j873bzvsg</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 61</span><br><span class="line">            TXT Length: 60</span><br><span class="line">            TXT: facebook-domain-verification=kqgnezlldheaauy9huiesb3j2emhh3 </span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 33</span><br><span class="line">            TXT Length: 32</span><br><span class="line">            TXT: 57c23e6c1ed24f219803362dadf8dea3</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 33</span><br><span class="line">            TXT Length: 32</span><br><span class="line">            TXT: qdx50vkxg6qpn3n1k6n1tg2syg5wp96y</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 69</span><br><span class="line">            TXT Length: 68</span><br><span class="line">            TXT: google-site-verification=hRXfNWRtd9HKlh-ZBOuUgGrxBJh526R8Uygp0jEZ9wY</span><br><span class="line">        163.com: type TXT, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: TXT (Text strings) (16)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 18000 (5 hours)</span><br><span class="line">            Data length: 33</span><br><span class="line">            TXT Length: 32</span><br><span class="line">            TXT: c69jw6kms2htsyyw3l50bfxycgzp3v50</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 1232</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x0000</span><br><span class="line">                0... .... .... .... = DO bit: Cannot handle DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3、回答区（Answer）"><a href="#2-3、回答区（Answer）" class="headerlink" title="2.3、回答区（Answer）"></a><strong>2.3、回答区（Answer）</strong></h3><h4 id="2-3-1、含义"><a href="#2-3-1、含义" class="headerlink" title="2.3.1、含义"></a><strong>2.3.1、含义</strong></h4><ul>
+<li>可变字节</li>
+<li>回答区由条目构成：<ul>
+<li>条目用于携带回答信息</li>
+<li>条目数量（查询报文&#x3D;0，响应报文&gt;&#x3D;0，由首部<code>ANCOUNT</code>指定）：不是必有，是可能“没配置相应DNS资源”、“不是直接结果，而是‘权威域名服务器’中间结果”、“查询失败”、“查询被拒绝”等情形</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-3-2、条目格式"><a href="#2-3-2、条目格式" class="headerlink" title="2.3.2、条目格式"></a><strong>2.3.2、条目格式</strong></h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>长度（字节）</th>
+<th>含义与示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NAME（域名）</td>
+<td>可变</td>
+<td>含义和格式与问题区QNAME一致</td>
+</tr>
+<tr>
+<td>TYPE（类型）</td>
+<td>2</td>
+<td>含义和格式与问题区QTYPE一致</td>
+</tr>
+<tr>
+<td>CLASS（类别）</td>
+<td>2</td>
+<td>含义和格式与问题区QCLASS一致</td>
+</tr>
+<tr>
+<td>TTL（生存时间）</td>
+<td>4</td>
+<td>32位有符号整型值，单位“秒”，表示该解析结果在DNS客户端所能缓存的有效时间，在“递归DNS服务器和转发DNS服务器查询相应DNS资源记录”场景，其作为DNS客户端，缓存时间也为该值</td>
+</tr>
+<tr>
+<td>RDLENGTH（数据长度）</td>
+<td>2</td>
+<td>表示后续<code>RDATA</code>字段的字节数</td>
+</tr>
+<tr>
+<td>RDATA（记录数据）</td>
+<td>可变（跟<code>RDLENGTH</code>字段表征值一致）</td>
+<td>具体解析结果数据，格式由<code>TYPE</code>字段决定：<br>- 若<code>0x0001 = A记录</code>：RDATA为4字节IPv4地址<br>- 若<code>0x001c = AAAA记录</code>：RDATA为16字节IPv6地址<br>- 若<code>0x0005 = CNAME记录</code>：RDATA为目标域名，域名的表示方式跟问题区QNAME一致<br>- 若<code>0x000f = MX记录</code>：RDATA前2字节为“优先级”，后续字节为邮件服务器域名，域名的表示方式跟问题区QNAME一致</td>
+</tr>
+</tbody></table>
+<h4 id="2-3-3、实验"><a href="#2-3-3、实验" class="headerlink" title="2.3.3、实验"></a><strong>2.3.3、实验</strong></h4><p><strong>1、实验1</strong><br>查询AAAA记录：<code>dig google.com AAAA +short</code>。</p>
+<p>响应报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0x2c5e</span><br><span class="line">    Flags: 0x8180 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .0.. .... .... = Authoritative: Server is not an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...1 .... .... = Recursion desired: Do query recursively</span><br><span class="line">        .... .... 1... .... = Recursion available: Server can do recursive queries</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 1</span><br><span class="line">    Authority RRs: 0</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        google.com: type AAAA, class IN</span><br><span class="line">            Name: google.com</span><br><span class="line">            [Name Length: 10]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Answers</span><br><span class="line">        google.com: type AAAA, class IN, addr 2404:6800:4005:81a::200e   //对应的字节流：[NAME]0xc0 0x0c [TYPE]0x00 0x1c [CLASS]0x00 0x01 [TTL]0x00 0x00 0x01 0x26 [RDLENGTH]0x00 0x10 [RDATA]0x24 0x04 0x68 0x00 0x40 0x05 0x08 0x1a 0x00 0x00 0x00 0x00 0x00 0x00 0x20 0x0e</span><br><span class="line">            Name: google.com</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 294 (4 minutes, 54 seconds)</span><br><span class="line">            Data length: 16</span><br><span class="line">            AAAA Address: 2404:6800:4005:81a::200e</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 1232</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x0000</span><br><span class="line">                0... .... .... .... = DO bit: Cannot handle DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、实验2</strong><br>查询AAAA记录：<code>dig tiktok.com AAAA +short</code>。</p>
+<p>响应报文（未配置tiktok.com的AAAA记录，回答区为空）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0xf63f</span><br><span class="line">    Flags: 0x8180 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .0.. .... .... = Authoritative: Server is not an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...1 .... .... = Recursion desired: Do query recursively</span><br><span class="line">        .... .... 1... .... = Recursion available: Server can do recursive queries</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 0</span><br><span class="line">    Authority RRs: 1</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        tiktok.com: type AAAA, class IN</span><br><span class="line">            Name: tiktok.com</span><br><span class="line">            [Name Length: 10]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Authoritative nameservers</span><br><span class="line">        tiktok.com: type SOA, class IN, mname a9-66.akam.net</span><br><span class="line">            Name: tiktok.com</span><br><span class="line">            Type: SOA (Start Of a zone of Authority) (6)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 879 (14 minutes, 39 seconds)</span><br><span class="line">            Data length: 59</span><br><span class="line">            Primary name server: a9-66.akam.net</span><br><span class="line">            Responsible authority&#x27;s mailbox: hostmaster.akamai.com</span><br><span class="line">            Serial Number: 1554957829</span><br><span class="line">            Refresh Interval: 43200 (12 hours)</span><br><span class="line">            Retry Interval: 7200 (2 hours)</span><br><span class="line">            Expire limit: 604800 (7 days)</span><br><span class="line">            Minimum TTL: 7200 (2 hours)</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 1232</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x0000</span><br><span class="line">                0... .... .... .... = DO bit: Cannot handle DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4、授权区（Authority）"><a href="#2-4、授权区（Authority）" class="headerlink" title="2.4、授权区（Authority）"></a><strong>2.4、授权区（Authority）</strong></h3><h4 id="2-4-1、含义"><a href="#2-4-1、含义" class="headerlink" title="2.4.1、含义"></a><strong>2.4.1、含义</strong></h4><ul>
+<li>可变字节</li>
+<li>授权区由两类条目构成，两类条目数量之和“查询报文&#x3D;0，响应报文&gt;&#x3D;0，由首部<code>NSCOUNT</code>指定”：<ul>
+<li>传统条目：<ul>
+<li>条目用于携带权威DNS服务器的域名信息：1）在回答区（Answer）为空时，存在的授权区（Authority）记录NS，表明——当前处于DNS迭代查询过程，DNS客户端下一步迭代查询的权威DNS服务器为NS；2）在回答区（Answer）不为空时，存在的授权区（Authority）记录NS，只是用来冗余告知DNS客户端该域名的权威DNS服务器列表</li>
+<li>条目数量（查询报文&#x3D;0，响应报文&gt;&#x3D;0）</li>
+</ul>
+</li>
+<li>扩展条目：<ul>
+<li>RRSIG、NSEC3等类型扩展条目，本文不作深入</li>
+<li>条目数量（查询报文&#x3D;0，响应报文&gt;&#x3D;0）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-4-2、条目格式"><a href="#2-4-2、条目格式" class="headerlink" title="2.4.2、条目格式"></a><strong>2.4.2、条目格式</strong></h4><p><strong>1、传统条目</strong><br>条目格式跟回答区条目格式一致，差异在<code>TYPE = 0x0002（即NS记录）</code>。</p>
+<p><strong>2、扩展条目</strong><br>条目格式跟回答区条目格式一致，差异在<code>TYPE = 0x002e（即RRSIG记录）| 0x0032（即NSEC3记录）|...</code>，本文不作深入。</p>
+<h4 id="2-4-3、实验"><a href="#2-4-3、实验" class="headerlink" title="2.4.3、实验"></a><strong>2.4.3、实验</strong></h4><p>查询A记录，<code>trace</code>参数是为了模拟完整的DNS域名解析迭代过程：<code>dig 163.com A +short +trace</code>。</p>
+<p>响应报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0x6e3a</span><br><span class="line">    Flags: 0x8000 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .0.. .... .... = Authoritative: Server is not an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...0 .... .... = Recursion desired: Don&#x27;t do query recursively</span><br><span class="line">        .... .... 0... .... = Recursion available: Server can&#x27;t do recursive queries</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 0</span><br><span class="line">    Authority RRs: 11</span><br><span class="line">    Additional RRs: 4</span><br><span class="line">    Queries</span><br><span class="line">        163.com: type A, class IN</span><br><span class="line">            Name: 163.com</span><br><span class="line">            [Name Length: 7]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Authoritative nameservers</span><br><span class="line">        163.com: type NS, class IN, ns ns3.nease.net    //对应的字节流：[NAME]0xc0 0x0c [TYPE]0x00 0x02 [CLASS]0x00 0x01 [TTL]0x00 0x02 0xa3 0x00 [RDLENGTH]0x00 0x0f [RDATA]0x03 0x6e 0x73 0x33 0x05 0x6e 0x65 0x61 0x73 0x65 0x03 0x6e 0x65 0x74 0x00</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 15</span><br><span class="line">            Name Server: ns3.nease.net</span><br><span class="line">        163.com: type NS, class IN, ns ns4.nease.net</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns4.nease.net</span><br><span class="line">        163.com: type NS, class IN, ns ns5.nease.net</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns5.nease.net</span><br><span class="line">        163.com: type NS, class IN, ns ns6.nease.net</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns6.nease.net</span><br><span class="line">        163.com: type NS, class IN, ns ns1.nease.net</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns1.nease.net</span><br><span class="line">        163.com: type NS, class IN, ns ns2.166.com</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 10</span><br><span class="line">            Name Server: ns2.166.com</span><br><span class="line">        163.com: type NS, class IN, ns ns8.166.com</span><br><span class="line">            Name: 163.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns8.166.com</span><br><span class="line">        CK0POJMG874LJREF7EFN8430QVIT8BSM.com: type NSEC3, class IN</span><br><span class="line">            Name: CK0POJMG874LJREF7EFN8430QVIT8BSM.com</span><br><span class="line">            Type: NSEC3 (50)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 900 (15 minutes)</span><br><span class="line">            Data length: 35</span><br><span class="line">            Hash algorithm: SHA-1 (1)</span><br><span class="line">            NSEC3 flags: 1</span><br><span class="line">                .... ...1 = NSEC3 Opt-out flag: Additional insecure delegations allowed</span><br><span class="line">            NSEC3 iterations: 0</span><br><span class="line">            Salt length: 0</span><br><span class="line">            Salt value: &lt;MISSING&gt;</span><br><span class="line">            Hash length: 20</span><br><span class="line">            Next hashed owner: 6501a1f9b0431d4a29c7dfa99833a16ff9c8a2b5</span><br><span class="line">            RR type in bit map: NS (authoritative Name Server)</span><br><span class="line">            RR type in bit map: SOA (Start Of a zone of Authority)</span><br><span class="line">            RR type in bit map: RRSIG (Resource Record Signature)</span><br><span class="line">            RR type in bit map: DNSKEY (DNS Public Key)</span><br><span class="line">            RR type in bit map: NSEC3PARAM</span><br><span class="line">        CK0POJMG874LJREF7EFN8430QVIT8BSM.com: type RRSIG, class IN</span><br><span class="line">            Name: CK0POJMG874LJREF7EFN8430QVIT8BSM.com</span><br><span class="line">            Type: RRSIG (Resource Record Signature) (46)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 900 (15 minutes)</span><br><span class="line">            Data length: 87</span><br><span class="line">            Type Covered: NSEC3 (50)</span><br><span class="line">            Algorithm: ECDSA Curve P-256 with SHA-256 (13)</span><br><span class="line">            Labels: 2</span><br><span class="line">            Original TTL: 900 (15 minutes)</span><br><span class="line">            Signature Expiration: Apr 28, 2026 08:26:36.000000000 CST</span><br><span class="line">            Signature Inception: Apr 21, 2026 07:16:36.000000000 CST</span><br><span class="line">            Key Tag: 27677</span><br><span class="line">            Signer&#x27;s name: com</span><br><span class="line">            Signature: 6d00e7f47806a87a8265ecf543c7cbe0c76d9f862e787de5…</span><br><span class="line">        O6DB05FMEAJK2DRN5PFFM8H296OGGG7D.com: type NSEC3, class IN</span><br><span class="line">            Name: O6DB05FMEAJK2DRN5PFFM8H296OGGG7D.com</span><br><span class="line">            Type: NSEC3 (50)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 900 (15 minutes)</span><br><span class="line">            Data length: 34</span><br><span class="line">            Hash algorithm: SHA-1 (1)</span><br><span class="line">            NSEC3 flags: 1</span><br><span class="line">                .... ...1 = NSEC3 Opt-out flag: Additional insecure delegations allowed</span><br><span class="line">            NSEC3 iterations: 0</span><br><span class="line">            Salt length: 0</span><br><span class="line">            Salt value: &lt;MISSING&gt;</span><br><span class="line">            Hash length: 20</span><br><span class="line">            Next hashed owner: c19ab0ef374bbc31352c30d9c077bebad33340e5</span><br><span class="line">            RR type in bit map: NS (authoritative Name Server)</span><br><span class="line">            RR type in bit map: DS (Delegation Signer)</span><br><span class="line">            RR type in bit map: RRSIG (Resource Record Signature)</span><br><span class="line">        O6DB05FMEAJK2DRN5PFFM8H296OGGG7D.com: type RRSIG, class IN</span><br><span class="line">            Name: O6DB05FMEAJK2DRN5PFFM8H296OGGG7D.com</span><br><span class="line">            Type: RRSIG (Resource Record Signature) (46)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 900 (15 minutes)</span><br><span class="line">            Data length: 87</span><br><span class="line">            Type Covered: NSEC3 (50)</span><br><span class="line">            Algorithm: ECDSA Curve P-256 with SHA-256 (13)</span><br><span class="line">            Labels: 2</span><br><span class="line">            Original TTL: 900 (15 minutes)</span><br><span class="line">            Signature Expiration: Apr 27, 2026 08:44:04.000000000 CST</span><br><span class="line">            Signature Inception: Apr 20, 2026 07:34:04.000000000 CST</span><br><span class="line">            Key Tag: 27677</span><br><span class="line">            Signer&#x27;s name: com</span><br><span class="line">            Signature: 6d00018ee50812a3309fb0635e9fe3de7d8ab4427d271d3a…</span><br><span class="line">    Additional records</span><br><span class="line">        ns2.166.com: type A, class IN, addr 103.71.201.3</span><br><span class="line">            Name: ns2.166.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 103.71.201.3</span><br><span class="line">        ns8.166.com: type A, class IN, addr 18.182.82.158</span><br><span class="line">            Name: ns8.166.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 18.182.82.158</span><br><span class="line">        ns8.166.com: type A, class IN, addr 44.228.163.69</span><br><span class="line">            Name: ns8.166.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 172800 (2 days)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 44.228.163.69</span><br><span class="line">        &lt;Root&gt;: type OPT</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 4096</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x8000</span><br><span class="line">                1... .... .... .... = DO bit: Accepts DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5、附加区（Additional）"><a href="#2-5、附加区（Additional）" class="headerlink" title="2.5、附加区（Additional）"></a><strong>2.5、附加区（Additional）</strong></h3><h4 id="2-5-1、含义"><a href="#2-5-1、含义" class="headerlink" title="2.5.1、含义"></a><strong>2.5.1、含义</strong></h4><ul>
+<li>可变字节</li>
+<li>附加区由两类条目构成，两类条目数量之和“查询报文&#x3D;0或者1，响应报文&gt;&#x3D;0，由首部<code>ARCOUNT</code>指定”：<ul>
+<li>传统条目：<ul>
+<li>表示授权区权威DNS服务器域名对应的IP地址，从而减少查询</li>
+<li>条目数量（查询报文&#x3D;0，响应报文&gt;&#x3D;0）</li>
+</ul>
+</li>
+<li>OPT扩展条目：<ul>
+<li>OPT扩展条目在<code>EDNS(Extension Mechanisms for DNS)</code>中定义[3]，用于在不破坏原有DNS报文结构的前提下，突破512字节限制、扩展标志位与RCODE、支持DNSSEC等新功能</li>
+<li>条目数量（查询报文&#x3D;0或者1，响应报文&#x3D;0或者1）：<font color='red'>附加区中最多只能有一条OPT扩展条目</font></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-5-2、条目格式"><a href="#2-5-2、条目格式" class="headerlink" title="2.5.2、条目格式"></a><strong>2.5.2、条目格式</strong></h4><p><strong>1、传统条目</strong><br>条目格式跟回答区条目格式一致，差异在<code>TYPE</code>一般是两个取值：</p>
+<ul>
+<li><code>TYPE = 0x0001</code>：A记录，该条目表示权威DNS服务器的IPv4地址</li>
+<li><code>TYPE = 0x001c</code>：AAAA记录，该条目表示权威DNS服务器的IPv6地址</li>
+</ul>
+<p><strong>2、OPT扩展条目</strong><br>为兼容，OPT扩展条目基于传统条目进行扩展，其格式如下。</p>
+<table class="beauty-table">
+    <tr>
+      <th>
+        <i>长度（字节）</i>
+      </th>
+      <th><i>旧字段名</i></th>
+      <th><i>旧字段含义与示例</i></th>
+      <th><i>新字段名</i></th>
+      <th><i>新字段含义与示例</i></th> 
+    </tr>
+    <tr>
+      <td>可变</td>
+      <td>NAME</td>
+      <td>域名</td>
+      <td>NAME</td>
+      <td>固定值<code>0x00</code></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>TYPE</td>
+      <td>类型</td>
+      <td>TYPE</td>
+      <td>固定值<code>0x0029</code></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>CLASS</td>
+      <td>类别</td>
+      <td>UDP Payload Size</td>
+      <td>UDP最大载荷</td>
+    </tr>
+    <tr>
+      <td rowspan="4">4</td>
+      <td rowspan="4">TTL</td>
+      <td rowspan="4">生存时间</td>
+    </tr>
+    <tr>
+       <td>EXT-RCODE（1字节）</td>
+       <td>扩展响应码，与首部RCODE组合为12位完整RCODE</td>
+    </tr>
+    <tr>
+       <td>EDNS-Version（1字节）</td>
+       <td>目前固定为<code>0x00</code></td>
+    </tr>
+    <tr>
+       <td>Z（2字节）</td>
+       <td>高第1位DO（DNSSEC OK，1 bit）：<br/>- 1 = 客户端支持并接受DNSSEC安全记录（RRSIG、NSEC、NSEC3、DNSKEY），递归服务器必须返回完整DNSSEC签名链给客户端，开启DNSSEC校验、防域名劫持/伪造<br/>- 0 = 客户端不支持DNSSEC，服务器不返回RRSIG/NSEC/NSEC3，只返回普通业务记录（A/AAAA/CNAME），不做签名校验，无DNSSEC安全防护<br/><br/>低15位，固定为0值，用于未来扩展</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>RDLENGTH</td>
+      <td>数据长度</td>
+      <td>RDLENGTH</td>
+      <td>OPT数据总长度</td>
+    </tr>
+    <tr>
+      <td>可变</td>
+      <td>RDATA</td>
+      <td>记录数据</td>
+      <td>RDATA</td>
+      <td>EDNS选项列表</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h4 id="2-5-3、实验"><a href="#2-5-3、实验" class="headerlink" title="2.5.3、实验"></a><strong>2.5.3、实验</strong></h4><p>查询A记录，<code>trace</code>参数是为了模拟完整的DNS域名解析迭代过程：<code>dig baidu.com A +short +trace</code>。</p>
+<p>查询报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (query)</span><br><span class="line">    Transaction ID: 0x85f5</span><br><span class="line">    Flags: 0x0020 Standard query</span><br><span class="line">        0... .... .... .... = Response: Message is a query</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...0 .... .... = Recursion desired: Don&#x27;t do query recursively</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..1. .... = AD bit: Set</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 0</span><br><span class="line">    Authority RRs: 0</span><br><span class="line">    Additional RRs: 1</span><br><span class="line">    Queries</span><br><span class="line">        baidu.com: type A, class IN</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            [Name Length: 9]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Additional records</span><br><span class="line">        &lt;Root&gt;: type OPT     //对应的字节流：[NAME]0x00 [TYPE]0x00 0x29 [UDP Payload Size]0x04 0xd0 [EXT-RCODE]0x00 [EDNS-Version]0x00 [Z]0x80 0x00 [RDLENGTH]0x00 0x0c [RDATA]0x00 0x0a 0x00 0x08 0xe7 0xa6 0x96 0xf6 0x27 0x45 0xd2 0xe8</span><br><span class="line">            Name: &lt;Root&gt;</span><br><span class="line">            Type: OPT (41)</span><br><span class="line">            UDP payload size: 1232</span><br><span class="line">            Higher bits in extended RCODE: 0x00</span><br><span class="line">            EDNS0 version: 0</span><br><span class="line">            Z: 0x8000</span><br><span class="line">                1... .... .... .... = DO bit: Accepts DNSSEC security RRs</span><br><span class="line">                .000 0000 0000 0000 = Reserved: 0x0000</span><br><span class="line">            Data length: 12</span><br><span class="line">            Option: COOKIE</span><br><span class="line">                Option Code: COOKIE (10)</span><br><span class="line">                Option Length: 8</span><br><span class="line">                Option Data: e7a696f62745d2e8</span><br><span class="line">                Client Cookie: e7a696f62745d2e8</span><br><span class="line">                Server Cookie: &lt;MISSING&gt;</span><br></pre></td></tr></table></figure>
+
+<p>响应报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br></pre></td><td class="code"><pre><span class="line">Domain Name System (response)</span><br><span class="line">    Transaction ID: 0x85f5</span><br><span class="line">    Flags: 0x8400 Standard query response, No error</span><br><span class="line">        1... .... .... .... = Response: Message is a response</span><br><span class="line">        .000 0... .... .... = Opcode: Standard query (0)</span><br><span class="line">        .... .1.. .... .... = Authoritative: Server is an authority for domain</span><br><span class="line">        .... ..0. .... .... = Truncated: Message is not truncated</span><br><span class="line">        .... ...0 .... .... = Recursion desired: Don&#x27;t do query recursively</span><br><span class="line">        .... .... 0... .... = Recursion available: Server can&#x27;t do recursive queries</span><br><span class="line">        .... .... .0.. .... = Z: reserved (0)</span><br><span class="line">        .... .... ..0. .... = Answer authenticated: Answer/authority portion was not authenticated by the server</span><br><span class="line">        .... .... ...0 .... = Non-authenticated data: Unacceptable</span><br><span class="line">        .... .... .... 0000 = Reply code: No error (0)</span><br><span class="line">    Questions: 1</span><br><span class="line">    Answer RRs: 4</span><br><span class="line">    Authority RRs: 5</span><br><span class="line">    Additional RRs: 11</span><br><span class="line">    Queries</span><br><span class="line">        baidu.com: type A, class IN</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            [Name Length: 9]</span><br><span class="line">            [Label Count: 2]</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">    Answers</span><br><span class="line">        baidu.com: type A, class IN, addr 111.63.65.247</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 111.63.65.247</span><br><span class="line">        baidu.com: type A, class IN, addr 124.237.177.164</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 124.237.177.164</span><br><span class="line">        baidu.com: type A, class IN, addr 110.242.74.102</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 110.242.74.102</span><br><span class="line">        baidu.com: type A, class IN, addr 111.63.65.103</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 111.63.65.103</span><br><span class="line">    Authoritative nameservers</span><br><span class="line">        baidu.com: type NS, class IN, ns dns.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: dns.baidu.com</span><br><span class="line">        baidu.com: type NS, class IN, ns ns2.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns2.baidu.com</span><br><span class="line">        baidu.com: type NS, class IN, ns ns3.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns3.baidu.com</span><br><span class="line">        baidu.com: type NS, class IN, ns ns4.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns4.baidu.com</span><br><span class="line">        baidu.com: type NS, class IN, ns ns7.baidu.com</span><br><span class="line">            Name: baidu.com</span><br><span class="line">            Type: NS (authoritative Name Server) (2)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 6</span><br><span class="line">            Name Server: ns7.baidu.com</span><br><span class="line">    Additional records</span><br><span class="line">        dns.baidu.com: type A, class IN, addr 110.242.68.134    //对应的字节流：[NAME]0xc0 0x67 [TYPE]0x00 0x01 [CLASS]0x00 0x01 [TTL]0x00 0x00 0x02 0x58 [RDLENGTH]0x00 0x04 [RDATA]0x6e 0xf2 0x44 0x86</span><br><span class="line">            Name: dns.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 110.242.68.134</span><br><span class="line">        ns2.baidu.com: type A, class IN, addr 220.181.33.31</span><br><span class="line">            Name: ns2.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 220.181.33.31</span><br><span class="line">        ns3.baidu.com: type A, class IN, addr 36.155.132.78</span><br><span class="line">            Name: ns3.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 36.155.132.78</span><br><span class="line">        ns3.baidu.com: type A, class IN, addr 153.3.238.93</span><br><span class="line">            Name: ns3.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 153.3.238.93</span><br><span class="line">        ns4.baidu.com: type A, class IN, addr 14.215.178.80</span><br><span class="line">            Name: ns4.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 14.215.178.80</span><br><span class="line">        ns4.baidu.com: type A, class IN, addr 111.45.3.226</span><br><span class="line">            Name: ns4.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 111.45.3.226</span><br><span class="line">        ns7.baidu.com: type A, class IN, addr 180.76.76.92</span><br><span class="line">            Name: ns7.baidu.com</span><br><span class="line">            Type: A (Host Address) (1)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 4</span><br><span class="line">            Address: 180.76.76.92</span><br><span class="line">        dns.baidu.com: type AAAA, class IN, addr 240e:bf:b801:1002:0:ff:b024:26de</span><br><span class="line">            Name: dns.baidu.com</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 16</span><br><span class="line">            AAAA Address: 240e:bf:b801:1002:0:ff:b024:26de</span><br><span class="line">        ns2.baidu.com: type AAAA, class IN, addr 240e:940:603:4:0:ff:b01b:589a</span><br><span class="line">            Name: ns2.baidu.com</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 600 (10 minutes)</span><br><span class="line">            Data length: 16</span><br><span class="line">            AAAA Address: 240e:940:603:4:0:ff:b01b:589a</span><br><span class="line">        ns7.baidu.com: type AAAA, class IN, addr 240e:bf:b801:1002:0:ff:b024:26de</span><br><span class="line">            Name: ns7.baidu.com</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 16</span><br><span class="line">            AAAA Address: 240e:bf:b801:1002:0:ff:b024:26de</span><br><span class="line">        ns7.baidu.com: type AAAA, class IN, addr 240e:940:603:4:0:ff:b01b:589a</span><br><span class="line">            Name: ns7.baidu.com</span><br><span class="line">            Type: AAAA (IPv6 Address) (28)</span><br><span class="line">            Class: IN (0x0001)</span><br><span class="line">            Time to live: 86400 (1 day)</span><br><span class="line">            Data length: 16</span><br><span class="line">            AAAA Address: 240e:940:603:4:0:ff:b01b:589a</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc1035">https://datatracker.ietf.org/doc/html/rfc1035</a><br>[2]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc2535">https://datatracker.ietf.org/doc/html/rfc2535</a><br>[3]<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc6891">https://datatracker.ietf.org/doc/html/rfc6891</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" title="DNS网络协议">https://dslztx.github.io/blog/2026/03/06/DNS网络协议/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/" rel="prev" title="DNS Zone文件">
+      <i class="fa fa-chevron-left"></i> DNS Zone文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/04/24/DNS%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="next" title="DNS系统架构">
+      DNS系统架构 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81DNS%E5%8D%8F%E8%AE%AE"><span class="nav-text">一、DNS协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81DNS%E5%8D%8F%E8%AE%AE%E6%8A%A5%E6%96%87"><span class="nav-text">二、DNS协议报文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81%E9%A6%96%E9%83%A8%EF%BC%88Header%EF%BC%89"><span class="nav-text">2.1、首部（Header）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1%E3%80%81%E5%90%AB%E4%B9%89"><span class="nav-text">2.1.1、含义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-2%E3%80%81%E8%AF%A6%E7%BB%86"><span class="nav-text">2.1.2、详细</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="nav-text">2.1.3、实验</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81%E9%97%AE%E9%A2%98%E5%8C%BA%EF%BC%88Question%EF%BC%89"><span class="nav-text">2.2、问题区（Question）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1%E3%80%81%E5%90%AB%E4%B9%89"><span class="nav-text">2.2.1、含义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2%E3%80%81%E6%9D%A1%E7%9B%AE%E6%A0%BC%E5%BC%8F"><span class="nav-text">2.2.2、条目格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="nav-text">2.2.3、实验</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%E3%80%81%E5%9B%9E%E7%AD%94%E5%8C%BA%EF%BC%88Answer%EF%BC%89"><span class="nav-text">2.3、回答区（Answer）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-1%E3%80%81%E5%90%AB%E4%B9%89"><span class="nav-text">2.3.1、含义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-2%E3%80%81%E6%9D%A1%E7%9B%AE%E6%A0%BC%E5%BC%8F"><span class="nav-text">2.3.2、条目格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="nav-text">2.3.3、实验</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%E3%80%81%E6%8E%88%E6%9D%83%E5%8C%BA%EF%BC%88Authority%EF%BC%89"><span class="nav-text">2.4、授权区（Authority）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1%E3%80%81%E5%90%AB%E4%B9%89"><span class="nav-text">2.4.1、含义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-2%E3%80%81%E6%9D%A1%E7%9B%AE%E6%A0%BC%E5%BC%8F"><span class="nav-text">2.4.2、条目格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="nav-text">2.4.3、实验</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%E3%80%81%E9%99%84%E5%8A%A0%E5%8C%BA%EF%BC%88Additional%EF%BC%89"><span class="nav-text">2.5、附加区（Additional）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-1%E3%80%81%E5%90%AB%E4%B9%89"><span class="nav-text">2.5.1、含义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-2%E3%80%81%E6%9D%A1%E7%9B%AE%E6%A0%BC%E5%BC%8F"><span class="nav-text">2.5.2、条目格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-3%E3%80%81%E5%AE%9E%E9%AA%8C"><span class="nav-text">2.5.3、实验</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">339</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/";
+    this.page.identifier = "2026/03/06/DNS网络协议/";
+    this.page.title = "DNS网络协议";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

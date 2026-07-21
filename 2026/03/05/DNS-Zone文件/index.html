@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="DNS Zone文件是定义DNS资源记录的区域。 一、DNS Zone区域域名DNS Zone区域域名：Zone文件定义围绕该域名进行，比如example.com，.（根DNS服务器的DNS Zone区域域名）。Zone文件物理名称与区域域名理论无关，但建议建立关联方便维护。 不同DNS服务器软件定义DNS Zone区域域名的语法不同。 1、BIND 9 1234zone &quot;exampl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS Zone文件">
+<meta property="og:url" content="https://dslztx.github.io/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="DNS Zone文件是定义DNS资源记录的区域。 一、DNS Zone区域域名DNS Zone区域域名：Zone文件定义围绕该域名进行，比如example.com，.（根DNS服务器的DNS Zone区域域名）。Zone文件物理名称与区域域名理论无关，但建议建立关联方便维护。 不同DNS服务器软件定义DNS Zone区域域名的语法不同。 1、BIND 9 1234zone &quot;exampl">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-05T12:38:04.000Z">
+<meta property="article:modified_time" content="2026-07-21T14:09:03.019Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DNS Zone文件 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DNS Zone文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-03-05 20:38:04" itemprop="dateCreated datePublished" datetime="2026-03-05T20:38:04+08:00">2026-03-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-21 22:09:03" itemprop="dateModified" datetime="2026-07-21T22:09:03+08:00">2026-07-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">网络原理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/03/05/DNS-Zone文件/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>DNS Zone文件是定义DNS资源记录的区域。</p>
+<h2 id="一、DNS-Zone区域域名"><a href="#一、DNS-Zone区域域名" class="headerlink" title="一、DNS Zone区域域名"></a><strong>一、DNS Zone区域域名</strong></h2><p>DNS Zone区域域名：Zone文件定义围绕该域名进行，比如<code>example.com</code>，<code>.（根DNS服务器的DNS Zone区域域名）</code>。<br><font color='red'>Zone文件物理名称与区域域名理论无关，但建议建立关联方便维护。</font></p>
+<p>不同DNS服务器软件定义DNS Zone区域域名的语法不同。</p>
+<p><strong>1、BIND 9</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zone &quot;example.com&quot; IN &#123;</span><br><span class="line">    type master;</span><br><span class="line">    file &quot;/var/named/example.com.zone&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>DNS Zone区域域名：<code>example.com</code>。<br>Zone文件路径和物理名称：<code>/var/named/example.com.zone</code>。</p>
+<p><strong>2、CoreDNS</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">example.com:53 &#123;</span><br><span class="line">    file /etc/coredns/example.com.zone</span><br><span class="line">    log</span><br><span class="line">    errors</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DNS Zone区域域名：<code>example.com</code>。<br>Zone文件路径和物理名称：<code>/etc/coredns/example.com.zone</code>。</p>
+<p><strong>3、PowerDNS</strong><br>有两种配置方案：</p>
+<ol>
+<li>文件配置方案：语法跟BIND 9几乎一致</li>
+<li>数据库配置方案：这里略</li>
+</ol>
+<h2 id="二、DNS-Zone文件语法"><a href="#二、DNS-Zone文件语法" class="headerlink" title="二、DNS Zone文件语法"></a><strong>二、DNS Zone文件语法</strong></h2><p>DNS Zone文件语法主要包括“当前基准域名”语义和3类语句：</p>
+<ol>
+<li>当前基准域名</li>
+<li>注释</li>
+<li>指令</li>
+<li>DNS资源记录定义</li>
+</ol>
+<p>DNS Zone文件语法主要由RFC 1035和RFC 2308定义，也存在一些DNS服务器软件（BIND 9，PowerDNS，CoreDNS等）私自扩展的语法。</p>
+<h3 id="2-1、DNS-Zone当前基准域名"><a href="#2-1、DNS-Zone当前基准域名" class="headerlink" title="2.1、DNS Zone当前基准域名"></a><strong>2.1、DNS Zone当前基准域名</strong></h3><p>DNS Zone当前基准域名：使用当前基准域名可简化Zone文件的配置（具体简化规则见下），其默认为DNS Zone区域域名，可通过<code>$ORIGIN</code>指令重设，重设的当前基准域名须为区域域名本身或其子域名，否则解析错误，支持通过多次<code>$ORIGIN</code>指令进行多次重设。</p>
+<p>具体简化规则：</p>
+<ol>
+<li>在Zone文件中，<code>@</code>会被解析成<code>当前基准域名</code>（相应的，普通语义的<code>@</code>须写成<code>.</code>避免非预期解析，比如“<a href="mailto:&#x61;&#100;&#x6d;&#x69;&#x6e;&#64;&#x65;&#x78;&#x61;&#109;&#112;&#108;&#x65;&#46;&#99;&#x6f;&#x6d;">admin@example.com</a> -&gt; admin.example.com”）</li>
+<li>在Zone文件中，域名A末尾不附加<code>.</code>表示相对域名，会被解析成<code>A.当前基准域名</code>；域名A末尾附加<code>.</code>表示绝对域名，会被解析成<code>A本身</code>。比如“假定当前基准域名为<code>example.com</code>，那么<code>ns1.com</code>会被解析成<code>ns1.com.example.com</code>，<code>ns1.com.</code>会被解析成<code>ns1.com</code>”</li>
+</ol>
+<h3 id="2-2、注释"><a href="#2-2、注释" class="headerlink" title="2.2、注释"></a><strong>2.2、注释</strong></h3><p>以<code>;</code>开头，注释范围从<code>;</code>到该行末尾。</p>
+<p>示例：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; 这是一条注释，用于说明下方是example.com的Zone文件配置</span><br><span class="line"></span><br><span class="line">; 注释可以单独成行，也可以跟在配置后面（如下方）</span><br><span class="line"></span><br><span class="line">$TTL 12h ; 定义默认生存时间，单位为小时</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-指令"><a href="#2-3-指令" class="headerlink" title="2.3. 指令"></a><strong>2.3. 指令</strong></h3><p>指令用于定义Zone文件的全局属性，控制DNS服务器对DNS资源记录的处理方式。<br>指令以<code>$</code>开头，指令名不区分大小写。</p>
+<p>下面介绍常用的3个指令。</p>
+<h4 id="2-3-1、-TTL"><a href="#2-3-1、-TTL" class="headerlink" title="2.3.1、$TTL"></a><strong>2.3.1、$TTL</strong></h4><p>$TTL：生存时间，出现0次或者1次。</p>
+<p>定义该Zone文件中所有DNS资源记录的默认生存时间，其含义是：DNS客户端查询到相应DNS资源记录后，缓存多久才重新查询（在“递归DNS服务器和转发DNS服务器查询相应DNS资源记录”场景，其作为DNS客户端，缓存时间也为该值）。</p>
+<p>值格式为<code>数值 + 默认单位秒</code>。</p>
+<p>示例：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$TTL 86400 ; 默认缓存86400秒，即1天</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>BIND等私自扩展的值格式为<code>数值 + 单位缩写</code>。</p>
+<p>示例：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$TTL 12h ; 默认缓存12小时</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-2、-ORIGIN"><a href="#2-3-2、-ORIGIN" class="headerlink" title="2.3.2、$ORIGIN"></a><strong>2.3.2、$ORIGIN</strong></h4><p>$ORIGIN：重设当前基准域名，重设的当前基准域名须为区域域名本身或其子域名，否则解析错误，出现0次或者N（N&gt;&#x3D;1）次。</p>
+<p>示例：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ORIGIN example.com.</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-3、-SERIAL"><a href="#2-3-3、-SERIAL" class="headerlink" title="2.3.3、$SERIAL"></a><strong>2.3.3、$SERIAL</strong></h4><p>$SERIAL：序列号，出现0次或者1次。</p>
+<p>用于标识Zone文件的版本号，当主DNS服务器的Zone文件更新后，序列号需递增（通常格式为<code>YYYYMMDDXX</code>），从DNS服务器会通过序列号判断是否需要同步更新DNS资源记录，这是主从DNS同步的核心依据。<br>跟SOA记录中的序列号字段作用一致。</p>
+<p>示例：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$SERIAL 2026021201</span><br></pre></td></tr></table></figure>
+
+<p>$SERIAL指令是BIND等私自扩展指令。</p>
+<h3 id="2-4、DNS资源记录定义"><a href="#2-4、DNS资源记录定义" class="headerlink" title="2.4、DNS资源记录定义"></a><strong>2.4、DNS资源记录定义</strong></h3><p>DNS资源记录是Zone文件的核心，所有DNS资源记录都遵循统一的格式。</p>
+<p>DNS资源记录格式：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称（Name）  [TTL]  类别（Class）  类型（Type）  数据（Data）</span><br></pre></td></tr></table></figure>
+
+<p>详细说明：</p>
+<ul>
+<li>字段间以“空格”或者“制表符”分隔，不能用逗号、顿号等其他符号，否则无法解析</li>
+<li>名称（Name）：需要解析的域名</li>
+<li>[TTL]：可选，DNS资源记录的生存时间，其含义是：DNS客户端查询到相应DNS资源记录后，缓存多久才重新查询（在“递归DNS服务器和转发DNS服务器查询相应DNS资源记录”场景，其作为DNS客户端，缓存时间也为该值）。跟<code>$TTL</code>指令的关系是：两者含义相同，TTL字段优先级高于<code>$TTL</code>指令</li>
+<li>类别（Class）：几乎所有场景都用IN（Internet，互联网类别），表示该DNS资源记录用于互联网解析，其他类别（如CH、HS）极少用到，可忽略</li>
+<li>类型（Type）：DNS资源记录的类型，比如“NS”，“A”</li>
+<li>数据（Data）：根据DNS资源记录类型不同，格式不同，一般为一行，支持跨多行（用括号包裹）</li>
+</ul>
+<p>接下来介绍常用的8种DNS资源记录。</p>
+<h4 id="2-4-1、SOA记录"><a href="#2-4-1、SOA记录" class="headerlink" title="2.4.1、SOA记录"></a><strong>2.4.1、SOA记录</strong></h4><p>SOA记录用于描述区域的全局特性。Zone文件中<font color='red'>必且唯一存在</font>一条SOA记录，且作为第一条DNS资源记录。</p>
+<p>SOA记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">; 通常跨多行书写，用括号包裹</span><br><span class="line"></span><br><span class="line">; 名称：必须为区域域名</span><br><span class="line"></span><br><span class="line">; 主DNS服务器：从DNS服务器从主DNS服务器同步数据</span><br><span class="line"></span><br><span class="line">名称  [TTL]  IN  SOA  主DNS服务器  管理员邮箱  (</span><br><span class="line"></span><br><span class="line">    序列号（SERIAL）    ; 如2026021201，序列号须随文件更新递增，否则主从DNS无法同步</span><br><span class="line"></span><br><span class="line">    刷新时间（REFRESH） ; 从DNS多久查询一次主DNS更新，如1h（1小时）</span><br><span class="line"></span><br><span class="line">    重试时间（RETRY）   ; 刷新失败后，多久重试一次，如15m（15分钟）</span><br><span class="line"></span><br><span class="line">    过期时间（EXPIRE）  ; 多次重试失败后，从DNS放弃同步，如3w（3周）</span><br><span class="line"></span><br><span class="line">    不存在记录负生存时间（NXDOMAIN TTL）  ; DNS客户端查询不到相应DNS资源记录后，间隔多久才重新查询（在“递归DNS服务器和转发DNS服务器查询不到相应DNS资源记录”场景，其作为DNS客户端，间隔时间也为该值）。注意与“$TTL指令”和“DNS资源记录中TTL字段”含义的区别</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>SOA记录示例如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">; 管理员邮箱admin@example.com须写为admin.example.com</span><br><span class="line"></span><br><span class="line">example.com.  IN  SOA  ns1.example.com.  admin.example.com. (</span><br><span class="line">    2026021201  ; 序列号 (SERIAL)</span><br><span class="line">    7200        ; 刷新时间 (REFRESH, 2小时)</span><br><span class="line">    3600        ; 重试时间 (RETRY, 1小时)</span><br><span class="line">    1209600     ; 过期时间 (EXPIRE, 14天)</span><br><span class="line">    3600        ; 不存在记录负生存时间 (NXDOMAIN TTL, 1小时)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-2、NS记录"><a href="#2-4-2、NS记录" class="headerlink" title="2.4.2、NS记录"></a><strong>2.4.2、NS记录</strong></h4><p>NS记录用于指定域名的权威DNS服务器，在配置时要么不配，如果配置一个域名一般至少需要2条NS记录，以实现负载均衡和高可用。</p>
+<p>NS记录有两种：</p>
+<ol>
+<li>父域委派NS记录：父权威DNS服务器DNS Zone中声明的子域NS记录，比如“在<code>com</code>域权威DNS服务器DNS Zone中的<code>example.com.  IN  NS  ns1.example.com.</code>”</li>
+<li>权威自声明NS记录：本权威DNS服务器DNS Zone中声明的本域NS记录，比如“在<code>example.com</code>域权威DNS服务器DNS Zone中的<code>example.com.  IN  NS  ns1.example.com.</code>”</li>
+</ol>
+<p>权威自声明NS记录：RFC规范要求必须有权威自声明NS记录，其用来对外宣告我就是被授权管理这个域的权威DNS服务器，从而建立一个完整的信任链，如果没有“权威自声明NS记录”可能导致解析故障。</p>
+<p>根据以上可知，在DNS Zone文件中必有权威自声明NS记录，故Zone文件中NS记录数量必大于1。</p>
+<p>NS记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  NS  权威DNS服务器</span><br></pre></td></tr></table></figure>
+
+<p>NS记录示例如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@  IN  NS  ns1.example.com.  ; 主权威DNS服务器</span><br><span class="line">@  IN  NS  ns2.example.net.  ; 备权威DNS服务器</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-3、A记录"><a href="#2-4-3、A记录" class="headerlink" title="2.4.3、A记录"></a><strong>2.4.3、A记录</strong></h4><p>A记录用于将域名映射到IPv4地址，是关键DNS资源记录。Zone文件中可存在0-N(N&gt;0)条A记录，在配置时一个域名可以对应多条A记录，以实现负载均衡和高可用。</p>
+<p>A记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  A  IPv4地址 </span><br></pre></td></tr></table></figure>
+
+<p>A记录示例如下（假定当前基准域名为<code>example.com</code>）：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">www  IN  A  192.168.1.100  ; www.example.com -&gt; 192.168.1.100</span><br><span class="line">blog  IN  A  192.168.1.101  ; blog.example.com -&gt; 192.168.1.101</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-4、AAAA记录"><a href="#2-4-4、AAAA记录" class="headerlink" title="2.4.4、AAAA记录"></a><strong>2.4.4、AAAA记录</strong></h4><p>AAAA记录用于将域名映射到IPv6地址，是关键DNS资源记录。Zone文件中可存在0-N(N&gt;0)条AAAA记录，在配置时一个域名可以对应多条AAAA记录，以实现负载均衡和高可用。</p>
+<p>AAAA记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  AAAA  IPv6地址 </span><br></pre></td></tr></table></figure>
+
+<p>AAAA记录示例如下（假定当前基准域名为<code>example.com</code>）：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www  IN  AAAA  2400:3200::1  ; www.example.com -&gt; 2400:3200::1</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-5、MX记录"><a href="#2-4-5、MX记录" class="headerlink" title="2.4.5、MX记录"></a><strong>2.4.5、MX记录</strong></h4><p>MX记录用于指定负责接收该域名邮件的邮件服务器。Zone文件中可存在0-N(N&gt;0)条MX记录，在配置时一个域名可以对应多条MX记录，以实现负载均衡和高可用，多条时需通过优先级数值（0-65535）区分，优先级数值越小优先级越高。</p>
+<p>MX记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  MX  优先级数值  邮件服务器</span><br></pre></td></tr></table></figure>
+
+<p>MX记录示例如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@  IN  MX  10  mail.example.com.  ; 主邮件服务器（优先级数值10）</span><br><span class="line">@  IN  MX  20  mail2.example.com. ; 备邮件服务器（优先级数值20）</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-6、CNAME记录"><a href="#2-4-6、CNAME记录" class="headerlink" title="2.4.6、CNAME记录"></a><strong>2.4.6、CNAME记录</strong></h4><p>CNAME记录用于为一个域名设置别名，比如将<code>blog.example.com</code>设置为<code>www.example.com</code>的别名，访问<code>blog.example.com</code>时，会自动跳转解析到<code>www.example.com</code>对应的IP地址，常用于简化配置和灵活切换解析目标。Zone文件中可存在0-N(N&gt;0)条CNAME记录，在配置时一个域名可以对应多条CNAME记录。</p>
+<p>CNAME记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">别名  [TTL]  IN  CNAME  原域名</span><br></pre></td></tr></table></figure>
+
+<p>CNAME记录示例如下（假定当前基准域名为<code>example.com</code>）：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">blog  IN  CNAME  www.example.com.  ; blog.example.com是www.example.com的别名</span><br><span class="line">ftp   IN  CNAME  ftp.example.net.  ; ftp.example.com是ftp.example.net的别名</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-7、TXT记录"><a href="#2-4-7、TXT记录" class="headerlink" title="2.4.7、TXT记录"></a><strong>2.4.7、TXT记录</strong></h4><p>TXT记录用于存储任意文本信息，最初用于域名注释，现在核心用于域名所有权验证、邮件安全（SPF&#x2F;DKIM&#x2F;DMARC）、服务配置等机器可读场景。Zone文件中可存在0-N(N&gt;0)条TXT记录，在配置时一个域名可以对应多条TXT记录。</p>
+<p>TXT记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  TXT  TXT内容 </span><br></pre></td></tr></table></figure>
+
+<p>TXT记录示例如下（假定当前基准域名为<code>example.com</code>）：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@  IN  TXT  &quot;google-site-verification=abc123xyz789&quot;`  ; 通过TXT记录存储Google验证字符串，用于证明域名归属</span><br><span class="line"></span><br><span class="line">@  86400  IN  TXT  &quot;v=spf1 ip4:203.0.113.10 include:mail.example.com ~all&quot;   ;  域名`example.com`的SPF规则指定允许发送来自`example.com`域名邮件的服务器IP为`203.0.113.10`和`mail.example.com域名SPF规则中的服务器IP`，`~all`表示从非允许的服务器发送的`example.com`邮件应标记为软失败</span><br><span class="line"></span><br><span class="line">dkim._domainkey  3600  IN  TXT  &quot;v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ...&quot;  ; 子域名dkim._domainkey.example.com存储DKIM公钥，用于接收方验证邮件是否被篡改，v=DKIM1表示DKIM版本</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-8、PTR记录"><a href="#2-4-8、PTR记录" class="headerlink" title="2.4.8、PTR记录"></a><strong>2.4.8、PTR记录</strong></h4><p>PTR记录用于将IP地址映射到域名。Zone文件中可存在0-N(N&gt;0)条PTR记录，在配置时一个IP可以对应多条PTR记录。</p>
+<p>PTR记录格式如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">名称  [TTL]  IN  PTR  域名 </span><br></pre></td></tr></table></figure>
+
+<p>名称为适配分层结构的“反转IP+后缀”，详见<a href="/blog/2026/03/04/DNS%E8%B5%84%E6%BA%90%E8%AE%B0%E5%BD%95/" title="DNS资源记录">《DNS资源记录》</a>。</p>
+<p>PTR记录示例如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">10.1.168.192.in-addr.arpa.  3600  IN  PTR  mail.example.com.   ; IPv4地址`192.168.1.10`反向解析到域名`mail.example.com`，TTL为1小时。当查询该IP的反向记录时，会返回对应的域名</span><br><span class="line"></span><br><span class="line">1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa.  86400  IN  PTR  server.example.com.   ;  IPv6地址`2001:db8::1`反向解析到域名`server.example.com`，TTL为24小时。当查询该IP的反向记录时，会返回对应的域名</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Zone文件示例"><a href="#三、Zone文件示例" class="headerlink" title="三、Zone文件示例"></a><strong>三、Zone文件示例</strong></h2><p>实验环境叙述如下：</p>
+<ul>
+<li>实验DNS服务器<ul>
+<li>IP地址：<code>192.168.31.181</code></li>
+<li>DNS服务器实现软件：选用<code>BIND 9</code></li>
+</ul>
+</li>
+<li>实验DNS客户端<ul>
+<li>IP地址：<code>192.168.31.143</code></li>
+<li>DNS客户端实现软件：选用<code>Linux dig命令</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-1、包含PTR记录的Zone文件"><a href="#3-1、包含PTR记录的Zone文件" class="headerlink" title="3.1、包含PTR记录的Zone文件"></a><strong>3.1、包含PTR记录的Zone文件</strong></h3><p><strong>1、实验DNS服务器</strong><br>配置文件“&#x2F;etc&#x2F;bind&#x2F;named.conf.options”中增加以下配置，关闭递归功能，确保作为纯粹的权威DNS服务器：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">recursion no;</span><br></pre></td></tr></table></figure>
+
+<p>配置文件“&#x2F;etc&#x2F;bind&#x2F;named.conf.local”中增加以下配置，加载Zone文件：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zone &quot;10.168.192.in-addr.arpa&quot; &#123;</span><br><span class="line">    type master; // 这是主DNS服务器</span><br><span class="line">    file &quot;/etc/bind/zones/10.168.192.in-addr.arpa.zone&quot;; // Zone文件路径和物理名称</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>“&#x2F;etc&#x2F;bind&#x2F;zones&#x2F;10.168.192.in-addr.arpa.zone”Zone文件内容如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$TTL 86400</span><br><span class="line"></span><br><span class="line">; SOA记录</span><br><span class="line">@   IN  SOA     ns1.example.com. admin.example.com. (</span><br><span class="line">        2025092501   ; 序列号</span><br><span class="line">        3600         ; 刷新时间</span><br><span class="line">        900          ; 重试时间</span><br><span class="line">        604800       ; 过期时间</span><br><span class="line">        86400        ; 不存在记录负生存时间</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">; NS记录</span><br><span class="line">@       IN  NS      ns1.example.com.</span><br><span class="line">@       IN  NS      ns2.example.com.</span><br><span class="line"></span><br><span class="line">; PTR记录：IP最后一段  IN  PTR  域名.</span><br><span class="line">10      IN  PTR     mail.example.com.</span><br><span class="line">20      IN  PTR     web.example.com.</span><br><span class="line">30      IN  PTR     dns.example.com.</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、客户端</strong></p>
+<table>
+<thead>
+<tr>
+<th>执行命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dig -x 192.168.10.10 @192.168.31.181 +short</td>
+<td>mail.example.com.</td>
+</tr>
+<tr>
+<td>dig -x 192.168.10.20 @192.168.31.181 +short</td>
+<td>web.example.com.</td>
+</tr>
+<tr>
+<td>dig -x 192.168.10.30 @192.168.31.181 +short</td>
+<td>dns.example.com.</td>
+</tr>
+</tbody></table>
+<h3 id="3-2、包含A、AAAA、TXT、MX、CNAME等记录的Zone文件"><a href="#3-2、包含A、AAAA、TXT、MX、CNAME等记录的Zone文件" class="headerlink" title="3.2、包含A、AAAA、TXT、MX、CNAME等记录的Zone文件"></a><strong>3.2、包含A、AAAA、TXT、MX、CNAME等记录的Zone文件</strong></h3><p><strong>1、实验DNS服务器</strong><br>配置文件“&#x2F;etc&#x2F;bind&#x2F;named.conf.options”中增加以下配置，关闭递归功能，确保作为纯粹的权威DNS服务器：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">recursion no;</span><br></pre></td></tr></table></figure>
+
+<p>配置文件“&#x2F;etc&#x2F;bind&#x2F;named.conf.local”中增加以下配置，加载Zone文件：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zone &quot;example.com&quot; &#123;</span><br><span class="line">    type master; // 这是主DNS服务器</span><br><span class="line">    file &quot;/etc/bind/zones/example.com.zone&quot;; // Zone文件路径和物理名称</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>“&#x2F;etc&#x2F;bind&#x2F;zones&#x2F;example.com.zone”Zone文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">$TTL    86400</span><br><span class="line">$ORIGIN example.com.</span><br><span class="line"></span><br><span class="line">; SOA记录</span><br><span class="line">@       IN      SOA     ns1.example.com. admin.example.com. (</span><br><span class="line">          2026022201  ; 序列号</span><br><span class="line">          3600        ; 刷新时间 (1小时)</span><br><span class="line">          1800        ; 重试时间 (30分钟)</span><br><span class="line">          604800      ; 过期时间 (7天)</span><br><span class="line">          86400       ; 不存在记录负生存时间 (24小时)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">; NS记录</span><br><span class="line">@       IN      NS      ns1.example.com.</span><br><span class="line">@       IN      NS      ns2.example.com.</span><br><span class="line"></span><br><span class="line">; A记录</span><br><span class="line">@       IN      A       192.168.1.100       ; 主域名 example.com 指向的IPv4</span><br><span class="line">ns1     IN      A       192.168.1.101       ; 域名服务器 ns1.example.com 的IPv4</span><br><span class="line">ns2     IN      A       192.168.1.102       ; 域名服务器 ns2.example.com 的IPv4</span><br><span class="line">www     IN      A       192.168.1.100       ; www.example.com 指向的IPv4</span><br><span class="line">mail    IN      A       192.168.1.103       ; mail.example.com 指向的IPv4</span><br><span class="line"></span><br><span class="line">; AAAA记录</span><br><span class="line">@       IN      AAAA    2001:db8::100       ; 主域名 example.com 的IPv6</span><br><span class="line">www     IN      AAAA    2001:db8::100       ; www.example.com 的IPv6</span><br><span class="line">mail    IN      AAAA    2001:db8::103       ; mail.example.com 的IPv6</span><br><span class="line"></span><br><span class="line">; MX记录</span><br><span class="line">@       IN      MX      10 mail.example.com. ; 主邮件服务器，优先级10</span><br><span class="line">@       IN      MX      20 backup.mail.example.com. ; 备用邮件服务器，优先级20</span><br><span class="line"></span><br><span class="line">; CNAME记录</span><br><span class="line">ftp     IN      CNAME   www.example.com.    ; ftp.example.com 是 www.example.com 的别名</span><br><span class="line">blog    IN      CNAME   www.example.com.    ; blog.example.com 是 www.example.com 的别名</span><br><span class="line">imap    IN      CNAME   mail.example.com.   ; imap.example.com 是 mail.example.com 的别名</span><br><span class="line">smtp    IN      CNAME   mail.example.com.   ; smtp.example.com 是 mail.example.com 的别名</span><br><span class="line"></span><br><span class="line">; TXT记录</span><br><span class="line">@       IN      TXT     &quot;v=spf1 mx a ~all&quot;  ; SPF记录，允许本域名的MX和A记录发送邮件</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、客户端</strong></p>
+<table>
+<thead>
+<tr>
+<th>执行命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dig A ns1.example.com @192.168.31.181 +short</td>
+<td>192.168.1.101</td>
+</tr>
+<tr>
+<td>dig AAAA <a target="_blank" rel="noopener" href="http://www.example.com/">www.example.com</a> @192.168.31.181 +short</td>
+<td>2001:db8::100</td>
+</tr>
+<tr>
+<td>dig mx example.com @192.168.31.181 +short</td>
+<td>10 mail.example.com.<br/>20 backup.mail.example.com.</td>
+</tr>
+<tr>
+<td>dig cname ftp.example.com @192.168.31.181 +short</td>
+<td><a target="_blank" rel="noopener" href="http://www.example.com/">www.example.com</a>.</td>
+</tr>
+<tr>
+<td>dig txt example.com @192.168.31.181 +short</td>
+<td>“v&#x3D;spf1 mx a ~all”</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc1035.txt">https://www.ietf.org/rfc/rfc1035.txt</a><br>[2]<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc2308.txt">https://www.ietf.org/rfc/rfc2308.txt</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/" title="DNS Zone文件">https://dslztx.github.io/blog/2026/03/05/DNS-Zone文件/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/03/04/DNS%E8%B5%84%E6%BA%90%E8%AE%B0%E5%BD%95/" rel="prev" title="DNS资源记录">
+      <i class="fa fa-chevron-left"></i> DNS资源记录
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/03/06/DNS%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" rel="next" title="DNS网络协议">
+      DNS网络协议 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81DNS-Zone%E5%8C%BA%E5%9F%9F%E5%9F%9F%E5%90%8D"><span class="nav-text">一、DNS Zone区域域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81DNS-Zone%E6%96%87%E4%BB%B6%E8%AF%AD%E6%B3%95"><span class="nav-text">二、DNS Zone文件语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81DNS-Zone%E5%BD%93%E5%89%8D%E5%9F%BA%E5%87%86%E5%9F%9F%E5%90%8D"><span class="nav-text">2.1、DNS Zone当前基准域名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81%E6%B3%A8%E9%87%8A"><span class="nav-text">2.2、注释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%8C%87%E4%BB%A4"><span class="nav-text">2.3. 指令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-1%E3%80%81-TTL"><span class="nav-text">2.3.1、$TTL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-2%E3%80%81-ORIGIN"><span class="nav-text">2.3.2、$ORIGIN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-3%E3%80%81-SERIAL"><span class="nav-text">2.3.3、$SERIAL</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%E3%80%81DNS%E8%B5%84%E6%BA%90%E8%AE%B0%E5%BD%95%E5%AE%9A%E4%B9%89"><span class="nav-text">2.4、DNS资源记录定义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1%E3%80%81SOA%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.1、SOA记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-2%E3%80%81NS%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.2、NS记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-3%E3%80%81A%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.3、A记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-4%E3%80%81AAAA%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.4、AAAA记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-5%E3%80%81MX%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.5、MX记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-6%E3%80%81CNAME%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.6、CNAME记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-7%E3%80%81TXT%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.7、TXT记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-8%E3%80%81PTR%E8%AE%B0%E5%BD%95"><span class="nav-text">2.4.8、PTR记录</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Zone%E6%96%87%E4%BB%B6%E7%A4%BA%E4%BE%8B"><span class="nav-text">三、Zone文件示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E3%80%81%E5%8C%85%E5%90%ABPTR%E8%AE%B0%E5%BD%95%E7%9A%84Zone%E6%96%87%E4%BB%B6"><span class="nav-text">3.1、包含PTR记录的Zone文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E3%80%81%E5%8C%85%E5%90%ABA%E3%80%81AAAA%E3%80%81TXT%E3%80%81MX%E3%80%81CNAME%E7%AD%89%E8%AE%B0%E5%BD%95%E7%9A%84Zone%E6%96%87%E4%BB%B6"><span class="nav-text">3.2、包含A、AAAA、TXT、MX、CNAME等记录的Zone文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">339</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2026/03/05/DNS-Zone%E6%96%87%E4%BB%B6/";
+    this.page.identifier = "2026/03/05/DNS-Zone文件/";
+    this.page.title = "DNS Zone文件";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

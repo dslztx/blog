@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dslztx.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本博文的前导博文是《基于Transformer实现人工智能》。 在人工智能领域，长久以来存在一个热门应用场景——语言处理，至本博文编写为止，对于语言处理人工职能最先进的方案是基于Transformer实现的大模型，被称为“大语言模型（Large Language Model，LLM）”，也常被称为“文本大模型”。 基于Transformer实现大语言模型具体过程：  模型训练：Transforme">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Transformer实现大语言模型">
+<meta property="og:url" content="https://dslztx.github.io/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="dslztx">
+<meta property="og:description" content="本博文的前导博文是《基于Transformer实现人工智能》。 在人工智能领域，长久以来存在一个热门应用场景——语言处理，至本博文编写为止，对于语言处理人工职能最先进的方案是基于Transformer实现的大模型，被称为“大语言模型（Large Language Model，LLM）”，也常被称为“文本大模型”。 基于Transformer实现大语言模型具体过程：  模型训练：Transforme">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-01T13:34:38.000Z">
+<meta property="article:modified_time" content="2026-07-21T14:09:03.016Z">
+<meta property="article:author" content="dslztx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dslztx.github.io/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于Transformer实现大语言模型 | dslztx</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?49fef4ace861beab604aeacea5240e39";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">dslztx</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>专题</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dslztx.github.io/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/head.png">
+      <meta itemprop="name" content="dslztx">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="dslztx">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于Transformer实现大语言模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-06-01 21:34:38" itemprop="dateCreated datePublished" datetime="2026-06-01T21:34:38+08:00">2026-06-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-21 22:09:03" itemprop="dateModified" datetime="2026-07-21T22:09:03+08:00">2026-07-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">专题于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/06/01/基于Transformer实现大语言模型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本博文的前导博文是<a href="/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" title="基于Transformer实现人工智能">《基于Transformer实现人工智能》</a>。</p>
+<p>在人工智能领域，长久以来存在一个热门应用场景——语言处理，至本博文编写为止，对于语言处理人工职能最先进的方案是基于Transformer实现的大模型，被称为“大语言模型（Large Language Model，LLM）”，也常被称为“文本大模型”。</p>
+<p>基于Transformer实现大语言模型具体过程：</p>
+<ol>
+<li>模型训练：<code>Transformer算法 + 巨量语言样本 -&gt; 大语言模型</code></li>
+<li>模型推理：使用第一步的大语言模型完成推理</li>
+</ol>
+<h2 id="一、大语言模型模型分类"><a href="#一、大语言模型模型分类" class="headerlink" title="一、大语言模型模型分类"></a><strong>一、大语言模型模型分类</strong></h2><h3 id="1-1、通用-专用"><a href="#1-1、通用-专用" class="headerlink" title="1.1、通用&#x2F;专用"></a><strong>1.1、通用&#x2F;专用</strong></h3><p>当讨论范围是全领域：大语言模型是专用大模型。<br>当讨论范围是语言处理领域：大语言模型是通用大模型，大语言模型的子模型（比如“编程大语言模型”）是专用大模型。</p>
+<h3 id="1-2、应用场景"><a href="#1-2、应用场景" class="headerlink" title="1.2、应用场景"></a><strong>1.2、应用场景</strong></h3><p>语言处理场景。</p>
+<h3 id="1-3、部署端"><a href="#1-3、部署端" class="headerlink" title="1.3、部署端"></a><strong>1.3、部署端</strong></h3><p>本地和远程都有。</p>
+<h2 id="二、大语言模型能力"><a href="#二、大语言模型能力" class="headerlink" title="二、大语言模型能力"></a><strong>二、大语言模型能力</strong></h2><p>大语言模型能力可细分为两类：</p>
+<ul>
+<li>原生能力</li>
+<li>扩展能力：大语言模型在不断迭代，除了原生迭代之外，还有AI Agent向迭代。AI Agent向迭代：本质是围绕大语言模型开发迭代AI Agent，这部分新增的能力不属于大语言模型原生能力，属于AI Agent能力，但实际中常将其归属为大语言模型能力</li>
+</ul>
+<p>在继续之前，先介绍“Token”概念：大语言模型内部处理的基本单位是Token，故输入给大语言模型的文字（汉字、英文、标点、空格等）必须先经Token转换器获取Token，不同大语言模型的Token转换器不同，相应的，文字与Token的换算比例也不固定，但是工程实践常用以下估算公式：</p>
+<ul>
+<li><code>1 token ≈ 0.75个汉字</code></li>
+<li><code>1 token ≈ 4个英文字母 ≈ 约0.75个英文单词（因为平均一个英文单词约4个字母）</code></li>
+</ul>
+<h3 id="2-1、原生能力"><a href="#2-1、原生能力" class="headerlink" title="2.1、原生能力"></a><strong>2.1、原生能力</strong></h3><table>
+<thead>
+<tr>
+<th>能力项</th>
+<th>含义</th>
+<th>举例</th>
+<th>其他</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语义理解</td>
+<td>理解词和句子的含义</td>
+<td>1、小明把雨伞借给了小红，她很感谢：理解“她”指代“小红”<br/><br/>2、苹果发布新手机：理解“苹果”是指苹果公司，而不是水果</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>知识查询</td>
+<td>复现训练数据中的事实</td>
+<td>1、中国首都是北京<br/><br/>2、抖音属于字节跳动</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>格式遵从</td>
+<td>按JSON、Markdown等输出</td>
+<td>1、把下面发票文本提取信息，严格用JSON格式输出：抬头、金额、开票日期<br/><br/>2、分3点、每点用“1.xxx 2.xxx 3.xxx”格式</td>
+<td>须注意与“大语言模型扩展能力格式遵从”的区分：原生能力的格式遵从是大语言模型遵照学习得的格式进行输出转换；扩展能力的格式遵从是调用外部格式工具</td>
+</tr>
+<tr>
+<td>上下文学习</td>
+<td>从例子中即时学会新任务</td>
+<td>1、给模型上下文示例：<br/>- 景色很美 -&gt; 正面<br/>- 服务太差 -&gt; 负面<br/>- 一般般还行 -&gt; 中性<br/>再给新句子：这家店味道很好，模型直接输出：正面<br/><br/>2、给模型上下文示例：<br/>- 文本：张三在北京上班 -&gt; 人名：张三，地点：北京<br/>- 文本：李四去上海出差 -&gt; 人名：李四，地点：上海<br/>新输入：王五在广州读书，模型直接按照相同格式输出：人名：王五，地点：广州</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>指令跟随</td>
+<td>执行多约束的复杂命令</td>
+<td>1、用三句话简单介绍发票的作用，每句话不超过15个字<br/><br/>2、把这句话改成书面正式语气：今天天气挺不错的</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>角色扮演</td>
+<td>采纳他人视角和知识状态</td>
+<td>1、你现在是小学数学老师，给学生讲和差问题，语气温柔通俗<br/><br/>2、你现在是电商售后客服，礼貌回复用户退货咨询</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>自我纠错</td>
+<td>检查并修正自己的输出</td>
+<td>1、35乘以6等于多少？<br/>- 模型初次输出：205<br/>- 自我检查验算：35×6实际是210，刚才算错<br/>- 自我纠错后输出：正确结果是210，刚才计算失误，已更正<br/><br/>2、中国首都是哪里？<br/>- 模型初次输出：上海<br/>- 自我检查纠错：上海是经济中心，刚才答案错误<br/>- 自我纠错后输出：我国首都是北京</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>注意力缓存</td>
+<td>把注意力相关中间结果缓存下来以加速推理</td>
+<td>&#x2F;</td>
+<td>须注意与“大语言模型扩展能力上下文缓存”的区分：注意力缓存是Transformer模型的固有机制，属于原生能力；上下文缓存需要进行额外开发实现，属于扩展能力。日常说的命中缓存价格便宜，指的是注意力缓存</td>
+</tr>
+<tr>
+<td>混合专家（Mixture of Experts，MoE）</td>
+<td><code>大模型总参数 = 注意力层参数 + 前馈网络 (FFN) 参数 + 其他少量参数</code>，其中<code>前馈网络（FFN）参数</code>占据绝大部分。<br/><br/>1、前期架构大语言模型，只有一个大FNN，对每个输入Token要激活全部FNN参数，推理成本高<br/>2、MoE架构大语言模型，将大FFN拆成多个独立的子FFN，并称之为“专家”（Expert），然后对每个输入Token，只选Top‑k个专家进行处理，即只激活所选中专家（子FNN）参数，大幅度降低推理成本</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>思维链（Chain-of-Thought，CoT）</td>
+<td>模型不直接给答案，先内部一步步推理、打草稿、拆解题思路，再输出最终答案，本质是：隐性推理过程显性化为文本，相当于给模型一张 “草稿纸”，用更多Token换更高准确率和可解释性</td>
+<td>要求计算：<code>(17 * 4) + (15 * 3)</code><br>1、<code>首先，计算 17 * 4</code> -&gt; <code>得出 68</code><br/>2、<code>然后，计算 15 * 3</code> -&gt; <code>得出 45</code><br/>3、<code>最后，计算 68 + 45</code> -&gt; <code>得出 113</code><br/>最后基于这个草稿，回答：<code>最终答案是113</code></td>
+<td>常说的思考模式就是基于思维链，须注意，思考模式可能进行扩展，此时其属于扩展能力</td>
+</tr>
+</tbody></table>
+<h3 id="2-2、扩展能力"><a href="#2-2、扩展能力" class="headerlink" title="2.2、扩展能力"></a><strong>2.2、扩展能力</strong></h3><table>
+<thead>
+<tr>
+<th>能力项</th>
+<th>含义</th>
+<th>举例</th>
+<th>其他</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>调用外部工具（Function Call）</td>
+<td>模型能够调用外部工具，比如“搜索互联网”，“查询数据库”，“运行代码”，“调用API”等</td>
+<td>1、调用JSON格式化工具，对输出结果进行JSON格式化<br/>2、联网查询天气</td>
+<td>调用JSON格式化工具须注意与“大语言模型原生能力之格式遵从”的区分：原生能力的格式遵从是大语言模型遵照学习得的格式进行输出转换；扩展能力的格式遵从是调用外部格式工具</td>
+</tr>
+<tr>
+<td>多轮会话一致性</td>
+<td>大语言模型在多轮会话中，能够记录历史会话内容，不前后矛盾</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>调用权限管理</td>
+<td>对调用进行权限管理，比如“基于用户登录”，“基于API_KEY”</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td>原只能接受文本输入，扩展支持图像、视频、音频等输入</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>会话补全</td>
+<td>自动补全会话</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>上下文缓存</td>
+<td>把固定不变的长文本、前置提示词、知识库内容，提前编码算好存起来，下次直接复用，不用重复计算</td>
+<td>一个会话场景（对大语言模型的角色设定为：<code>你是资深法律顾问，严谨专业，只解答法律问题……（总共3000字）</code>）：<br/>1、如果未开启上下文缓存功能，每次聊天，大语言模型都要把3000字角色设定从头编码计算一遍，慢且浪费Token<br/>2、如果开启了上下文缓存功能，第一次聊天该功能会把3000字角色设定一次性编码进行缓存，之后所有聊天只需发本次聊天内容，上下文缓存功能会将已缓存的角色设定传递给大语言模型，快且节约Token</td>
+<td>须注意与“大语言模型原生能力之注意力缓存”的区分：注意力缓存是Transformer模型的固有机制，属于原生能力；上下文缓存需要进行额外开发实现，属于扩展能力</td>
+</tr>
+</tbody></table>
+<h2 id="三、大语言模型指标"><a href="#三、大语言模型指标" class="headerlink" title="三、大语言模型指标"></a><strong>三、大语言模型指标</strong></h2><table>
+<thead>
+<tr>
+<th>指标项</th>
+<th>含义</th>
+<th>举例</th>
+<th>其他</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型参数量</td>
+<td>训练得到模型的参数量</td>
+<td>各种层级都有，比如：<br/>- Qwen3.5-2B：2B模型参数量<br/>- MiMo-V2.5-Pro：1.02T模型参数量<br/>- DeepSeek-V4-Pro：1.6T模型参数量</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>上下文窗口长度</td>
+<td>大语言模型一次能读懂并处理的最大总Token数</td>
+<td>比如：<br/>- 4K上下文：一次能读懂并处理4千Token<br/>- 32K上下文：一次能读懂并处理3.2万Token<br/>- 128K上下文：一次能读懂并处理12万8千Token</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>最大输出Token</td>
+<td>大语言模型最多能一次性给你生成多少Token的内容</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>幻觉率</td>
+<td>大语言模型一本正经编造不存在的事实、数据、人名、论文、政策的概率</td>
+<td>&#x2F;</td>
+<td>&#x2F;</td>
+</tr>
+<tr>
+<td>激活参数量</td>
+<td>MoE架构大语言模型，推理时实际激活的参数量</td>
+<td>比如：<br/>- DeepSeek-MoE：&lt;总参数：1.6T，激活参数：12.8B&gt;，即每次推理只用约1&#x2F;125的参数，速度快、成本低<br/>- GLM-4.5：&lt;总参数：355B，激活参数：32B&gt;，即每次推理只用不到10%的参数，就能发挥大部分能力</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="四、市面大语言模型介绍"><a href="#四、市面大语言模型介绍" class="headerlink" title="四、市面大语言模型介绍"></a><strong>四、市面大语言模型介绍</strong></h2><p>国内外存在诸多大语言模型，这里介绍国内DeepSeek（属于DeepSeek公司）、Qwen（属于阿里巴巴公司）、MiMo（属于小米公司）和Seed（属于字节跳动）四个品牌下的大语言模型。</p>
+<p>关于介绍有两点说明：</p>
+<ul>
+<li>时效性：至博文成文时间</li>
+<li>简要介绍：一句话定位，详细内容见官网</li>
+</ul>
+<h3 id="4-1、DeepSeek-1"><a href="#4-1、DeepSeek-1" class="headerlink" title="4.1、DeepSeek[1]"></a><strong>4.1、DeepSeek[1]</strong></h3><p>DeepSeek品牌下大语言模型有：DeepSeek V4‑Pro和DeepSeek V4‑Flash。</p>
+<table>
+<thead>
+<tr>
+<th>大语言模型</th>
+<th>一句话定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek V4‑Pro</td>
+<td>旗舰全能型，主打顶级推理、复杂代码、高阶Agent与科研级能力，追求性能天花板</td>
+</tr>
+<tr>
+<td>DeepSeek V4‑Flash</td>
+<td>高效性价比型，主打极速响应、低成本、高并发，覆盖80%日常轻量商用场景</td>
+</tr>
+</tbody></table>
+<h3 id="4-2、Seed-2"><a href="#4-2、Seed-2" class="headerlink" title="4.2、Seed[2]"></a><strong>4.2、Seed[2]</strong></h3><p>Seed品牌下大语言模型有：Seed 2.0 Pro、Seed 2.0 Lite、Seed 2.0 Mini和Seed 2.0 Code。</p>
+<table>
+<thead>
+<tr>
+<th>大语言模型</th>
+<th>一句话定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Seed 2.0 Pro</td>
+<td>全能力旗舰通用大模型，复杂重度业务首选，成本高、速度偏慢</td>
+</tr>
+<tr>
+<td>Seed 2.0 Lite</td>
+<td>商用均衡性价比主力，绝大多数商用业务首选，极致复杂推理不如Pro</td>
+</tr>
+<tr>
+<td>Seed 2.0 Mini</td>
+<td>超低时延轻量化推理，成本优先、高并发轻业务首选，深度思考差、长对话易失忆</td>
+</tr>
+<tr>
+<td>Seed 2.0 Code</td>
+<td>编程开发专项优化模型，开发编程场景首选，通用闲聊、创意创作、多模态能力薄弱</td>
+</tr>
+</tbody></table>
+<h3 id="4-3、Qwen-3"><a href="#4-3、Qwen-3" class="headerlink" title="4.3、Qwen[3]"></a><strong>4.3、Qwen[3]</strong></h3><p>Qwen品牌下大语言模型有：Qwen3.6-Max、Qwen3.6-Plus和Qwen3.6-Flash。</p>
+<table>
+<thead>
+<tr>
+<th>大语言模型</th>
+<th>一句话定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Qwen3.6-Max</td>
+<td>旗舰顶配，极限推理最强，攻坚复杂难题、深度逻辑与高阶创作首选</td>
+</tr>
+<tr>
+<td>Qwen3.6-Plus</td>
+<td>长文本全能主力，超大上下文容量，海量文档梳理、多轮深度对话优选</td>
+</tr>
+<tr>
+<td>Qwen3.6-Flash</td>
+<td>极速轻快版本，低延迟低成本，实时交互、高并发轻量化场景首选</td>
+</tr>
+</tbody></table>
+<h3 id="4-4、MiMo-4"><a href="#4-4、MiMo-4" class="headerlink" title="4.4、MiMo[4]"></a><strong>4.4、MiMo[4]</strong></h3><p>MiMo品牌下大语言模型有：MiMo‑V2.5‑Pro和MiMo‑V2.5。</p>
+<table>
+<thead>
+<tr>
+<th>大语言模型</th>
+<th>一句话定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MiMo‑V2.5‑Pro</td>
+<td>旗舰纯文本超级Agent，1.02T参数、专攻超长程复杂推理+顶级代码生成+千轮工具调用，性能对标Claude Opus</td>
+</tr>
+<tr>
+<td>MiMo‑V2.5</td>
+<td>原生全模态全能Agent，310B参数、文本&#x2F;图像&#x2F;视频&#x2F;音频通吃，高性价比、日常多模态与通用任务首选</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h2><p>[1]<a target="_blank" rel="noopener" href="https://api-docs.deepseek.com/zh-cn">https://api-docs.deepseek.com/zh-cn</a><br>[2]<a target="_blank" rel="noopener" href="https://www.volcengine.com/docs/82379/1330310?lang=zh">https://www.volcengine.com/docs/82379/1330310?lang=zh</a><br>[3]<a target="_blank" rel="noopener" href="https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/text">https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/text</a><br>[4]<a target="_blank" rel="noopener" href="https://platform.xiaomimimo.com/docs/zh-CN/welcome">https://platform.xiaomimimo.com/docs/zh-CN/welcome</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的支持将鼓励我继续分享！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechatpay.jpg" alt="dslztx 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>dslztx
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dslztx.github.io/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" title="基于Transformer实现大语言模型">https://dslztx.github.io/blog/2026/06/01/基于Transformer实现大语言模型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="prev" title="基于Transformer实现人工智能">
+      <i class="fa fa-chevron-left"></i> 基于Transformer实现人工智能
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E7%B1%BB"><span class="nav-text">一、大语言模型模型分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E3%80%81%E9%80%9A%E7%94%A8-%E4%B8%93%E7%94%A8"><span class="nav-text">1.1、通用&#x2F;专用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%E3%80%81%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">1.2、应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%E3%80%81%E9%83%A8%E7%BD%B2%E7%AB%AF"><span class="nav-text">1.3、部署端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%83%BD%E5%8A%9B"><span class="nav-text">二、大语言模型能力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81%E5%8E%9F%E7%94%9F%E8%83%BD%E5%8A%9B"><span class="nav-text">2.1、原生能力</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81%E6%89%A9%E5%B1%95%E8%83%BD%E5%8A%9B"><span class="nav-text">2.2、扩展能力</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%8C%87%E6%A0%87"><span class="nav-text">三、大语言模型指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B8%82%E9%9D%A2%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D"><span class="nav-text">四、市面大语言模型介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%E3%80%81DeepSeek-1"><span class="nav-text">4.1、DeepSeek[1]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E3%80%81Seed-2"><span class="nav-text">4.2、Seed[2]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%E3%80%81Qwen-3"><span class="nav-text">4.3、Qwen[3]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4%E3%80%81MiMo-4"><span class="nav-text">4.4、MiMo[4]</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="dslztx"
+      src="/blog/images/head.png">
+  <p class="site-author-name" itemprop="name">dslztx</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives">
+          <span class="site-state-item-count">339</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">专题</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">dslztx</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://httpsdslztxgithubioblog.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://dslztx.github.io/blog/2026/06/01/%E5%9F%BA%E4%BA%8ETransformer%E5%AE%9E%E7%8E%B0%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/";
+    this.page.identifier = "2026/06/01/基于Transformer实现大语言模型/";
+    this.page.title = "基于Transformer实现大语言模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://httpsdslztxgithubioblog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
