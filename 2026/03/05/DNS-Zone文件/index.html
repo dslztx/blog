@@ -284,7 +284,7 @@
 <h3 id="2-1、DNS-Zone当前基准域名"><a href="#2-1、DNS-Zone当前基准域名" class="headerlink" title="2.1、DNS Zone当前基准域名"></a><strong>2.1、DNS Zone当前基准域名</strong></h3><p>DNS Zone当前基准域名：使用当前基准域名可简化Zone文件的配置（具体简化规则见下），其默认为DNS Zone区域域名，可通过<code>$ORIGIN</code>指令重设，重设的当前基准域名须为区域域名本身或其子域名，否则解析错误，支持通过多次<code>$ORIGIN</code>指令进行多次重设。</p>
 <p>具体简化规则：</p>
 <ol>
-<li>在Zone文件中，<code>@</code>会被解析成<code>当前基准域名</code>（相应的，普通语义的<code>@</code>须写成<code>.</code>避免非预期解析，比如“<a href="mailto:&#x61;&#x64;&#x6d;&#105;&#x6e;&#x40;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#x2e;&#x63;&#111;&#x6d;">admin@example.com</a> -&gt; admin.example.com”）</li>
+<li>在Zone文件中，<code>@</code>会被解析成<code>当前基准域名</code>（相应的，普通语义的<code>@</code>须写成<code>.</code>避免非预期解析，比如“<a href="mailto:&#97;&#100;&#109;&#105;&#x6e;&#64;&#101;&#x78;&#97;&#x6d;&#x70;&#x6c;&#101;&#x2e;&#99;&#111;&#109;">admin@example.com</a> -&gt; admin.example.com”）</li>
 <li>在Zone文件中，域名A末尾不附加<code>.</code>表示相对域名，会被解析成<code>A.当前基准域名</code>；域名A末尾附加<code>.</code>表示绝对域名，会被解析成<code>A本身</code>。比如“假定当前基准域名为<code>example.com</code>，那么<code>ns1.com</code>会被解析成<code>ns1.com.example.com</code>，<code>ns1.com.</code>会被解析成<code>ns1.com</code>”</li>
 </ol>
 <h3 id="2-2、注释"><a href="#2-2、注释" class="headerlink" title="2.2、注释"></a><strong>2.2、注释</strong></h3><p>以<code>;</code>开头，注释范围从<code>;</code>到该行末尾。</p>
